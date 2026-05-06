@@ -178,13 +178,8 @@ export default function Auth() {
               {mode === "login" ? "로그인하고 오늘의 보상을 받으세요" : "가입 즉시 5,000원 보너스가 자동 지급됩니다"}
             </p>
 
-            <div className="grid grid-cols-3 gap-2 mt-6">
-              <button
-                onClick={() => social("Kakao")}
-                className="py-3 rounded-xl bg-[#FEE500] text-black font-bold text-sm hover:scale-105 transition"
-              >
-                카카오
-              </button>
+            {/* 🔥 여기 수정됨 */}
+            <div className="grid grid-cols-2 gap-2 mt-6">
               <button
                 onClick={() => social("Google")}
                 className="py-3 rounded-xl bg-white text-black font-bold text-sm hover:scale-105 transition"
