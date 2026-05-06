@@ -105,6 +105,47 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Mega trust badge */}
+      <section className="relative z-10 container -mt-4">
+        <div className="glass-strong rounded-3xl p-6 sm:p-8 neon-border text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-aurora opacity-10 animate-gradient" style={{ backgroundSize: "300% 300%" }} />
+          <div className="relative">
+            <div className="font-display font-black text-2xl sm:text-4xl">
+              <span className="text-gradient-aurora animate-gradient">{members.toLocaleString()}</span>명이
+              <br className="sm:hidden" /> 매일 돈을 벌고 있습니다
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">2026년 한국 No.1 사이버 수익 플랫폼 · 금융위 보안 수준 · 평균 정산 12분</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Social proof — testimonials */}
+      <section className="relative z-10 container py-16">
+        <div className="text-center mb-8">
+          <h2 className="font-display font-black text-2xl sm:text-4xl">진짜 유저, <span className="text-gradient-cyber">진짜 정산</span></h2>
+          <p className="text-xs text-muted-foreground mt-2">TikTok · Instagram · 카카오 오픈채팅에서 매일 인증되는 후기</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { name: "민지 (24·서울)", h: "월 320만원", t: "퇴근 후 1시간만 미션 돌렸는데 첫 달부터 130만원. VIP 가서 지금은 320 찍었어요.", tag: "@minji_cyber" },
+            { name: "현우 (31·부산)", h: "GOD MODE 회원", t: "정산 진짜 12분 안에 들어옵니다. AI 봇이 미션 자동으로 돌려줘서 폰만 켜놓으면 끝.", tag: "@hyunwoo.god" },
+            { name: "수아 (28·대전)", h: "Empire 오너", t: "Empire 오너십 받고 매주 분배금이 입금돼요. 진짜 노동 없이 자산이 굴러갑니다.", tag: "@sua.empire" },
+            { name: "재훈 (22·인천)", h: "주 5회 출금", t: "출금 한 번도 막힌 적 없음. 친구 5명 추천했더니 보너스만 25만원 받았어요.", tag: "@jaehoon99" },
+            { name: "지원 (35·광주)", h: "FREE만 9개월", t: "유료 안 가도 FREE 미션만으로도 한 달 80~120 나옴. 완전 부담 없어서 좋음.", tag: "@jiwon_free" },
+            { name: "태리 (29·일산)", h: "Phantom 카운슬", t: "선착순 20명 안에 겨우 들어왔어요. 자산매니저가 실제로 1:1 케어 해줍니다.", tag: "@taeri.phantom" },
+          ].map((r, i) => (
+            <div key={i} className="glass rounded-2xl p-5 tilt-card">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-bold">{r.name}</div>
+                <div className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">{r.h}</div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">"{r.t}"</p>
+              <div className="text-[10px] text-secondary mt-3">{r.tag}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Feature row */}
       <section className="relative z-10 container py-16">
         <div className="grid md:grid-cols-3 gap-5">

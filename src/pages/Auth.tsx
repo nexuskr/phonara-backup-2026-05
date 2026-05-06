@@ -34,10 +34,18 @@ export default function Auth() {
     nav("/dashboard");
   }
 
+  function checkAge(birth: string) {
+    if (!birth) return false;
+    const d = new Date(birth);
+    const age = (Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000);
+    return age >= 14;
+  }
+
   function signup() {
     if (!form.nickname || !form.email || !form.password || !form.phone || !form.realName || !form.birth) {
       toast({ title: "모든 필수 항목을 입력해주세요" }); return;
     }
+    if (!checkAge(form.birth)) { toast({ title: "만 14세 이상부터 가입 가능합니다", description: "청소년 보호를 위해 가입이 제한됩니다." }); return; }
     if (!phoneSent || form.phoneCode !== "0000") { toast({ title: "휴대폰 인증을 완료해주세요", description: "테스트 인증번호: 0000" }); return; }
     const user = {
       id: uid(), nickname: form.nickname, email: form.email, phone: form.phone,
@@ -61,10 +69,12 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-10 px-4">
-      <div className="absolute inset-0 bg-grid opacity-30" />
-      <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-primary/30 blur-3xl animate-float" />
-      <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-accent/30 blur-3xl animate-float-slow" />
-      <Particles density={50} />
+      {/* Elegant ambient background — full coverage, no isolated orbs */}
+      <div className="absolute inset-0 bg-grid opacity-20" />
+      <div className="absolute inset-0 bg-gradient-aurora opacity-[0.08] animate-gradient" style={{ backgroundSize: "300% 300%" }} />
+      <div className="absolute inset-x-0 top-0 h-[60vh] bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-[60vh] bg-[radial-gradient(ellipse_at_bottom,hsl(var(--accent)/0.18),transparent_60%)]" />
+      <Particles density={45} />
 
       <div className="relative z-10 w-full max-w-md">
         <Link to="/" className="flex items-center gap-2 justify-center mb-6">
