@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Particles from "@/components/Particles";
 import PayoutTicker from "@/components/PayoutTicker";
-import { useOnline, useTotalPayout, useTodayPayout, useMembers } from "@/components/LiveStats.ts";
+import { useOnline, useTotalPayout, useTodayPayout, useMembers } from "@/components/LiveStats.tsx";
 
 export default function Index() {
   const online = useOnline();
