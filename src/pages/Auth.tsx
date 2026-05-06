@@ -69,11 +69,14 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-10 px-4">
-      {/* Elegant ambient background — full coverage, no isolated orbs */}
+      {/* Elegant ambient background — full coverage, fluid morphing blobs */}
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute inset-0 bg-gradient-aurora opacity-[0.08] animate-gradient" style={{ backgroundSize: "300% 300%" }} />
       <div className="absolute inset-x-0 top-0 h-[60vh] bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
       <div className="absolute inset-x-0 bottom-0 h-[60vh] bg-[radial-gradient(ellipse_at_bottom,hsl(var(--accent)/0.18),transparent_60%)]" />
+      <div className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-primary/25 blur-3xl blob" />
+      <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] bg-accent/25 blur-3xl blob" style={{ animationDelay: "-7s" }} />
+      <div className="absolute top-1/3 right-1/4 w-[320px] h-[320px] bg-secondary/20 blur-3xl blob" style={{ animationDelay: "-3s" }} />
       <Particles density={45} />
 
       <div className="relative z-10 w-full max-w-md">
