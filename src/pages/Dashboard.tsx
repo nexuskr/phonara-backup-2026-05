@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Particles from "@/components/Particles";
-import { useDB, MISSIONS, formatKRW } from "@/lib/store";
+import { useDB, DEFAULT_MISSIONS as MISSIONS, formatKRW } from "@/lib/store";
 import { Flame, Zap, Trophy, ChevronRight, TrendingUp, Sparkles, Crown, Wallet } from "lucide-react";
 
 export default function Dashboard() {
