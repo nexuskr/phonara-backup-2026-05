@@ -23,7 +23,7 @@ export default function Packages() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="mb-6">
           <h1 className="font-display font-black text-2xl flex items-center gap-2">
             <Crown className="w-5 h-5 text-gold" /> <span className="text-gradient-gold">VIP 사이버 패키지</span>
