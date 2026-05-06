@@ -24,9 +24,9 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="relative">
+      <div className="relative animate-liquid-in">
         <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
-        <Particles density={40} />
+        <Particles density={particleDensity} />
 
         <div className="container relative pt-6 pb-10">
           {/* Greeting */}
