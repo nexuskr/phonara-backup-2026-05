@@ -12,6 +12,8 @@ import Wallet from "./pages/Wallet.tsx";
 import Profile from "./pages/Profile.tsx";
 import Support from "./pages/Support.tsx";
 import Admin from "./pages/Admin.tsx";
+import SecureAuth from "./pages/SecureAuth.tsx";
+import SecureWallet from "./pages/SecureWallet.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
