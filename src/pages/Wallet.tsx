@@ -112,9 +112,15 @@ export default function Wallet() {
   return (
     <Layout>
       <div className="container pt-6 pb-10">
-        <h1 className="font-display font-black text-2xl flex items-center gap-2 mb-3">
+        <h1 className="font-display font-black text-2xl flex items-center gap-2 mb-1">
           <WalletIcon className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 지갑</span>
         </h1>
+        <div className="text-[11px] text-muted-foreground mb-3">
+          <span className="text-gold font-bold">{u.tier}</span> 등급 출금 한도:{" "}
+          <span className="font-bold text-foreground">
+            {WITHDRAW_LIMITS[u.tier] === -1 ? "무제한 ∞" : formatKRW(WITHDRAW_LIMITS[u.tier])}
+          </span>
+        </div>
 
         {/* Asset switcher */}
         <div className="grid grid-cols-2 gap-2 mb-4">
