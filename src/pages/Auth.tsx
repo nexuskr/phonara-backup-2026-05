@@ -148,7 +148,7 @@ export default function Auth() {
 
               <button
                 onClick={mode === "login" ? login : signup}
-                className="w-full py-4 rounded-xl font-display font-bold bg-gradient-primary text-primary-foreground glow-primary hover:scale-[1.02] transition flex items-center justify-center gap-2"
+                className="press sheen w-full py-4 rounded-xl font-display font-bold bg-gradient-primary text-primary-foreground glow-primary flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 {mode === "login" ? "로그인하고 보상받기" : "가입하고 5,000원 받기"}
