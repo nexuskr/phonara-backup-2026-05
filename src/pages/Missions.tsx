@@ -208,8 +208,51 @@ function GameModal({ mission, onClose, onWin }: { mission: Mission; onClose: () 
           {mission.game === "tap" && <TapGame reward={mission.reward} onWin={onWin} />}
           {mission.game === "lucky" && <LuckyGame reward={mission.reward} onWin={onWin} />}
           {mission.game === "memory" && <MemoryGame onWin={() => onWin(0)} />}
+          {mission.game === "reaction" && <ReactionGame reward={mission.reward} onWin={onWin} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ReactionGame({ reward, onWin }: { reward: number; onWin: (bonus: number) => void }) {
+  const [phase, setPhase] = useState<"idle" | "wait" | "go" | "done" | "fail">("idle");
+  const [start, setStart] = useState(0);
+  const [ms, setMs] = useState(0);
+  function begin() {
+    setPhase("wait");
+    const delay = 1200 + Math.random() * 2200;
+    setTimeout(() => { setStart(Date.now()); setPhase("go"); }, delay);
+  }
+  function tap() {
+    if (phase === "wait") { setPhase("fail"); return; }
+    if (phase === "go") {
+      const t = Date.now() - start;
+      setMs(t);
+      setPhase("done");
+    }
+  }
+  const bonus = phase === "done" ? Math.max(0, Math.floor((500 - ms) * (reward / 250))) : 0;
+  return (
+    <div className="text-center">
+      <button onClick={phase === "idle" || phase === "fail" || phase === "done" ? begin : tap}
+        className={`w-full h-44 rounded-2xl font-display font-black text-2xl glow-primary transition
+          ${phase === "go" ? "bg-secondary text-secondary-foreground" :
+            phase === "wait" ? "bg-destructive/80 text-destructive-foreground" :
+            phase === "done" ? "bg-gradient-gold text-gold-foreground" :
+            phase === "fail" ? "bg-destructive text-destructive-foreground" :
+            "bg-gradient-primary text-primary-foreground"}`}>
+        {phase === "idle" && "시작"}
+        {phase === "wait" && "기다려..."}
+        {phase === "go" && "지금 탭!"}
+        {phase === "done" && `${ms}ms · +${formatKRW(reward + bonus)}`}
+        {phase === "fail" && "너무 빨라요! 다시"}
+      </button>
+      {phase === "done" && (
+        <button onClick={() => onWin(bonus)} className="mt-4 px-8 py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold">
+          보상 받기
+        </button>
+      )}
     </div>
   );
 }
