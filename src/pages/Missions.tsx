@@ -128,7 +128,7 @@ export default function Missions() {
                     </div>
                     <button disabled={done || inProgress || locked} onClick={() => complete(m)}
                       className="px-4 py-2 rounded-xl bg-gradient-primary text-primary-foreground text-xs font-bold glow-primary disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition">
-                      {inProgress ? "진행 중..." : done ? "완료됨" : m.ugc ? "제출하기" : "시작하기"}
+                      {inProgress ? "진행 중..." : done ? "완료됨" : m.game ? "🎮 플레이" : m.ugc ? "제출하기" : "시작하기"}
                     </button>
                   </div>
                 </div>
@@ -148,6 +148,19 @@ export default function Missions() {
           }));
           toast({ title: "🤖 Gemini Vision 1차 검토 통과", description: `+${formatKRW(ugcOpen.reward)} · 관리자 큐 등록됨` });
           setUgcOpen(null);
+        }} />
+      )}
+
+      {gameOpen && (
+        <GameModal mission={gameOpen} onClose={() => setGameOpen(null)} onWin={(bonus) => {
+          const reward = gameOpen.reward + bonus;
+          setDb(d => ({
+            ...d,
+            completedMissions: [...d.completedMissions, gameOpen.id],
+            user: d.user ? { ...d.user, balance: d.user.balance + reward, todayEarnings: d.user.todayEarnings + reward, xp: d.user.xp + Math.floor(reward / 100) } : null,
+          }));
+          toast({ title: `🎉 +${formatKRW(reward)} 적립`, description: `${gameOpen.title} 클리어!` });
+          setGameOpen(null);
         }} />
       )}
     </Layout>
