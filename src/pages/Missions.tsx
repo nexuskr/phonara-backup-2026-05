@@ -18,16 +18,19 @@ export default function Missions() {
   const [tierTab, setTierTab] = useState<Tier>("NORMAL");
   const [completing, setCompleting] = useState<string | null>(null);
   const [ugcOpen, setUgcOpen] = useState<Mission | null>(null);
+  const [gameOpen, setGameOpen] = useState<Mission | null>(null);
+  const [catTab, setCatTab] = useState<"전체" | "게임">("전체");
 
   if (!db.user) { nav("/auth"); return null; }
   const userTierRank = TIER_RANK[db.user.tier];
 
   const missions = [...DEFAULT_MISSIONS, ...db.customMissions];
-  const list = missions.filter(m => m.tier === tierTab);
+  const list = missions.filter(m => m.tier === tierTab && (catTab === "전체" || m.category === catTab));
 
   function complete(m: Mission) {
     if (db.completedMissions.includes(m.id)) { toast({ title: "이미 완료한 미션입니다" }); return; }
     if (TIER_RANK[m.tier] > userTierRank) { toast({ title: "잠긴 미션", description: "패키지를 업그레이드하면 잠금이 해제됩니다." }); return; }
+    if (m.game) { setGameOpen(m); return; }
     if (m.ugc) { setUgcOpen(m); return; }
     setCompleting(m.id);
     setTimeout(() => {
