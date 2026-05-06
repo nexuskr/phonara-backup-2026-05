@@ -46,7 +46,7 @@ export default function Missions() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="mb-5">
           <h1 className="font-display font-black text-2xl flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 미션</span>

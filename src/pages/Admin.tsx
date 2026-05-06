@@ -80,7 +80,7 @@ export default function Admin() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="flex items-center gap-2 mb-5">
           <ShieldCheck className="w-5 h-5 text-gold" />
           <h1 className="font-display font-black text-2xl text-gradient-gold">관리자 대시보드</h1>

@@ -144,6 +144,38 @@
   .tilt-card:hover { transform: perspective(1000px) rotateX(6deg) rotateY(-6deg) translateY(-6px); }
 }
 
+@layer components {
+  /* Premium press feedback — subtle haptic-like scale */
+  .press {
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease, filter 220ms ease;
+    will-change: transform;
+  }
+  .press:hover { transform: translateY(-1px); }
+  .press:active { transform: translateY(1px) scale(0.985); filter: brightness(1.08); }
+
+  /* Liquid sheen sweep across surfaces */
+  .sheen { position: relative; overflow: hidden; }
+  .sheen::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 35%, hsl(0 0% 100% / 0.14) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .sheen:hover::after { transform: translateX(120%); }
+
+  /* Soft elevated card with refined depth */
+  .lift { transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms ease; }
+  .lift:hover { transform: translateY(-4px); box-shadow: 0 24px 60px -20px hsl(230 50% 2% / 0.7), 0 0 0 1px hsl(0 0% 100% / 0.08) inset; }
+
+  /* Liquid morphing blob backdrop */
+  .blob {
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+    animation: blobMorph 14s ease-in-out infinite;
+  }
+}
+
 @layer utilities {
   .animate-float { animation: float 6s ease-in-out infinite; }
   .animate-float-slow { animation: float 10s ease-in-out infinite; }
@@ -184,4 +216,24 @@
     from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
     to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
   }
+  @keyframes blobMorph {
+    0%,100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0,0) rotate(0deg); }
+    33% { border-radius: 56% 44% 37% 63% / 60% 38% 62% 40%; transform: translate(2%,-2%) rotate(40deg); }
+    66% { border-radius: 38% 62% 55% 45% / 45% 60% 40% 55%; transform: translate(-2%,2%) rotate(-30deg); }
+  }
+  @keyframes liquidIn {
+    0% { opacity: 0; transform: translateY(8px) scale(0.985); filter: blur(6px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+  .animate-liquid-in { animation: liquidIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes ringPulse {
+    0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.55); }
+    100% { box-shadow: 0 0 0 18px hsl(var(--primary) / 0); }
+  }
+  .animate-ring-pulse { animation: ringPulse 1.6s ease-out infinite; }
+  @keyframes crownSpark {
+    0%,100% { opacity: 0.4; transform: translateY(0) scale(0.9); }
+    50% { opacity: 1; transform: translateY(-6px) scale(1.1); }
+  }
+  .animate-crown { animation: crownSpark 2.4s ease-in-out infinite; }
 }

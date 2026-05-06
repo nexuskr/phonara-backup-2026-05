@@ -17,12 +17,16 @@ export default function Dashboard() {
 
   if (!user) { nav("/auth"); return null; }
   const featured = DEFAULT_MISSIONS.slice(0, 5);
+  // Context-aware particle intensity based on balance
+  const wealth = user.balance + user.coinBalance * 1300;
+  const particleDensity = wealth > 5_000_000 ? 80 : wealth > 1_000_000 ? 55 : 30;
+  const burstCount = wealth > 5_000_000 ? 24 : wealth > 1_000_000 ? 16 : 10;
 
   return (
     <Layout>
-      <div className="relative">
+      <div className="relative animate-liquid-in">
         <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
-        <Particles density={40} />
+        <Particles density={particleDensity} />
 
         <div className="container relative pt-6 pb-10">
           {/* Greeting */}
@@ -67,14 +71,15 @@ export default function Dashboard() {
 
               {burst && (
                 <div className="absolute inset-0 pointer-events-none">
-                  {Array.from({ length: 14 }).map((_, i) => {
-                    const angle = (i / 14) * Math.PI * 2;
-                    const tx = Math.cos(angle) * 200;
-                    const ty = Math.sin(angle) * 200 - 50;
+                  {Array.from({ length: burstCount }).map((_, i) => {
+                    const angle = (i / burstCount) * Math.PI * 2;
+                    const tx = Math.cos(angle) * 220;
+                    const ty = Math.sin(angle) * 220 - 40;
+                    const icons = ["💸", "💰", "✨", "💎"];
                     return (
                       <span key={i} className="absolute left-1/2 top-1/2 text-2xl animate-money-burst"
-                        style={{ ["--tx" as any]: `${tx}px`, ["--ty" as any]: `${ty}px`, ["--r" as any]: `${i * 25}deg` }}>
-                        💸
+                        style={{ ["--tx" as any]: `${tx}px`, ["--ty" as any]: `${ty}px`, ["--r" as any]: `${i * 25}deg`, animationDelay: `${i * 25}ms` }}>
+                        {icons[i % icons.length]}
                       </span>
                     );
                   })}
@@ -115,10 +120,10 @@ export default function Dashboard() {
               </div>
 
               <div className="relative grid grid-cols-2 gap-2 mt-3">
-                <Link to="/wallet" className="py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 glow-primary">
+                <Link to="/wallet" className="press sheen py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 glow-primary">
                   <Wallet className="w-4 h-4" /> 출금하기
                 </Link>
-                <Link to="/packages" className="py-3 rounded-xl glass border border-border font-bold text-sm flex items-center justify-center gap-1.5">
+                <Link to="/packages" className="press sheen py-3 rounded-xl glass border border-border font-bold text-sm flex items-center justify-center gap-1.5">
                   <Crown className="w-4 h-4 text-gold" /> 패키지
                 </Link>
               </div>

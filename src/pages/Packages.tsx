@@ -23,7 +23,7 @@ export default function Packages() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="mb-6">
           <h1 className="font-display font-black text-2xl flex items-center gap-2">
             <Crown className="w-5 h-5 text-gold" /> <span className="text-gradient-gold">VIP 사이버 패키지</span>
@@ -34,11 +34,20 @@ export default function Packages() {
         <div className="grid md:grid-cols-2 gap-4">
           {PACKAGES.map(p => {
             const t = tierStyles[p.tier];
+            const isEmpire = p.tier === "EMPIRE" || p.tier === "PHANTOM";
             return (
-              <div key={p.id} className="relative tilt-card group">
-                <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-br ${t.ring} opacity-60 blur-md group-hover:opacity-90 transition`} />
-                <div className="relative glass-strong rounded-3xl p-6 overflow-hidden">
+              <div key={p.id} className="relative lift group">
+                <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-br ${t.ring} opacity-60 blur-md group-hover:opacity-100 transition duration-700`} />
+                <div className="relative glass-strong rounded-3xl p-6 overflow-hidden sheen">
                   <div className={`absolute -top-20 -right-20 w-44 h-44 rounded-full bg-gradient-to-br ${t.bg} to-transparent blur-3xl opacity-70`} />
+                  {isEmpire && (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <span key={i} className="absolute text-gold animate-crown text-sm"
+                          style={{ left: `${10 + i * 15}%`, top: `${15 + (i % 3) * 22}%`, animationDelay: `${i * 0.3}s` }}>✦</span>
+                      ))}
+                    </div>
+                  )}
                   <div className="relative">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] tracking-widest font-display font-black px-2 py-1 rounded-full glass">
@@ -102,7 +111,7 @@ export default function Packages() {
                         )}
 
                         <button onClick={() => setSelected(p)}
-                          className="mt-5 w-full py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-sm glow-primary hover:scale-[1.02] transition flex items-center justify-center gap-2">
+                          className="press sheen mt-5 w-full py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-sm glow-primary flex items-center justify-center gap-2">
                           <Sparkles className="w-4 h-4" /> 가입하기
                         </button>
                       </>

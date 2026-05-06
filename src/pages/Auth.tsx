@@ -69,11 +69,14 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-10 px-4">
-      {/* Elegant ambient background — full coverage, no isolated orbs */}
+      {/* Elegant ambient background — full coverage, fluid morphing blobs */}
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute inset-0 bg-gradient-aurora opacity-[0.08] animate-gradient" style={{ backgroundSize: "300% 300%" }} />
       <div className="absolute inset-x-0 top-0 h-[60vh] bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
       <div className="absolute inset-x-0 bottom-0 h-[60vh] bg-[radial-gradient(ellipse_at_bottom,hsl(var(--accent)/0.18),transparent_60%)]" />
+      <div className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-primary/25 blur-3xl blob" />
+      <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] bg-accent/25 blur-3xl blob" style={{ animationDelay: "-7s" }} />
+      <div className="absolute top-1/3 right-1/4 w-[320px] h-[320px] bg-secondary/20 blur-3xl blob" style={{ animationDelay: "-3s" }} />
       <Particles density={45} />
 
       <div className="relative z-10 w-full max-w-md">
@@ -145,7 +148,7 @@ export default function Auth() {
 
               <button
                 onClick={mode === "login" ? login : signup}
-                className="w-full py-4 rounded-xl font-display font-bold bg-gradient-primary text-primary-foreground glow-primary hover:scale-[1.02] transition flex items-center justify-center gap-2"
+                className="press sheen w-full py-4 rounded-xl font-display font-bold bg-gradient-primary text-primary-foreground glow-primary flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 {mode === "login" ? "로그인하고 보상받기" : "가입하고 5,000원 받기"}
@@ -165,11 +168,11 @@ export default function Auth() {
 function Field({ icon: Icon, ...p }: any) {
   return (
     <div className="relative">
-      <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors duration-300 peer-focus:text-primary" />
       <input
         {...p}
         onChange={e => p.onChange(e.target.value)}
-        className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-input/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:bg-input transition"
+        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl bg-input/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:bg-input focus:shadow-[0_0_0_4px_hsl(var(--primary)/0.15)] transition-all duration-300"
       />
     </div>
   );
