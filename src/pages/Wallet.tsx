@@ -111,7 +111,7 @@ export default function Wallet() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <h1 className="font-display font-black text-2xl flex items-center gap-2 mb-1">
           <WalletIcon className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 지갑</span>
         </h1>

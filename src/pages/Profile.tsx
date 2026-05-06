@@ -34,7 +34,7 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="container pt-6 pb-10">
+      <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="glass-strong rounded-3xl p-6 neon-border relative overflow-hidden">
           <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-gradient-primary blur-3xl opacity-40" />
           <div className="relative flex items-center gap-4">
