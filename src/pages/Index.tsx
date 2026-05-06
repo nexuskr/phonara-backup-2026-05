@@ -1,21 +1,8 @@
 import { Link } from "react-router-dom";
-import {
-  ShieldCheck,
-  Zap,
-  Lock,
-  Sparkles,
-  ArrowRight,
-  TrendingUp,
-  Globe,
-  Cpu,
-  Users,
-  Heart,
-  Flame,
-} from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, Globe, Cpu, Flame } from "lucide-react";
 
 import { useEffect, useState } from "react";
 import Particles from "@/components/Particles";
-import PayoutTicker from "@/components/PayoutTicker";
 import { useOnline, useTotalPayout, useTodayPayout, useMembers } from "@/components/LiveStats";
 
 /* =========================
@@ -32,7 +19,6 @@ function useCountUp(target: number, duration = 1200) {
       const progress = Math.min((Date.now() - startTime) / duration, 1);
       const next = Math.floor(start + (target - start) * progress);
       setValue(next);
-
       if (progress < 1) requestAnimationFrame(tick);
     };
 
@@ -43,39 +29,39 @@ function useCountUp(target: number, duration = 1200) {
 }
 
 /* =========================
-   실시간 채팅 (고급 자연형)
+   🔥 실시간 채팅 (유저 흐름 기반)
 ========================= */
-
-const names = ["민준", "서연", "지훈", "유진", "도윤", "하은", "태현", "지민"];
-
-const patterns = [
-  (n: string) => `${n}님 미션 완료 (+₩${rand()})`,
-  (n: string) => `${n}님 포인트 적립 (+₩${rand()})`,
-  (n: string) => `${n}님 출금 완료`,
-  (n: string) => `${n}님 VIP 달성 🎉`,
-  (n: string) => `${n}님: "이거 생각보다 잘됨"`,
-];
-
-function rand() {
-  return Math.floor(Math.random() * 50000 + 1000).toLocaleString();
-}
-
 function LiveChat() {
   const [messages, setMessages] = useState<string[]>([]);
 
-  useEffect(() => {
-    const interval = setInterval(
-      () => {
-        const name = names[Math.floor(Math.random() * names.length)];
-        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+  const users = Array.from({ length: 40 }).map((_, i) => ({
+    id: i,
+    name: ["민준", "서연", "지훈", "유진", "도윤", "하은"][i % 6] + i,
+    step: 0,
+  }));
 
-        setMessages((prev) => {
-          const next = [pattern(name), ...prev];
-          return next.slice(0, 7);
-        });
-      },
-      2000 + Math.random() * 1500,
-    ); // 불규칙 타이밍
+  const steps = [
+    (u: any) => `${u.name}님 가입 완료`,
+    (u: any) => `${u.name}님 미션 진행 중`,
+    (u: any) => `${u.name}님 포인트 적립 (+₩${rand()})`,
+    (u: any) => `${u.name}님 출금 완료`,
+  ];
+
+  function rand() {
+    return Math.floor(Math.random() * 50000 + 2000).toLocaleString();
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const user = users[Math.floor(Math.random() * users.length)];
+
+      const stepFn = steps[user.step];
+      const msg = stepFn(user);
+
+      user.step = (user.step + 1) % steps.length;
+
+      setMessages((prev) => [msg, ...prev].slice(0, 8));
+    }, 1200);
 
     return () => clearInterval(interval);
   }, []);
@@ -107,7 +93,6 @@ export default function Index() {
   const today = useTodayPayout();
   const members = useMembers();
 
-  // 🔥 애니메이션 적용
   const animatedTotal = useCountUp(total);
   const animatedToday = useCountUp(today);
   const animatedOnline = useCountUp(online);
@@ -118,7 +103,7 @@ export default function Index() {
       <div className="absolute inset-0 bg-grid opacity-40" />
       <Particles density={60} />
 
-      {/* 헤더 FIXED */}
+      {/* 헤더 FIX */}
       <header className="relative z-20 border-b border-border/30">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="font-bold text-lg leading-none">
@@ -175,7 +160,7 @@ export default function Index() {
           </Link>
         </div>
 
-        {/* 🔥 VIP 압박 UX */}
+        {/* VIP UX */}
         <div className="mt-4 text-xs text-yellow-400 animate-pulse">⚡ VIP 한정 좌석 7명 남음</div>
 
         {/* 채팅 */}
