@@ -208,7 +208,7 @@ function MissionAdmin() {
               <div className="text-sm font-bold">{m.title} <span className="text-[10px] text-gold">[{m.tier}]</span></div>
               <div className="text-[10px] text-muted-foreground">{m.category} · {formatKRW(m.reward)}</div>
             </div>
-            <button onClick={() => useDB.toString() && setDb(d => ({ ...d, customMissions: d.customMissions.filter(x => x.id !== m.id) }))}
+            <button onClick={() => setDb(d => ({ ...d, customMissions: d.customMissions.filter(x => x.id !== m.id) }))}
               className="text-destructive text-xs">삭제</button>
           </div>
         ))}
