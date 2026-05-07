@@ -18,35 +18,36 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
 
-        // Cyber Luxury Color Palette
+        // Phonara — Cyber Luxury Empire palette
         neon: {
-          orange: "#FF3B00",
-          blue: "#00F0FF",
-          purple: "#C724FF",
+          gold: "#E8B923",
+          cyan: "#22E0FF",
+          purple: "#8B5CF6",
         },
         gold: {
-          DEFAULT: "#FFD700",
-          light: "#FFEA80",
-          dark: "#D4AF37",
+          DEFAULT: "hsl(var(--primary))",
+          light: "hsl(var(--primary-glow))",
+          dark: "#A87E18",
+          foreground: "hsl(var(--primary-foreground))",
         },
 
         primary: {
-          DEFAULT: "#FF3B00", // Electric Neon Orange
-          foreground: "#000000",
-          glow: "rgba(255, 59, 0, 0.6)",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
-          DEFAULT: "#00F0FF", // Cyber Blue
-          foreground: "#000000",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         accent: {
-          DEFAULT: "#C724FF", // Purple
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
 
         glass: {
-          DEFAULT: "rgba(17, 17, 17, 0.72)",
-          border: "rgba(255, 255, 255, 0.09)",
+          DEFAULT: "rgba(12, 10, 24, 0.72)",
+          border: "rgba(232, 185, 35, 0.10)",
         },
 
         muted: {
@@ -68,20 +69,22 @@ export default {
       },
 
       backgroundImage: {
-        "gradient-primary": "linear-gradient(135deg, #FF3B00, #FF8A00)",
-        "gradient-cyber": "linear-gradient(135deg, #00F0FF, #C724FF, #FF3B00)",
-        "gradient-aurora": "linear-gradient(135deg, rgba(0,240,255,0.15), rgba(199,36,255,0.15), rgba(255,59,0,0.15))",
-        "gradient-gold": "linear-gradient(90deg, #FFD700, #FFEA80, #FFD700)",
-        glass: "linear-gradient(145deg, rgba(17,17,17,0.85), rgba(11,11,11,0.75))",
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-imperial": "var(--gradient-imperial)",
+        "gradient-cyber": "var(--gradient-cyber)",
+        "gradient-aurora": "var(--gradient-aurora)",
+        "gradient-gold": "var(--gradient-gold)",
+        glass: "var(--gradient-glass)",
       },
 
       boxShadow: {
-        glass: "0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
-        "neon-orange": "0 0 15px #FF3B00, 0 0 35px rgba(255,59,0,0.6)",
-        "neon-blue": "0 0 15px #00F0FF, 0 0 35px rgba(0,240,255,0.5)",
-        "neon-purple": "0 0 15px #C724FF, 0 0 35px rgba(199,36,255,0.5)",
-        "neon-gold": "0 0 20px #FFD700, 0 0 40px rgba(255,215,0,0.6)",
-        "card-hover": "0 25px 50px -12px rgb(0 0 0 / 0.4)",
+        glass: "var(--shadow-glass)",
+        "neon-gold": "0 0 20px hsl(44 95% 65% / 0.7), 0 0 50px hsl(44 80% 53% / 0.45)",
+        "neon-cyan": "0 0 15px hsl(188 100% 60%), 0 0 35px hsl(188 100% 60% / 0.5)",
+        "neon-purple": "0 0 15px hsl(258 90% 67%), 0 0 35px hsl(258 90% 67% / 0.5)",
+        "neon-orange": "0 0 20px hsl(44 95% 65% / 0.7), 0 0 50px hsl(44 80% 53% / 0.45)",
+        "neon-blue": "0 0 15px hsl(188 100% 60%), 0 0 35px hsl(188 100% 60% / 0.5)",
+        "card-hover": "0 25px 50px -12px rgb(0 0 0 / 0.55)",
       },
 
       borderRadius: {
@@ -92,10 +95,12 @@ export default {
       },
 
       fontFamily: {
-        display: ["Orbitron", "Pretendard", "sans-serif"],
+        display: ["Fraunces", "Pretendard", "serif"],
+        imperial: ["Italiana", "Fraunces", "serif"],
         sans: ["Pretendard", "system-ui", "sans-serif"],
-        title: ["Satoshi", "Orbitron", "var(--font-sans)"],
-        mono: ["JetBrains Mono", "monospace"], // 숫자, Ledger용
+        title: ["Fraunces", "Pretendard", "serif"],
+        hud: ["Orbitron", "Pretendard", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
 
       keyframes: {
