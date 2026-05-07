@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { useDB } from "@/lib/store";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import FloatingChat from "./FloatingChat";
 import { useAdminNotifications } from "@/hooks/use-admin-notifications";
 import { useUserNotifications } from "@/hooks/use-user-notifications";
 import TopHUD, { TopHUDCompact } from "./TopHUD";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 /**
  * Phonara — Empire 5축 IA
@@ -31,23 +33,23 @@ import TopHUD, { TopHUDCompact } from "./TopHUD";
 
 type NavItem = {
   to: string;
-  matches: string[];        // 활성으로 인정되는 경로 prefix들 (구 라우트 호환)
+  matches: string[];
   icon: typeof LayoutDashboard;
-  label: string;
-  fab?: boolean;            // 모바일 가운데 FAB 강조
+  labelKey: "command" | "earn" | "empire" | "treasury" | "legacy";
+  fab?: boolean;
 };
 
 const NAV: NavItem[] = [
-  { to: "/command",  matches: ["/command", "/dashboard"],                                                    icon: LayoutDashboard, label: "Command" },
-  { to: "/empire",   matches: ["/empire", "/packages"],                                                       icon: Crown,           label: "Empire" },
-  { to: "/earn",     matches: ["/earn", "/missions", "/quests", "/roulette", "/season-pass"],                 icon: Zap,             label: "Earn", fab: true },
-  { to: "/treasury", matches: ["/treasury", "/wallet", "/secure-wallet"],                                     icon: Wallet,          label: "Treasury" },
-  { to: "/legacy",   matches: ["/legacy", "/achievements"],                                                   icon: Trophy,          label: "Legacy" },
+  { to: "/command",  matches: ["/command", "/dashboard"],                                                    icon: LayoutDashboard, labelKey: "command" },
+  { to: "/empire",   matches: ["/empire", "/packages"],                                                       icon: Crown,           labelKey: "empire" },
+  { to: "/earn",     matches: ["/earn", "/missions", "/quests", "/roulette", "/season-pass"],                 icon: Zap,             labelKey: "earn", fab: true },
+  { to: "/treasury", matches: ["/treasury", "/wallet", "/secure-wallet"],                                     icon: Wallet,          labelKey: "treasury" },
+  { to: "/legacy",   matches: ["/legacy", "/achievements"],                                                   icon: Trophy,          labelKey: "legacy" },
 ];
 
 const SIDE_EXTRA = [
-  { to: "/support", icon: MessageSquare, label: "Support" },
-  { to: "/profile", icon: UserIcon,      label: "MY" },
+  { to: "/support", icon: MessageSquare, labelKey: "support" as const },
+  { to: "/profile", icon: UserIcon,      labelKey: "my" as const },
 ];
 
 function isActive(item: NavItem, pathname: string) {
@@ -59,6 +61,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const nav = useNavigate();
   const loc = useLocation();
   const user = db.user;
+  const { t } = useTranslation("nav");
 
   useUserNotifications(user?.id);
   useAdminNotifications(!!user?.isAdmin);
@@ -93,7 +96,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                   {active && <ChevronRight className="w-3 h-3 ml-auto" />}
                 </NavLink>
               );
@@ -111,7 +114,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </NavLink>
               );
             })}
@@ -121,7 +124,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-primary hover:bg-primary/10"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>관리자</span>
+                <span>{t("admin")}</span>
               </NavLink>
             )}
           </nav>
@@ -133,7 +136,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             }}
             className="m-3 flex items-center gap-2 px-3 py-2 rounded-xl text-xs glass hover:bg-muted/40 transition"
           >
-            <LogOut className="w-3.5 h-3.5" /> 로그아웃
+            <LogOut className="w-3.5 h-3.5" /> {t("logout")}
           </button>
         </aside>
       )}
@@ -157,12 +160,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <TopHUD />
             <TopHUDCompact />
             {!user && (
-              <Link
-                to="/secure-auth"
-                className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-imperial text-primary-foreground glow-imperial"
-              >
-                Enter
-              </Link>
+              <>
+                <LanguageSwitcher />
+                <Link
+                  to="/secure-auth"
+                  className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-imperial text-primary-foreground glow-imperial"
+                >
+                  {t("enter")}
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -189,7 +195,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl animate-ring-pulse -z-10" />
                       <Icon className="w-7 h-7 text-primary-foreground" />
                       <span className="absolute -bottom-5 text-[10px] font-imperial tracking-[0.2em] text-primary">
-                        {item.label.toUpperCase()}
+                        {t(item.labelKey).toUpperCase()}
                       </span>
                     </div>
                   </NavLink>
@@ -210,7 +216,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <span
                       className={`text-[10px] font-semibold ${active ? "text-foreground" : "text-muted-foreground"}`}
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </span>
                   </div>
                 </NavLink>
