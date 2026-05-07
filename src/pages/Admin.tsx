@@ -66,47 +66,6 @@ export default function Admin() {
   const pendingDep = kpi.pendingDep;
   const pendingWd = kpi.pendingWd;
 
-  function handleDep(id: string, status: "approved" | "rejected") {
-    setDb(d => {
-      const dep = d.deposits.find(x => x.id === id);
-      if (!dep) return d;
-      const apply = (u: any) => {
-        if (u.id !== dep.userId || status !== "approved") return u;
-        const pkg = PACKAGES.find(p => p.id === dep.packageId);
-        const newTier: Tier = pkg && TIER_RANK[pkg.unlocksTier] > TIER_RANK[u.tier] ? pkg.unlocksTier : u.tier;
-        // Auto level-up to match tier (level is bound to tier)
-        const tierLevel = LEVEL_BY_TIER[newTier] ?? 1;
-        const newLevel = Math.max(u.level || 1, tierLevel);
-        if (dep.method === "coin") return { ...u, coinBalance: u.coinBalance + dep.amount, tier: newTier, level: newLevel };
-        return { ...u, balance: u.balance + dep.amount, tier: newTier, level: newLevel };
-      };
-      return {
-        ...d,
-        users: d.users.map(apply),
-        user: d.user ? apply(d.user) : null,
-        deposits: d.deposits.map(x => x.id === id ? { ...x, status } : x),
-      };
-    });
-    toast({ title: status === "approved" ? "✅ 승인 완료" : "거절 처리됨" });
-  }
-  function handleWd(id: string, status: "approved" | "rejected") {
-    setDb(d => {
-      const wd = d.withdraws.find(x => x.id === id);
-      if (!wd) return d;
-      const refund = (u: any) => {
-        if (u.id !== wd.userId || status !== "rejected") return u;
-        if (wd.method === "coin") return { ...u, coinBalance: u.coinBalance + wd.amount };
-        return { ...u, balance: u.balance + wd.amount };
-      };
-      return {
-        ...d,
-        users: d.users.map(refund),
-        user: d.user ? refund(d.user) : null,
-        withdraws: d.withdraws.map(x => x.id === id ? { ...x, status } : x),
-      };
-    });
-    toast({ title: status === "approved" ? "✅ 출금 승인" : "거절 처리됨" });
-  }
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: "server_dep", label: "충전 신청", icon: ArrowUpFromLine },
