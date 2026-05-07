@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useDB } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 import { Send, MessageSquare, ChevronDown, BookOpen } from "lucide-react";
 
 const FAQ = [
@@ -18,6 +19,7 @@ type Msg = { id: string; sender: "user" | "admin"; message: string; created_at: 
 export default function Support() {
   const [db] = useDB();
   const nav = useNavigate();
+  const user = useRequireAuth() ?? db.user;
   const [text, setText] = useState("");
   const [tab, setTab] = useState<"chat" | "faq">("chat");
   const [open, setOpen] = useState<number | null>(null);
@@ -73,8 +75,7 @@ export default function Support() {
     }).eq("id", threadId);
   }
 
-  useEffect(() => { if (!db.user) nav("/secure-auth", { replace: true }); }, [db.user, nav]);
-  if (!db.user) return null;
+  if (!user) return null;
 
   return (
     <Layout>
