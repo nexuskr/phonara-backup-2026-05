@@ -1,119 +1,34 @@
+# Phonara.world — Cyber Luxury Empire 리디자인
 
-## v5.1 최종 진행 플랜 — 끝판왕 우선순위
+## ✅ Phase 0 (완료)
+- 디자인 토큰 교체 (Imperial Gold 75% / Cyber Purple 15% / Electric Cyan 5% / Void Black)
+- 폰트 교체: Fraunces (display) + Italiana (imperial 워드마크) + Orbitron (HUD 숫자) + Pretendard (한글 본문)
+- 모든 "폰미션 / PHONETOK / PhoneMission" → "Phonara / PHONARA"
+- 로고 (Layout, SecureAuth) 임페리얼 골드 워드마크로 교체
+- index.html 메타 / manifest / 이메일 템플릿 골드 톤 통일
 
-### 🎯 확정 결정
-- **Easy 150 부스트 +20%로 축소** → 일수익 47,000 × 1.2 = **₩56,400 (Day 1~3)**
-- 마진 회복: Easy 150 **+97k** 확보
-- 광고 카피: "오늘 시작 시 Day 1 ₩56,400" (여전히 강력)
+## ⏭ Phase 1 — 로그인 화면 시네마틱 리디자인 (다음)
+- imagegen premium: `src/assets/phonara-crown-phone.png` (골드 크라운 + 검정 글래스 폰)
+- `SecureAuth.tsx` 풀스크린 cinematic 레이아웃
+  - 좌상단 키 라이트 통일
+  - 거대 PHONARA 워드마크 + "지구 반대편에서도 Empire를 세우다"
+  - 폼은 시트로 슬라이드업 (모바일 60% 이미지 / CTA sticky)
+  - 0.6초 오프닝 시퀀스 (sessionStorage gate)
+  - 노이즈 텍스처 overlay 0.04 opacity (메탈릭)
 
-### 📊 최종 마진표
+## ⏭ Phase 2 — 대시보드
+- Layout 데스크톱 사이드바 + 모바일 하단탭 분기
+- Top HUD: 거대 골드 숫자 + Active Boost
+- Hero "Boost Your Empire" — 3개 3D 미션 카드 (Content Farmer / Trading Bot / Image Maker)
+- 미션 아이콘 3장 (standard imagegen, 동일 라이팅 방향)
 
-| 패키지 | 일수익 | 부스트 | Day 1~3 | 30일 총지급 | 마진 |
-|---|---|---|---|---|---|
-| Easy Starter | 2,500 | ×1.3 | 3,250 | 77,250 | **+1,750** |
-| Easy 50 | 14,000 | ×1.3 | 18,200 | 432,600 | **+57,400** |
-| Easy 150 | 47,000 | **×1.2** | **56,400** | **1,297,200** | **+192,800** ✅ |
-| Empire | 280,000 | ×1.5 | 420,000 | 8,820,000 + 보너스 1,100,000 | **-20,000** (앵커) |
+## ⏭ Phase 3 — 마무리
+- Empire Founding Counter royal gold 리스타일 + 30 SEATS
+- Empire Tier 시각 시스템 (Bronze→Sovereign 5단계 배지)
+- 성능: prefers-reduced-motion, 모바일 파티클 50% 감소, blur 레이어 ≤2
 
-→ Easy 150이 진짜 매출 머신으로 살아남.
-
----
-
-## 🥇 P0 — 매출 직결 (지금 즉시)
-
-### 1. DB 수치 동기화
-- `package_purchases.boost_multiplier` 기본값/배정 로직: Easy Starter·50 = 1.3, **Easy 150 = 1.2**, Empire = 1.5
-- `admin_resolve_package` RPC 안 패키지별 분기 수정
-- `store.ts` `easy_150.boostMultiplier = 1.2` 변경
-
-### 2. `harvest_machine` RPC 실측 검증
-- (a) 승인 직후 1일차 부스트 적용액 = 패키지별 정확값
-- (b) 부스트 만료 후 4일차 일반액 복귀
-- (c) Empire + Empire Day 중첩 시 ×1.5 (Empire Day 매칭일에만)
-- (d) 7일차 정확히 `seven_day_bonus` 1회만 (멱등성)
-- 마진표와 1원 단위 일치
-
-### 3. Packages 첫 화면 = "오늘 시작 시" 블록
-- `PackageBoostPreview` 카드 상단 고정
-- Easy 150 카피: "Day 1 ₩56,400 / Day 2 ₩56,400 / Day 3 ₩56,400"
-- Empire: "Day 1 ₩420,000 / +50% 전용"
-- 설명 금지, 숫자만
-
-### 4. Dashboard 0.5초 룰
-- 부스트 보유자: `BoostHeroCard` 최상단 + 카운트다운 (HH:MM:SS)
-- 미보유자: "지금 부스트 시작 →" CTA → `/packages`
-- 잭팟·콤보·기타 위젯 강등
-
----
-
-## 🥈 P1 — 전환율 추가 강화
-
-### 5. Empire 카드 비합리성 3종 동시 노출
-- "+50% · 다른 등급에 없음"
-- "Founding 좌석 N석 남음" 실시간
-- "다음 Empire Day D-N"
-
-### 6. ActiveBoostCounter 실시간성
-- Realtime 구독 또는 5초 polling, ±1~3 흔들림
-
-### 7. 가입 → Packages 직행 동선
-- `Index.tsx` "지금 시작" → 가입 → 24h 안 자동 `/packages` 진입
-
----
-
-## 🥉 P2 — 출시 전 안정성/법적
-
-### 8. Founding 좌석 동시성
-- `claim_founding_seat`이 `SELECT FOR UPDATE`로 보호되는지 확인
-- 동시 31번째 좌석 발생 불가 검증
-
-### 9. 보너스 멱등성 가드
-- `seven_day_bonus_paid`, `instant_300k_paid`, `founding_bonus_paid`
-- 모두 `WHERE ... = false` + atomic UPDATE
-- 중복 호출 시 절대 2회 지급 X
-
-### 10. 약관/환불 v5.1 반영
-- "Day 1~3 부스트 = 사전 고지 확정 스케줄"
-- "Empire Day 일자(월 1·15일) 사전 공지"
-- 7일 청약철회권
-- "한정 확정 적립률" 명시
-
----
-
-## ⛔ Phase 2 (지금 절대 X)
-
-777% 잭팟 / 황금 머신 / 추천 대시보드 / 시즌2 / 마일스톤 / 새 패키지.  
-**이유**: v5.1은 단일 훅 구조. 추가 훅은 메인 훅 희석 → 2주 매출 보고 결정.
-
----
-
-## 🔥 실행 순서
-
-```text
-[지금]
-1. DB·store.ts Easy 150 → 1.2 동기화
-2. harvest_machine 실측 검증
-
-[D+1]
-3. Packages 첫화면 "오늘 시작 시"
-4. Dashboard 0.5초 룰
-
-[D+2]
-5. Empire 카피 분리
-6. 카운터 실시간성
-7. 가입 동선 단축
-
-[D+3 출시 전]
-8. 동시성
-9. 멱등성
-10. 약관
-
-→ 출시 → 2주 데이터 → Phase 2 결정
-```
-
----
-
-## 💣 한 줄 핵심
-**"코드를 더 짜는 게 아니라, 이미 짠 코드의 '첫 0.5초 노출'을 사수하는 게 남은 일이다."**
-
-승인 시 **P0-1(Easy 150 ×1.2 동기화)부터 즉시 빌드 진입**합니다.
+## 컬러/폰트 비율
+- Gold 75% (CTA·숫자·테두리·타이포만 — 면적 아님), Purple 15%, Cyan 5%, Void Black 5%
+- 헤드라인 영문: Italiana (워드마크) / Fraunces (그 외)
+- HUD 숫자: Orbitron tabular
+- 한글 본문: Pretendard
