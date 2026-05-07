@@ -5,6 +5,10 @@ import { useDB, PACKAGES, formatKRW, type Pkg } from "@/lib/store";
 import { Crown, Check, Upload, Sparkles, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/use-require-auth";
+import PackageBoostPreview from "@/components/PackageBoostPreview";
+import ActiveBoostCounter from "@/components/ActiveBoostCounter";
+import EmpireFoundingCounter from "@/components/EmpireFoundingCounter";
+import EmpireDayCountdown from "@/components/EmpireDayCountdown";
 
 const tierStyles: Record<Pkg["tier"], { ring: string; bg: string; label: string }> = {
   FREE:    { ring: "from-muted to-muted",                bg: "from-muted/30",      label: "FREE" },
