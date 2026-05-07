@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { sendAdminNotification } from "@/lib/admin-notify";
 import { Check, X, Clock } from "lucide-react";
 
 type WR = {
@@ -56,7 +57,17 @@ export default function WithdrawRequestsAdmin() {
       toast({ title: "처리 실패", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: action === "complete" ? "✅ 출금 완료" : action === "approve" ? "👍 승인" : "거절 처리됨" });
+    const row = list.find(w => w.id === id);
+    if (row) {
+      const tpl = action === "complete" ? "withdraw-completed" : action === "approve" ? "withdraw-approved" : "withdraw-rejected";
+      await sendAdminNotification({
+        userId: row.user_id,
+        template: tpl,
+        idempotencyKey: `wd-${action}-${id}`,
+        data: { amount: Number(row.amount), tx_code: row.tx_code, reason },
+      });
+    }
+    toast({ title: action === "complete" ? "✅ 출금 완료 + 메일" : action === "approve" ? "👍 승인 + 메일" : "거절 + 메일" });
     void load();
   }
 

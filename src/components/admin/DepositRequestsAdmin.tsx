@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { adminResolveDeposit } from "@/lib/deposits-rpc";
+import { sendAdminNotification } from "@/lib/admin-notify";
 import { toast } from "@/hooks/use-toast";
 import { formatKRW } from "@/lib/store";
 import { Check, X } from "lucide-react";
@@ -47,7 +48,16 @@ export default function DepositRequestsAdmin() {
     try {
       const reason = action === "reject" ? prompt("거절 사유") ?? "rejected" : undefined;
       await adminResolveDeposit(id, action, reason);
-      toast({ title: action === "approve" ? "승인 + 잔액 적립" : "거절됨" });
+      const row = rows.find(r => r.id === id);
+      if (row) {
+        await sendAdminNotification({
+          userId: row.user_id,
+          template: action === "approve" ? "deposit-approved" : "deposit-rejected",
+          idempotencyKey: `dep-${action}-${id}`,
+          data: { amount: row.amount, method: row.method, reason },
+        });
+      }
+      toast({ title: action === "approve" ? "승인 + 잔액 적립 + 메일 전송" : "거절 + 메일 전송" });
       await load();
     } catch (e: any) {
       toast({ title: "실패", description: e.message });
