@@ -11,13 +11,42 @@ import PackagePurchasesAdmin from "@/components/admin/PackagePurchasesAdmin";
 import ServerUserAdmin from "@/components/admin/ServerUserAdmin";
 import DepositRequestsAdmin from "@/components/admin/DepositRequestsAdmin";
 
-type Tab = "deposits" | "server_dep" | "withdraws" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
+type Tab = "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
 
 export default function Admin() {
   const [db, setDb] = useDB();
   const nav = useNavigate();
   const user = useRequireAdmin() ?? db.user;
-  const [tab, setTab] = useState<Tab>("deposits");
+  const [tab, setTab] = useState<Tab>("server_dep");
+  const [kpi, setKpi] = useState({ users: 0, deposits: 0, pendingDep: 0, pendingWd: 0 });
+
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    let alive = true;
+    const load = async () => {
+      const [u, dApproved, dPend, wPend] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("deposit_requests").select("amount").eq("status", "approved"),
+        supabase.from("deposit_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      ]);
+      if (!alive) return;
+      const sum = (dApproved.data ?? []).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+      setKpi({
+        users: u.count ?? 0,
+        deposits: sum,
+        pendingDep: dPend.count ?? 0,
+        pendingWd: wPend.count ?? 0,
+      });
+    };
+    load();
+    const ch = supabase
+      .channel("admin:kpi")
+      .on("postgres_changes", { event: "*", schema: "public", table: "deposit_requests" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "withdrawal_requests" }, load)
+      .subscribe();
+    return () => { alive = false; supabase.removeChannel(ch); };
+  }, [user?.isAdmin]);
 
   if (!user) return null;
   if (!user.isAdmin) {
@@ -32,58 +61,15 @@ export default function Admin() {
     );
   }
 
-  const totalUsers = db.users.length;
-  const totalDeposits = db.deposits.filter(d => d.status === "approved").reduce((s, x) => s + x.amount, 0);
-  const pendingDep = db.deposits.filter(d => d.status === "pending").length;
-  const pendingWd = db.withdraws.filter(d => d.status === "pending").length;
+  const totalUsers = kpi.users;
+  const totalDeposits = kpi.deposits;
+  const pendingDep = kpi.pendingDep;
+  const pendingWd = kpi.pendingWd;
 
-  function handleDep(id: string, status: "approved" | "rejected") {
-    setDb(d => {
-      const dep = d.deposits.find(x => x.id === id);
-      if (!dep) return d;
-      const apply = (u: any) => {
-        if (u.id !== dep.userId || status !== "approved") return u;
-        const pkg = PACKAGES.find(p => p.id === dep.packageId);
-        const newTier: Tier = pkg && TIER_RANK[pkg.unlocksTier] > TIER_RANK[u.tier] ? pkg.unlocksTier : u.tier;
-        // Auto level-up to match tier (level is bound to tier)
-        const tierLevel = LEVEL_BY_TIER[newTier] ?? 1;
-        const newLevel = Math.max(u.level || 1, tierLevel);
-        if (dep.method === "coin") return { ...u, coinBalance: u.coinBalance + dep.amount, tier: newTier, level: newLevel };
-        return { ...u, balance: u.balance + dep.amount, tier: newTier, level: newLevel };
-      };
-      return {
-        ...d,
-        users: d.users.map(apply),
-        user: d.user ? apply(d.user) : null,
-        deposits: d.deposits.map(x => x.id === id ? { ...x, status } : x),
-      };
-    });
-    toast({ title: status === "approved" ? "✅ 승인 완료" : "거절 처리됨" });
-  }
-  function handleWd(id: string, status: "approved" | "rejected") {
-    setDb(d => {
-      const wd = d.withdraws.find(x => x.id === id);
-      if (!wd) return d;
-      const refund = (u: any) => {
-        if (u.id !== wd.userId || status !== "rejected") return u;
-        if (wd.method === "coin") return { ...u, coinBalance: u.coinBalance + wd.amount };
-        return { ...u, balance: u.balance + wd.amount };
-      };
-      return {
-        ...d,
-        users: d.users.map(refund),
-        user: d.user ? refund(d.user) : null,
-        withdraws: d.withdraws.map(x => x.id === id ? { ...x, status } : x),
-      };
-    });
-    toast({ title: status === "approved" ? "✅ 출금 승인" : "거절 처리됨" });
-  }
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: "deposits", label: "충전(로컬)", icon: ArrowUpFromLine },
-    { id: "server_dep", label: "충전(서버)", icon: ArrowUpFromLine },
-    { id: "withdraws", label: "출금(로컬)", icon: ArrowDownToLine },
-    { id: "server_wd", label: "출금(서버)", icon: ArrowDownToLine },
+    { id: "server_dep", label: "충전 신청", icon: ArrowUpFromLine },
+    { id: "server_wd", label: "출금 신청", icon: ArrowDownToLine },
     { id: "packages", label: "패키지", icon: Crown },
     { id: "missions", label: "미션", icon: Target },
     { id: "users", label: "회원", icon: Users },
@@ -114,60 +100,6 @@ export default function Admin() {
             </button>
           ))}
         </div>
-
-        {tab === "deposits" && (
-          <div className="space-y-2">
-            {db.deposits.length === 0 && <Empty />}
-            {db.deposits.map(d => (
-              <div key={d.id} className="glass-strong rounded-2xl p-4 neon-border">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-xs text-muted-foreground">{new Date(d.createdAt).toLocaleString("ko-KR")} · <span className="font-bold">{d.method === "coin" ? "🪙 COIN" : "🏦 BANK"}</span></div>
-                    <div className="font-bold text-sm mt-1">{d.nickname} · {d.packageName}</div>
-                    <div className="font-display font-black text-lg text-gradient-gold mt-1">{formatKRW(d.amount)}</div>
-                    {d.txCode && <div className="text-[10px] text-secondary font-mono mt-0.5">{d.txCode}</div>}
-                    {d.screenshot && <img src={d.screenshot} alt="proof" className="mt-2 max-h-32 rounded-lg" />}
-                  </div>
-                  <Status status={d.status} />
-                </div>
-                {d.status === "pending" && (
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => handleDep(d.id, "approved")} className="flex-1 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center gap-1"><Check className="w-3.5 h-3.5" /> 승인</button>
-                    <button onClick={() => handleDep(d.id, "rejected")} className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center gap-1"><X className="w-3.5 h-3.5" /> 거절</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === "withdraws" && (
-          <div className="space-y-2">
-            {db.withdraws.length === 0 && <Empty />}
-            {db.withdraws.map(w => (
-              <div key={w.id} className="glass-strong rounded-2xl p-4 neon-border">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-xs text-muted-foreground">{new Date(w.createdAt).toLocaleString("ko-KR")} · <span className="font-bold">{w.method === "coin" ? "🪙 COIN" : "🏦 BANK"}</span></div>
-                    <div className="font-bold text-sm mt-1">{w.nickname}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {w.method === "bank" ? `${w.bank} · ${w.account}` : `${w.network} · ${w.coinAddress}`}
-                    </div>
-                    <div className="font-display font-black text-lg text-primary mt-1">{formatKRW(w.amount)}</div>
-                    {w.txCode && <div className="text-[10px] text-secondary font-mono mt-0.5">{w.txCode}</div>}
-                  </div>
-                  <Status status={w.status} />
-                </div>
-                {w.status === "pending" && (
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => handleWd(w.id, "approved")} className="flex-1 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center gap-1"><Check className="w-3.5 h-3.5" /> 승인</button>
-                    <button onClick={() => handleWd(w.id, "rejected")} className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center gap-1"><X className="w-3.5 h-3.5" /> 거절</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
 
         {tab === "server_wd" && <WithdrawRequestsAdmin />}
         {tab === "server_dep" && <DepositRequestsAdmin />}

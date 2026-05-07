@@ -247,14 +247,13 @@ export default function Wallet() {
 
             {asset === "coin" && action === "deposit" && (
               <div className="glass rounded-xl p-4 text-xs space-y-2">
-                <div className="flex justify-between"><span className="text-muted-foreground">네트워크</span><span className="font-bold">{db.coin.network}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">네트워크</span><span className="font-bold">TRC20</span></div>
                 <div className="flex flex-col gap-1">
                   <span className="text-muted-foreground">관리자 입금 주소</span>
-                  <code className="font-mono text-[10px] break-all bg-muted/40 p-2 rounded-lg">{db.coin.address}</code>
-                  <button onClick={() => { navigator.clipboard.writeText(db.coin.address); toast({ title: "주소 복사됨" }); }}
+                  <code className="font-mono text-[10px] break-all bg-muted/40 p-2 rounded-lg">TXyz1234567890ABCDEF1234567890ABCDEF12</code>
+                  <button onClick={() => { navigator.clipboard.writeText("TXyz1234567890ABCDEF1234567890ABCDEF12"); toast({ title: "주소 복사됨" }); }}
                     className="text-[11px] text-primary inline-flex items-center gap-1"><Copy className="w-3 h-3" /> 주소 복사</button>
                 </div>
-                {db.coin.qr && <img src={db.coin.qr} alt="QR" className="w-32 h-32 rounded-lg mx-auto" />}
                 <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">송금 후 6자리 인증번호와 출금비밀번호 입력 후 거래코드를 발급받으세요.</p>
               </div>
             )}
@@ -284,42 +283,9 @@ export default function Wallet() {
         )}
 
         {action === "history" && (
-          <div className="space-y-4">
-            <div>
-              <div className="text-[10px] tracking-widest text-secondary font-black mb-2">SERVER · 실시간</div>
-              <ServerTxList />
-            </div>
-            <div>
-              <div className="text-[10px] tracking-widest text-muted-foreground font-black mb-2">LOCAL · 충전/출금 신청</div>
-              <div className="space-y-2">
-                {[...db.deposits, ...db.withdraws]
-                  .filter((x: any) => x.userId === u.id)
-                  .sort((a, b) => b.createdAt - a.createdAt)
-                  .map((x: any) => {
-                    const isDep = "packageId" in x;
-                    return (
-                      <div key={x.id} className="glass rounded-2xl p-4 flex items-center justify-between">
-                        <div>
-                          <div className="text-xs font-bold">
-                            {isDep ? `충전 · ${x.packageName}` : `출금 · ${x.method === "bank" ? x.bank : x.network}`}
-                            <span className="ml-2 text-[10px] text-muted-foreground">{x.method === "coin" ? "🪙 COIN" : "🏦 BANK"}</span>
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">{new Date(x.createdAt).toLocaleString("ko-KR")}</div>
-                          {x.txCode && <div className="text-[10px] text-secondary font-mono mt-0.5">{x.txCode}</div>}
-                        </div>
-                        <div className="text-right">
-                          <div className={`font-display font-bold ${isDep ? "text-secondary" : "text-primary"}`}>
-                            {isDep ? "+" : "-"}{formatKRW(x.amount)}
-                          </div>
-                          <div className={`text-[10px] font-bold ${x.status === "pending" ? "text-gold" : x.status === "approved" ? "text-secondary" : "text-destructive"}`}>
-                            {x.status === "pending" ? "승인 대기" : x.status === "approved" ? "승인됨" : "거절됨"}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
+          <div>
+            <div className="text-[10px] tracking-widest text-secondary font-black mb-2">실시간 거래 내역</div>
+            <ServerTxList />
           </div>
         )}
       </div>

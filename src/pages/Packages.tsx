@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { useDB, PACKAGES, formatKRW, uid, type Pkg } from "@/lib/store";
+import { useDB, PACKAGES, formatKRW, type Pkg } from "@/lib/store";
 import { Crown, Check, Upload, Sparkles, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/use-require-auth";
@@ -141,14 +141,14 @@ function Stat({ label, value, highlight }: { label: string; value: string; highl
 }
 
 function PurchaseModal({ pkg, onClose }: { pkg: Pkg; onClose: () => void }) {
+  const user = useRequireAuth();
   const [, setDb] = useDB();
-  const [db] = useDB();
   const [screenshot, setScreenshot] = useState<string>();
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function submit() {
-    if (!db.user || busy) return;
+    if (!user || busy) return;
     setBusy(true);
     try {
       let receiptUrl: string | null = null;
@@ -166,14 +166,6 @@ function PurchaseModal({ pkg, onClose }: { pkg: Pkg; onClose: () => void }) {
         totalReturn: pkg.totalReturn,
         receiptUrl,
       });
-      setDb(d => ({
-        ...d,
-        deposits: [{
-          id: uid(), userId: d.user!.id, nickname: d.user!.nickname,
-          packageId: pkg.id, packageName: pkg.name, amount: pkg.price,
-          method: "bank", screenshot, status: "pending", createdAt: Date.now(),
-        }, ...d.deposits],
-      }));
       onClose();
       toast({ title: "🎉 신청 완료!", description: "관리자 승인 후 일일 정산이 시작됩니다." });
     } catch (e: any) {

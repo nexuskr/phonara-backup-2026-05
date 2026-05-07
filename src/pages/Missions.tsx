@@ -19,6 +19,7 @@ import {
 import { CheckCircle2, Sparkles, Lock, Crown, Upload, Gamepad2, X, Zap, Flame, Trophy, Heart } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { settleMission } from "@/lib/missions-rpc";
+import { supabase } from "@/integrations/supabase/client";
 
 const tierFilters: { key: Tier; label: string; color: string }[] = [
   { key: "NORMAL", label: "일반", color: "text-secondary" },
@@ -100,8 +101,9 @@ export default function Missions() {
       }));
       return { won: true, amount, type: "mini" };
     }
-    // Add small contribution
+    // Local UI cache + server-authoritative pool contribution
     setDb((d) => ({ ...d, jackpot: { ...d.jackpot, amount: d.jackpot.amount + 1500, mini: d.jackpot.mini + 300 } }));
+    void supabase.rpc("bump_jackpot", { _amount: 1500 }).then(() => {});
     return null;
   }
 
