@@ -19,6 +19,7 @@ function checkAge14(birth: string) {
 export default function SecureAuth() {
   const nav = useNavigate();
   const { t } = useTranslation("auth");
+  const { t: tc } = useTranslation("common");
   const { isReady, hasSession } = useAuthReady();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [busy, setBusy] = useState(false);
