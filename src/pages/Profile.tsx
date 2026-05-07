@@ -162,6 +162,11 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* ===== Phase 21: Referral System ===== */}
+        <div className="mt-5">
+          <ReferralCard />
+        </div>
+
         {/* ===== Upgraded Badges ===== */}
         <div className="mt-5 glass-strong rounded-2xl p-4 neon-border">
           <div className="flex items-center justify-between mb-3">
