@@ -167,38 +167,6 @@ function MissionAdmin() {
   );
 }
 
-function UserAdmin() {
-  const [db, setDb] = useDB();
-  function setTier(id: string, tier: Tier) {
-    setDb(d => ({
-      ...d,
-      users: d.users.map(u => u.id === id ? { ...u, tier } : u),
-      user: d.user?.id === id ? { ...d.user, tier } : d.user,
-    }));
-    toast({ title: `등급 변경: ${tier}` });
-  }
-  return (
-    <div className="space-y-2">
-      {db.users.length === 0 && <Empty />}
-      {db.users.map(u => (
-        <div key={u.id} className="glass rounded-2xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-bold">{u.nickname} {u.isAdmin && <span className="text-[10px] text-gold">[관리자]</span>}</div>
-              <div className="text-[10px] text-muted-foreground">{u.email} · Lv.{u.level} · {u.tier}</div>
-            </div>
-            <div className="font-display font-bold text-sm text-gradient-primary">{formatKRW(u.balance)}</div>
-          </div>
-          <div className="grid grid-cols-4 gap-1.5 mt-3">
-            {(["NORMAL", "VIP", "GOD", "EMPIRE"] as Tier[]).map(t => (
-              <button key={t} onClick={() => setTier(u.id, t)} className={`py-1.5 rounded-lg text-[10px] font-bold ${u.tier === t ? "bg-gradient-gold text-gold-foreground" : "glass"}`}>{t}</button>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 type ST = { id: string; user_id: string; nickname: string; last_message: string | null; last_message_at: string };
 type SM = { id: string; thread_id: string; user_id: string; sender: "user" | "admin"; message: string; created_at: string };
