@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MessageCircle, X, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useDB } from "@/lib/store";
 import { Button } from "./ui/button";
