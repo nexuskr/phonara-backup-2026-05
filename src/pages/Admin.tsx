@@ -142,60 +142,6 @@ export default function Admin() {
           ))}
         </div>
 
-        {tab === "deposits" && (
-          <div className="space-y-2">
-            {db.deposits.length === 0 && <Empty />}
-            {db.deposits.map(d => (
-              <div key={d.id} className="glass-strong rounded-2xl p-4 neon-border">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-xs text-muted-foreground">{new Date(d.createdAt).toLocaleString("ko-KR")} · <span className="font-bold">{d.method === "coin" ? "🪙 COIN" : "🏦 BANK"}</span></div>
-                    <div className="font-bold text-sm mt-1">{d.nickname} · {d.packageName}</div>
-                    <div className="font-display font-black text-lg text-gradient-gold mt-1">{formatKRW(d.amount)}</div>
-                    {d.txCode && <div className="text-[10px] text-secondary font-mono mt-0.5">{d.txCode}</div>}
-                    {d.screenshot && <img src={d.screenshot} alt="proof" className="mt-2 max-h-32 rounded-lg" />}
-                  </div>
-                  <Status status={d.status} />
-                </div>
-                {d.status === "pending" && (
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => handleDep(d.id, "approved")} className="flex-1 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center gap-1"><Check className="w-3.5 h-3.5" /> 승인</button>
-                    <button onClick={() => handleDep(d.id, "rejected")} className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center gap-1"><X className="w-3.5 h-3.5" /> 거절</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === "withdraws" && (
-          <div className="space-y-2">
-            {db.withdraws.length === 0 && <Empty />}
-            {db.withdraws.map(w => (
-              <div key={w.id} className="glass-strong rounded-2xl p-4 neon-border">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-xs text-muted-foreground">{new Date(w.createdAt).toLocaleString("ko-KR")} · <span className="font-bold">{w.method === "coin" ? "🪙 COIN" : "🏦 BANK"}</span></div>
-                    <div className="font-bold text-sm mt-1">{w.nickname}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {w.method === "bank" ? `${w.bank} · ${w.account}` : `${w.network} · ${w.coinAddress}`}
-                    </div>
-                    <div className="font-display font-black text-lg text-primary mt-1">{formatKRW(w.amount)}</div>
-                    {w.txCode && <div className="text-[10px] text-secondary font-mono mt-0.5">{w.txCode}</div>}
-                  </div>
-                  <Status status={w.status} />
-                </div>
-                {w.status === "pending" && (
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => handleWd(w.id, "approved")} className="flex-1 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center gap-1"><Check className="w-3.5 h-3.5" /> 승인</button>
-                    <button onClick={() => handleWd(w.id, "rejected")} className="flex-1 py-2 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center gap-1"><X className="w-3.5 h-3.5" /> 거절</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
         {tab === "server_wd" && <WithdrawRequestsAdmin />}
         {tab === "server_dep" && <DepositRequestsAdmin />}
         {tab === "packages" && <PackagePurchasesAdmin />}
