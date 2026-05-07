@@ -10,6 +10,8 @@ import {
   JACKPOT_CHANCE,
   jackpotPayoutPct,
   randomFakeNick,
+  DAILY_PLAY_LIMITS,
+  todayStr,
   type Mission,
   type Tier,
 } from "@/lib/store";
@@ -45,11 +47,18 @@ export default function Missions() {
   const [jackpotWin, setJackpotWin] = useState<{ amount: number; type: "main" | "mini" } | null>(null);
 
   if (!db.user) {
-    nav("/auth");
+    nav("/secure-auth");
     return null;
   }
   const userTier = db.user.tier;
   const userTierRank = TIER_RANK[userTier];
+
+  // Daily play limit (auto-reset by date)
+  const today = todayStr();
+  const playsUsed = db.user.playDate === today ? (db.user.playsUsed ?? 0) : 0;
+  const playLimit = DAILY_PLAY_LIMITS[userTier];
+  const playsLeft = Math.max(0, playLimit - playsUsed);
+  const limitReached = playsLeft <= 0;
 
   const missions = [...DEFAULT_MISSIONS, ...db.customMissions];
   const list = missions.filter((m) => m.tier === tierTab && (catTab === "전체" || m.category === catTab));
@@ -105,6 +114,10 @@ export default function Missions() {
       toast({ title: "잠긴 미션", description: "패키지 업그레이드 필요" });
       return;
     }
+    if (m.game && limitReached) {
+      toast({ title: "오늘의 플레이 한도 도달", description: `${userTier} 등급 일일 ${playLimit}회를 모두 사용했습니다. 패키지 업그레이드 시 즉시 추가 횟수 해제!`, variant: "destructive" });
+      return;
+    }
     if (m.game) {
       setGameOpen(m);
       return;
@@ -136,7 +149,7 @@ export default function Missions() {
     // Jackpot roll happens on EVERY play (win or lose)
     const jp = rollJackpot();
 
-    // Tier-boosted reward when winning
+    // STRICT: rewards only granted on win. Failure = 0 KRW (no balance change).
     const boost = m.boostable ? TIER_BOOST[userTier] : 1;
     const baseReward = won ? Math.floor((m.reward + bonus) * boost) : 0;
     const jpReward = jp?.amount ?? 0;
@@ -144,8 +157,9 @@ export default function Missions() {
 
     setDb((d) => {
       const newMomentum = won ? d.momentum + 1 : 0;
-      // Recovery mission triggers after 2 losses in a row → won=false twice
       const triggerRecovery = !won && d.momentum === 0;
+      const t = todayStr();
+      const prevPlays = d.user?.playDate === t ? (d.user?.playsUsed ?? 0) : 0;
       return {
         ...d,
         momentum: newMomentum,
@@ -155,9 +169,12 @@ export default function Missions() {
         user: d.user
           ? {
               ...d.user,
+              // Only credit balance/earnings on win — failure pays nothing
               balance: d.user.balance + totalReward,
               todayEarnings: d.user.todayEarnings + totalReward,
-              xp: d.user.xp + Math.floor(totalReward / 100),
+              xp: d.user.xp + (won ? Math.floor(totalReward / 100) : 0),
+              playDate: t,
+              playsUsed: prevPlays + 1,
             }
           : null,
       };
@@ -169,7 +186,7 @@ export default function Missions() {
       const momentumBadge = db.momentum >= 2 ? ` · 🔥 ${db.momentum + 1}연승!` : "";
       toast({ title: `🎉 +${formatKRW(baseReward)}${momentumBadge}`, description: m.title });
     } else {
-      toast({ title: "아쉬워요!", description: FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)] });
+      toast({ title: "아쉬워요! (보상 없음)", description: FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)] });
     }
     setGameOpen(null);
   }
@@ -177,11 +194,20 @@ export default function Missions() {
   return (
     <Layout>
       <div className="container pt-6 pb-10 animate-liquid-in">
-        <div className="mb-4">
-          <h1 className="font-display font-black text-2xl flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 미션</span>
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">모든 게임 플레이가 잭팟에 자동 적립됩니다</p>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h1 className="font-display font-black text-2xl flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 미션</span>
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">모든 게임 플레이가 잭팟에 자동 적립됩니다</p>
+          </div>
+          <div className={`text-right glass rounded-xl px-3 py-2 ${limitReached ? "border border-destructive/50" : ""}`}>
+            <div className="text-[9px] tracking-widest text-muted-foreground font-bold">오늘 플레이</div>
+            <div className={`text-sm font-display font-black ${limitReached ? "text-destructive" : "text-gradient-primary"}`}>
+              {playsUsed} / {playLimit}
+            </div>
+            <div className="text-[9px] text-muted-foreground">{userTier} 등급</div>
+          </div>
         </div>
 
         {/* MEGA JACKPOT BANNER */}
@@ -339,7 +365,7 @@ export default function Missions() {
                       <div className="text-[10px] text-muted-foreground">소요 {m.duration}</div>
                     </div>
                     <button
-                      disabled={done || inProgress || locked}
+                      disabled={done || inProgress || locked || (!!m.game && limitReached)}
                       onClick={() => complete(m)}
                       className="press sheen px-4 py-2 rounded-xl bg-gradient-primary text-primary-foreground text-xs font-bold glow-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
@@ -347,11 +373,13 @@ export default function Missions() {
                         ? "진행 중..."
                         : done
                           ? "완료됨"
-                          : m.game
-                            ? "🎮 플레이"
-                            : m.ugc
-                              ? "제출하기"
-                              : "시작하기"}
+                          : m.game && limitReached
+                            ? "한도 초과"
+                            : m.game
+                              ? "🎮 플레이"
+                              : m.ugc
+                                ? "제출하기"
+                                : "시작하기"}
                     </button>
                   </div>
                 </div>

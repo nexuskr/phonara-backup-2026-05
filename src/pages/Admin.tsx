@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { useDB, formatKRW, uid, PACKAGES, type Mission, type MissionTier, type Tier, TIER_RANK } from "@/lib/store";
+import { useDB, formatKRW, uid, PACKAGES, type Mission, type MissionTier, type Tier, TIER_RANK, LEVEL_BY_TIER } from "@/lib/store";
 import { ShieldCheck, Users, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Check, X, Plus, MessageSquare, Send, Coins, Target, Crown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -12,7 +12,7 @@ export default function Admin() {
   const nav = useNavigate();
   const [tab, setTab] = useState<Tab>("deposits");
 
-  if (!db.user) { nav("/auth"); return null; }
+  if (!db.user) { nav("/secure-auth"); return null; }
   if (!db.user.isAdmin) {
     return (
       <Layout>
@@ -38,8 +38,11 @@ export default function Admin() {
         if (u.id !== dep.userId || status !== "approved") return u;
         const pkg = PACKAGES.find(p => p.id === dep.packageId);
         const newTier: Tier = pkg && TIER_RANK[pkg.unlocksTier] > TIER_RANK[u.tier] ? pkg.unlocksTier : u.tier;
-        if (dep.method === "coin") return { ...u, coinBalance: u.coinBalance + dep.amount, tier: newTier };
-        return { ...u, balance: u.balance + dep.amount, tier: newTier };
+        // Auto level-up to match tier (level is bound to tier)
+        const tierLevel = LEVEL_BY_TIER[newTier] ?? 1;
+        const newLevel = Math.max(u.level || 1, tierLevel);
+        if (dep.method === "coin") return { ...u, coinBalance: u.coinBalance + dep.amount, tier: newTier, level: newLevel };
+        return { ...u, balance: u.balance + dep.amount, tier: newTier, level: newLevel };
       };
       return {
         ...d,
