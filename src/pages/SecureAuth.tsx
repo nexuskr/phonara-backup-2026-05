@@ -227,7 +227,7 @@ export default function SecureAuth() {
 
         <button onClick={submit} disabled={busy}
           className="mt-5 w-full py-3.5 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary hover:scale-[1.02] transition flex items-center justify-center gap-2 disabled:opacity-50">
-          {busy ? t("__processing__", { defaultValue: "..." }) || "..." : (<>{mode==="login"?t("btnLogin"):t("btnSignup")} <ArrowRight className="w-4 h-4" /></>)}
+          {busy ? tc("processing") : (<>{mode==="login"?t("btnLogin"):t("btnSignup")} <ArrowRight className="w-4 h-4" /></>)}
         </button>
 
         {mode === "login" && (
