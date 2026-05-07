@@ -334,7 +334,13 @@ function TradingBotCard({ tier, runs, used, loading }: { tier: string; runs: Run
     try {
       const r = await claimRun(latest.id);
       const sign = (r.pnl_pct ?? 0) >= 0 ? "+" : "";
-      toast({ title: `🎉 정산 완료 (${sign}${r.pnl_pct?.toFixed(2)}%)`, description: `+${formatKRW(r.reward)}` });
+      toast({ title: `🎉 정산 완료 (${sign}${r.pnl_pct?.toFixed(2)}%)`, description: `+${formatKRW(r.reward)} · 라운지 공유됨` });
+      const u = (await supabase.auth.getUser()).data.user;
+      if (u) await shareToLounge({
+        user_id: u.id, nickname: u.user_metadata?.nickname ?? null, tier,
+        kind: "trading", reward: r.reward, pnl_pct: r.pnl_pct,
+        output_text: latest.output_text, output_path: latest.output_path,
+      });
     } catch (e: any) { toast({ title: "오류", description: e.message, variant: "destructive" }); }
   };
 
@@ -455,7 +461,13 @@ function ImageMakerCard({ tier, runs, used, loading }: { tier: string; runs: Run
     if (!latest) return;
     try {
       const r = await claimRun(latest.id);
-      toast({ title: "✅ 수령 완료", description: `+${formatKRW(r.reward)}` });
+      toast({ title: "✅ 수령 완료", description: `+${formatKRW(r.reward)} · 라운지 공유됨` });
+      const u = (await supabase.auth.getUser()).data.user;
+      if (u) await shareToLounge({
+        user_id: u.id, nickname: u.user_metadata?.nickname ?? null, tier,
+        kind: "image", reward: r.reward, pnl_pct: r.pnl_pct,
+        output_text: latest.output_text, output_path: latest.output_path,
+      });
     } catch (e: any) { toast({ title: "오류", description: e.message, variant: "destructive" }); }
   };
 
