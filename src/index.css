@@ -60,6 +60,12 @@
     background: var(--gradient-bg);
     background-attachment: fixed;
     overflow-x: hidden;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  /* Latin-only text (numbers, codes, brand wordmarks) should not keep-all */
+  .font-hud, .tabular-nums, .font-imperial, [lang="en"] {
+    word-break: normal;
   }
   .font-display { font-family: 'Fraunces', 'Pretendard', serif; letter-spacing: -0.01em; font-optical-sizing: auto; }
   .font-imperial { font-family: 'Italiana', 'Fraunces', serif; letter-spacing: 0.18em; }
