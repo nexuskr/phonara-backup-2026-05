@@ -267,6 +267,7 @@ export default function Index() {
         <p className="text-muted-foreground mt-3">{t("finalSub")}</p>
         <Link
           to="/secure-auth?signup=1"
+          onClick={() => onCta("final")}
           className="mt-8 inline-flex items-center gap-2 px-10 py-5 rounded-2xl font-display font-bold text-lg bg-gradient-imperial text-primary-foreground glow-imperial animate-pulse-glow hover:scale-105 transition"
         >
           <Crown className="w-5 h-5" /> {t("finalCta")}
