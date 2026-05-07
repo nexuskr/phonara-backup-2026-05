@@ -7,7 +7,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 
-type Msg = { id: string; message: string; created_at: string; user_id: string | null; nickname: string | null };
+type Msg = {
+  id: string; message: string; created_at: string;
+  user_id: string | null; nickname: string | null;
+  kind?: string | null; metadata?: any;
+};
 
 export default function FloatingChat() {
   const [db] = useDB();
