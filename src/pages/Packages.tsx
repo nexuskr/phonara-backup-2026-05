@@ -32,9 +32,10 @@ export default function Packages() {
       <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="mb-6">
           <h1 className="font-display font-black text-2xl flex items-center gap-2">
-            <Crown className="w-5 h-5 text-gold" /> <span className="text-gradient-gold">🤖 AI Money Machine</span>
+            <Crown className="w-5 h-5 text-gold" /> <span className="text-gradient-gold">🔥 첫 3일 보너스 구간</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-1">머신 ON → AI가 매일 알아서 벌어줌 → 수확 버튼 1번 클릭</p>
+          <p className="text-xs text-muted-foreground mt-1">지금 시작 시 첫 3일간 보너스 구간 진입 · 사전 공지 확정 적립 스케줄</p>
+          <div className="mt-2"><ActiveBoostCounter /></div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
