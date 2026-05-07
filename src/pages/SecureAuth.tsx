@@ -108,6 +108,7 @@ export default function SecureAuth() {
         toast({ title: firstEntry ? "🔥 첫 3일 보너스 구간 진입" : "환영합니다 ✨" });
         nav(firstEntry ? "/packages?welcome=1" : "/dashboard", { replace: true });
         return;
+      }
     } catch (e: any) {
       const msg = e.message?.includes("Invalid login") ? "이메일 또는 비밀번호가 일치하지 않습니다."
         : e.message?.includes("already registered") ? "이미 가입된 이메일입니다."
