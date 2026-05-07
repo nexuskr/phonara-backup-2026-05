@@ -9,8 +9,9 @@ import { useRequireAdmin } from "@/hooks/use-require-auth";
 import WithdrawRequestsAdmin from "@/components/admin/WithdrawRequestsAdmin";
 import PackagePurchasesAdmin from "@/components/admin/PackagePurchasesAdmin";
 import ServerUserAdmin from "@/components/admin/ServerUserAdmin";
+import DepositRequestsAdmin from "@/components/admin/DepositRequestsAdmin";
 
-type Tab = "deposits" | "withdraws" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
+type Tab = "deposits" | "server_dep" | "withdraws" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
 
 export default function Admin() {
   const [db, setDb] = useDB();
