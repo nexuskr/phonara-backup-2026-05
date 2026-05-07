@@ -51,7 +51,9 @@ export default function LanguageSwitcher({
               <button
                 key={l.code}
                 onClick={() => {
+                  const from = current;
                   i18n.changeLanguage(l.code);
+                  track("language_change", { from, to: l.code });
                   setOpen(false);
                 }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${
