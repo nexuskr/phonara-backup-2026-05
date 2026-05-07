@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.admin_resolve_package(uuid, text, text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.admin_adjust_balance(uuid, bigint, text) FROM PUBLIC, anon, authenticated;
