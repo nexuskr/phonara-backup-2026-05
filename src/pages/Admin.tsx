@@ -61,10 +61,10 @@ export default function Admin() {
     );
   }
 
-  const totalUsers = db.users.length;
-  const totalDeposits = db.deposits.filter(d => d.status === "approved").reduce((s, x) => s + x.amount, 0);
-  const pendingDep = db.deposits.filter(d => d.status === "pending").length;
-  const pendingWd = db.withdraws.filter(d => d.status === "pending").length;
+  const totalUsers = kpi.users;
+  const totalDeposits = kpi.deposits;
+  const pendingDep = kpi.pendingDep;
+  const pendingWd = kpi.pendingWd;
 
   function handleDep(id: string, status: "approved" | "rejected") {
     setDb(d => {
