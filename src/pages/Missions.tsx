@@ -194,11 +194,20 @@ export default function Missions() {
   return (
     <Layout>
       <div className="container pt-6 pb-10 animate-liquid-in">
-        <div className="mb-4">
-          <h1 className="font-display font-black text-2xl flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 미션</span>
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">모든 게임 플레이가 잭팟에 자동 적립됩니다</p>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h1 className="font-display font-black text-2xl flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" /> <span className="text-gradient-primary">사이버 미션</span>
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">모든 게임 플레이가 잭팟에 자동 적립됩니다</p>
+          </div>
+          <div className={`text-right glass rounded-xl px-3 py-2 ${limitReached ? "border border-destructive/50" : ""}`}>
+            <div className="text-[9px] tracking-widest text-muted-foreground font-bold">오늘 플레이</div>
+            <div className={`text-sm font-display font-black ${limitReached ? "text-destructive" : "text-gradient-primary"}`}>
+              {playsUsed} / {playLimit}
+            </div>
+            <div className="text-[9px] text-muted-foreground">{userTier} 등급</div>
+          </div>
         </div>
 
         {/* MEGA JACKPOT BANNER */}
