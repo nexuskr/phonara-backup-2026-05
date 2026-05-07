@@ -6,6 +6,8 @@ import LiveRanking from "@/components/LiveRanking";
 import JackpotBanner from "@/components/JackpotBanner";
 import AttendanceCard from "@/components/AttendanceCard";
 import { ActiveBotsMini } from "@/components/AIBotCards";
+import MachineDashboardCard from "@/components/MachineDashboardCard";
+import MachineFomoTicker from "@/components/MachineFomoTicker";
 import { useOnline, useTodayPayout } from "@/components/LiveStats";
 import { useDB, DEFAULT_MISSIONS, formatKRW } from "@/lib/store";
 import { useRequireAuth } from "@/hooks/use-require-auth";
