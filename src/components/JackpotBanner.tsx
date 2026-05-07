@@ -10,6 +10,22 @@ function useJackpotState() {
   const stateRef = useRef(j);
   stateRef.current = j;
 
+  // Sync initial pool from server (jackpot_pool singleton)
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data } = await supabase.from("jackpot_pool").select("amount").eq("id", 1).maybeSingle();
+      if (active && data?.amount) setJ(prev => ({ ...prev, amount: Math.max(prev.amount, Number(data.amount)) }));
+    })();
+    const ch = supabase
+      .channel("jackpot")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "jackpot_pool" }, (p: any) => {
+        if (active && p.new?.amount) setJ(prev => ({ ...prev, amount: Math.max(prev.amount, Number(p.new.amount)) }));
+      })
+      .subscribe();
+    return () => { active = false; supabase.removeChannel(ch); };
+  }, []);
+
   useEffect(() => {
     let lastPersist = Date.now();
     const tick = () => {
