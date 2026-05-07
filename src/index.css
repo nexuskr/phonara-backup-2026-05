@@ -1,52 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Pretendard:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700;9..144,900&family=Italiana&display=swap');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @layer base {
   :root {
-    /* Cyber-luxury dark theme */
-    --background: 230 35% 5%;
-    --foreground: 210 40% 98%;
-    --card: 230 30% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 230 35% 6%;
-    --popover-foreground: 210 40% 98%;
-    /* Neon Orange */
-    --primary: 22 100% 58%;
-    --primary-foreground: 230 35% 5%;
-    --primary-glow: 30 100% 65%;
-    /* Cyber Blue */
-    --secondary: 195 100% 55%;
-    --secondary-foreground: 230 35% 5%;
-    --muted: 230 25% 14%;
-    --muted-foreground: 220 15% 65%;
-    /* Soft Purple */
-    --accent: 270 80% 65%;
-    --accent-foreground: 230 35% 5%;
-    /* Gold */
-    --gold: 42 95% 60%;
-    --gold-foreground: 230 35% 5%;
+    /* Phonara — Cyber Luxury Empire */
+    --background: 240 28% 3%;
+    --foreground: 42 30% 96%;
+    --card: 240 30% 6%;
+    --card-foreground: 42 30% 96%;
+    --popover: 240 32% 5%;
+    --popover-foreground: 42 30% 96%;
+    /* Imperial Gold (PRIMARY — 75% dominance) */
+    --primary: 44 80% 53%;
+    --primary-foreground: 240 28% 3%;
+    --primary-glow: 44 95% 65%;
+    /* Electric Cyan (5% — circuit lines / data) */
+    --secondary: 188 100% 60%;
+    --secondary-foreground: 240 28% 3%;
+    --muted: 240 22% 11%;
+    --muted-foreground: 42 12% 65%;
+    /* Cyber Purple (15% — accent only) */
+    --accent: 258 90% 67%;
+    --accent-foreground: 240 28% 3%;
+    /* Gold = primary alias kept for legacy classes */
+    --gold: 44 80% 53%;
+    --gold-foreground: 240 28% 3%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 230 30% 18%;
-    --input: 230 30% 14%;
-    --ring: 22 100% 58%;
+    --destructive-foreground: 42 30% 96%;
+    --border: 240 25% 15%;
+    --input: 240 28% 12%;
+    --ring: 44 80% 53%;
     --radius: 1rem;
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(22 100% 58%), hsl(30 100% 65%));
-    --gradient-cyber: linear-gradient(135deg, hsl(22 100% 58%) 0%, hsl(330 90% 60%) 50%, hsl(270 80% 65%) 100%);
-    --gradient-aurora: linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(270 80% 65%) 50%, hsl(22 100% 58%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 95% 60%), hsl(38 100% 70%));
-    --gradient-glass: linear-gradient(135deg, hsl(230 30% 12% / 0.6), hsl(230 30% 8% / 0.3));
-    --gradient-bg: radial-gradient(ellipse at top, hsl(270 60% 12%) 0%, hsl(230 35% 5%) 50%, hsl(230 40% 3%) 100%);
+    /* Gradients — imperial-first */
+    --gradient-primary: linear-gradient(135deg, hsl(44 80% 53%), hsl(44 95% 65%));
+    --gradient-imperial: linear-gradient(135deg, hsl(38 70% 35%) 0%, hsl(44 95% 65%) 45%, hsl(48 100% 78%) 55%, hsl(38 70% 38%) 100%);
+    --gradient-cyber: linear-gradient(135deg, hsl(44 95% 65%) 0%, hsl(258 90% 67%) 60%, hsl(188 100% 60%) 100%);
+    --gradient-aurora: linear-gradient(135deg, hsl(188 100% 60%) 0%, hsl(258 90% 67%) 50%, hsl(44 95% 65%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(44 80% 53%), hsl(48 100% 75%));
+    --gradient-glass: linear-gradient(135deg, hsl(240 30% 10% / 0.6), hsl(240 30% 6% / 0.3));
+    --gradient-bg: radial-gradient(ellipse at top, hsl(258 50% 10%) 0%, hsl(240 35% 4%) 45%, hsl(240 40% 2%) 100%);
     /* Glows / shadows */
-    --glow-primary: 0 0 40px hsl(22 100% 58% / 0.5), 0 0 80px hsl(22 100% 58% / 0.25);
-    --glow-cyber: 0 0 40px hsl(195 100% 55% / 0.5), 0 0 80px hsl(195 100% 55% / 0.2);
-    --glow-purple: 0 0 40px hsl(270 80% 65% / 0.45);
-    --glow-gold: 0 0 40px hsl(42 95% 60% / 0.5);
-    --shadow-elegant: 0 30px 80px -20px hsl(22 100% 58% / 0.4);
-    --shadow-glass: 0 8px 32px hsl(230 50% 2% / 0.6), inset 0 1px 0 hsl(0 0% 100% / 0.05);
+    --glow-primary: 0 0 40px hsl(44 95% 65% / 0.45), 0 0 90px hsl(44 80% 53% / 0.22);
+    --glow-cyber: 0 0 40px hsl(188 100% 60% / 0.45), 0 0 80px hsl(188 100% 60% / 0.18);
+    --glow-purple: 0 0 40px hsl(258 90% 67% / 0.4);
+    --glow-gold: 0 0 40px hsl(44 95% 65% / 0.55), 0 0 100px hsl(44 80% 53% / 0.25);
+    --shadow-elegant: 0 30px 80px -20px hsl(44 80% 53% / 0.35);
+    --shadow-glass: 0 8px 32px hsl(240 50% 1% / 0.7), inset 0 1px 0 hsl(44 95% 65% / 0.06);
     --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
@@ -60,7 +61,14 @@
     background-attachment: fixed;
     overflow-x: hidden;
   }
-  .font-display { font-family: 'Orbitron', 'Pretendard', sans-serif; letter-spacing: 0.02em; }
+  .font-display { font-family: 'Fraunces', 'Pretendard', serif; letter-spacing: -0.01em; font-optical-sizing: auto; }
+  .font-imperial { font-family: 'Italiana', 'Fraunces', serif; letter-spacing: 0.18em; }
+  .font-hud { font-family: 'Orbitron', 'Pretendard', sans-serif; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+  .text-gradient-imperial {
+    background: var(--gradient-imperial);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .glow-imperial { box-shadow: var(--glow-gold); }
   /* Animated grid background */
   .bg-grid {
     background-image:
