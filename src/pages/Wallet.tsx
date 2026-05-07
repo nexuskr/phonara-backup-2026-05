@@ -8,6 +8,7 @@ import PinPad from "@/components/PinPad";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshWallet } from "@/lib/missions-rpc";
+import ServerTxList from "@/components/wallet/ServerTxList";
 
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
