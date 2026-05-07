@@ -9,8 +9,9 @@ import { useRequireAdmin } from "@/hooks/use-require-auth";
 import WithdrawRequestsAdmin from "@/components/admin/WithdrawRequestsAdmin";
 import PackagePurchasesAdmin from "@/components/admin/PackagePurchasesAdmin";
 import ServerUserAdmin from "@/components/admin/ServerUserAdmin";
+import DepositRequestsAdmin from "@/components/admin/DepositRequestsAdmin";
 
-type Tab = "deposits" | "withdraws" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
+type Tab = "deposits" | "server_dep" | "withdraws" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
 
 export default function Admin() {
   const [db, setDb] = useDB();
@@ -79,7 +80,8 @@ export default function Admin() {
   }
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: "deposits", label: "충전", icon: ArrowUpFromLine },
+    { id: "deposits", label: "충전(로컬)", icon: ArrowUpFromLine },
+    { id: "server_dep", label: "충전(서버)", icon: ArrowUpFromLine },
     { id: "withdraws", label: "출금(로컬)", icon: ArrowDownToLine },
     { id: "server_wd", label: "출금(서버)", icon: ArrowDownToLine },
     { id: "packages", label: "패키지", icon: Crown },
@@ -168,6 +170,7 @@ export default function Admin() {
         )}
 
         {tab === "server_wd" && <WithdrawRequestsAdmin />}
+        {tab === "server_dep" && <DepositRequestsAdmin />}
         {tab === "packages" && <PackagePurchasesAdmin />}
         {tab === "missions" && <MissionAdmin />}
         {tab === "users" && <ServerUserAdmin />}
