@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { useDB, PACKAGES, formatKRW, uid, type Pkg } from "@/lib/store";
+import { useDB, PACKAGES, formatKRW, type Pkg } from "@/lib/store";
 import { Crown, Check, Upload, Sparkles, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useRequireAuth } from "@/hooks/use-require-auth";
