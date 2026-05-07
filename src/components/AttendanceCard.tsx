@@ -72,11 +72,11 @@ export default function AttendanceCard() {
         </div>
         <button
           onClick={claim}
-          disabled={claimed}
+          disabled={claimed || busy}
           className="press shrink-0 px-4 py-2 rounded-xl bg-gradient-primary text-primary-foreground text-xs font-bold glow-primary disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          {claimed ? "완료" : "출석"}
+          {claimed ? "완료" : busy ? "..." : "출석"}
         </button>
       </div>
     </div>
