@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW, uid, PACKAGES, type Mission, type MissionTier, type Tier, TIER_RANK, LEVEL_BY_TIER } from "@/lib/store";
