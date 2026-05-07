@@ -109,10 +109,8 @@ export default function Admin() {
   }
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: "deposits", label: "충전(로컬)", icon: ArrowUpFromLine },
-    { id: "server_dep", label: "충전(서버)", icon: ArrowUpFromLine },
-    { id: "withdraws", label: "출금(로컬)", icon: ArrowDownToLine },
-    { id: "server_wd", label: "출금(서버)", icon: ArrowDownToLine },
+    { id: "server_dep", label: "충전 신청", icon: ArrowUpFromLine },
+    { id: "server_wd", label: "출금 신청", icon: ArrowDownToLine },
     { id: "packages", label: "패키지", icon: Crown },
     { id: "missions", label: "미션", icon: Target },
     { id: "users", label: "회원", icon: Users },
