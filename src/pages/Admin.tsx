@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { useDB, formatKRW, uid, PACKAGES, type Mission, type MissionTier, type Tier, TIER_RANK } from "@/lib/store";
+import { useDB, formatKRW, uid, PACKAGES, type Mission, type MissionTier, type Tier, TIER_RANK, LEVEL_BY_TIER } from "@/lib/store";
 import { ShieldCheck, Users, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Check, X, Plus, MessageSquare, Send, Coins, Target, Crown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
