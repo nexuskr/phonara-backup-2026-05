@@ -2538,7 +2538,7 @@ export type Database = {
       ai_bot_kind: "content" | "trading" | "image"
       ai_bot_status: "running" | "ready" | "claimed" | "failed" | "expired"
       app_role: "admin" | "user"
-      deposit_method: "bank" | "coin"
+      deposit_method: "bank" | "coin" | "voucher"
       deposit_status: "pending" | "approved" | "rejected" | "cancelled"
       package_status:
         | "pending"
@@ -2699,7 +2699,7 @@ export const Constants = {
       ai_bot_kind: ["content", "trading", "image"],
       ai_bot_status: ["running", "ready", "claimed", "failed", "expired"],
       app_role: ["admin", "user"],
-      deposit_method: ["bank", "coin"],
+      deposit_method: ["bank", "coin", "voucher"],
       deposit_status: ["pending", "approved", "rejected", "cancelled"],
       package_status: [
         "pending",
