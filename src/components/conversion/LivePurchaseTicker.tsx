@@ -18,9 +18,10 @@ const FALLBACK_PKGS = ["STARTER", "Easy 50", "Easy 150", "EMPIRE"];
 
 function fmtAgo(ms: number) {
   const sec = Math.floor((Date.now() - ms) / 1000);
-  if (sec < 60) return `${sec}초 전`;
-  if (sec < 3600) return `${Math.floor(sec / 60)}분 전`;
-  return `${Math.floor(sec / 3600)}시간 전`;
+  const tt = i18n.getFixedT(null, "convert");
+  if (sec < 60) return tt("secAgo", { n: sec });
+  if (sec < 3600) return tt("minAgo", { n: Math.floor(sec / 60) });
+  return tt("hourAgo", { n: Math.floor(sec / 3600) });
 }
 
 /** "방금 누가 결제했다" 우측 하단 floating ticker. realtime + fallback. */
