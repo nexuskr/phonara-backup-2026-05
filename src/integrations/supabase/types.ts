@@ -182,6 +182,69 @@ export type Database = {
         }
         Relationships: []
       }
+      aml_risk_scores: {
+        Row: {
+          factors: Json
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          factors?: Json
+          score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          factors?: Json
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      aml_verifications: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          doc_signed_at: string | null
+          id: string
+          level: number
+          metadata: Json
+          rejected_reason: string | null
+          selfie_path: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          doc_signed_at?: string | null
+          id?: string
+          level: number
+          metadata?: Json
+          rejected_reason?: string | null
+          selfie_path?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          doc_signed_at?: string | null
+          id?: string
+          level?: number
+          metadata?: Json
+          rejected_reason?: string | null
+          selfie_path?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       anomaly_events: {
         Row: {
           ack_note: string | null
@@ -436,6 +499,8 @@ export type Database = {
           admin_id: string | null
           amount: number
           approved_at: string | null
+          bonus_amount: number
+          bonus_pct: number
           created_at: string
           id: string
           memo: string | null
@@ -447,11 +512,15 @@ export type Database = {
           status: Database["public"]["Enums"]["deposit_status"]
           updated_at: string
           user_id: string
+          voucher_brand: string | null
+          voucher_pin_hash: string | null
         }
         Insert: {
           admin_id?: string | null
           amount: number
           approved_at?: string | null
+          bonus_amount?: number
+          bonus_pct?: number
           created_at?: string
           id?: string
           memo?: string | null
@@ -463,11 +532,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["deposit_status"]
           updated_at?: string
           user_id: string
+          voucher_brand?: string | null
+          voucher_pin_hash?: string | null
         }
         Update: {
           admin_id?: string | null
           amount?: number
           approved_at?: string | null
+          bonus_amount?: number
+          bonus_pct?: number
           created_at?: string
           id?: string
           memo?: string | null
@@ -479,6 +552,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["deposit_status"]
           updated_at?: string
           user_id?: string
+          voucher_brand?: string | null
+          voucher_pin_hash?: string | null
         }
         Relationships: []
       }
@@ -1010,6 +1085,7 @@ export type Database = {
           bank_name: string | null
           birth_date: string | null
           coin_address: string | null
+          coin_master_unlocked: boolean
           coin_network: string | null
           created_at: string
           daily_mission_count: number | null
@@ -1024,6 +1100,8 @@ export type Database = {
           referred_by: string | null
           terms_agreed_at: string | null
           tier: Database["public"]["Enums"]["user_tier"]
+          total_coin_deposits: number
+          total_withdrawn: number
           updated_at: string
           withdraw_pin_hash: string | null
         }
@@ -1035,6 +1113,7 @@ export type Database = {
           bank_name?: string | null
           birth_date?: string | null
           coin_address?: string | null
+          coin_master_unlocked?: boolean
           coin_network?: string | null
           created_at?: string
           daily_mission_count?: number | null
@@ -1049,6 +1128,8 @@ export type Database = {
           referred_by?: string | null
           terms_agreed_at?: string | null
           tier?: Database["public"]["Enums"]["user_tier"]
+          total_coin_deposits?: number
+          total_withdrawn?: number
           updated_at?: string
           withdraw_pin_hash?: string | null
         }
@@ -1060,6 +1141,7 @@ export type Database = {
           bank_name?: string | null
           birth_date?: string | null
           coin_address?: string | null
+          coin_master_unlocked?: boolean
           coin_network?: string | null
           created_at?: string
           daily_mission_count?: number | null
@@ -1074,6 +1156,8 @@ export type Database = {
           referred_by?: string | null
           terms_agreed_at?: string | null
           tier?: Database["public"]["Enums"]["user_tier"]
+          total_coin_deposits?: number
+          total_withdrawn?: number
           updated_at?: string
           withdraw_pin_hash?: string | null
         }
@@ -2120,6 +2204,10 @@ export type Database = {
         }
         Returns: number
       }
+      aml_required_level: {
+        Args: { _amount: number; _user_id: string }
+        Returns: Json
+      }
       apply_referral_code: { Args: { _code: string }; Returns: Json }
       auto_freeze_critical_anomalies: { Args: never; Returns: Json }
       award_xp: { Args: { _amount: number; _source?: Json }; Returns: Json }
@@ -2152,6 +2240,10 @@ export type Database = {
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
+      }
+      deposit_bonus_pct: {
+        Args: { _method: Database["public"]["Enums"]["deposit_method"] }
+        Returns: number
       }
       detect_anomalies: { Args: never; Returns: Json }
       distribute_profit_share: {
@@ -2490,17 +2582,31 @@ export type Database = {
         }
         Returns: Json
       }
-      submit_deposit: {
-        Args: {
-          _amount: number
-          _memo: string
-          _method: Database["public"]["Enums"]["deposit_method"]
-          _package_id: string
-          _package_name: string
-          _receipt_url: string
-        }
-        Returns: Json
-      }
+      submit_deposit:
+        | {
+            Args: {
+              _amount: number
+              _memo: string
+              _method: Database["public"]["Enums"]["deposit_method"]
+              _package_id: string
+              _package_name: string
+              _receipt_url: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _amount: number
+              _memo: string
+              _method: Database["public"]["Enums"]["deposit_method"]
+              _package_id: string
+              _package_name: string
+              _receipt_url: string
+              _voucher_brand?: string
+              _voucher_pin?: string
+            }
+            Returns: Json
+          }
       submit_package_purchase: {
         Args: {
           _amount: number
