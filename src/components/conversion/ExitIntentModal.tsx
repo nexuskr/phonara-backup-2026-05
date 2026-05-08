@@ -21,6 +21,7 @@ export default function ExitIntentModal({
   bonus?: number;
   onAccept?: () => void;
 }) {
+  const { t } = useTranslation("convert");
   const [open, setOpen] = useState(false);
   const [shown, setShown] = useState(false);
 
