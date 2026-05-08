@@ -80,20 +80,32 @@ export default function AdminUgc() {
   }, [rows]);
 
   const byUser = useMemo(() => {
-    const map = new Map<string, { user_id: string; clicks: number; signups: number; conversions: number; dm_sent: number }>();
+    const map = new Map<string, { user_id: string; clicks: number; signups: number; conversions: number; dm_sent: number; dm_responded: number }>();
     for (const r of rows) {
-      const e = map.get(r.user_id) ?? { user_id: r.user_id, clicks: 0, signups: 0, conversions: 0, dm_sent: 0 };
-      e.clicks += r.clicks; e.signups += r.signups; e.conversions += r.conversions; e.dm_sent += r.dm_sent;
+      const e = map.get(r.user_id) ?? { user_id: r.user_id, clicks: 0, signups: 0, conversions: 0, dm_sent: 0, dm_responded: 0 };
+      e.clicks += r.clicks; e.signups += r.signups; e.conversions += r.conversions;
+      e.dm_sent += r.dm_sent; e.dm_responded += r.dm_responded;
       map.set(r.user_id, e);
     }
-    return Array.from(map.values()).sort((a, b) => b.conversions - a.conversions || b.clicks - a.clicks).slice(0, 30);
+    return Array.from(map.values())
+      .map(u => ({
+        ...u,
+        cvr: u.clicks ? Math.round((u.conversions / u.clicks) * 1000) / 10 : 0,
+        respRate: u.dm_sent ? Math.round((u.dm_responded / u.dm_sent) * 1000) / 10 : 0,
+      }))
+      .sort((a, b) =>
+        b.conversions - a.conversions ||
+        b.signups - a.signups ||
+        b.clicks - a.clicks,
+      )
+      .slice(0, 30);
   }, [rows]);
 
   const byChannel = useMemo(() => {
-    const map = new Map<string, { channel: string; clicks: number; conversions: number; dm_sent: number }>();
+    const map = new Map<string, { channel: string; clicks: number; signups: number; conversions: number; dm_sent: number }>();
     for (const r of rows) {
-      const e = map.get(r.channel) ?? { channel: r.channel, clicks: 0, conversions: 0, dm_sent: 0 };
-      e.clicks += r.clicks; e.conversions += r.conversions; e.dm_sent += r.dm_sent;
+      const e = map.get(r.channel) ?? { channel: r.channel, clicks: 0, signups: 0, conversions: 0, dm_sent: 0 };
+      e.clicks += r.clicks; e.signups += r.signups; e.conversions += r.conversions; e.dm_sent += r.dm_sent;
       map.set(r.channel, e);
     }
     return Array.from(map.values()).sort((a, b) => b.clicks - a.clicks);
