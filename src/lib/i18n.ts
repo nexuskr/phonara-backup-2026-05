@@ -2281,7 +2281,7 @@ const resources = {
       gateDesc: "Buying an Empire package auto-attempts a Founding seat (30 only) and unlocks the lounge.",
       goPackages: "View Empire",
       seat: "Founding Seat #{{n}}",
-      foreverBadge: "Lifetime Founding badge · Day 4+ Empire Day auto +50%",
+      foreverBadge: "Long-term Founding badge · Day 4+ Empire Day auto +50% (simulation)",
       totalHarvest: "Total harvested",
       seatsTitle: "Founding Seats",
       seatsNote: "※ Seats 1–30 · Other founders' info is private",
