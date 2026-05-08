@@ -8,6 +8,7 @@ import {
   Crown, Copy, Share2, Rocket, Users, Sparkles, TrendingUp,
   Trophy, ChevronDown, MessageCircle, Instagram, Music2, Youtube, Globe, Send,
 } from "lucide-react";
+import DMComposer from "@/components/guide/DMComposer";
 
 type Stats = {
   code: string | null;
