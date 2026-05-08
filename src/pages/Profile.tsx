@@ -22,6 +22,7 @@ type BadgeDef = {
 };
 
 import ReferralCard from "@/components/ReferralCard";
+import CoinMasterLounge from "@/components/CoinMasterLounge";
 
 export default function Profile() {
   const { t } = useTranslation("profile");
