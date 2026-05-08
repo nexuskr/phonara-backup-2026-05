@@ -398,13 +398,43 @@ i18n
     react: { useSuspense: false },
   });
 
-// Sync <html lang> on language change
-const syncHtmlLang = (lng: string) => {
-  if (typeof document !== "undefined") {
-    document.documentElement.lang = lng;
-  }
+// Sync <html lang>, manifest, document title, and meta on language change
+const META = {
+  ko: {
+    title: "Phonara — 왕좌는 클릭 한 번으로 시작된다",
+    description: "PHONARA Empire — 임페리얼 골드 정산 플랫폼. 창립 멤버 30석 한정, 평생 골드 등급으로 폰 하나로 글로벌 수익을 시작하세요.",
+    manifest: "/manifest.ko.webmanifest",
+    appleTitle: "Phonara",
+  },
+  en: {
+    title: "Phonara — Your throne begins with one click",
+    description: "PHONARA Empire — Imperial gold settlement platform. Founders only, lifetime gold tier — your phone as a global earnings engine.",
+    manifest: "/manifest.en.webmanifest",
+    appleTitle: "Phonara",
+  },
+} as const;
+
+const setMeta = (sel: string, attr: string, val: string) => {
+  const el = document.querySelector(sel) as HTMLElement | null;
+  if (el) el.setAttribute(attr, val);
 };
-syncHtmlLang(i18n.language || "ko");
-i18n.on("languageChanged", syncHtmlLang);
+
+const syncDocument = (lng: string) => {
+  if (typeof document === "undefined") return;
+  const code = (lng || "ko").split("-")[0] === "en" ? "en" : "ko";
+  const m = META[code];
+  document.documentElement.lang = code;
+  document.title = m.title;
+  setMeta('meta[name="description"]', "content", m.description);
+  setMeta('link[rel="manifest"]', "href", m.manifest);
+  setMeta('meta[name="apple-mobile-web-app-title"]', "content", m.appleTitle);
+  setMeta('meta[property="og:locale"]', "content", code === "en" ? "en_US" : "ko_KR");
+  setMeta('meta[property="og:title"]', "content", m.title);
+  setMeta('meta[property="og:description"]', "content", m.description);
+  setMeta('meta[name="twitter:title"]', "content", m.title);
+  setMeta('meta[name="twitter:description"]', "content", m.description);
+};
+syncDocument(i18n.language || "ko");
+i18n.on("languageChanged", syncDocument);
 
 export default i18n;
