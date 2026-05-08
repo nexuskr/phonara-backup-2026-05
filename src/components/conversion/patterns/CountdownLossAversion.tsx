@@ -1,20 +1,39 @@
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 
-/** 손실 회피 카운트다운 — 보너스 소멸까지 남은 시간. */
+/**
+ * 손실 회피 카운트다운 — 보너스 소멸까지.
+ * sessionStorage 기반 지속 — 모달 재오픈/페이지 이동에도 같은 타이머 유지(진짜 압박).
+ */
 export default function CountdownLossAversion({
   minutes = 15,
   label = "보너스 소멸까지",
+  storageKey = "phonara_paywall_deadline",
 }: {
   minutes?: number;
   label?: string;
+  storageKey?: string;
 }) {
-  const [left, setLeft] = useState(minutes * 60);
+  const [left, setLeft] = useState(() => {
+    if (typeof window === "undefined") return minutes * 60;
+    const raw = sessionStorage.getItem(storageKey);
+    const deadline = raw ? Number(raw) : 0;
+    if (!deadline || isNaN(deadline) || deadline < Date.now()) {
+      const next = Date.now() + minutes * 60_000;
+      sessionStorage.setItem(storageKey, String(next));
+      return minutes * 60;
+    }
+    return Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+  });
 
   useEffect(() => {
-    const id = setInterval(() => setLeft((s) => Math.max(0, s - 1)), 1000);
+    const id = setInterval(() => {
+      const raw = sessionStorage.getItem(storageKey);
+      const deadline = raw ? Number(raw) : 0;
+      setLeft(Math.max(0, Math.floor((deadline - Date.now()) / 1000)));
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [storageKey]);
 
   const m = Math.floor(left / 60);
   const s = left % 60;
