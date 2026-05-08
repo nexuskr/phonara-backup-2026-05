@@ -180,6 +180,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="relative">{children}</main>
+      <NeonNotificationFeed />
 
       {/* Mobile bottom nav — 5 tabs with center FAB */}
       {user && (
