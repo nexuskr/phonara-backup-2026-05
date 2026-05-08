@@ -87,6 +87,20 @@ export default function NeonNotificationFeed() {
               ),
               { duration: 6000, position: "top-right" },
             );
+
+            // Also fire a system push for high-priority kinds
+            if (PUSH_KINDS.has(n.kind)) {
+              tryBrowserPush(n.title, n.body ?? "", n.id);
+            }
+            // Surface a custom DOM event so any banner/audio component can react
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("neon:notification", { detail: n }));
+            }
+            // dev debug log
+            if (import.meta.env.DEV) {
+              // eslint-disable-next-line no-console
+              console.debug("[neon]", n.kind, n.title, n.payload);
+            }
           },
         )
         .subscribe();
