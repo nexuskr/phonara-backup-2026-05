@@ -593,6 +593,7 @@ function GameModal({
 
 /* ─────────── Games ─────────── */
 function ReactionGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const [phase, setPhase] = useState<"idle" | "wait" | "go" | "done" | "fail">("idle");
   const [start, setStart] = useState(0);
   const [ms, setMs] = useState(0);
@@ -611,8 +612,8 @@ function ReactionGame({ reward, onResult }: { reward: number; onResult: (w: bool
       return;
     }
     if (phase === "go") {
-      const t = Date.now() - start;
-      setMs(t);
+      const tm = Date.now() - start;
+      setMs(tm);
       setPhase("done");
     }
   }
@@ -634,18 +635,18 @@ function ReactionGame({ reward, onResult }: { reward: number; onResult: (w: bool
                     : "bg-gradient-primary text-primary-foreground"
           }`}
       >
-        {phase === "idle" && "시작"}
-        {phase === "wait" && "기다려..."}
-        {phase === "go" && "지금 탭!"}
+        {phase === "idle" && t("gStart")}
+        {phase === "wait" && t("gWait")}
+        {phase === "go" && t("gNow")}
         {phase === "done" && `${ms}ms · +${formatKRW(reward + bonus)}`}
-        {phase === "fail" && "너무 빨라요!"}
+        {phase === "fail" && t("gTooFast")}
       </button>
       {phase === "done" && (
         <button
           onClick={() => onResult(true, bonus)}
-          className="press sheen mt-4 px-8 py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold"
+          className="press sheen mt-4 min-h-[56px] px-8 py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold"
         >
-          보상 받기
+          {t("gClaim")}
         </button>
       )}
     </div>
