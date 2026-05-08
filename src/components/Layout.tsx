@@ -22,6 +22,7 @@ import TopHUD, { TopHUDCompact } from "./TopHUD";
 import LanguageSwitcher from "./LanguageSwitcher";
 import FreezeBanner from "./FreezeBanner";
 import { useAchievementWatcher } from "@/hooks/use-achievement-watcher";
+import NeonNotificationFeed from "./NeonNotificationFeed";
 
 /**
  * Phonara — Empire 5축 IA
