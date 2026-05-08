@@ -262,6 +262,8 @@ export default function Dashboard() {
           <div className="mt-8">
             <LiveRanking />
           </div>
+
+          <Disclaimer className="mt-6" />
         </div>
       </div>
     </Layout>
