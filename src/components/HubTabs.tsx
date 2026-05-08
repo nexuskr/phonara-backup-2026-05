@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Target, Sparkles, Gamepad2, Crown, Layers, Users, Wallet, ArrowDownToLine, ArrowUpFromLine, Receipt, Trophy, Award, Share2, TrendingUp } from "lucide-react";
+import { Target, Sparkles, Gamepad2, Crown, Layers, Users, Wallet, ArrowDownToLine, ArrowUpFromLine, Receipt, Trophy, Award, Share2, TrendingUp, BarChart3 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ComponentType } from "react";
 
@@ -35,6 +35,7 @@ const HUBS: Record<HubKey, { tabs: Tab[] }> = {
   legacy: {
     tabs: [
       { to: "/referral",             tKey: "legacy.referral",     icon: Share2 },
+      { to: "/ugc",                  tKey: "legacy.ugc",          icon: BarChart3 },
       { to: "/legacy",               tKey: "legacy.ranking",      icon: Trophy },
       { to: "/achievements",         tKey: "legacy.achievements", icon: Award },
     ],
