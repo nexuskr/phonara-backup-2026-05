@@ -64,20 +64,34 @@ export default function Trust() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
-    setLoading(true);
+  async function load(force = false) {
+    if (force) invalidateTrustCache();
+    // Hydrate immediately from cache if available — no skeleton flash
+    const cached = getTrustCache(historyDays);
+    if (cached) {
+      setM(cached.metrics); setU(cached.uptime); setHeat(cached.heatmap);
+      setChaos(cached.chaos); setHistory(cached.history);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const sb: any = supabase;
-      const [{ data: md }, { data: ud }, { data: hd }, { data: cd }, { data: histD }] = await Promise.all([
+      // Priority 1 — render hero ASAP
+      const [{ data: md }, { data: ud }] = await Promise.all([
         sb.rpc("public_trust_metrics"),
         sb.rpc("public_uptime_summary"),
+      ]);
+      setM((md as Metrics) ?? null);
+      setU((ud as unknown as UptimeSummary) ?? null);
+      setLoading(false);
+      // Priority 2 — heavy data behind the fold
+      const [{ data: hd }, { data: cd }, { data: histD }] = await Promise.all([
         sb.rpc("public_uptime_heatmap_90d"),
         sb.rpc("latest_chaos_run"),
         sb.rpc("public_trust_history", { _days: historyDays }),
       ]);
-      setM((md as Metrics) ?? null);
-      setU((ud as unknown as UptimeSummary) ?? null);
       setHeat(((hd as any)?.days ?? []) as HeatmapDay[]);
       setChaos((cd as ChaosLatest) ?? null);
       setHistory((histD as HistoryRow[]) ?? []);
@@ -85,6 +99,8 @@ export default function Trust() {
       sb.rpc("policy_assertions_status").then(({ data, error: e }: any) => {
         if (!e) setAssertStatus((data as AssertionStatus) ?? null);
       });
+      // refresh prefetch cache
+      void prefetchTrust(historyDays);
     } catch (e: any) {
       setError(e?.message ?? "데이터 로드 실패");
     } finally {
