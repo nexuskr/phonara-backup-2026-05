@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, TrendingUp, Activity, Crown, Clock, Users, FileCheck2, Radar, ArrowLeft, RefreshCw, History } from "lucide-react";
 import Particles from "@/components/Particles";
-import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, CartesianGrid } from "recharts";
+import TrustHistoryCharts from "@/components/trust/TrustHistoryCharts";
 
 type HistoryRow = {
   taken_at: string;
@@ -182,25 +182,25 @@ export default function Trust() {
           <Hero
             icon={TrendingUp}
             label="누적 정산 지급액"
-            value={loading ? "—" : fmtKRW(m?.total_paid ?? 0)}
+            value={fmtKRW(m?.total_paid ?? 0)} loading={loading && !m}
             sub={loading ? "" : `최근 30일 ${fmtKRW(m?.paid_30d ?? 0)}`}
           />
           <Hero
             icon={Users}
             label="누적 회원"
-            value={loading ? "—" : (m?.total_members ?? 0).toLocaleString()}
+            value={(m?.total_members ?? 0).toLocaleString()} loading={loading && !m}
             sub={loading ? "" : `최근 30일 활동 ${(m?.active_members_30d ?? 0).toLocaleString()}명`}
           />
         </section>
 
         {/* SLO grid */}
         <section className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Tile icon={Activity} label="정산 가동률 (7d)" value={loading ? "—" : fmtPct(m?.cron_uptime_7d ?? 0)} ok={(m?.cron_uptime_7d ?? 0) >= 99} />
-          <Tile icon={Clock} label="평균 정산 처리" value={loading ? "—" : `${(m?.avg_settle_minutes ?? 0).toFixed(1)}분`} ok={(m?.avg_settle_minutes ?? 0) <= 30} />
-          <Tile icon={ShieldCheck} label="보안 감사 PASS (30d)" value={loading ? "—" : fmtPct(m?.audit_pass_30d ?? 0)} ok={(m?.audit_pass_30d ?? 0) >= 99} />
-          <Tile icon={FileCheck2} label="정책 단언 통과 (7d)" value={loading ? "—" : fmtPct(m?.policy_pass_7d ?? 0)} ok={(m?.policy_pass_7d ?? 0) >= 99} />
-          <Tile icon={Radar} label="미확인 이상치" value={loading ? "—" : String(m?.unack_anomalies ?? 0)} ok={(m?.unack_anomalies ?? 0) === 0} />
-          <Tile icon={Clock} label="마지막 정산 실행" value={loading ? "—" : (m?.last_cron_at ? new Date(m.last_cron_at).toLocaleString("ko-KR") : "—")} ok={!!m?.last_cron_at} small />
+          <Tile icon={Activity} label="정산 가동률 (7d)" value={fmtPct(m?.cron_uptime_7d ?? 0)} loading={loading && !m && !u} ok={(m?.cron_uptime_7d ?? 0) >= 99} />
+          <Tile icon={Clock} label="평균 정산 처리" value={`${(m?.avg_settle_minutes ?? 0).toFixed(1)} loading={loading && !m && !u}분`} ok={(m?.avg_settle_minutes ?? 0) <= 30} />
+          <Tile icon={ShieldCheck} label="보안 감사 PASS (30d)" value={fmtPct(m?.audit_pass_30d ?? 0)} loading={loading && !m && !u} ok={(m?.audit_pass_30d ?? 0) >= 99} />
+          <Tile icon={FileCheck2} label="정책 단언 통과 (7d)" value={fmtPct(m?.policy_pass_7d ?? 0)} loading={loading && !m && !u} ok={(m?.policy_pass_7d ?? 0) >= 99} />
+          <Tile icon={Radar} label="미확인 이상치" value={String(m?.unack_anomalies ?? 0)} loading={loading && !m && !u} ok={(m?.unack_anomalies ?? 0) === 0} />
+          <Tile icon={Clock} label="마지막 정산 실행" value={(m?.last_cron_at ? new Date(m.last_cron_at).toLocaleString("ko-KR") : "—")} loading={loading && !m && !u} ok={!!m?.last_cron_at} small />
         </section>
 
         {error && (
@@ -244,10 +244,10 @@ export default function Trust() {
             <div className="text-[10px] text-muted-foreground">5분마다 외부 핑</div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Tile icon={Activity} label="성공률 (24h)" value={loading ? "—" : fmtPct(u?.success_rate_24h ?? 0)} ok={(u?.success_rate_24h ?? 0) >= 99} />
-            <Tile icon={Activity} label="성공률 (7d)" value={loading ? "—" : fmtPct(u?.success_rate_7d ?? 0)} ok={(u?.success_rate_7d ?? 0) >= 99} />
-            <Tile icon={Clock} label="p95 지연 (24h)" value={loading ? "—" : `${u?.p95_latency_ms_24h ?? 0}ms`} ok={(u?.p95_latency_ms_24h ?? 0) <= 1500} />
-            <Tile icon={Clock} label="마지막 핑" value={loading ? "—" : (u?.last_ping_at ? new Date(u.last_ping_at).toLocaleTimeString("ko-KR") : "—")} ok={!!u?.last_ok} small />
+            <Tile icon={Activity} label="성공률 (24h)" value={fmtPct(u?.success_rate_24h ?? 0)} loading={loading && !m && !u} ok={(u?.success_rate_24h ?? 0) >= 99} />
+            <Tile icon={Activity} label="성공률 (7d)" value={fmtPct(u?.success_rate_7d ?? 0)} loading={loading && !m && !u} ok={(u?.success_rate_7d ?? 0) >= 99} />
+            <Tile icon={Clock} label="p95 지연 (24h)" value={`${u?.p95_latency_ms_24h ?? 0} loading={loading && !m && !u}ms`} ok={(u?.p95_latency_ms_24h ?? 0) <= 1500} />
+            <Tile icon={Clock} label="마지막 핑" value={(u?.last_ping_at ? new Date(u.last_ping_at).toLocaleTimeString("ko-KR") : "—")} loading={loading && !m && !u} ok={!!u?.last_ok} small />
           </div>
         </section>
 
@@ -265,47 +265,21 @@ export default function Trust() {
               ))}
             </div>
           </div>
-          {loading ? (
-            <div className="h-48 flex items-center justify-center text-xs text-muted-foreground animate-pulse">불러오는 중…</div>
+          {loading && history.length === 0 ? (
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="glass rounded-2xl p-3">
+                <div className="h-3 w-32 rounded bg-muted/40 mb-3 animate-pulse" />
+                <div className="h-[180px] rounded-lg bg-muted/20 animate-pulse" />
+              </div>
+              <div className="glass rounded-2xl p-3">
+                <div className="h-3 w-32 rounded bg-muted/40 mb-3 animate-pulse" />
+                <div className="h-[180px] rounded-lg bg-muted/20 animate-pulse" />
+              </div>
+            </div>
           ) : history.length === 0 ? (
             <div className="h-48 flex items-center justify-center text-xs text-muted-foreground">아직 누적된 스냅샷이 없습니다. (매일 04:05 UTC 기록)</div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="glass rounded-2xl p-3">
-                <div className="text-[11px] text-muted-foreground mb-2 font-bold">누적 정산 지급액 (₩)</div>
-                <ResponsiveContainer width="100%" height={180}>
-                  <AreaChart data={history}>
-                    <defs>
-                      <linearGradient id="gPaid" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
-                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis dataKey="taken_at" tick={{ fontSize: 9 }} tickFormatter={(t) => new Date(t).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })} />
-                    <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`} />
-                    <RTooltip contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
-                      formatter={(v: any) => fmtKRW(Number(v))} labelFormatter={(t) => new Date(t).toLocaleDateString("ko-KR")} />
-                    <Area type="monotone" dataKey="total_paid" stroke="hsl(var(--primary))" fill="url(#gPaid)" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="glass rounded-2xl p-3">
-                <div className="text-[11px] text-muted-foreground mb-2 font-bold">가동률·감사 PASS (%)</div>
-                <ResponsiveContainer width="100%" height={180}>
-                  <LineChart data={history}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis dataKey="taken_at" tick={{ fontSize: 9 }} tickFormatter={(t) => new Date(t).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })} />
-                    <YAxis tick={{ fontSize: 9 }} domain={[90, 100]} />
-                    <RTooltip contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
-                      formatter={(v: any) => `${Number(v).toFixed(2)}%`} labelFormatter={(t) => new Date(t).toLocaleDateString("ko-KR")} />
-                    <Line type="monotone" dataKey="cron_uptime_7d" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="가동률" />
-                    <Line type="monotone" dataKey="audit_pass_30d" stroke="hsl(var(--secondary))" strokeWidth={2} dot={false} name="감사 PASS" />
-                    <Line type="monotone" dataKey="policy_pass_7d" stroke="hsl(var(--gold))" strokeWidth={2} dot={false} name="정책 단언" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <TrustHistoryCharts history={history} days={historyDays} />
           )}
         </section>
 
@@ -396,27 +370,37 @@ export default function Trust() {
   );
 }
 
-function Hero({ icon: Icon, label, value, sub }: any) {
+function Hero({ icon: Icon, label, value, sub, loading }: any) {
   return (
     <div className="glass-strong rounded-3xl p-6 border border-primary/30 relative overflow-hidden">
       <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-40 bg-primary" />
       <Icon className="w-6 h-6 text-primary" />
       <div className="text-[10px] text-muted-foreground tracking-widest mt-3 font-bold">{label}</div>
-      <div className="font-display font-black text-3xl mt-1 text-gradient-imperial tabular-nums">{value}</div>
-      {sub && <div className="text-xs text-muted-foreground mt-2">{sub}</div>}
+      {loading ? (
+        <div className="h-9 w-40 mt-1 rounded bg-muted/30 animate-pulse" />
+      ) : (
+        <div className="font-display font-black text-3xl mt-1 text-gradient-imperial tabular-nums">{value}</div>
+      )}
+      {loading ? (
+        <div className="h-3 w-32 mt-2 rounded bg-muted/20 animate-pulse" />
+      ) : sub ? <div className="text-xs text-muted-foreground mt-2">{sub}</div> : null}
     </div>
   );
 }
 
-function Tile({ icon: Icon, label, value, ok, small }: any) {
+function Tile({ icon: Icon, label, value, ok, small, loading }: any) {
   return (
     <div className="glass rounded-2xl p-4 border border-border">
       <div className="flex items-center gap-2">
         <Icon className={`w-4 h-4 ${ok ? "text-secondary" : "text-gold"}`} />
-        <span className={`w-1.5 h-1.5 rounded-full ${ok ? "bg-secondary" : "bg-gold"} animate-pulse`} />
+        <span className={`w-1.5 h-1.5 rounded-full ${loading ? "bg-muted" : ok ? "bg-secondary" : "bg-gold"} animate-pulse`} />
       </div>
       <div className="text-[10px] text-muted-foreground mt-2">{label}</div>
-      <div className={`font-bold mt-1 tabular-nums ${small ? "text-xs" : "text-lg"} ${ok ? "" : "text-gold"}`}>{value}</div>
+      {loading ? (
+        <div className={`mt-1 rounded bg-muted/30 animate-pulse ${small ? "h-3 w-20" : "h-5 w-16"}`} />
+      ) : (
+        <div className={`font-bold mt-1 tabular-nums ${small ? "text-xs" : "text-lg"} ${ok ? "" : "text-gold"}`}>{value}</div>
+      )}
     </div>
   );
 }
