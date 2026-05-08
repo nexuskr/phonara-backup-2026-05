@@ -21,6 +21,7 @@ type Msg = { id: string; sender: "user" | "admin"; message: string; created_at: 
 
 export default function Support() {
   const { t, i18n } = useTranslation("support");
+  const { t: tFaq } = useTranslation("faq");
   const [db] = useDB();
   const nav = useNavigate();
   const user = useRequireAuth() ?? db.user;
@@ -140,13 +141,13 @@ export default function Support() {
 
         {tab === "faq" && (
           <div className="space-y-2">
-            {FAQ.map((f, i) => (
-              <button key={i} onClick={() => setOpen(open === i ? null : i)} className="w-full glass rounded-2xl p-4 text-left">
+            {FAQ_KEYS.map((f, i) => (
+              <button key={i} onClick={() => setOpen(open === i ? null : i)} className="w-full glass rounded-2xl p-4 text-left min-h-[56px]">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-bold">Q. {f.q}</span>
-                  <ChevronDown className={`w-4 h-4 transition ${open === i ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
+                  <span className="text-sm font-bold break-keep">Q. {tFaq(f.q)}</span>
+                  <ChevronDown className={`w-4 h-4 transition shrink-0 ${open === i ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
                 </div>
-                {open === i && <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-3 whitespace-pre-line">{f.a}</p>}
+                {open === i && <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-3 whitespace-pre-line break-keep">{tFaq(f.a)}</p>}
               </button>
             ))}
           </div>
