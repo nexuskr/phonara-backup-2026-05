@@ -182,25 +182,25 @@ export default function Trust() {
           <Hero
             icon={TrendingUp}
             label="누적 정산 지급액"
-            value={loading ? "—" : fmtKRW(m?.total_paid ?? 0)}
+            value={fmtKRW(m?.total_paid ?? 0)} loading={loading && !m}
             sub={loading ? "" : `최근 30일 ${fmtKRW(m?.paid_30d ?? 0)}`}
           />
           <Hero
             icon={Users}
             label="누적 회원"
-            value={loading ? "—" : (m?.total_members ?? 0).toLocaleString()}
+            value={(m?.total_members ?? 0).toLocaleString()} loading={loading && !m}
             sub={loading ? "" : `최근 30일 활동 ${(m?.active_members_30d ?? 0).toLocaleString()}명`}
           />
         </section>
 
         {/* SLO grid */}
         <section className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Tile icon={Activity} label="정산 가동률 (7d)" value={loading ? "—" : fmtPct(m?.cron_uptime_7d ?? 0)} ok={(m?.cron_uptime_7d ?? 0) >= 99} />
-          <Tile icon={Clock} label="평균 정산 처리" value={loading ? "—" : `${(m?.avg_settle_minutes ?? 0).toFixed(1)}분`} ok={(m?.avg_settle_minutes ?? 0) <= 30} />
-          <Tile icon={ShieldCheck} label="보안 감사 PASS (30d)" value={loading ? "—" : fmtPct(m?.audit_pass_30d ?? 0)} ok={(m?.audit_pass_30d ?? 0) >= 99} />
-          <Tile icon={FileCheck2} label="정책 단언 통과 (7d)" value={loading ? "—" : fmtPct(m?.policy_pass_7d ?? 0)} ok={(m?.policy_pass_7d ?? 0) >= 99} />
-          <Tile icon={Radar} label="미확인 이상치" value={loading ? "—" : String(m?.unack_anomalies ?? 0)} ok={(m?.unack_anomalies ?? 0) === 0} />
-          <Tile icon={Clock} label="마지막 정산 실행" value={loading ? "—" : (m?.last_cron_at ? new Date(m.last_cron_at).toLocaleString("ko-KR") : "—")} ok={!!m?.last_cron_at} small />
+          <Tile icon={Activity} label="정산 가동률 (7d)" value={fmtPct(m?.cron_uptime_7d ?? 0)} loading={loading && !m && !u} ok={(m?.cron_uptime_7d ?? 0) >= 99} />
+          <Tile icon={Clock} label="평균 정산 처리" value={`${(m?.avg_settle_minutes ?? 0).toFixed(1)} loading={loading && !m && !u}분`} ok={(m?.avg_settle_minutes ?? 0) <= 30} />
+          <Tile icon={ShieldCheck} label="보안 감사 PASS (30d)" value={fmtPct(m?.audit_pass_30d ?? 0)} loading={loading && !m && !u} ok={(m?.audit_pass_30d ?? 0) >= 99} />
+          <Tile icon={FileCheck2} label="정책 단언 통과 (7d)" value={fmtPct(m?.policy_pass_7d ?? 0)} loading={loading && !m && !u} ok={(m?.policy_pass_7d ?? 0) >= 99} />
+          <Tile icon={Radar} label="미확인 이상치" value={String(m?.unack_anomalies ?? 0)} loading={loading && !m && !u} ok={(m?.unack_anomalies ?? 0) === 0} />
+          <Tile icon={Clock} label="마지막 정산 실행" value={(m?.last_cron_at ? new Date(m.last_cron_at).toLocaleString("ko-KR") : "—")} loading={loading && !m && !u} ok={!!m?.last_cron_at} small />
         </section>
 
         {error && (
@@ -244,10 +244,10 @@ export default function Trust() {
             <div className="text-[10px] text-muted-foreground">5분마다 외부 핑</div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Tile icon={Activity} label="성공률 (24h)" value={loading ? "—" : fmtPct(u?.success_rate_24h ?? 0)} ok={(u?.success_rate_24h ?? 0) >= 99} />
-            <Tile icon={Activity} label="성공률 (7d)" value={loading ? "—" : fmtPct(u?.success_rate_7d ?? 0)} ok={(u?.success_rate_7d ?? 0) >= 99} />
-            <Tile icon={Clock} label="p95 지연 (24h)" value={loading ? "—" : `${u?.p95_latency_ms_24h ?? 0}ms`} ok={(u?.p95_latency_ms_24h ?? 0) <= 1500} />
-            <Tile icon={Clock} label="마지막 핑" value={loading ? "—" : (u?.last_ping_at ? new Date(u.last_ping_at).toLocaleTimeString("ko-KR") : "—")} ok={!!u?.last_ok} small />
+            <Tile icon={Activity} label="성공률 (24h)" value={fmtPct(u?.success_rate_24h ?? 0)} loading={loading && !m && !u} ok={(u?.success_rate_24h ?? 0) >= 99} />
+            <Tile icon={Activity} label="성공률 (7d)" value={fmtPct(u?.success_rate_7d ?? 0)} loading={loading && !m && !u} ok={(u?.success_rate_7d ?? 0) >= 99} />
+            <Tile icon={Clock} label="p95 지연 (24h)" value={`${u?.p95_latency_ms_24h ?? 0} loading={loading && !m && !u}ms`} ok={(u?.p95_latency_ms_24h ?? 0) <= 1500} />
+            <Tile icon={Clock} label="마지막 핑" value={(u?.last_ping_at ? new Date(u.last_ping_at).toLocaleTimeString("ko-KR") : "—")} loading={loading && !m && !u} ok={!!u?.last_ok} small />
           </div>
         </section>
 
