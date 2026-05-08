@@ -45,6 +45,8 @@ const resources = {
       boostCount: "{{n}} BOOST",
     },
     hubs: {
+      command: { title: "사령부 허브", tagline: "오늘 할 일 · 잔고 · 부스트 — 한눈에",
+        dashboard: "사령부" },
       earn: { title: "수익 허브", tagline: "돈 버는 모든 것 — 한 곳에서",
         missions: "미션", quests: "퀘스트", roulette: "룰렛", seasonPass: "시즌패스" },
       empire: { title: "제국 허브", tagline: "당신의 제국, 등급으로 말하다",
