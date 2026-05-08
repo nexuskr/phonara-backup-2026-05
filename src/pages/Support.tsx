@@ -8,19 +8,20 @@ import { useRequireAuth } from "@/hooks/use-require-auth";
 import { Send, MessageSquare, ChevronDown, BookOpen } from "lucide-react";
 import { LuxButton, LuxInput, LuxChip } from "@/components/ui/lux";
 
-const FAQ = [
-  { q: "Phonara는 정말 돈을 주나요?", a: "네, 실제로 매일 수천 명의 회원님들이 출금을 하고 계십니다." },
-  { q: "출금은 어떻게 하고, 최소 금액과 소요시간은?", a: "최소 출금 금액은 5,000원부터입니다. 관리자 확인 후 10분~30분 이내 입금됩니다." },
-  { q: "FREE로도 충분히 벌 수 있나요?", a: "충분히 가능합니다. 더 많은 수익을 원하시면 STARTER부터 업그레이드를 추천드려요." },
-  { q: "VIP 혜택?", a: "✓ 모든 미션 보상 6배\n✓ God Mode 게임\n✓ 전담 매니저\n✓ 월 출금 한도 3,000만원" },
-  { q: "패키지 적립률은 어떻게 결정되나요?", a: "모든 패키지는 30일 한정·사전 공지된 확정 적립 스케줄로 운영됩니다.\n\n• 첫 3일 보너스 구간(Day 1~3): Easy 라인 +30%, Easy 150 +20%, Empire +50%\n• Day 4~30: 표기된 기본 일수익으로 자동 정산\n• Empire Day(매월 1일·15일): Empire 보유자 중 Day 4 이후 머신에 한해 +50% 자동 적용\n• 7일 연속 수확 시: 1일치 추가 보너스 1회 자동 지급\n\n모든 일정과 적립률은 사전 고지된 확정 스케줄이며 변동되지 않습니다." },
-  { q: "청약철회·환불 규정", a: "전자상거래법에 따라 결제일로부터 7일 이내 청약철회가 가능합니다.\n\n단, 다음의 경우 청약철회가 제한됩니다:\n• 1회라도 일일 정산(수확)을 진행한 경우\n• 즉시 출금가능 보너스(Empire 30만원 등)를 이미 출금한 경우\n• Founding Member 좌석을 이미 점유한 경우\n\n7일 이내 위 사유에 해당하지 않으면 100% 전액 환불됩니다." },
-];
+const FAQ_KEYS = [
+  { q: "q1", a: "a1" },
+  { q: "q2", a: "a2" },
+  { q: "q3", a: "a3" },
+  { q: "q4", a: "a4" },
+  { q: "q5", a: "a5" },
+  { q: "q6", a: "a6" },
+] as const;
 
 type Msg = { id: string; sender: "user" | "admin"; message: string; created_at: string };
 
 export default function Support() {
   const { t, i18n } = useTranslation("support");
+  const { t: tFaq } = useTranslation("faq");
   const [db] = useDB();
   const nav = useNavigate();
   const user = useRequireAuth() ?? db.user;
@@ -140,13 +141,13 @@ export default function Support() {
 
         {tab === "faq" && (
           <div className="space-y-2">
-            {FAQ.map((f, i) => (
-              <button key={i} onClick={() => setOpen(open === i ? null : i)} className="w-full glass rounded-2xl p-4 text-left">
+            {FAQ_KEYS.map((f, i) => (
+              <button key={i} onClick={() => setOpen(open === i ? null : i)} className="w-full glass rounded-2xl p-4 text-left min-h-[56px]">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-bold">Q. {f.q}</span>
-                  <ChevronDown className={`w-4 h-4 transition ${open === i ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
+                  <span className="text-sm font-bold break-keep">Q. {tFaq(f.q)}</span>
+                  <ChevronDown className={`w-4 h-4 transition shrink-0 ${open === i ? "rotate-180 text-primary" : "text-muted-foreground"}`} />
                 </div>
-                {open === i && <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-3 whitespace-pre-line">{f.a}</p>}
+                {open === i && <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-3 whitespace-pre-line break-keep">{tFaq(f.a)}</p>}
               </button>
             ))}
           </div>

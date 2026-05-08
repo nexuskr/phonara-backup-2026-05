@@ -16,10 +16,24 @@ import WithdrawIntentInterceptor from "@/components/conversion/WithdrawIntentInt
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
 
+const BANKS = ["KB", "Shinhan", "Woori", "Hana", "Nonghyup", "Kakao Bank", "Toss Bank"] as const;
+const BANK_LABEL: Record<string, { ko: string; en: string }> = {
+  "KB": { ko: "KB국민", en: "KB Kookmin" },
+  "Shinhan": { ko: "신한", en: "Shinhan" },
+  "Woori": { ko: "우리", en: "Woori" },
+  "Hana": { ko: "하나", en: "Hana" },
+  "Nonghyup": { ko: "농협", en: "Nonghyup" },
+  "Kakao Bank": { ko: "카카오뱅크", en: "Kakao Bank" },
+  "Toss Bank": { ko: "토스뱅크", en: "Toss Bank" },
+};
+
 export default function Wallet() {
   const [db, setDb] = useDB();
   const nav = useNavigate();
   const { t } = useTranslation("wallet");
+  const { t: tw } = useTranslation("walletToast");
+  const { i18n } = useTranslation();
+  const lng = (i18n.language || "ko").startsWith("en") ? "en" : "ko";
   const user = useRequireAuth() ?? db.user;
   const [asset, setAsset] = useState<AssetTab>("bank");
   const [action, setAction] = useState<ActionTab>("withdraw");
@@ -29,7 +43,7 @@ export default function Wallet() {
   // shared
   const [amount, setAmount] = useState("");
   // bank
-  const [bank, setBank] = useState("KB국민");
+  const [bank, setBank] = useState<string>("KB");
   const [account, setAccount] = useState("");
   // coin
   const [coinAddr, setCoinAddr] = useState("");
@@ -46,17 +60,17 @@ export default function Wallet() {
   function sendCode() {
     const c = gen6();
     setSentCode(c);
-    toast({ title: "📲 인증번호 발송됨", description: `테스트용 인증번호: ${c}` });
+    toast({ title: tw("codeSent"), description: tw("codeSentDesc", { code: c }) });
   }
 
   function ensureWithdrawPw() {
     if (!u.withdrawPw) {
-      const pw = prompt("출금 비밀번호 6자리를 새로 설정해주세요");
+      const pw = prompt(tw("pinPrompt"));
       if (pw && /^\d{6}$/.test(pw)) {
         setDb(d => ({ ...d, user: d.user ? { ...d.user, withdrawPw: pw } : null }));
         return pw;
       }
-      toast({ title: "출금 비밀번호 6자리를 정확히 입력해주세요" });
+      toast({ title: tw("pinInvalid") });
       return null;
     }
     return u.withdrawPw;
@@ -64,20 +78,19 @@ export default function Wallet() {
 
   async function submitWithdraw() {
     const a = Number(amount);
-    if (!a || a < 10000) { toast({ title: "최소 10,000원부터 출금 가능" }); return; }
+    if (!a || a < 10000) { toast({ title: tw("minWithdraw") }); return; }
     const balance = asset === "bank" ? u.balance : u.coinBalance;
-    if (a > balance) { toast({ title: "잔고가 부족합니다" }); return; }
+    if (a > balance) { toast({ title: tw("insufficient") }); return; }
     const limit = WITHDRAW_LIMITS[u.tier];
     if (limit !== -1 && a > limit) {
-      toast({ title: `${u.tier} 등급 출금 한도 초과`, description: `현재 한도: ${formatKRW(limit)} · 패키지 업그레이드로 한도 상향` });
+      toast({ title: tw("limitOver", { tier: u.tier }), description: tw("limitOverDesc", { limit: formatKRW(limit) }) });
       return;
     }
-    if (asset === "bank" && !account) { toast({ title: "계좌번호를 입력해주세요" }); return; }
-    if (asset === "coin" && !coinAddr) { toast({ title: "코인 주소를 입력해주세요" }); return; }
-    if (sentCode !== authCode) { toast({ title: "인증번호 불일치" }); return; }
-    if (!/^\d{6}$/.test(withdrawPw)) { toast({ title: "출금 PIN 6자리를 입력해주세요" }); return; }
+    if (asset === "bank" && !account) { toast({ title: tw("accountReq") }); return; }
+    if (asset === "coin" && !coinAddr) { toast({ title: tw("coinReq") }); return; }
+    if (sentCode !== authCode) { toast({ title: tw("codeMismatch") }); return; }
+    if (!/^\d{6}$/.test(withdrawPw)) { toast({ title: tw("pinMismatch") }); return; }
 
-    // Server-authoritative withdrawal: validates PIN, locks funds, creates request
     const { data, error } = await supabase.rpc("request_withdrawal", {
       _amount: a,
       _method: asset === "bank" ? "bank" : "coin",
@@ -90,19 +103,18 @@ export default function Wallet() {
 
     if (error) {
       const msg = error.message || "";
-      const friendly = msg.includes("pin mismatch") ? "출금 PIN이 일치하지 않습니다."
-        : msg.includes("below_min") ? "최소 출금 금액 미만입니다."
-        : msg.includes("insufficient_funds") ? "잔고가 부족합니다."
-        : msg.includes("daily_withdraw_limit") ? "일반 등급 일일 출금 3회 한도를 초과했습니다."
+      const friendly = msg.includes("pin mismatch") ? tw("pinError")
+        : msg.includes("below_min") ? tw("belowMin")
+        : msg.includes("insufficient_funds") ? tw("insufficient")
+        : msg.includes("daily_withdraw_limit") ? tw("dailyLimit")
         : msg;
-      toast({ title: "출금 실패", description: friendly, variant: "destructive" });
+      toast({ title: tw("withdrawFail"), description: friendly, variant: "destructive" });
       return;
     }
 
     const r = data as any;
     setResultCode(r?.tx_code ?? null);
 
-    // Mirror to local DB for UI continuity
     setDb(d => ({
       ...d,
       withdraws: [{
@@ -114,23 +126,23 @@ export default function Wallet() {
     }));
     await refreshWallet();
     setAmount(""); setAccount(""); setCoinAddr(""); setSentCode(null); setAuthCode(""); setWithdrawPw("");
-    toast({ title: "💸 출금 신청 완료", description: `${u.tier} 등급 처리 시간 내 정산됩니다.` });
+    toast({ title: tw("withdrawDone"), description: tw("withdrawDoneDesc", { tier: u.tier }) });
   }
 
   async function submitDeposit() {
     const a = Number(amount);
-    if (!a || a < 10000) { toast({ title: "최소 10,000원부터 충전 가능" }); return; }
-    if (sentCode !== authCode) { toast({ title: "인증번호 불일치" }); return; }
+    if (!a || a < 10000) { toast({ title: tw("minDeposit") }); return; }
+    if (sentCode !== authCode) { toast({ title: tw("codeMismatch") }); return; }
     const pw = ensureWithdrawPw();
     if (!pw) return;
-    if (pw !== withdrawPw) { toast({ title: "출금 비밀번호 불일치" }); return; }
+    if (pw !== withdrawPw) { toast({ title: tw("pinMismatchAlt") }); return; }
     try {
       const { submitDeposit: rpcSubmitDeposit } = await import("@/lib/deposits-rpc");
       const r = await rpcSubmitDeposit({
         amount: a,
         method: asset,
         packageId: "manual",
-        packageName: asset === "bank" ? "은행 충전" : "코인 충전",
+        packageName: asset === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
         receiptUrl: null,
         memo: null,
       });
@@ -139,15 +151,15 @@ export default function Wallet() {
         ...d,
         deposits: [{
           id: uid(), userId: u.id, nickname: u.nickname,
-          packageId: "manual", packageName: asset === "bank" ? "은행 충전" : "코인 충전",
+          packageId: "manual", packageName: asset === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
           amount: a, method: asset, txCode, status: "pending", createdAt: Date.now(),
         }, ...d.deposits],
       }));
       setResultCode(txCode);
       setAmount(""); setSentCode(null); setAuthCode(""); setWithdrawPw("");
-      toast({ title: "충전 신청 완료", description: "송금 후 관리자 승인 시 즉시 적립됩니다." });
+      toast({ title: tw("depositDone"), description: tw("depositDoneDesc") });
     } catch (e: any) {
-      toast({ title: "충전 신청 실패", description: e.message ?? "잠시 후 다시 시도해주세요.", variant: "destructive" });
+      toast({ title: tw("depositFail"), description: e.message ?? tw("depositFailDesc"), variant: "destructive" });
     }
   }
 
@@ -260,7 +272,7 @@ export default function Wallet() {
               <>
                 <Field label={t("bank")}>
                   <select value={bank} onChange={e => setBank(e.target.value)} className="w-full min-h-[52px] bg-input/60 border border-border rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-primary">
-                    {["KB국민", "신한", "우리", "하나", "농협", "카카오뱅크", "토스뱅크"].map(b => <option key={b}>{b}</option>)}
+                    {BANKS.map(b => <option key={b} value={b}>{BANK_LABEL[b][lng]}</option>)}
                   </select>
                 </Field>
                 <Field label={t("account")}>
@@ -272,8 +284,8 @@ export default function Wallet() {
 
             {asset === "bank" && action === "deposit" && (
               <div className="glass rounded-xl p-4 text-xs space-y-2 border border-border/40">
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">KB국민 123-456-78901234</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">(주)Phonara</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">{BANK_LABEL["KB"][lng]} 123-456-78901234</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">{lng === "en" ? "Phonara Inc." : "(주)Phonara"}</span></div>
                 <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("depositMemo")}</p>
               </div>
             )}
