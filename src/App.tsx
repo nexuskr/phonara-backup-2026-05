@@ -41,6 +41,7 @@ const Settlements = lazy(() => import("./pages/Settlements.tsx"));
 const Trust = lazy(() => import("./pages/Trust.tsx"));
 const Status = lazy(() => import("./pages/Status.tsx"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame.tsx"));
+const Referral = lazy(() => import("./pages/Referral.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -104,7 +105,8 @@ const App = () => (
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/trust" element={<Trust />} />
               <Route path="/status" element={<Status />} />
-              <Route path="/hall-of-fame" element={<HallOfFame />} />
+             <Route path="/hall-of-fame" element={<HallOfFame />} />
+              <Route path="/referral" element={<Referral />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
