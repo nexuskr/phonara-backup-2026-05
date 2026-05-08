@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-/** 좌석 진행 바 — 30~75초 간격으로 used가 +1 증가하며 라이브 압박. */
 export default function ScarcityBar({
   used,
   total,
-  label = "오늘 좌석",
+  label,
 }: {
   used: number;
   total: number;
   label?: string;
 }) {
+  const { t } = useTranslation("convert");
+  const labelText = label ?? t("seatsToday");
   const [liveUsed, setLiveUsed] = useState(used);
   useEffect(() => {
     let alive = true;
@@ -34,7 +36,7 @@ export default function ScarcityBar({
     <div className="glass rounded-xl p-3">
       <div className="flex items-center justify-between text-[10px] mb-1.5">
         <span className="flex items-center gap-1 text-muted-foreground">
-          <Users className="w-3 h-3" /> {label}
+          <Users className="w-3 h-3" /> {labelText}
         </span>
         <span
           key={liveUsed}

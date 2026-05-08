@@ -12,6 +12,7 @@ import ReciprocityBonus from "./patterns/ReciprocityBonus";
 import RiskReversal from "./patterns/RiskReversal";
 import ProgressLockIn from "./patterns/ProgressLockIn";
 import ExitIntentModal from "./ExitIntentModal";
+import { useTranslation, Trans } from "react-i18next";
 
 /**
  * 풀-스택 STARTER paywall — 10패턴 동시 가동.
@@ -26,6 +27,7 @@ export default function PaywallStarter({
   onClose: () => void;
   onSubmit?: () => Promise<void> | void;
 }) {
+  const { t } = useTranslation("convert");
   const [db] = useDB();
   const [busy, setBusy] = useState(false);
   const original = Math.round(pkg.price * 1.4); // anchor (40% 더 비쌌다고 표시)
@@ -42,7 +44,7 @@ export default function PaywallStarter({
     try {
       if (onSubmit) await onSubmit();
       else {
-        toast({ title: "결제 페이지로 이동", description: pkg.name });
+        toast({ title: t("gotoPay"), description: pkg.name });
       }
       void trackConvert("paywall_starter", "v1", { package_id: pkg.id, price: pkg.price });
     } finally {
@@ -63,7 +65,7 @@ export default function PaywallStarter({
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted/40 flex items-center justify-center"
-          aria-label="닫기"
+          aria-label={t("close")}
         >
           <X className="w-4 h-4" />
         </button>
@@ -71,7 +73,7 @@ export default function PaywallStarter({
 
         <div className="relative">
           <div className="text-[10px] tracking-[0.3em] text-secondary font-black flex items-center gap-1.5">
-            <Crown className="w-3 h-3 text-gold" /> 첫 결제 한정
+            <Crown className="w-3 h-3 text-gold" /> {t("firstOnly")}
           </div>
           <h2 className="font-imperial text-2xl text-gradient-gold mt-1">{pkg.name}</h2>
           <p className="text-xs text-muted-foreground mt-1">{pkg.tagline}</p>
@@ -102,15 +104,23 @@ export default function PaywallStarter({
           {isFlagOn("liveSocialProof") && (
             <div className="mt-3 flex items-center gap-2 text-[11px] glass rounded-xl px-3 py-2">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-              <span className="text-muted-foreground">
-                <span className="font-black text-secondary">방금</span> 서울 K**님이 같은 패키지를 결제했습니다 · 오늘 <span className="font-black text-foreground tabular-nums">1,284</span>명 진입
+              <span className="text-muted-foreground break-keep">
+                <Trans
+                  i18nKey="tickerLine"
+                  ns="convert"
+                  values={{ just: t("tickerJustNow"), n: "1,284" }}
+                  components={[
+                    <span className="font-black text-secondary" />,
+                    <span className="font-black text-foreground tabular-nums" />,
+                  ]}
+                />
               </span>
             </div>
           )}
 
           <div className="mt-4 glass rounded-xl p-3 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">30일 총 예상</span>
-            <span className="font-display font-black text-base text-gradient-gold">
+            <span className="text-muted-foreground">{t("thirtyDay")}</span>
+            <span className="font-display font-black text-base text-money-strong tabular-nums">
               {formatKRW(pkg.totalReturn)}
             </span>
           </div>
@@ -118,10 +128,10 @@ export default function PaywallStarter({
           <button
             onClick={pay}
             disabled={busy}
-            className="press sheen mt-5 w-full py-3.5 rounded-xl bg-gradient-imperial text-primary-foreground font-display font-bold glow-imperial disabled:opacity-50 flex items-center justify-center gap-2"
+            className="press sheen mt-5 w-full min-h-[56px] py-3.5 rounded-xl bg-gradient-imperial text-primary-foreground font-display font-bold glow-imperial disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
-            {busy ? "처리 중..." : `1-tap 결제 ${formatKRW(pkg.price)}`}
+            {busy ? t("processing") : t("payNow", { val: formatKRW(pkg.price) })}
           </button>
 
           {isFlagOn("riskReversal") && (
