@@ -1813,6 +1813,36 @@ export type Database = {
       }
     }
     Views: {
+      chaos_runs_public: {
+        Row: {
+          duration_ms: number | null
+          failed: number | null
+          id: string | null
+          passed: number | null
+          ran_at: string | null
+          source: string | null
+          total_probes: number | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          failed?: number | null
+          id?: string | null
+          passed?: number | null
+          ran_at?: string | null
+          source?: string | null
+          total_probes?: number | null
+        }
+        Update: {
+          duration_ms?: number | null
+          failed?: number | null
+          id?: string | null
+          passed?: number | null
+          ran_at?: string | null
+          source?: string | null
+          total_probes?: number | null
+        }
+        Relationships: []
+      }
       chat_messages_public: {
         Row: {
           created_at: string | null
@@ -1885,6 +1915,33 @@ export type Database = {
           tier: Database["public"]["Enums"]["user_tier"] | null
           user_id: string | null
           wins: number | null
+        }
+        Relationships: []
+      }
+      uptime_pings_public: {
+        Row: {
+          checked_at: string | null
+          http_status: number | null
+          id: string | null
+          indicator: string | null
+          latency_ms: number | null
+          ok: boolean | null
+        }
+        Insert: {
+          checked_at?: string | null
+          http_status?: number | null
+          id?: string | null
+          indicator?: string | null
+          latency_ms?: number | null
+          ok?: boolean | null
+        }
+        Update: {
+          checked_at?: string | null
+          http_status?: number | null
+          id?: string | null
+          indicator?: string | null
+          latency_ms?: number | null
+          ok?: boolean | null
         }
         Relationships: []
       }
@@ -2095,6 +2152,7 @@ export type Database = {
         Returns: boolean
       }
       is_account_frozen: { Args: { _user_id: string }; Returns: boolean }
+      latest_chaos_run: { Args: never; Returns: Json }
       log_client_error: {
         Args: {
           _context?: Json
@@ -2162,6 +2220,9 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      public_trust_metrics: { Args: never; Returns: Json }
+      public_uptime_heatmap_90d: { Args: never; Returns: Json }
+      public_uptime_summary: { Args: never; Returns: Json }
       purchase_season_pass: { Args: never; Returns: Json }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
