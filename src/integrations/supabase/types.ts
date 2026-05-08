@@ -605,6 +605,39 @@ export type Database = {
         }
         Relationships: []
       }
+      dm_composer_prefs: {
+        Row: {
+          channel: string
+          count: number
+          daily_safe_line: number
+          keywords: string
+          persona: string
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          count?: number
+          daily_safe_line?: number
+          keywords?: string
+          persona?: string
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          count?: number
+          daily_safe_line?: number
+          keywords?: string
+          persona?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
