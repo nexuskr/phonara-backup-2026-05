@@ -3,9 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW, uid, type Mission, type MissionTier } from "@/lib/store";
-import { ShieldCheck, Users, TrendingUp, ArrowDownToLine, ArrowUpFromLine, X, Plus, MessageSquare, Send, Coins, Target, Crown, BarChart3, ShieldAlert, GitBranch } from "lucide-react";
+import { ShieldCheck, Users, TrendingUp, ArrowDownToLine, ArrowUpFromLine, Plus, MessageSquare, Send, Coins, Target, Crown, BarChart3, ShieldAlert, GitBranch } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useRequireAdmin } from "@/hooks/use-require-auth";
+import { useTranslation } from "react-i18next";
+import { LuxButton, LuxInput, Money } from "@/components/ui/lux";
 import WithdrawRequestsAdmin from "@/components/admin/WithdrawRequestsAdmin";
 import PackagePurchasesAdmin from "@/components/admin/PackagePurchasesAdmin";
 import ServerUserAdmin from "@/components/admin/ServerUserAdmin";
@@ -24,6 +26,7 @@ type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" 
 export default function Admin() {
   const [db, setDb] = useDB();
   const nav = useNavigate();
+  const { t } = useTranslation("admin");
   const user = useRequireAdmin() ?? db.user;
   const [tab, setTab] = useState<Tab>("dashboard");
   const [kpi, setKpi] = useState({ users: 0, deposits: 0, pendingDep: 0, pendingWd: 0 });
@@ -62,8 +65,8 @@ export default function Admin() {
       <Layout>
         <div className="container py-20 text-center">
           <ShieldCheck className="w-12 h-12 text-destructive mx-auto" />
-          <h1 className="font-display font-black text-2xl mt-3">접근 권한 없음</h1>
-          <p className="text-xs text-muted-foreground">관리자 계정으로 로그인하세요.</p>
+          <h1 className="font-imperial font-black text-2xl mt-3 break-keep">{t("noAccess")}</h1>
+          <p className="text-xs text-muted-foreground break-keep">{t("needAdmin")}</p>
         </div>
       </Layout>
     );
@@ -76,20 +79,20 @@ export default function Admin() {
 
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: "dashboard", label: "대시보드", icon: BarChart3 },
-    { id: "funnel", label: "전환 깔때기", icon: GitBranch },
-    { id: "analytics", label: "고급 분석", icon: TrendingUp },
-    { id: "errors", label: "에러 로그", icon: ShieldAlert },
-    { id: "security", label: "보안 감사", icon: ShieldCheck },
-    { id: "ops", label: "관제 콕핏", icon: Activity },
-    { id: "perms", label: "권한 감사", icon: Lock },
-    { id: "server_dep", label: "충전 신청", icon: ArrowUpFromLine },
-    { id: "server_wd", label: "출금 신청", icon: ArrowDownToLine },
-    { id: "packages", label: "패키지", icon: Crown },
-    { id: "missions", label: "미션", icon: Target },
-    { id: "users", label: "회원", icon: Users },
-    { id: "chats", label: "채팅", icon: MessageSquare },
-    { id: "coin", label: "코인설정", icon: Coins },
+    { id: "dashboard", label: t("tabDashboard"), icon: BarChart3 },
+    { id: "funnel", label: t("tabFunnel"), icon: GitBranch },
+    { id: "analytics", label: t("tabAnalytics"), icon: TrendingUp },
+    { id: "errors", label: t("tabErrors"), icon: ShieldAlert },
+    { id: "security", label: t("tabSecurity"), icon: ShieldCheck },
+    { id: "ops", label: t("tabOps"), icon: Activity },
+    { id: "perms", label: t("tabPerms"), icon: Lock },
+    { id: "server_dep", label: t("tabDeposits"), icon: ArrowUpFromLine },
+    { id: "server_wd", label: t("tabWithdrawals"), icon: ArrowDownToLine },
+    { id: "packages", label: t("tabPackages"), icon: Crown },
+    { id: "missions", label: t("tabMissions"), icon: Target },
+    { id: "users", label: t("tabUsers"), icon: Users },
+    { id: "chats", label: t("tabChats"), icon: MessageSquare },
+    { id: "coin", label: t("tabCoin"), icon: Coins },
   ];
 
   return (
@@ -97,21 +100,21 @@ export default function Admin() {
       <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="flex items-center gap-2 mb-5">
           <ShieldCheck className="w-5 h-5 text-primary" />
-          <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial">관리자 대시보드</h1>
+          <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial break-keep">{t("title")}</h1>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-          <KPI icon={Users} label="총 회원" v={totalUsers.toString()} />
-          <KPI icon={TrendingUp} label="누적 충전" v={formatKRW(totalDeposits)} />
-          <KPI icon={ArrowUpFromLine} label="충전 대기" v={pendingDep.toString()} hot={pendingDep > 0} />
-          <KPI icon={ArrowDownToLine} label="출금 대기" v={pendingWd.toString()} hot={pendingWd > 0} />
+          <KPI icon={Users} label={t("kpiUsers")} v={totalUsers.toLocaleString()} />
+          <KPI icon={TrendingUp} label={t("kpiDeposit")} v={formatKRW(totalDeposits)} money />
+          <KPI icon={ArrowUpFromLine} label={t("kpiPendingDep")} v={pendingDep.toLocaleString()} hot={pendingDep > 0} />
+          <KPI icon={ArrowDownToLine} label={t("kpiPendingWd")} v={pendingWd.toLocaleString()} hot={pendingWd > 0} />
         </div>
 
         <div className="flex gap-2 mb-4 overflow-x-auto -mx-5 px-5 pb-1">
-          {tabs.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${tab === t.id ? "bg-gradient-gold text-gold-foreground glow-gold" : "glass text-muted-foreground"}`}>
-              <t.icon className="w-3.5 h-3.5" /> {t.label}
+          {tabs.map((tt) => (
+            <button key={tt.id} onClick={() => setTab(tt.id)}
+              className={`shrink-0 px-4 min-h-[44px] rounded-xl text-xs font-bold flex items-center gap-1.5 break-keep whitespace-nowrap transition ${tab === tt.id ? "bg-gradient-gold text-gold-foreground glow-gold" : "glass text-muted-foreground"}`}>
+              <tt.icon className="w-3.5 h-3.5" /> {tt.label}
             </button>
           ))}
         </div>
