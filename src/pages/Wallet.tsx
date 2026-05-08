@@ -15,6 +15,8 @@ import WithdrawIntentInterceptor from "@/components/conversion/WithdrawIntentInt
 
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
+type DepositChannel = "bank" | "voucher" | "coin";
+type VoucherBrand = "culture" | "happy" | "cultureland";
 
 const BANKS = ["KB", "Shinhan", "Woori", "Hana", "Nonghyup", "Kakao Bank", "Toss Bank"] as const;
 const BANK_LABEL: Record<string, { ko: string; en: string }> = {
@@ -48,6 +50,10 @@ export default function Wallet() {
   // coin
   const [coinAddr, setCoinAddr] = useState("");
   const [network, setNetwork] = useState<"TRC20" | "ERC20" | "BEP20">("TRC20");
+  // P1: deposit channel + voucher
+  const [depositChannel, setDepositChannel] = useState<DepositChannel>("bank");
+  const [voucherBrand, setVoucherBrand] = useState<VoucherBrand>("culture");
+  const [voucherPin, setVoucherPin] = useState("");
   // verification
   const [sentCode, setSentCode] = useState<string | null>(null);
   const [authCode, setAuthCode] = useState("");
@@ -136,28 +142,38 @@ export default function Wallet() {
     const pw = ensureWithdrawPw();
     if (!pw) return;
     if (pw !== withdrawPw) { toast({ title: tw("pinMismatchAlt") }); return; }
+    const channel: DepositChannel = asset === "coin" ? "coin" : depositChannel;
+    if (channel === "voucher") {
+      if (!voucherPin || voucherPin.length < 12) { toast({ title: t("voucherPinPh") as string }); return; }
+    }
     try {
       const { submitDeposit: rpcSubmitDeposit } = await import("@/lib/deposits-rpc");
       const r = await rpcSubmitDeposit({
         amount: a,
-        method: asset,
+        method: channel,
         packageId: "manual",
-        packageName: asset === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
+        packageName: channel === "voucher"
+          ? t(`voucher${voucherBrand === "culture" ? "Culture" : voucherBrand === "happy" ? "Happy" : "Cultureland"}`) as string
+          : channel === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
         receiptUrl: null,
         memo: null,
+        voucherBrand: channel === "voucher" ? voucherBrand : null,
+        voucherPin: channel === "voucher" ? voucherPin : null,
       });
       const txCode = "DP-" + r.id.replace(/-/g, "").slice(0, 10).toUpperCase();
       setDb(d => ({
         ...d,
         deposits: [{
           id: uid(), userId: u.id, nickname: u.nickname,
-          packageId: "manual", packageName: asset === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
+          packageId: "manual",
+          packageName: channel === "voucher" ? "상품권" : channel === "bank" ? tw("bankDeposit") : tw("coinDeposit"),
           amount: a, method: asset, txCode, status: "pending", createdAt: Date.now(),
         }, ...d.deposits],
       }));
       setResultCode(txCode);
-      setAmount(""); setSentCode(null); setAuthCode(""); setWithdrawPw("");
-      toast({ title: tw("depositDone"), description: tw("depositDoneDesc") });
+      setAmount(""); setVoucherPin(""); setSentCode(null); setAuthCode(""); setWithdrawPw("");
+      const bonusMsg = r.bonus_amount > 0 ? ` +${formatKRW(r.bonus_amount)} 보너스` : "";
+      toast({ title: tw("depositDone"), description: tw("depositDoneDesc") + bonusMsg });
     } catch (e: any) {
       toast({ title: tw("depositFail"), description: e.message ?? tw("depositFailDesc"), variant: "destructive" });
     }
@@ -283,11 +299,81 @@ export default function Wallet() {
             )}
 
             {asset === "bank" && action === "deposit" && (
-              <div className="glass rounded-xl p-4 text-xs space-y-2 border border-border/40">
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">{BANK_LABEL["KB"][lng]} 123-456-78901234</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">{lng === "en" ? "Phonara Inc." : "(주)Phonara"}</span></div>
-                <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("depositMemo")}</p>
-              </div>
+              <>
+                {/* Channel switcher: bank vs voucher */}
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { k: "bank" as const, label: t("channelBank"), badge: t("channelBankBonus") },
+                    { k: "voucher" as const, label: t("channelVoucher"), badge: t("channelVoucherBonus") },
+                  ]).map(({ k, label, badge }) => {
+                    const active = depositChannel === k;
+                    return (
+                      <button
+                        key={k}
+                        onClick={() => setDepositChannel(k)}
+                        className={`min-h-[64px] p-3 rounded-xl text-left transition press border ${
+                          active
+                            ? "border-primary/60 bg-primary/[0.06] glow-imperial"
+                            : "border-border/40 glass hover:border-primary/30"
+                        }`}
+                      >
+                        <div className="text-xs font-black">{label}</div>
+                        <div className={`text-[10px] tracking-wider mt-0.5 ${k === "voucher" ? "text-primary font-bold" : "text-muted-foreground"}`}>{badge}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {depositChannel === "bank" && (
+                  <div className="glass rounded-xl p-4 text-xs space-y-2 border border-border/40">
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">{BANK_LABEL["KB"][lng]} 123-456-78901234</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">{lng === "en" ? "Phonara Inc." : "(주)Phonara"}</span></div>
+                    <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("depositMemo")}</p>
+                  </div>
+                )}
+
+                {depositChannel === "voucher" && (
+                  <>
+                    <Field label={t("voucherBrand")}>
+                      <select
+                        value={voucherBrand}
+                        onChange={e => setVoucherBrand(e.target.value as VoucherBrand)}
+                        className="w-full min-h-[52px] bg-input/60 border border-border rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-primary"
+                      >
+                        <option value="culture">{t("voucherCulture")}</option>
+                        <option value="happy">{t("voucherHappy")}</option>
+                        <option value="cultureland">{t("voucherCultureland")}</option>
+                      </select>
+                    </Field>
+                    <Field label={t("voucherPin")}>
+                      <input
+                        value={voucherPin}
+                        onChange={e => setVoucherPin(e.target.value.replace(/[^0-9A-Za-z-]/g, "").slice(0, 24))}
+                        placeholder={t("voucherPinPh")}
+                        className="w-full min-h-[52px] bg-input/60 border border-border rounded-xl px-4 py-3.5 text-sm font-mono tracking-wider focus:outline-none focus:border-primary"
+                      />
+                    </Field>
+                    <p className="text-[10px] text-muted-foreground">{t("voucherNotice")}</p>
+                  </>
+                )}
+
+                {/* Bonus preview */}
+                {Number(amount) > 0 && (() => {
+                  const a = Number(amount);
+                  const pct = depositChannel === "voucher" ? 3 : 0;
+                  const bonus = Math.floor(a * pct / 100);
+                  if (bonus <= 0) return null;
+                  return (
+                    <div className="rounded-xl p-3.5 border border-primary/40 bg-gradient-imperial/10">
+                      <div className="text-[10px] tracking-[0.2em] text-primary font-bold uppercase">{t("bonusPreview")}</div>
+                      <div className="text-money-strong text-xl font-black mt-1">{formatKRW(a + bonus)}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {t("bonusBreakdown", { amount: formatKRW(a), bonus: formatKRW(bonus), pct })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
             )}
 
             {asset === "coin" && action === "withdraw" && (
@@ -305,16 +391,40 @@ export default function Wallet() {
             )}
 
             {asset === "coin" && action === "deposit" && (
-              <div className="glass rounded-xl p-4 text-xs space-y-2 border border-border/40">
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("network")}</span><span className="font-bold">TRC20</span></div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-muted-foreground">{t("adminAddr")}</span>
-                  <code className="font-mono text-[10px] break-all bg-muted/40 p-2.5 rounded-lg border border-border/40">TXyz1234567890ABCDEF1234567890ABCDEF12</code>
-                  <button onClick={() => { navigator.clipboard.writeText("TXyz1234567890ABCDEF1234567890ABCDEF12"); toast({ title: "✓" }); }}
-                    className="text-[11px] text-primary inline-flex items-center gap-1 self-start min-h-[32px]"><Copy className="w-3 h-3" /> {t("copyAddr")}</button>
+              <>
+                <div className="glass rounded-xl p-4 text-xs space-y-2 border border-primary/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("network")}</span>
+                    <span className="font-bold">TRC20</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("channelCoin")}</span>
+                    <span className="text-primary font-black">{t("channelCoinBonus")}</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <span className="text-muted-foreground">{t("adminAddr")}</span>
+                    <code className="font-mono text-[10px] break-all bg-muted/40 p-2.5 rounded-lg border border-border/40">TXyz1234567890ABCDEF1234567890ABCDEF12</code>
+                    <button onClick={() => { navigator.clipboard.writeText("TXyz1234567890ABCDEF1234567890ABCDEF12"); toast({ title: "✓" }); }}
+                      className="text-[11px] text-primary inline-flex items-center gap-1 self-start min-h-[32px]"><Copy className="w-3 h-3" /> {t("copyAddr")}</button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("coinDepositMemo")}</p>
+                  <p className="text-[10px] text-primary/80 font-bold">★ {t("coinMasterTeaser")}</p>
                 </div>
-                <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("coinDepositMemo")}</p>
-              </div>
+
+                {Number(amount) > 0 && (() => {
+                  const a = Number(amount);
+                  const bonus = Math.floor(a * 8 / 100);
+                  return (
+                    <div className="rounded-xl p-3.5 border border-primary/40 bg-gradient-imperial/10">
+                      <div className="text-[10px] tracking-[0.2em] text-primary font-bold uppercase">{t("bonusPreview")}</div>
+                      <div className="text-money-strong text-xl font-black mt-1">{formatKRW(a + bonus)}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {t("bonusBreakdown", { amount: formatKRW(a), bonus: formatKRW(bonus), pct: 8 })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
             )}
 
             {/* Verification block */}
