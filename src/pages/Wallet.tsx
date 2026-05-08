@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import HubTabs from "@/components/HubTabs";
 import { useDB, formatKRW, uid, gen6, WITHDRAW_LIMITS } from "@/lib/store";
