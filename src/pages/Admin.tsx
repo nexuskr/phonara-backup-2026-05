@@ -89,6 +89,7 @@ export default function Admin() {
     { id: "ops", label: t("tabOps"), icon: Activity },
     { id: "perms", label: t("tabPerms"), icon: Lock },
     { id: "aml", label: "AML 결재", icon: ShieldCheck },
+    { id: "ai_missions", label: "AI 미션", icon: Bot },
     { id: "server_dep", label: t("tabDeposits"), icon: ArrowUpFromLine },
     { id: "server_wd", label: t("tabWithdrawals"), icon: ArrowDownToLine },
     { id: "packages", label: t("tabPackages"), icon: Crown },
