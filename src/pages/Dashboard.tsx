@@ -58,8 +58,10 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
         <Particles density={particleDensity} />
 
-        <div className="container relative pt-6 pb-10">
-          {/* 🏛️ Command Hero — 영웅 카드 (잔고 + 추천 미션 + 30석) */}
+        <HubTabs hub="command" />
+
+        <div className="container relative pt-2 pb-10">
+          {/* 🏛️ Command Hero — 영웅 카드 (잔고 + 추천 미션 + 100석) */}
           <CommandHero />
 
           {/* Live ticker (compact, beneath hero) */}
