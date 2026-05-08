@@ -32,7 +32,7 @@ export default function ReferralCard() {
       if (created) {
         const expires = created + 90 * 24 * 60 * 60 * 1000;
         const diff = Math.ceil((expires - Date.now()) / (24 * 60 * 60 * 1000));
-        setDaysLeft(diff);
+        setDaysLeft(Math.max(0, diff));
       }
     }
     setLoading(false);
