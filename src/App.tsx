@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,8 +9,11 @@ import { useAuthBridge } from "./hooks/use-auth-bridge";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteFallback } from "./components/RouteFallback";
 import { installGlobalErrorLogging } from "./lib/error-logger";
+import { installFetchInstrument, installWebVitals, recordRouteChange } from "./lib/spans";
 
 installGlobalErrorLogging();
+installFetchInstrument();
+installWebVitals();
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Auth = lazy(() => import("./pages/Auth.tsx"));
@@ -36,6 +39,7 @@ const Empire = lazy(() => import("./pages/Empire.tsx"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe.tsx"));
 const Settlements = lazy(() => import("./pages/Settlements.tsx"));
 const Trust = lazy(() => import("./pages/Trust.tsx"));
+const Status = lazy(() => import("./pages/Status.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +50,8 @@ const queryClient = new QueryClient({
 function SessionWatcher() {
   useSessionGuard();
   useAuthBridge();
+  const loc = useLocation();
+  useEffect(() => { recordRouteChange(loc.pathname); }, [loc.pathname]);
   if (typeof window !== "undefined") {
     const code = new URLSearchParams(window.location.search).get("ref");
     if (code && /^[A-Z0-9]{8}$/i.test(code)) {
@@ -96,6 +102,7 @@ const App = () => (
               <Route path="/quests" element={<Quests />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/trust" element={<Trust />} />
+              <Route path="/status" element={<Status />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
