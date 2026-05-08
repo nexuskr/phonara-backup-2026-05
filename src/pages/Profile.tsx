@@ -170,6 +170,7 @@ export default function Profile() {
         {/* ===== Phase 21: Referral System ===== */}
         <div className="mt-5">
           <ReferralCard />
+          <CoinMasterLounge />
         </div>
 
         {/* ===== Upgraded Badges ===== */}
