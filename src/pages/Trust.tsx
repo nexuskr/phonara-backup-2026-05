@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, TrendingUp, Activity, Crown, Clock, Users, FileCheck2, Radar, ArrowLeft, RefreshCw, History } from "lucide-react";
 import Particles from "@/components/Particles";
 import TrustHistoryCharts from "@/components/trust/TrustHistoryCharts";
+import { prefetchTrust, getTrustCache, invalidateTrustCache } from "@/lib/trustPrefetch";
 
 type HistoryRow = {
   taken_at: string;
@@ -63,20 +64,34 @@ export default function Trust() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
-    setLoading(true);
+  async function load(force = false) {
+    if (force) invalidateTrustCache();
+    // Hydrate immediately from cache if available — no skeleton flash
+    const cached = getTrustCache(historyDays);
+    if (cached) {
+      setM(cached.metrics); setU(cached.uptime); setHeat(cached.heatmap);
+      setChaos(cached.chaos); setHistory(cached.history);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const sb: any = supabase;
-      const [{ data: md }, { data: ud }, { data: hd }, { data: cd }, { data: histD }] = await Promise.all([
+      // Priority 1 — render hero ASAP
+      const [{ data: md }, { data: ud }] = await Promise.all([
         sb.rpc("public_trust_metrics"),
         sb.rpc("public_uptime_summary"),
+      ]);
+      setM((md as Metrics) ?? null);
+      setU((ud as unknown as UptimeSummary) ?? null);
+      setLoading(false);
+      // Priority 2 — heavy data behind the fold
+      const [{ data: hd }, { data: cd }, { data: histD }] = await Promise.all([
         sb.rpc("public_uptime_heatmap_90d"),
         sb.rpc("latest_chaos_run"),
         sb.rpc("public_trust_history", { _days: historyDays }),
       ]);
-      setM((md as Metrics) ?? null);
-      setU((ud as unknown as UptimeSummary) ?? null);
       setHeat(((hd as any)?.days ?? []) as HeatmapDay[]);
       setChaos((cd as ChaosLatest) ?? null);
       setHistory((histD as HistoryRow[]) ?? []);
@@ -84,6 +99,8 @@ export default function Trust() {
       sb.rpc("policy_assertions_status").then(({ data, error: e }: any) => {
         if (!e) setAssertStatus((data as AssertionStatus) ?? null);
       });
+      // refresh prefetch cache
+      void prefetchTrust(historyDays);
     } catch (e: any) {
       setError(e?.message ?? "데이터 로드 실패");
     } finally {
@@ -152,7 +169,7 @@ export default function Trust() {
         <Link to="/" className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
           <ArrowLeft className="w-3.5 h-3.5" /> 홈으로
         </Link>
-        <button onClick={load} disabled={loading} className="text-xs text-primary inline-flex items-center gap-1">
+        <button onClick={() => load(true)} disabled={loading} className="text-xs text-primary inline-flex items-center gap-1">
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> 새로고침
         </button>
       </header>
@@ -206,7 +223,7 @@ export default function Trust() {
         {error && (
           <div className="mt-6 glass-strong rounded-2xl p-4 border border-destructive/40 text-destructive text-xs flex items-center justify-between">
             <span>⚠ {error}</span>
-            <button onClick={load} className="px-3 py-1.5 rounded-lg bg-destructive/20 font-bold">재시도</button>
+            <button onClick={() => load(true)} className="px-3 py-1.5 rounded-lg bg-destructive/20 font-bold">재시도</button>
           </div>
         )}
 

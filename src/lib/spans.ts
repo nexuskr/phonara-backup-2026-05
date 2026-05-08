@@ -39,11 +39,106 @@ const MAX_BATCH = 25;
 const MAX_RETRIES = 3;
 const MAX_QUEUE_HARD = 500;               // hard cap; oldest dropped past this
 
+// --- Persistence (IndexedDB w/ localStorage fallback) -----------------------
+const DB_NAME = "phonara-spans";
+const STORE = "queue";
+const LS_KEY = "phonara_spans_queue_v1";
+let DB: IDBDatabase | null = null;
+let DB_READY: Promise<IDBDatabase | null> | null = null;
+
+function openDB(): Promise<IDBDatabase | null> {
+  if (typeof indexedDB === "undefined") return Promise.resolve(null);
+  if (DB_READY) return DB_READY;
+  DB_READY = new Promise((resolve) => {
+    try {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: "_key" });
+      };
+      req.onsuccess = () => { DB = req.result; resolve(DB); };
+      req.onerror = () => resolve(null);
+    } catch { resolve(null); }
+  });
+  return DB_READY;
+}
+
+async function persistAdd(s: SpanInput) {
+  const db = await openDB();
+  if (!db) {
+    try {
+      const arr = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+      arr.push(s);
+      localStorage.setItem(LS_KEY, JSON.stringify(arr.slice(-MAX_QUEUE_HARD)));
+    } catch {}
+    return;
+  }
+  try { db.transaction(STORE, "readwrite").objectStore(STORE).put(s); } catch {}
+}
+
+async function persistRemove(keys: string[]) {
+  if (keys.length === 0) return;
+  const db = await openDB();
+  if (!db) {
+    try {
+      const arr: SpanInput[] = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+      const next = arr.filter(s => !keys.includes(s._key ?? ""));
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
+    } catch {}
+    return;
+  }
+  try {
+    const tx = db.transaction(STORE, "readwrite");
+    const st = tx.objectStore(STORE);
+    keys.forEach(k => st.delete(k));
+  } catch {}
+}
+
+async function restoreQueue() {
+  const db = await openDB();
+  if (!db) {
+    try {
+      const arr: SpanInput[] = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+      for (const s of arr) if (s._key && !SEEN.has(s._key)) { SEEN.add(s._key); QUEUE.push(s); }
+      if (QUEUE.length) scheduleFlush();
+    } catch {}
+    return;
+  }
+  try {
+    const tx = db.transaction(STORE, "readonly");
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => {
+      const rows = (req.result as SpanInput[]) || [];
+      for (const s of rows) if (s._key && !SEEN.has(s._key)) { SEEN.add(s._key); QUEUE.push(s); }
+      if (QUEUE.length) scheduleFlush();
+    };
+  } catch {}
+}
+
 const M: Metrics = {
   enqueued: 0, flushed_ok: 0, flushed_fail: 0, retried: 0,
   dropped: 0, deduped: 0, in_flight: false, queue_size: 0,
   last_flush_at: null, last_error: null,
 };
+
+// --- Quality threshold alerting ---------------------------------------------
+const ALERT_COOLDOWN_MS = 5 * 60_000;
+let lastAlertAt = 0;
+function maybeAlert(reason: string, detail: Record<string, any> = {}) {
+  const now = Date.now();
+  if (now - lastAlertAt < ALERT_COOLDOWN_MS) return;
+  const total = M.flushed_ok + M.flushed_fail;
+  if (total < 20) return;
+  const lossRate = total > 0 ? M.flushed_fail / total : 0;
+  if (lossRate < 0.2 && M.dropped < 25) return;
+  lastAlertAt = now;
+  try {
+    void (supabase as any).rpc("ingest_span_quality_alert", {
+      _reason: reason,
+      _metrics: { ...M, queue_size: QUEUE.length, loss_rate: lossRate, ...detail },
+    });
+  } catch {}
+}
 
 function uuid() {
   return (crypto as any)?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -78,6 +173,7 @@ export function recordSpan(input: Omit<SpanInput, "trace_id"> & { trace_id?: str
   }
   QUEUE.push(span);
   M.enqueued++;
+  void persistAdd(span);
   if (QUEUE.length >= MAX_QUEUE) void flush();
   else scheduleFlush();
 }
@@ -94,6 +190,8 @@ async function flush() {
   try {
     const batch = QUEUE.splice(0, MAX_BATCH);
     const failed: SpanInput[] = [];
+    const succeededKeys: string[] = [];
+    const droppedKeys: string[] = [];
     let lastErr: string | null = null;
 
     await Promise.all(batch.map(async (s) => {
@@ -109,6 +207,7 @@ async function flush() {
         });
         if (error) throw error;
         M.flushed_ok++;
+        if (s._key) succeededKeys.push(s._key);
       } catch (e: any) {
         lastErr = e?.message ?? String(e);
         s._attempts = (s._attempts ?? 0) + 1;
@@ -118,30 +217,34 @@ async function flush() {
         } else {
           M.flushed_fail++;
           M.dropped++;
-          if (s._key) SEEN.delete(s._key); // free slot for future
+          if (s._key) { SEEN.delete(s._key); droppedKeys.push(s._key); }
         }
       }
     }));
 
     M.last_flush_at = Date.now();
     M.last_error = lastErr;
+    void persistRemove([...succeededKeys, ...droppedKeys]);
 
     if (failed.length > 0) {
       QUEUE.unshift(...failed);
       RETRY_BACKOFF = Math.min(60_000, (RETRY_BACKOFF || 1_000) * 2);
+      maybeAlert("flush_failures", { last_error: lastErr });
     } else {
       RETRY_BACKOFF = 0;
     }
+    if (M.dropped >= 25) maybeAlert("drop_threshold", {});
   } finally {
     FLUSHING = false;
     if (QUEUE.length > 0) scheduleFlush();
   }
 }
 
-// Force flush on page hide / unload (best-effort)
+// Force flush on page hide / unload (best-effort) + restore from disk
 if (typeof window !== "undefined") {
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") void flush(); });
   window.addEventListener("beforeunload", () => { void flush(); });
+  void restoreQueue();
 }
 
 // fetch instrumentation — guards against re-patching and self-loops
