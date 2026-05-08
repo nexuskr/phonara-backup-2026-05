@@ -140,6 +140,49 @@ export default function SecurityAuditAdmin() {
 
   useEffect(() => { void load(); }, []);
 
+  // Realtime subscription: surface new anomaly events instantly
+  useEffect(() => {
+    const channel = supabase
+      .channel("anomaly_events_admin")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "anomaly_events" },
+        (payload) => {
+          const row = payload.new as AnomalyEvent;
+          setAnomalies((prev) => {
+            if (prev.find((p) => p.id === row.id)) return prev;
+            return [row, ...prev].slice(0, 100);
+          });
+          const isHigh = row.severity === "high" || row.severity === "critical";
+          toast({
+            title: isHigh ? "🚨 심각 이상치 탐지" : "⚠ 이상치 탐지",
+            description: `${row.rule}${row.user_id ? ` · ${String(row.user_id).slice(0, 8)}…` : ""}`,
+          });
+          // Audible cue for high severity (best-effort, ignored if blocked)
+          if (isHigh) {
+            try {
+              const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+              if (Ctx) {
+                const ctx = new Ctx();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = "sine";
+                o.frequency.value = 880;
+                g.gain.value = 0.05;
+                o.connect(g).connect(ctx.destination);
+                o.start();
+                o.stop(ctx.currentTime + 0.2);
+                setTimeout(() => ctx.close(), 400);
+              }
+            } catch {}
+          }
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+
   async function runNow() {
     setRunning(true);
     try {
