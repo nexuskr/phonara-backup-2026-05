@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 
-/** 좌석 진행 바 — "오늘 23/100". */
+/** 좌석 진행 바 — 30~75초 간격으로 used가 +1 증가하며 라이브 압박. */
 export default function ScarcityBar({
   used,
   total,
@@ -10,7 +11,23 @@ export default function ScarcityBar({
   total: number;
   label?: string;
 }) {
-  const pct = Math.min(100, (used / total) * 100);
+  const [liveUsed, setLiveUsed] = useState(used);
+  useEffect(() => {
+    let alive = true;
+    function schedule() {
+      if (!alive) return;
+      const delay = 28_000 + Math.random() * 50_000;
+      window.setTimeout(() => {
+        if (!alive) return;
+        setLiveUsed((u) => Math.min(total - 1, u + 1));
+        schedule();
+      }, delay);
+    }
+    schedule();
+    return () => { alive = false; };
+  }, [total]);
+
+  const pct = Math.min(100, (liveUsed / total) * 100);
   const danger = pct >= 80;
 
   return (
@@ -20,14 +37,15 @@ export default function ScarcityBar({
           <Users className="w-3 h-3" /> {label}
         </span>
         <span
-          className={`font-bold ${danger ? "text-destructive animate-pulse" : "text-gold"}`}
+          key={liveUsed}
+          className={`font-bold tabular-nums animate-fade-up ${danger ? "text-destructive animate-pulse" : "text-gold"}`}
         >
-          {used} / {total}
+          {liveUsed} / {total}
         </span>
       </div>
       <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden">
         <div
-          className={`h-full ${
+          className={`h-full transition-[width] duration-700 ${
             danger ? "bg-gradient-to-r from-destructive to-gold" : "bg-gradient-gold"
           }`}
           style={{ width: `${pct}%` }}
