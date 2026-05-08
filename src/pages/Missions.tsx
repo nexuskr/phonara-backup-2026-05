@@ -194,6 +194,7 @@ export default function Missions() {
       setJackpotWin(jp);
     } else if (won) {
       const momentumBadge = db.momentum >= 2 ? ` · 🔥 ${db.momentum + 1}연승!` : "";
+      emitEarned(baseReward);
       toast({ title: `🎉 +${formatKRW(baseReward)}${momentumBadge}`, description: m.title });
     } else {
       toast({ title: "아쉬워요! (보상 없음)", description: FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)] });
