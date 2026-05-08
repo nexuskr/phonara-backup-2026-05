@@ -694,6 +694,7 @@ function TapGame({ reward, onResult }: { reward: number; onResult: (w: boolean, 
 }
 
 function LuckyGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<number | null>(null);
   function spin() {
@@ -711,7 +712,7 @@ function LuckyGame({ reward, onResult }: { reward: number; onResult: (w: boolean
         className={`w-44 h-44 rounded-full bg-gradient-aurora mx-auto flex items-center justify-center relative overflow-hidden ${spinning ? "animate-spin-slow" : ""}`}
       >
         <div className="absolute inset-2 rounded-full bg-background flex items-center justify-center font-display font-black text-xl text-center px-2">
-          {result !== null ? (result > 0 ? `+${formatKRW(result)}` : "꽝") : "🎁"}
+          {result !== null ? (result > 0 ? `+${formatKRW(result)}` : t("gMiss")) : "🎁"}
         </div>
       </div>
       {result === null ? (
@@ -720,14 +721,14 @@ function LuckyGame({ reward, onResult }: { reward: number; onResult: (w: boolean
           disabled={spinning}
           className="press sheen mt-5 px-8 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary disabled:opacity-50"
         >
-          {spinning ? "돌리는 중..." : "휠 돌리기"}
+          {spinning ? t("gSpinning") : t("gSpinWheel")}
         </button>
       ) : (
         <button
           onClick={() => onResult(result > 0, result)}
           className="press sheen mt-5 px-8 py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold"
         >
-          <Zap className="inline w-4 h-4" /> 결과 받기
+          <Zap className="inline w-4 h-4" /> {t("claim")}
         </button>
       )}
     </div>
@@ -780,6 +781,7 @@ function MemoryGame({ onResult }: { onResult: (w: boolean, b: number) => void })
 }
 
 function ScratchGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const [scratched, setScratched] = useState<boolean[]>(Array(9).fill(false));
   const cells = useRef(
     Array.from({ length: 9 }, () => (Math.random() > 0.55 ? Math.floor(reward * (0.3 + Math.random() * 2)) : 0)),
@@ -798,7 +800,7 @@ function ScratchGame({ reward, onResult }: { reward: number; onResult: (w: boole
             onClick={() => scratch(i)}
             className={`aspect-square rounded-xl flex items-center justify-center font-display font-black text-sm transition ${scratched[i] ? (v > 0 ? "bg-gradient-gold text-gold-foreground" : "bg-muted text-muted-foreground") : "bg-gradient-primary text-primary-foreground glow-primary"}`}
           >
-            {scratched[i] ? (v > 0 ? `+${(v / 1000).toFixed(0)}k` : "꽝") : "긁기"}
+            {scratched[i] ? (v > 0 ? `+${(v / 1000).toFixed(0)}k` : t("gMiss")) : t("gScratch")}
           </button>
         ))}
       </div>
@@ -807,7 +809,7 @@ function ScratchGame({ reward, onResult }: { reward: number; onResult: (w: boole
           onClick={() => onResult(total > 0, total)}
           className="press sheen mt-4 w-full py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold"
         >
-          결과 받기 +{formatKRW(total)}
+          {t("gClaimVal", { val: formatKRW(total) })}
         </button>
       )}
     </div>
@@ -815,6 +817,7 @@ function ScratchGame({ reward, onResult }: { reward: number; onResult: (w: boole
 }
 
 function DiceGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const [d, setD] = useState<[number, number] | null>(null);
   const [rolling, setRolling] = useState(false);
   function roll() {
@@ -843,21 +846,21 @@ function DiceGame({ reward, onResult }: { reward: number; onResult: (w: boolean,
           </div>
         ))}
       </div>
-      <div className="text-sm text-muted-foreground">합계 7 이상 시 승리 · 현재 {sum}</div>
+      <div className="text-sm text-muted-foreground break-keep tabular-nums">{t("gDiceLine", { sum })}</div>
       {!d || rolling ? (
         <button
           onClick={roll}
           disabled={rolling}
           className="press sheen mt-4 px-8 py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold glow-primary disabled:opacity-50"
         >
-          {rolling ? "굴리는 중..." : "주사위 굴리기"}
+          {rolling ? t("gRolling") : t("gRollDice")}
         </button>
       ) : (
         <button
           onClick={() => onResult(won, won ? Math.floor(reward * (sum / 7)) : 0)}
           className={`press sheen mt-4 px-8 py-3 rounded-xl font-bold ${won ? "bg-gradient-gold text-gold-foreground glow-gold" : "bg-muted text-muted-foreground"}`}
         >
-          {won ? `🎉 +${formatKRW(Math.floor(reward * (sum / 7)))}` : "다음 기회에"}
+          {won ? `🎉 +${formatKRW(Math.floor(reward * (sum / 7)))}` : t("gNextTime")}
         </button>
       )}
     </div>
@@ -865,6 +868,7 @@ function DiceGame({ reward, onResult }: { reward: number; onResult: (w: boolean,
 }
 
 function SlotGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const sym = ["💎", "🔥", "⚡", "👑", "🎰", "🌟"];
   const [reels, setReels] = useState<string[]>(["?", "?", "?"]);
   const [spinning, setSpinning] = useState(false);
@@ -928,14 +932,14 @@ function SlotGame({ reward, onResult }: { reward: number; onResult: (w: boolean,
           disabled={spinning}
           className="press sheen mt-4 px-8 py-3 rounded-xl bg-gradient-cyber text-primary-foreground font-bold glow-cyber disabled:opacity-50"
         >
-          {spinning ? "스핀 중..." : "스핀"}
+          {spinning ? t("gSpinningSlot") : t("gSpin")}
         </button>
       ) : (
         <button
           onClick={() => onResult(bonus > 0, bonus)}
           className={`press sheen mt-4 px-8 py-3 rounded-xl font-bold ${bonus > 0 ? "bg-gradient-gold text-gold-foreground glow-gold" : "bg-muted text-muted-foreground"}`}
         >
-          {bonus > 0 ? `+${formatKRW(bonus)} 받기` : "결과 받기"}
+          {bonus > 0 ? t("gReceiveVal", { val: formatKRW(bonus) }) : t("claim")}
         </button>
       )}
     </div>
@@ -943,6 +947,7 @@ function SlotGame({ reward, onResult }: { reward: number; onResult: (w: boolean,
 }
 
 function HighLowGame({ reward, onResult }: { reward: number; onResult: (w: boolean, b: number) => void }) {
+  const { t } = useTranslation("missions");
   const [card, setCard] = useState(() => 1 + Math.floor(Math.random() * 13));
   const [next, setNext] = useState<number | null>(null);
   const [streak, setStreak] = useState(0);
@@ -975,7 +980,7 @@ function HighLowGame({ reward, onResult }: { reward: number; onResult: (w: boole
         )}
       </div>
       <div className="text-xs text-muted-foreground">
-        연승 {streak} · 보너스 +{formatKRW(bonus)}
+        {t("gStreakBonus", { n: streak, val: formatKRW(bonus) })}
       </div>
       {!done ? (
         <div className="grid grid-cols-2 gap-2 mt-4">
@@ -996,7 +1001,7 @@ function HighLowGame({ reward, onResult }: { reward: number; onResult: (w: boole
               onClick={() => onResult(true, bonus)}
               className="col-span-2 press sheen py-3 rounded-xl bg-gradient-gold text-gold-foreground font-bold glow-gold"
             >
-              {formatKRW(bonus)} 챙기기
+              {t("gKeep", { val: formatKRW(bonus) })}
             </button>
           )}
         </div>
@@ -1005,7 +1010,7 @@ function HighLowGame({ reward, onResult }: { reward: number; onResult: (w: boole
           onClick={() => onResult(streak > 0, bonus)}
           className="press sheen mt-4 px-8 py-3 rounded-xl bg-muted text-foreground font-bold"
         >
-          결과 받기
+          {t("claim")}
         </button>
       )}
     </div>
