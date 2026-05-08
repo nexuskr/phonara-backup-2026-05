@@ -52,6 +52,34 @@ export default function Trust() {
     canon.href = `${window.location.origin}/trust`;
   }, []);
 
+  // JSON-LD structured data — updates when metrics arrive
+  useEffect(() => {
+    const id = "phonara-trust-jsonld";
+    document.getElementById(id)?.remove();
+    if (!m) return;
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: "Phonara Trust Metrics",
+      description: "Public operational trust metrics for Phonara: settlement uptime, audit pass rate, anomaly count.",
+      url: `${window.location.origin}/trust`,
+      creator: { "@type": "Organization", name: "Phonara" },
+      dateModified: m.generated_at,
+      variableMeasured: [
+        { "@type": "PropertyValue", name: "cron_uptime_7d", value: m.cron_uptime_7d, unitText: "PERCENT" },
+        { "@type": "PropertyValue", name: "audit_pass_30d", value: m.audit_pass_30d, unitText: "PERCENT" },
+        { "@type": "PropertyValue", name: "policy_pass_7d", value: m.policy_pass_7d, unitText: "PERCENT" },
+        { "@type": "PropertyValue", name: "unack_anomalies", value: m.unack_anomalies },
+      ],
+    };
+    const script = document.createElement("script");
+    script.id = id;
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(ld);
+    document.head.appendChild(script);
+    return () => { document.getElementById(id)?.remove(); };
+  }, [m]);
+
   const allGreen = m && m.cron_uptime_7d >= 99 && m.audit_pass_30d >= 99 && m.policy_pass_7d >= 99 && m.unack_anomalies === 0;
 
   return (
