@@ -505,12 +505,13 @@ function JackpotWinOverlay({ win, onClose }: { win: { amount: number; type: "mai
 
 /* ─────────── UGC ─────────── */
 function UGCModal({ mission, onClose, onSubmit }: { mission: Mission; onClose: () => void; onSubmit: () => void }) {
+  const { t } = useTranslation("missions");
   const [file, setFile] = useState<string>();
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
       <div className="w-full max-w-md glass-strong rounded-3xl p-6 neon-border relative animate-fade-up">
-        <h2 className="font-display font-black text-lg">UGC 제출 — {mission.title}</h2>
-        <p className="text-[11px] text-muted-foreground mt-1">사진/영상을 업로드하면 Gemini Vision이 1차 검토합니다.</p>
+        <h2 className="font-display font-black text-lg break-keep">{t("ugcSubmit", { title: mission.title })}</h2>
+        <p className="text-[11px] text-muted-foreground mt-1 break-keep">{t("ugcSub")}</p>
         <label className="mt-4 block">
           <div className="glass rounded-2xl p-6 border-2 border-dashed border-border hover:border-primary text-center cursor-pointer">
             {file ? (
@@ -518,7 +519,7 @@ function UGCModal({ mission, onClose, onSubmit }: { mission: Mission; onClose: (
             ) : (
               <>
                 <Upload className="w-7 h-7 mx-auto text-muted-foreground" />
-                <div className="text-xs mt-2 font-bold">사진/영상 업로드</div>
+                <div className="text-xs mt-2 font-bold">{t("ugcUpload")}</div>
               </>
             )}
           </div>
@@ -536,15 +537,15 @@ function UGCModal({ mission, onClose, onSubmit }: { mission: Mission; onClose: (
           />
         </label>
         <div className="grid grid-cols-2 gap-2 mt-4">
-          <button onClick={onClose} className="press py-3 rounded-xl glass text-sm font-bold">
-            취소
+          <button onClick={onClose} className="press min-h-[44px] py-3 rounded-xl glass text-sm font-bold">
+            {t("cancel")}
           </button>
           <button
             onClick={onSubmit}
             disabled={!file}
-            className="press sheen py-3 rounded-xl bg-gradient-primary text-primary-foreground text-sm font-bold glow-primary disabled:opacity-50"
+            className="press sheen min-h-[44px] py-3 rounded-xl bg-gradient-primary text-primary-foreground text-sm font-bold glow-primary disabled:opacity-50"
           >
-            제출
+            {t("submit")}
           </button>
         </div>
       </div>
