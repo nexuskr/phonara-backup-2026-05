@@ -143,6 +143,7 @@ export default function MissionTemplatesAdmin() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => resolve(m.id, "approve")} className="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" />승인</button>
+                    <button onClick={() => resolve(m.id, "partial")} className="text-xs px-2.5 py-1.5 rounded-lg bg-amber-600 text-white font-bold">50%</button>
                     <button onClick={() => resolve(m.id, "reject")} className="text-xs px-2.5 py-1.5 rounded-lg bg-rose-600 text-white font-bold flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />거절</button>
                   </div>
                 </div>
