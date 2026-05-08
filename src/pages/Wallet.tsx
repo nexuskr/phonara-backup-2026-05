@@ -480,6 +480,14 @@ export default function Wallet() {
               </>
             )}
 
+            {/* ETA + Receipt (withdraw only) */}
+            {action === "withdraw" && Number(amount) >= 10000 && (
+              <WithdrawETABadge tier={u.tier} amount={Number(amount)} />
+            )}
+            {action === "withdraw" && (
+              <WithdrawReceiptUpload userId={u.id} onUploaded={setReceiptPath} />
+            )}
+
             {/* Verification block */}
             <div className="rounded-xl p-4 space-y-3 border border-primary/20 bg-primary/[0.03]">
               <div className="flex items-center gap-2">
