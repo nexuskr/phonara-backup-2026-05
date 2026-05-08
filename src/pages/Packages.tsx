@@ -170,6 +170,17 @@ export default function Packages() {
         </div>
 
       {selected && <PurchaseModal pkg={selected} onClose={() => setSelected(null)} />}
+      {paywall && (
+        <PaywallStarter
+          pkg={paywall}
+          onClose={() => setPaywall(null)}
+          onSubmit={async () => {
+            const p = paywall;
+            setPaywall(null);
+            setSelected(p);
+          }}
+        />
+      )}
     </Layout>
   );
 }
