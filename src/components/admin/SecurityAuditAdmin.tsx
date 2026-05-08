@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ShieldCheck, ShieldAlert, RefreshCw, Activity, AlertTriangle, CheckCircle2, Filter, Eye } from "lucide-react";
+import { ShieldCheck, ShieldAlert, RefreshCw, Activity, AlertTriangle, CheckCircle2, Filter, Eye, Wrench, Gauge } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -28,7 +28,9 @@ type OkFilter = "all" | "ok" | "fail";
 export default function SecurityAuditAdmin() {
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [settles, setSettles] = useState<SettleRow[]>([]);
+  const [slo, setSlo] = useState<any>(null);
   const [running, setRunning] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<AuditRow | null>(null);
 
@@ -40,13 +42,28 @@ export default function SecurityAuditAdmin() {
 
   async function load() {
     setLoading(true);
-    const [a, s] = await Promise.all([
+    const [a, s, sl] = await Promise.all([
       supabase.from("security_audit_log").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("cron_settle_audit_log").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.rpc("settlement_slo"),
     ]);
     setAudits((a.data ?? []) as AuditRow[]);
     setSettles((s.data ?? []) as SettleRow[]);
+    setSlo(sl.data ?? null);
     setLoading(false);
+  }
+
+  async function recoverNow() {
+    setRecovering(true);
+    try {
+      const { data, error } = await supabase.rpc("recover_stuck_settlements");
+      if (error) throw error;
+      const r = data as any;
+      toast({ title: r?.ok ? "복구 실행" : "복구 실패", description: `stuck ${r?.stuck ?? 0} · recovered ${r?.recovered ?? 0}` });
+      await load();
+    } catch (e: any) {
+      toast({ title: "복구 실행 실패", description: e.message });
+    } finally { setRecovering(false); }
   }
 
   useEffect(() => { void load(); }, []);
@@ -116,6 +133,38 @@ export default function SecurityAuditAdmin() {
           지금 재스캔
         </button>
       </div>
+
+      {/* SLO card */}
+      {slo && (
+        <div className="glass-strong rounded-2xl p-4 neon-border">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <Gauge className="w-4 h-4 text-gold" />
+              <h3 className="font-display font-black text-sm">정산 SLO (7d)</h3>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                slo.health === "ok" ? "text-secondary bg-secondary/15 border-secondary/30" :
+                slo.health === "degraded" ? "text-gold bg-gold/15 border-gold/30" :
+                "text-destructive bg-destructive/15 border-destructive/30"
+              }`}>{String(slo.health).toUpperCase()}</span>
+            </div>
+            <button onClick={recoverNow} disabled={recovering}
+              className="px-3 py-2 rounded-xl bg-destructive/20 text-destructive text-xs font-bold flex items-center gap-1.5 press">
+              <Wrench className={`w-3.5 h-3.5 ${recovering ? "animate-spin" : ""}`} /> Stuck 복구
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-[11px]">
+            <Mini label="성공률" value={slo.success_rate != null ? `${slo.success_rate}%` : "—"} />
+            <Mini label="실행/성공" value={`${slo.success_runs}/${slo.total_runs}`} />
+            <Mini label="p95" value={`${slo.p95_duration_ms}ms`} />
+            <Mini label="Stuck" value={String(slo.stuck_count)} tone={slo.stuck_count > 0 ? "fail" : "ok"} />
+            <Mini label="연속실패" value={String(slo.consecutive_failures)} tone={slo.consecutive_failures > 0 ? "fail" : "ok"} />
+            <Mini label="다음예정" value={slo.next_due_at ? new Date(slo.next_due_at).toLocaleString("ko-KR") : "—"} />
+          </div>
+          <div className="text-[10px] text-muted-foreground mt-2">
+            마지막 실행: {slo.last_run_at ? new Date(slo.last_run_at).toLocaleString("ko-KR") : "—"} · 마지막 성공: {slo.last_ok_at ? new Date(slo.last_ok_at).toLocaleString("ko-KR") : "—"}
+          </div>
+        </div>
+      )}
 
       {/* Settle audit */}
       <div>
@@ -272,6 +321,15 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "ok
     <div className="glass rounded-lg p-2 text-center">
       <div className="text-[9px] text-muted-foreground">{label}</div>
       <div className={`font-bold mt-0.5 ${tone === "ok" ? "text-secondary" : tone === "fail" ? "text-destructive" : ""}`}>{value}</div>
+    </div>
+  );
+}
+
+function Mini({ label, value, tone }: { label: string; value: string; tone?: "ok" | "fail" }) {
+  return (
+    <div className="glass rounded-lg p-2">
+      <div className="text-[9px] text-muted-foreground">{label}</div>
+      <div className={`font-bold mt-0.5 truncate ${tone === "ok" ? "text-secondary" : tone === "fail" ? "text-destructive" : ""}`}>{value}</div>
     </div>
   );
 }
