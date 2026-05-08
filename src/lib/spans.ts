@@ -190,6 +190,8 @@ async function flush() {
   try {
     const batch = QUEUE.splice(0, MAX_BATCH);
     const failed: SpanInput[] = [];
+    const succeededKeys: string[] = [];
+    const droppedKeys: string[] = [];
     let lastErr: string | null = null;
 
     await Promise.all(batch.map(async (s) => {
@@ -205,6 +207,7 @@ async function flush() {
         });
         if (error) throw error;
         M.flushed_ok++;
+        if (s._key) succeededKeys.push(s._key);
       } catch (e: any) {
         lastErr = e?.message ?? String(e);
         s._attempts = (s._attempts ?? 0) + 1;
@@ -214,30 +217,34 @@ async function flush() {
         } else {
           M.flushed_fail++;
           M.dropped++;
-          if (s._key) SEEN.delete(s._key); // free slot for future
+          if (s._key) { SEEN.delete(s._key); droppedKeys.push(s._key); }
         }
       }
     }));
 
     M.last_flush_at = Date.now();
     M.last_error = lastErr;
+    void persistRemove([...succeededKeys, ...droppedKeys]);
 
     if (failed.length > 0) {
       QUEUE.unshift(...failed);
       RETRY_BACKOFF = Math.min(60_000, (RETRY_BACKOFF || 1_000) * 2);
+      maybeAlert("flush_failures", { last_error: lastErr });
     } else {
       RETRY_BACKOFF = 0;
     }
+    if (M.dropped >= 25) maybeAlert("drop_threshold", {});
   } finally {
     FLUSHING = false;
     if (QUEUE.length > 0) scheduleFlush();
   }
 }
 
-// Force flush on page hide / unload (best-effort)
+// Force flush on page hide / unload (best-effort) + restore from disk
 if (typeof window !== "undefined") {
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") void flush(); });
   window.addEventListener("beforeunload", () => { void flush(); });
+  void restoreQueue();
 }
 
 // fetch instrumentation — guards against re-patching and self-loops
