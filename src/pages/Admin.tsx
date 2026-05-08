@@ -20,9 +20,10 @@ import ObservabilityCockpit from "@/components/admin/ObservabilityCockpit";
 import PermissionsAudit from "@/components/admin/PermissionsAudit";
 import FunnelAnalytics from "@/components/admin/FunnelAnalytics";
 import AMLAdmin from "@/components/admin/AMLAdmin";
-import { Activity, Lock } from "lucide-react";
+import MissionTemplatesAdmin from "@/components/admin/MissionTemplatesAdmin";
+import { Activity, Lock, Bot } from "lucide-react";
 
-type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "aml" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
+type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "aml" | "ai_missions" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
 
 export default function Admin() {
   const [db, setDb] = useDB();
