@@ -136,6 +136,30 @@ Deno.serve(async (req) => {
   // Create Supabase client with service role (bypasses RLS)
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+  // Authorization: only service_role or an admin user may send transactional email.
+  // verify_jwt = true at the gateway already validates the JWT signature; here we
+  // additionally check role/admin status to prevent any authenticated user from
+  // spamming arbitrary recipients with branded templates.
+  const claims = parseJwtClaims(
+    req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '').trim() ?? null
+  )
+  const isService = claims?.role === 'service_role'
+  let isAdmin = false
+  if (!isService && typeof claims?.sub === 'string') {
+    const { data: hasAdmin } = await supabase.rpc('has_role', {
+      _user_id: claims.sub,
+      _role: 'admin',
+    })
+    isAdmin = hasAdmin === true
+  }
+  if (!isService && !isAdmin) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+
   // 2. Check suppression list (fail-closed: if we can't verify, don't send)
   const { data: suppressed, error: suppressionError } = await supabase
     .from('suppressed_emails')
