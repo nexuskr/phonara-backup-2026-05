@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ShieldCheck, ShieldAlert, RefreshCw, Activity, AlertTriangle, CheckCircle2, Filter, Eye, Wrench, Gauge } from "lucide-react";
+import { ShieldCheck, ShieldAlert, RefreshCw, Activity, AlertTriangle, CheckCircle2, Filter, Eye, Wrench, Gauge, FileCheck2, Radar, BellRing, Check } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -25,14 +25,41 @@ type SettleRow = {
 
 type OkFilter = "all" | "ok" | "fail";
 
+type AssertionRun = {
+  id: string;
+  assertion_key: string;
+  passed: boolean;
+  observed: string | null;
+  error: string | null;
+  created_at: string;
+};
+
+type AnomalyEvent = {
+  id: string;
+  user_id: string | null;
+  rule: string;
+  severity: "low" | "medium" | "high" | "critical";
+  evidence: any;
+  acknowledged: boolean;
+  acknowledged_at: string | null;
+  ack_note: string | null;
+  created_at: string;
+};
+
 export default function SecurityAuditAdmin() {
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [settles, setSettles] = useState<SettleRow[]>([]);
   const [slo, setSlo] = useState<any>(null);
+  const [assertionRuns, setAssertionRuns] = useState<AssertionRun[]>([]);
+  const [anomalies, setAnomalies] = useState<AnomalyEvent[]>([]);
   const [running, setRunning] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [runningAssert, setRunningAssert] = useState(false);
+  const [scanningAnom, setScanningAnom] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<AuditRow | null>(null);
+  const [anomalyDetail, setAnomalyDetail] = useState<AnomalyEvent | null>(null);
+  const [showAckOnly, setShowAckOnly] = useState(false);
 
   // filters
   const [from, setFrom] = useState<string>("");
@@ -42,15 +69,60 @@ export default function SecurityAuditAdmin() {
 
   async function load() {
     setLoading(true);
-    const [a, s, sl] = await Promise.all([
+    const [a, s, sl, ar, an] = await Promise.all([
       supabase.from("security_audit_log").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("cron_settle_audit_log").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("settlement_slo"),
+      supabase.from("policy_assertion_runs").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase.from("anomaly_events").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     setAudits((a.data ?? []) as AuditRow[]);
     setSettles((s.data ?? []) as SettleRow[]);
     setSlo(sl.data ?? null);
+    setAssertionRuns((ar.data ?? []) as AssertionRun[]);
+    setAnomalies((an.data ?? []) as AnomalyEvent[]);
     setLoading(false);
+  }
+
+  async function runAssertions() {
+    setRunningAssert(true);
+    try {
+      const { data, error } = await supabase.rpc("run_policy_assertions");
+      if (error) throw error;
+      const r = data as any;
+      toast({
+        title: r?.ok ? "✅ 정책 단언 통과" : `⚠ ${r?.failed ?? "?"}건 실패`,
+        description: `${r?.passed ?? 0}/${r?.total ?? 0} 통과`,
+      });
+      await load();
+    } catch (e: any) {
+      toast({ title: "단언 실행 실패", description: e.message });
+    } finally { setRunningAssert(false); }
+  }
+
+  async function scanAnomalies() {
+    setScanningAnom(true);
+    try {
+      const { data, error } = await supabase.rpc("detect_anomalies");
+      if (error) throw error;
+      const r = data as any;
+      toast({ title: "이상치 스캔 완료", description: `${r?.inserted ?? 0}건 신규 탐지` });
+      await load();
+    } catch (e: any) {
+      toast({ title: "이상치 스캔 실패", description: e.message });
+    } finally { setScanningAnom(false); }
+  }
+
+  async function ackAnomaly(id: string) {
+    const note = window.prompt("처리 메모 (선택)") ?? null;
+    try {
+      const { error } = await supabase.rpc("acknowledge_anomaly", { _id: id, _note: note });
+      if (error) throw error;
+      toast({ title: "확인 처리 완료" });
+      await load();
+    } catch (e: any) {
+      toast({ title: "처리 실패", description: e.message });
+    }
   }
 
   async function recoverNow() {
@@ -166,7 +238,110 @@ export default function SecurityAuditAdmin() {
         </div>
       )}
 
-      {/* Settle audit */}
+      {/* Policy Assertions */}
+      <div className="glass-strong rounded-2xl p-4 neon-border">
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <FileCheck2 className="w-4 h-4 text-gold" />
+            <h3 className="font-display font-black text-sm">Policy as Code 단언</h3>
+            {(() => {
+              const latestKey: Record<string, AssertionRun> = {};
+              for (const r of assertionRuns) if (!latestKey[r.assertion_key]) latestKey[r.assertion_key] = r;
+              const arr = Object.values(latestKey);
+              const failed = arr.filter(r => !r.passed).length;
+              return (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                  failed === 0 ? "text-secondary bg-secondary/15 border-secondary/30" : "text-destructive bg-destructive/15 border-destructive/30"
+                }`}>{failed === 0 ? `ALL PASS · ${arr.length}` : `${failed} FAIL`}</span>
+              );
+            })()}
+          </div>
+          <button onClick={runAssertions} disabled={runningAssert}
+            className="px-3 py-2 rounded-xl bg-gradient-imperial text-primary-foreground text-xs font-bold flex items-center gap-1.5 press">
+            <RefreshCw className={`w-3.5 h-3.5 ${runningAssert ? "animate-spin" : ""}`} /> 단언 실행
+          </button>
+        </div>
+        <div className="space-y-1 max-h-64 overflow-y-auto">
+          {(() => {
+            const latestKey: Record<string, AssertionRun> = {};
+            for (const r of assertionRuns) if (!latestKey[r.assertion_key]) latestKey[r.assertion_key] = r;
+            const arr = Object.values(latestKey).sort((a, b) => Number(a.passed) - Number(b.passed));
+            if (arr.length === 0) return <div className="text-xs text-muted-foreground text-center py-4">실행 기록 없음 — "단언 실행" 클릭</div>;
+            return arr.map((r) => (
+              <div key={r.assertion_key} className="flex items-center justify-between gap-2 text-[11px] px-2 py-1.5 rounded-lg glass">
+                <div className="flex items-center gap-2 min-w-0">
+                  {r.passed ? <CheckCircle2 className="w-3.5 h-3.5 text-secondary shrink-0" /> : <AlertTriangle className="w-3.5 h-3.5 text-destructive shrink-0" />}
+                  <span className="font-mono truncate">{r.assertion_key}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground shrink-0">{r.observed ?? "—"}</span>
+              </div>
+            ));
+          })()}
+        </div>
+      </div>
+
+      {/* Anomaly Detection */}
+      <div className="glass-strong rounded-2xl p-4 neon-border">
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Radar className="w-4 h-4 text-gold" />
+            <h3 className="font-display font-black text-sm">실시간 이상치 탐지</h3>
+            {(() => {
+              const unack = anomalies.filter(a => !a.acknowledged).length;
+              return (
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                  unack === 0 ? "text-secondary bg-secondary/15 border-secondary/30" : "text-destructive bg-destructive/15 border-destructive/30 animate-pulse"
+                }`}>{unack === 0 ? "정상" : `미확인 ${unack}`}</span>
+              );
+            })()}
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <input type="checkbox" checked={showAckOnly} onChange={(e) => setShowAckOnly(e.target.checked)} /> 처리 포함
+            </label>
+            <button onClick={scanAnomalies} disabled={scanningAnom}
+              className="px-3 py-2 rounded-xl bg-destructive/20 text-destructive text-xs font-bold flex items-center gap-1.5 press">
+              <Radar className={`w-3.5 h-3.5 ${scanningAnom ? "animate-spin" : ""}`} /> 즉시 스캔
+            </button>
+          </div>
+        </div>
+        <div className="space-y-2 max-h-72 overflow-y-auto">
+          {anomalies.filter(a => showAckOnly || !a.acknowledged).length === 0 && (
+            <div className="text-xs text-muted-foreground text-center py-4">탐지된 이상치 없음</div>
+          )}
+          {anomalies.filter(a => showAckOnly || !a.acknowledged).map((a) => {
+            const sevTone = a.severity === "critical" || a.severity === "high"
+              ? "text-destructive bg-destructive/15 border-destructive/30"
+              : a.severity === "medium" ? "text-gold bg-gold/15 border-gold/30"
+              : "text-muted-foreground bg-muted/15 border-border";
+            return (
+              <div key={a.id} className="glass rounded-2xl p-3">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <BellRing className={`w-4 h-4 ${a.acknowledged ? "text-muted-foreground" : "text-destructive"}`} />
+                    <span className="text-xs font-bold truncate">{a.rule}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${sevTone}`}>{a.severity}</span>
+                    {a.acknowledged && <span className="text-[10px] text-secondary">✓ 처리됨</span>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-muted-foreground">{new Date(a.created_at).toLocaleString("ko-KR")}</span>
+                    <button onClick={() => setAnomalyDetail(a)} className="p-1 rounded hover:bg-accent/20"><Eye className="w-3.5 h-3.5" /></button>
+                    {!a.acknowledged && (
+                      <button onClick={() => ackAnomaly(a.id)} className="px-2 py-1 rounded bg-secondary/20 text-secondary text-[10px] font-bold flex items-center gap-1">
+                        <Check className="w-3 h-3" /> 확인
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {a.user_id && <div className="text-[10px] text-muted-foreground mt-1 font-mono truncate">user: {a.user_id}</div>}
+                <div className="text-[10px] text-muted-foreground mt-1 truncate">{JSON.stringify(a.evidence)}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+
       <div>
         <h3 className="font-display font-black text-sm flex items-center gap-2 mb-2">
           <Activity className="w-4 h-4 text-gold" /> 정산 cron 감사 로그
@@ -308,6 +483,38 @@ export default function SecurityAuditAdmin() {
 {JSON.stringify(detail, null, 2)}
                 </pre>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!anomalyDetail} onOpenChange={(o) => !o && setAnomalyDetail(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BellRing className="w-5 h-5 text-destructive" /> 이상치 상세
+            </DialogTitle>
+          </DialogHeader>
+          {anomalyDetail && (
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <Stat label="룰" value={anomalyDetail.rule} />
+                <Stat label="심각도" value={anomalyDetail.severity} tone={anomalyDetail.severity === "critical" || anomalyDetail.severity === "high" ? "fail" : undefined} />
+              </div>
+              <div className="text-[11px] text-muted-foreground">발생: {new Date(anomalyDetail.created_at).toLocaleString("ko-KR")}</div>
+              {anomalyDetail.user_id && <div className="text-[11px] font-mono break-all">user: {anomalyDetail.user_id}</div>}
+              <div>
+                <div className="font-bold mb-1">증거</div>
+                <pre className="glass rounded-lg p-2 text-[10px] overflow-auto max-h-64 whitespace-pre-wrap break-all">
+{JSON.stringify(anomalyDetail.evidence, null, 2)}
+                </pre>
+              </div>
+              {anomalyDetail.acknowledged && (
+                <div className="text-[11px] text-secondary">
+                  ✓ {anomalyDetail.acknowledged_at && new Date(anomalyDetail.acknowledged_at).toLocaleString("ko-KR")}
+                  {anomalyDetail.ack_note && <div className="text-muted-foreground mt-1">메모: {anomalyDetail.ack_note}</div>}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
