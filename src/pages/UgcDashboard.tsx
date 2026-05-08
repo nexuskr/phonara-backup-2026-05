@@ -8,7 +8,9 @@ import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
-import { BarChart3, Plus, Trash2, Loader2 } from "lucide-react";
+import { BarChart3, Plus, Trash2, Loader2, Download } from "lucide-react";
+import { toCSV, downloadCSV } from "@/lib/csv";
+import CampaignManager from "@/components/ugc/CampaignManager";
 
 type Channel = "tiktok" | "instagram" | "threads" | "naver" | "youtube" | "kakao" | "etc";
 
