@@ -19,6 +19,7 @@ import {
 } from "@/lib/store";
 import { CheckCircle2, Sparkles, Lock, Crown, Upload, Gamepad2, X, Zap, Flame, Trophy, Heart } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { settleMission } from "@/lib/missions-rpc";
 import { emitEarned } from "@/components/onboarding/EarnedToast";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +44,7 @@ const FAIL_MSGS = [
 ];
 
 export default function Missions() {
+  const { t } = useTranslation("missions");
   const [db, setDb] = useDB();
   const nav = useNavigate();
   const user = useRequireAuth() ?? db.user;
@@ -112,15 +114,15 @@ export default function Missions() {
 
   function complete(m: Mission) {
     if (db.completedMissions.includes(m.id) && !m.game) {
-      toast({ title: "이미 완료한 미션입니다" });
+      toast({ title: t("alreadyDone") });
       return;
     }
     if (TIER_RANK[m.tier] > userTierRank) {
-      toast({ title: "잠긴 미션", description: "패키지 업그레이드 필요" });
+      toast({ title: t("lockedTitle"), description: t("lockedDesc") });
       return;
     }
     if (m.game && limitReached) {
-      toast({ title: "오늘의 플레이 한도 도달", description: `${userTier} 등급 일일 ${playLimit}회를 모두 사용했습니다. 패키지 업그레이드 시 즉시 추가 횟수 해제!`, variant: "destructive" });
+      toast({ title: t("capReached"), description: t("capDesc", { tier: userTier, n: playLimit }), variant: "destructive" });
       return;
     }
     if (m.game) {
@@ -668,7 +670,7 @@ function TapGame({ reward, onResult }: { reward: number; onResult: (w: boolean, 
   }, [time, running]);
   return (
     <div className="text-center">
-      <div className="font-display font-black text-5xl text-gradient-primary tabular-nums">{count}</div>
+      <div className="font-display font-black text-5xl text-money-strong tabular-nums">{count}</div>
       <div className="text-xs text-muted-foreground mt-1">
         남은 {time}초 · 25탭 이상 성공 · 보너스 +{formatKRW(Math.min(count * 50, reward * 2))}
       </div>
