@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_freezes: {
+        Row: {
+          created_at: string
+          expires_at: string
+          frozen_at: string
+          id: string
+          metadata: Json
+          reason: string
+          released_at: string | null
+          released_by: string | null
+          severity: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          frozen_at?: string
+          id?: string
+          metadata?: Json
+          reason: string
+          released_at?: string | null
+          released_by?: string | null
+          severity?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          frozen_at?: string
+          id?: string
+          metadata?: Json
+          reason?: string
+          released_at?: string | null
+          released_by?: string | null
+          severity?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements_catalog: {
         Row: {
           ap: number
@@ -224,6 +266,39 @@ export type Database = {
           label?: string | null
           multiplier?: number
           schedule_date?: string
+        }
+        Relationships: []
+      }
+      chaos_runs: {
+        Row: {
+          duration_ms: number | null
+          failed: number
+          id: string
+          passed: number
+          ran_at: string
+          results: Json
+          source: string
+          total_probes: number
+        }
+        Insert: {
+          duration_ms?: number | null
+          failed: number
+          id?: string
+          passed: number
+          ran_at?: string
+          results?: Json
+          source?: string
+          total_probes: number
+        }
+        Update: {
+          duration_ms?: number | null
+          failed?: number
+          id?: string
+          passed?: number
+          ran_at?: string
+          results?: Json
+          source?: string
+          total_probes?: number
         }
         Relationships: []
       }
@@ -1173,6 +1248,48 @@ export type Database = {
         }
         Relationships: []
       }
+      spans: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          ended_at: string
+          id: string
+          metadata: Json
+          op: string
+          parent_span_id: string | null
+          started_at: string
+          status: string
+          trace_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms: number
+          ended_at: string
+          id?: string
+          metadata?: Json
+          op: string
+          parent_span_id?: string | null
+          started_at: string
+          status?: string
+          trace_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          ended_at?: string
+          id?: string
+          metadata?: Json
+          op?: string
+          parent_span_id?: string | null
+          started_at?: string
+          status?: string
+          trace_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       support_messages: {
         Row: {
           created_at: string
@@ -1520,6 +1637,72 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          created_at: string
+          error: string | null
+          event: string
+          http_status: number | null
+          id: string
+          payload: Json
+          subscription_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event: string
+          http_status?: number | null
+          id?: string
+          payload: Json
+          subscription_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event?: string
+          http_status?: number | null
+          id?: string
+          payload?: Json
+          subscription_id?: string
+        }
+        Relationships: []
+      }
+      webhook_subscriptions: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          events: string[]
+          id: string
+          last_delivered_at: string | null
+          last_status: number | null
+          secret: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          events?: string[]
+          id?: string
+          last_delivered_at?: string | null
+          last_status?: number | null
+          secret: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          events?: string[]
+          id?: string
+          last_delivered_at?: string | null
+          last_status?: number | null
+          secret?: string
+          url?: string
+        }
+        Relationships: []
+      }
       withdrawal_requests: {
         Row: {
           admin_id: string | null
@@ -1706,6 +1889,7 @@ export type Database = {
         Returns: number
       }
       apply_referral_code: { Args: { _code: string }; Returns: Json }
+      auto_freeze_critical_anomalies: { Args: never; Returns: Json }
       award_xp: { Args: { _amount: number; _source?: Json }; Returns: Json }
       bump_jackpot: { Args: { _amount: number }; Returns: Json }
       bump_quest_metric: {
@@ -1854,6 +2038,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_account_frozen: { Args: { _user_id: string }; Returns: boolean }
+      latest_chaos_run: { Args: never; Returns: Json }
       log_client_error: {
         Args: {
           _context?: Json
@@ -1886,6 +2072,7 @@ export type Database = {
         Returns: number
       }
       public_trust_metrics: { Args: never; Returns: Json }
+      public_uptime_heatmap_90d: { Args: never; Returns: Json }
       public_uptime_summary: { Args: never; Returns: Json }
       purchase_season_pass: { Args: never; Returns: Json }
       read_email_batch: {
@@ -1895,6 +2082,29 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      record_chaos_run: {
+        Args: {
+          _duration_ms: number
+          _failed: number
+          _passed: number
+          _results: Json
+          _source?: string
+          _total: number
+        }
+        Returns: string
+      }
+      record_span: {
+        Args: {
+          _ended_at: string
+          _metadata?: Json
+          _op: string
+          _parent: string
+          _started_at: string
+          _status: string
+          _trace_id: string
+        }
+        Returns: string
       }
       recover_stuck_settlements: { Args: never; Returns: Json }
       request_withdrawal: {
@@ -1927,6 +2137,16 @@ export type Database = {
       }
       settle_package_daily: { Args: never; Returns: Json }
       settlement_slo: { Args: never; Returns: Json }
+      slow_requests_top: {
+        Args: { _limit?: number }
+        Returns: {
+          avg_ms: number
+          count: number
+          max_ms: number
+          op: string
+          p95_ms: number
+        }[]
+      }
       spin_roulette: { Args: { _kind: string }; Returns: Json }
       start_ai_bot_run: {
         Args: {
@@ -1974,6 +2194,7 @@ export type Database = {
         Args: { t: Database["public"]["Enums"]["user_tier"] }
         Returns: number
       }
+      unfreeze_expired: { Args: never; Returns: Json }
       unlock_achievement: { Args: { _key: string }; Returns: Json }
       xp_for_level: { Args: { _level: number }; Returns: number }
     }
