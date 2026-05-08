@@ -147,7 +147,7 @@ export default function Packages() {
                           </div>
                         )}
 
-                        <button onClick={() => setSelected(p)}
+                        <button onClick={() => handleCTA(p)}
                           className="press sheen mt-5 w-full py-3 rounded-xl bg-gradient-primary text-primary-foreground font-bold text-sm glow-primary flex items-center justify-center gap-2">
                           <Sparkles className="w-4 h-4" /> 가입하기
                         </button>
