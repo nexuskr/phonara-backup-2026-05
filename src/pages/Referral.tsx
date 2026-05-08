@@ -270,6 +270,9 @@ export default function Referral() {
           <p className="text-[10px] text-muted-foreground mt-3 break-keep">{t("shareKit.compliance")}</p>
         </section>
 
+        {/* AI DM COMPOSER */}
+        <DMComposer referralLink={link || undefined} />
+
         {/* FAQ */}
         <section>
           <h2 className="font-display font-black text-lg mb-3 flex items-center gap-2">
