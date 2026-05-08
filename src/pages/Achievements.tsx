@@ -4,7 +4,8 @@ import HubTabs from "@/components/HubTabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useDB, formatKRW } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
-import { Trophy, Lock } from "lucide-react";
+import { Trophy, Lock, Crown } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type Ach = {
   key: string; name: string; description: string; category: string;
