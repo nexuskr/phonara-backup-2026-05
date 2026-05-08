@@ -21,6 +21,7 @@ interface Template {
 interface PendingMission {
   id: string;
   user_id: string;
+  template_key: string;
   title: string;
   description: string;
   reward_credit: number;
@@ -54,7 +55,7 @@ export default function MissionTemplatesAdmin() {
     setLoading(true);
     const [tpl, pen] = await Promise.all([
       supabase.from("mission_templates").select("*").order("category").order("key"),
-      supabase.from("ai_generated_missions").select("id,user_id,title,description,reward_credit,ai_reasoning,status,created_at")
+      supabase.from("ai_generated_missions").select("id,user_id,template_key,title,description,reward_credit,ai_reasoning,status,created_at")
         .eq("status", "pending").order("created_at", { ascending: false }).limit(50),
     ]);
     setTemplates((tpl.data ?? []) as Template[]);
@@ -86,10 +87,22 @@ export default function MissionTemplatesAdmin() {
     load();
   }
 
-  async function resolve(id: string, action: "approve" | "reject") {
+  async function resolve(id: string, action: "approve" | "reject" | "partial") {
     const { error } = await supabase.rpc("admin_resolve_ai_mission", { _id: id, _action: action });
     if (error) { toast({ title: "처리 실패", description: error.message, variant: "destructive" }); return; }
-    toast({ title: action === "approve" ? "✓ 승인" : "✕ 거절" });
+    toast({ title: action === "approve" ? "✓ 승인" : action === "partial" ? "⚖ 부분 승인 (50%)" : "✕ 거절" });
+    load();
+  }
+
+  async function bulkAutoApprove() {
+    const auto = templates.filter(t => t.auto_approve).map(t => t.key);
+    if (auto.length === 0) { toast({ title: "auto_approve 템플릿 없음" }); return; }
+    const targets = pending.filter(p => auto.includes((p as any).template_key ?? ""));
+    if (targets.length === 0) { toast({ title: "대상 없음 (이미 자동 승인되었거나 수동 템플릿)" }); return; }
+    for (const m of targets) {
+      await supabase.rpc("admin_resolve_ai_mission", { _id: m.id, _action: "approve" });
+    }
+    toast({ title: `✓ ${targets.length}건 자동 승인` });
     load();
   }
 
@@ -104,9 +117,16 @@ export default function MissionTemplatesAdmin() {
 
       {/* ── Pending AI missions ── */}
       <section className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
-        <h3 className="font-bold text-sm flex items-center gap-2 mb-3">
-          <ShieldAlert className="w-4 h-4 text-amber-500" />
-          AI 미션 결재 대기 ({pending.length})
+        <h3 className="font-bold text-sm flex items-center justify-between gap-2 mb-3">
+          <span className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-amber-500" />
+            AI 미션 결재 대기 ({pending.length})
+          </span>
+          {pending.length > 0 && (
+            <button onClick={bulkAutoApprove} className="text-[11px] px-2 py-1 rounded-lg bg-amber-500 text-amber-950 font-black">
+              자동 일괄 승인
+            </button>
+          )}
         </h3>
         {pending.length === 0 ? (
           <div className="text-xs text-muted-foreground">대기 중인 미션이 없습니다.</div>
@@ -123,6 +143,7 @@ export default function MissionTemplatesAdmin() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => resolve(m.id, "approve")} className="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" />승인</button>
+                    <button onClick={() => resolve(m.id, "partial")} className="text-xs px-2.5 py-1.5 rounded-lg bg-amber-600 text-white font-bold">50%</button>
                     <button onClick={() => resolve(m.id, "reject")} className="text-xs px-2.5 py-1.5 rounded-lg bg-rose-600 text-white font-bold flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />거절</button>
                   </div>
                 </div>
