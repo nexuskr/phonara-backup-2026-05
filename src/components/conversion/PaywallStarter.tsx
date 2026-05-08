@@ -50,7 +50,11 @@ export default function PaywallStarter({
       <ExitIntentModal onAccept={pay} />
       <div className="w-full max-w-md glass-strong rounded-3xl p-6 neon-border relative overflow-hidden animate-fade-up">
         <button
-          onClick={onClose}
+          onClick={() => {
+            try { window.dispatchEvent(new Event("phonara:exit-intent")); } catch {}
+            // 다음 tick에 닫기 — exit modal이 z-index 위에서 먼저 뜸
+            setTimeout(onClose, 0);
+          }}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted/40 flex items-center justify-center"
           aria-label="닫기"
         >
@@ -85,6 +89,15 @@ export default function PaywallStarter({
           {isFlagOn("progressLockIn") && (
             <div className="mt-2">
               <ProgressLockIn score={Math.min(98, 30 + (db.user?.xp ?? 0) % 70)} />
+            </div>
+          )}
+
+          {isFlagOn("liveSocialProof") && (
+            <div className="mt-3 flex items-center gap-2 text-[11px] glass rounded-xl px-3 py-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+              <span className="text-muted-foreground">
+                <span className="font-black text-secondary">방금</span> 서울 K**님이 같은 패키지를 결제했습니다 · 오늘 <span className="font-black text-foreground tabular-nums">1,284</span>명 진입
+              </span>
             </div>
           )}
 
