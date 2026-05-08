@@ -35,6 +35,7 @@ const HUBS: Record<HubKey, { tabs: Tab[] }> = {
   legacy: {
     tabs: [
       { to: "/referral",             tKey: "legacy.referral",     icon: Share2 },
+      { to: "/ugc",                  tKey: "legacy.ugc",          icon: BarChart3 },
       { to: "/legacy",               tKey: "legacy.ranking",      icon: Trophy },
       { to: "/achievements",         tKey: "legacy.achievements", icon: Award },
     ],
