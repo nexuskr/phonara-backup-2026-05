@@ -46,7 +46,7 @@ export default function CountdownLossAversion({
     >
       <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
         <Clock className={`w-3.5 h-3.5 ${danger ? "text-destructive" : "text-primary"}`} />
-        {label}
+        {labelText}
       </div>
       <div
         className={`font-display font-black text-lg tabular-nums ${
