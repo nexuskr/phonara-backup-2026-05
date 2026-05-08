@@ -173,6 +173,7 @@ export function recordSpan(input: Omit<SpanInput, "trace_id"> & { trace_id?: str
   }
   QUEUE.push(span);
   M.enqueued++;
+  void persistAdd(span);
   if (QUEUE.length >= MAX_QUEUE) void flush();
   else scheduleFlush();
 }
