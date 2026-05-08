@@ -140,6 +140,48 @@ export type Database = {
         }
         Relationships: []
       }
+      anomaly_events: {
+        Row: {
+          ack_note: string | null
+          acknowledged: boolean
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          dedupe_key: string | null
+          evidence: Json
+          id: string
+          rule: string
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          ack_note?: string | null
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          evidence?: Json
+          id?: string
+          rule: string
+          severity: string
+          user_id?: string | null
+        }
+        Update: {
+          ack_note?: string | null
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          dedupe_key?: string | null
+          evidence?: Json
+          id?: string
+          rule?: string
+          severity?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badges_catalog: {
         Row: {
           created_at: string
@@ -692,6 +734,72 @@ export type Database = {
           method?: string
           user_agent?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      policy_assertion_runs: {
+        Row: {
+          assertion_key: string
+          created_at: string
+          error: string | null
+          id: string
+          observed: string | null
+          passed: boolean
+        }
+        Insert: {
+          assertion_key: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          observed?: string | null
+          passed: boolean
+        }
+        Update: {
+          assertion_key?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          observed?: string | null
+          passed?: boolean
+        }
+        Relationships: []
+      }
+      policy_assertions: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          expected: string
+          id: string
+          key: string
+          op: string
+          role: string
+          table_name: string
+          test_sql: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          expected: string
+          id?: string
+          key: string
+          op: string
+          role: string
+          table_name: string
+          test_sql: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          expected?: string
+          id?: string
+          key?: string
+          op?: string
+          role?: string
+          table_name?: string
+          test_sql?: string
         }
         Relationships: []
       }
@@ -1528,6 +1636,10 @@ export type Database = {
       _cron_security_self_audit: { Args: never; Returns: undefined }
       _cron_settle_package_daily: { Args: never; Returns: Json }
       _period_key: { Args: { _period: string }; Returns: string }
+      acknowledge_anomaly: {
+        Args: { _id: string; _note?: string }
+        Returns: Json
+      }
       admin_adjust_balance: {
         Args: { _delta: number; _reason: string; _target: string }
         Returns: Json
@@ -1589,6 +1701,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      detect_anomalies: { Args: never; Returns: Json }
       distribute_profit_share: {
         Args: {
           _period_end: string
@@ -1773,6 +1886,7 @@ export type Database = {
         Args: { _tier: Database["public"]["Enums"]["user_tier"] }
         Returns: number
       }
+      run_policy_assertions: { Args: never; Returns: Json }
       run_security_self_audit: { Args: { _source?: string }; Returns: Json }
       settle_mission: {
         Args: { _base_reward: number; _is_win: boolean; _mission_id: string }
