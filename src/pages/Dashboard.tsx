@@ -215,10 +215,10 @@ export default function Dashboard() {
           {/* Quick actions */}
           <div className="grid grid-cols-4 gap-2 mt-5">
             {[
-              { to: "/missions", label: "미션", icon: "🎯", grad: "from-primary/20 to-primary/5" },
-              { to: "/packages", label: "패키지", icon: "👑", grad: "from-gold/20 to-gold/5" },
-              { to: "/wallet", label: "충전", icon: "💎", grad: "from-secondary/20 to-secondary/5" },
-              { to: "/support", label: "고객센터", icon: "💬", grad: "from-accent/20 to-accent/5" },
+              { to: "/missions", label: t("missions"), icon: "🎯", grad: "from-primary/20 to-primary/5" },
+              { to: "/packages", label: t("packages"), icon: "👑", grad: "from-gold/20 to-gold/5" },
+              { to: "/wallet", label: t("deposit"), icon: "💎", grad: "from-secondary/20 to-secondary/5" },
+              { to: "/support", label: t("nav:support", "고객센터"), icon: "💬", grad: "from-accent/20 to-accent/5" },
             ].map((a, i) => (
               <Link key={i} to={a.to} className={`glass rounded-2xl p-3 flex flex-col items-center gap-1 bg-gradient-to-b ${a.grad} sm:hover:scale-105 transition`}>
                 <span className="text-2xl">{a.icon}</span>
