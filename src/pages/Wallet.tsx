@@ -483,9 +483,15 @@ export default function Wallet() {
         )}
 
         {action === "history" && (
-          <div>
-            <div className="text-[10px] tracking-[0.25em] text-primary font-black mb-3 uppercase">{t("historyTitle")}</div>
-            <ServerTxList />
+          <div className="space-y-5">
+            <div>
+              <div className="text-[10px] tracking-[0.25em] text-primary font-black mb-3 uppercase">출금 이력</div>
+              <WithdrawalHistoryList />
+            </div>
+            <div>
+              <div className="text-[10px] tracking-[0.25em] text-primary font-black mb-3 uppercase">{t("historyTitle")}</div>
+              <ServerTxList />
+            </div>
           </div>
         )}
       </div>
