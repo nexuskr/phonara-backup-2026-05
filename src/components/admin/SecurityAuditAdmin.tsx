@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, ShieldAlert, RefreshCw, Activity, AlertTriangle, CheckCircle2, Filter, Eye, Wrench, Gauge, FileCheck2, Radar, BellRing, Check } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
