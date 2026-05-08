@@ -78,51 +78,50 @@ export default function Profile() {
   };
 
   function savePw() {
-    if (!/^\d{6}$/.test(pw) || pw !== pw2) { toast({ title: "6자리 숫자 일치 필요" }); return; }
+    if (!/^\d{6}$/.test(pw) || pw !== pw2) { toast({ title: t("pinErrMatch") }); return; }
     setDb(d => ({ ...d, user: d.user ? { ...d.user, withdrawPw: pw } : null }));
     setPw(""); setPw2(""); setPwOpen(false);
-    toast({ title: "✅ 출금 비밀번호 저장됨" });
+    toast({ title: t("pinSaved") });
   }
 
   async function saveNickname() {
     const v = nickname.trim();
-    if (v.length < 2 || v.length > 20) { toast({ title: "닉네임 2~20자", variant: "destructive" }); return; }
+    if (v.length < 2 || v.length > 20) { toast({ title: t("accNickErr"), variant: "destructive" }); return; }
     setBusy(true);
     try {
       const { error } = await supabase.from("profiles").update({ nickname: v }).eq("id", u.id);
       if (error) throw error;
       setDb(d => ({ ...d, user: d.user ? { ...d.user, nickname: v } : null }));
-      toast({ title: "닉네임 변경 완료" });
+      toast({ title: t("accNickDone") });
       setAccountOpen(false);
-    } catch (e: any) { toast({ title: "오류", description: e.message, variant: "destructive" }); }
+    } catch (e: any) { toast({ title: t("genericError"), description: e.message, variant: "destructive" }); }
     finally { setBusy(false); }
   }
 
   async function changeEmail() {
-    if (!/^.+@.+\..+/.test(newEmail)) { toast({ title: "이메일 형식 확인", variant: "destructive" }); return; }
+    if (!/^.+@.+\..+/.test(newEmail)) { toast({ title: t("emailErrFmt"), variant: "destructive" }); return; }
     setBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      toast({ title: "확인 메일을 발송했습니다", description: "새 이메일에서 인증해주세요." });
+      toast({ title: t("emailSent"), description: t("emailSentDesc") });
       setEmailOpen(false); setNewEmail("");
-    } catch (e: any) { toast({ title: "오류", description: e.message, variant: "destructive" }); }
+    } catch (e: any) { toast({ title: t("genericError"), description: e.message, variant: "destructive" }); }
     finally { setBusy(false); }
   }
 
   async function changePass() {
-    if (newPass.length < 8) { toast({ title: "비밀번호 8자 이상", variant: "destructive" }); return; }
-    if (newPass !== newPass2) { toast({ title: "새 비밀번호 불일치", variant: "destructive" }); return; }
+    if (newPass.length < 8) { toast({ title: t("passErrShort"), variant: "destructive" }); return; }
+    if (newPass !== newPass2) { toast({ title: t("passErrMismatch"), variant: "destructive" }); return; }
     setBusy(true);
     try {
-      // Re-auth with current password for safety
       const { error: e1 } = await supabase.auth.signInWithPassword({ email: u.email, password: curPass });
-      if (e1) throw new Error("현재 비밀번호가 일치하지 않습니다");
+      if (e1) throw new Error(t("passErrCurrent"));
       const { error: e2 } = await supabase.auth.updateUser({ password: newPass });
       if (e2) throw e2;
-      toast({ title: "비밀번호 변경 완료" });
+      toast({ title: t("passDone") });
       setPassOpen(false); setCurPass(""); setNewPass(""); setNewPass2("");
-    } catch (e: any) { toast({ title: "오류", description: e.message, variant: "destructive" }); }
+    } catch (e: any) { toast({ title: t("genericError"), description: e.message, variant: "destructive" }); }
     finally { setBusy(false); }
   }
 
