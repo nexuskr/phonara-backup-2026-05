@@ -2346,6 +2346,8 @@ const resources = {
       rule1: "• Friend's first deposit pays inviter 30,000C / friend 10,000C automatically",
       rule2: "• Friend must complete first deposit within 90 days of signup",
       rule3: "• No self-referral · One-time apply · Rewards revoked on abuse",
+      windowDays: "{{days}} days left in referral window",
+      windowExpired: "Referral window closed",
     },
     withdrawQueue: {
       title: "Withdraw queue status",
