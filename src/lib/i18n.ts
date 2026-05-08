@@ -151,6 +151,10 @@ const resources = {
       finalCta: "무료로 입성하기",
       navEnter: "Empire 입성",
       navLogin: "로그인",
+      bonusBadge: "가입 즉시 ₩5,000 지급",
+      todaySignups: "오늘 신규 가입 <1>{{n}}</1>명",
+      firstEarn: "60초 안에 첫 적립",
+      trustLink: "Trust 지표",
     },
     wallet: {
       title: "황실 지갑",
@@ -831,6 +835,10 @@ const resources = {
       finalCta: "Enter for free",
       navEnter: "Enter Empire",
       navLogin: "Sign in",
+      bonusBadge: "Instant ₩5,000 on signup",
+      todaySignups: "New signups today <1>{{n}}</1>",
+      firstEarn: "First earn in 60s",
+      trustLink: "Trust metrics",
     },
     wallet: {
       title: "Imperial Wallet",
