@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Gift, X } from "lucide-react";
 import { formatKRW } from "@/lib/store";
 import { track } from "@/lib/analytics";
+import { track as trackTelemetry } from "@/lib/telemetry";
 import { isFlagOn } from "@/lib/conversion-flags";
 
 const KEY = "phonara_exit_intent_v1";
@@ -33,6 +34,7 @@ export default function ExitIntentModal({
       setShown(true);
       sessionStorage.setItem(KEY, "1");
       track("funnel_exit_intent_shown", { reason });
+      void trackTelemetry("view", { surface: "exit_intent", meta: { reason, bonus } });
     }
     function onLeave(e: MouseEvent) { if (e.clientY <= 0) trigger("mouseleave"); }
     function onManual() { trigger("manual"); }
@@ -47,13 +49,16 @@ export default function ExitIntentModal({
   if (!open) return null;
 
   function close() {
+    void trackTelemetry("dismiss", { surface: "exit_intent", meta: { bonus } });
     setOpen(false);
   }
 
   function accept() {
     track("funnel_exit_intent_recovered", { bonus });
+    void trackTelemetry("cta_click", { surface: "exit_intent", meta: { bonus } });
+    void trackTelemetry("convert", { surface: "exit_intent", meta: { bonus } });
     onAccept?.();
-    close();
+    setOpen(false);
   }
 
   return (
