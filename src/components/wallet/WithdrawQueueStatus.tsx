@@ -17,7 +17,7 @@ type Latest = {
   method: string;
 };
 
-const PRIORITY_TIERS = new Set(["VIP", "GOD", "EMPIRE"]);
+const PRIORITY_TIERS = new Set(["vip", "god", "empire"]);
 
 const STATUS_ORDER: Status[] = ["pending", "processing", "approved", "completed"];
 
