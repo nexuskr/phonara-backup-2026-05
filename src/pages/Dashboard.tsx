@@ -24,9 +24,11 @@ import EmpireSignature from "@/components/status/EmpireSignature";
 import LivePurchaseTicker from "@/components/conversion/LivePurchaseTicker";
 import TierComparisonCard from "@/components/status/TierComparisonCard";
 import { useWinback } from "@/hooks/use-winback";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
   const [db] = useDB();
+  const { t } = useTranslation("dashboard");
   const user = useRequireAuth() ?? db.user;
   const [burst, setBurst] = useState(false);
   const online = useOnline();
