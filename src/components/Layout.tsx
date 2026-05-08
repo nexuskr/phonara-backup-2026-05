@@ -64,6 +64,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
   const user = db.user;
   const { t } = useTranslation("nav");
+  useAchievementWatcher(loc.pathname);
 
   useUserNotifications(user?.id);
   useAdminNotifications(!!user?.isAdmin);
