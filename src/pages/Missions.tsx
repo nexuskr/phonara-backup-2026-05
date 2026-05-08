@@ -429,8 +429,8 @@ export default function Missions() {
                 : null,
             }));
             toast({
-              title: "🤖 Gemini Vision 1차 검토 통과",
-              description: `+${formatKRW(ugcOpen.reward)} · 관리자 큐 등록됨`,
+              title: t("ugcPassTitle"),
+              description: t("ugcPassDesc", { val: formatKRW(ugcOpen.reward) }),
             });
             setUgcOpen(null);
           }}
