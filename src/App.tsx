@@ -43,6 +43,7 @@ const Status = lazy(() => import("./pages/Status.tsx"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
 const UgcDashboard = lazy(() => import("./pages/UgcDashboard.tsx"));
+const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,6 +110,7 @@ const App = () => (
              <Route path="/hall-of-fame" element={<HallOfFame />} />
               <Route path="/referral" element={<Referral />} />
               <Route path="/ugc" element={<UgcDashboard />} />
+              <Route path="/c/:slug" element={<CampaignRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
