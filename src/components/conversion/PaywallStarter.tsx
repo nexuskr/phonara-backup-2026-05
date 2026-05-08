@@ -44,7 +44,7 @@ export default function PaywallStarter({
     try {
       if (onSubmit) await onSubmit();
       else {
-        toast({ title: "결제 페이지로 이동", description: pkg.name });
+        toast({ title: t("gotoPay"), description: pkg.name });
       }
       void trackConvert("paywall_starter", "v1", { package_id: pkg.id, price: pkg.price });
     } finally {
