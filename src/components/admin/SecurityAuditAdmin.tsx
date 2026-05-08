@@ -487,6 +487,38 @@ export default function SecurityAuditAdmin() {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!anomalyDetail} onOpenChange={(o) => !o && setAnomalyDetail(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BellRing className="w-5 h-5 text-destructive" /> 이상치 상세
+            </DialogTitle>
+          </DialogHeader>
+          {anomalyDetail && (
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <Stat label="룰" value={anomalyDetail.rule} />
+                <Stat label="심각도" value={anomalyDetail.severity} tone={anomalyDetail.severity === "critical" || anomalyDetail.severity === "high" ? "fail" : undefined} />
+              </div>
+              <div className="text-[11px] text-muted-foreground">발생: {new Date(anomalyDetail.created_at).toLocaleString("ko-KR")}</div>
+              {anomalyDetail.user_id && <div className="text-[11px] font-mono break-all">user: {anomalyDetail.user_id}</div>}
+              <div>
+                <div className="font-bold mb-1">증거</div>
+                <pre className="glass rounded-lg p-2 text-[10px] overflow-auto max-h-64 whitespace-pre-wrap break-all">
+{JSON.stringify(anomalyDetail.evidence, null, 2)}
+                </pre>
+              </div>
+              {anomalyDetail.acknowledged && (
+                <div className="text-[11px] text-secondary">
+                  ✓ {anomalyDetail.acknowledged_at && new Date(anomalyDetail.acknowledged_at).toLocaleString("ko-KR")}
+                  {anomalyDetail.ack_note && <div className="text-muted-foreground mt-1">메모: {anomalyDetail.ack_note}</div>}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
