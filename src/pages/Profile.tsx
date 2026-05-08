@@ -230,45 +230,42 @@ export default function Profile() {
 
       {/* PIN modal */}
       {pwOpen && (
-        <Modal title="출금 비밀번호 설정" onClose={() => setPwOpen(false)} icon={<Lock className="w-4 h-4 text-primary" />}>
-          <p className="text-[11px] text-muted-foreground -mt-2">출금 시 입력하는 6자리 PIN</p>
-          <PinPad value={pw} onChange={setPw} label="새 PIN 6자리" />
-          <PinPad value={pw2} onChange={setPw2} label="PIN 재입력" />
-          <PrimaryButton onClick={savePw}>저장</PrimaryButton>
+        <Modal title={t("pinTitle")} onClose={() => setPwOpen(false)} icon={<Lock className="w-4 h-4 text-primary" />}>
+          <p className="text-[11px] text-muted-foreground -mt-2 break-keep">{t("pinSub")}</p>
+          <PinPad value={pw} onChange={setPw} label={t("pinNew")} />
+          <PinPad value={pw2} onChange={setPw2} label={t("pinConfirm")} />
+          <LuxButton onClick={savePw} block size="lg" className="mt-2">{t("pinSave")}</LuxButton>
         </Modal>
       )}
 
-      {/* Account (nickname) modal */}
       {accountOpen && (
-        <Modal title="계정 설정" onClose={() => setAccountOpen(false)} icon={<Settings className="w-4 h-4 text-primary" />}>
-          <Label>닉네임 (2~20자)</Label>
-          <input value={nickname} onChange={e => setNickname(e.target.value)} maxLength={20} className="w-full px-4 py-3 rounded-xl glass border border-border focus:border-primary text-sm" />
-          <PrimaryButton onClick={saveNickname} disabled={busy}>{busy ? "저장 중..." : "저장"}</PrimaryButton>
+        <Modal title={t("accTitle")} onClose={() => setAccountOpen(false)} icon={<Settings className="w-4 h-4 text-primary" />}>
+          <Label>{t("accNicknameLabel")}</Label>
+          <LuxInput value={nickname} onChange={e => setNickname(e.target.value)} maxLength={20} />
+          <LuxButton onClick={saveNickname} disabled={busy} block size="lg" className="mt-2">{busy ? t("accSaving") : t("accSave")}</LuxButton>
         </Modal>
       )}
 
-      {/* Email change modal */}
       {emailOpen && (
-        <Modal title="이메일 변경" onClose={() => setEmailOpen(false)} icon={<Mail className="w-4 h-4 text-primary" />}>
-          <p className="text-[11px] text-muted-foreground -mt-2">새 이메일로 인증 링크가 발송됩니다.</p>
-          <Label>현재 이메일</Label>
-          <div className="px-4 py-3 rounded-xl glass border border-border text-sm text-muted-foreground">{u.email}</div>
-          <Label>새 이메일</Label>
-          <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="new@example.com" className="w-full px-4 py-3 rounded-xl glass border border-border focus:border-primary text-sm" />
-          <PrimaryButton onClick={changeEmail} disabled={busy}>{busy ? "처리 중..." : "변경 요청"}</PrimaryButton>
+        <Modal title={t("emailTitle")} onClose={() => setEmailOpen(false)} icon={<Mail className="w-4 h-4 text-primary" />}>
+          <p className="text-[11px] text-muted-foreground -mt-2 break-keep">{t("emailSub")}</p>
+          <Label>{t("emailCurrent")}</Label>
+          <div className="px-4 py-3 rounded-2xl glass border border-border text-sm text-muted-foreground min-h-[48px] flex items-center">{u.email}</div>
+          <Label>{t("emailNew")}</Label>
+          <LuxInput type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="new@example.com" />
+          <LuxButton onClick={changeEmail} disabled={busy} block size="lg" className="mt-2">{busy ? t("emailProcessing") : t("emailRequest")}</LuxButton>
         </Modal>
       )}
 
-      {/* Password change modal */}
       {passOpen && (
-        <Modal title="비밀번호 변경" onClose={() => setPassOpen(false)} icon={<KeyRound className="w-4 h-4 text-primary" />}>
-          <Label>현재 비밀번호</Label>
-          <input type="password" value={curPass} onChange={e => setCurPass(e.target.value)} className="w-full px-4 py-3 rounded-xl glass border border-border focus:border-primary text-sm" />
-          <Label>새 비밀번호 (8자 이상)</Label>
-          <input type="password" value={newPass} onChange={e => setNewPass(e.target.value)} className="w-full px-4 py-3 rounded-xl glass border border-border focus:border-primary text-sm" />
-          <Label>새 비밀번호 확인</Label>
-          <input type="password" value={newPass2} onChange={e => setNewPass2(e.target.value)} className="w-full px-4 py-3 rounded-xl glass border border-border focus:border-primary text-sm" />
-          <PrimaryButton onClick={changePass} disabled={busy}>{busy ? "처리 중..." : "변경"}</PrimaryButton>
+        <Modal title={t("passTitle")} onClose={() => setPassOpen(false)} icon={<KeyRound className="w-4 h-4 text-primary" />}>
+          <Label>{t("passCur")}</Label>
+          <LuxInput type="password" value={curPass} onChange={e => setCurPass(e.target.value)} />
+          <Label>{t("passNew")}</Label>
+          <LuxInput type="password" value={newPass} onChange={e => setNewPass(e.target.value)} />
+          <Label>{t("passNewConfirm")}</Label>
+          <LuxInput type="password" value={newPass2} onChange={e => setNewPass2(e.target.value)} />
+          <LuxButton onClick={changePass} disabled={busy} block size="lg" className="mt-2">{busy ? t("passProcessing") : t("passSubmit")}</LuxButton>
         </Modal>
       )}
     </Layout>
