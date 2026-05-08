@@ -13,6 +13,7 @@ import { refreshWallet } from "@/lib/missions-rpc";
 import ServerTxList from "@/components/wallet/ServerTxList";
 import WithdrawIntentInterceptor from "@/components/conversion/WithdrawIntentInterceptor";
 import AMLGate from "@/components/wallet/AMLGate";
+import WithdrawQueueStatus from "@/components/wallet/WithdrawQueueStatus";
 
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
