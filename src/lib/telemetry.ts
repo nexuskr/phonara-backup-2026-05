@@ -48,7 +48,7 @@ async function flushQueue() {
   if (!queue.length) return;
   sessionStorage.removeItem(QUEUE_KEY);
   for (const row of queue) {
-    try { await supabase.from("conversion_events").insert(row); } catch { /* drop */ }
+    try { await supabase.from("conversion_events").insert(row as any); } catch { /* drop */ }
   }
 }
 
@@ -62,9 +62,9 @@ export async function track(event: TelemetryEvent, payload: TrackPayload): Promi
       event_type: event,
       surface: payload.surface,
       variant: payload.variant ?? "default",
-      meta: payload.meta ?? {},
+      meta: (payload.meta ?? {}) as any,
     };
-    const { error } = await supabase.from("conversion_events").insert(row);
+    const { error } = await supabase.from("conversion_events").insert(row as any);
     if (error) {
       // queue for retry on next page
       try {
