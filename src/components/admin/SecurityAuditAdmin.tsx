@@ -60,6 +60,47 @@ export default function SecurityAuditAdmin() {
   const [detail, setDetail] = useState<AuditRow | null>(null);
   const [anomalyDetail, setAnomalyDetail] = useState<AnomalyEvent | null>(null);
   const [showAckOnly, setShowAckOnly] = useState(false);
+  const [ruleFilter, setRuleFilter] = useState<string>("");
+  const [userFilter, setUserFilter] = useState<string>("");
+  const [sevFilter, setSevFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  function toggleSel(id: string) {
+    setSelected((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
+  async function bulkAck() {
+    if (selected.size === 0) return;
+    const note = window.prompt(`${selected.size}건을 일괄 확인 처리합니다. 메모 (선택)`) ?? null;
+    try {
+      const { data, error } = await (supabase as any).rpc("bulk_acknowledge_anomalies", { _ids: Array.from(selected), _note: note });
+      if (error) throw error;
+      toast({ title: "일괄 처리 완료", description: `${data ?? 0}건 처리됨` });
+      setSelected(new Set());
+      await load();
+    } catch (e: any) { toast({ title: "일괄 처리 실패", description: e.message }); }
+  }
+  async function redetect(id: string) {
+    try {
+      const { error } = await (supabase as any).rpc("redetect_anomaly", { _id: id });
+      if (error) throw error;
+      toast({ title: "재탐지 요청 완료" });
+      await load();
+    } catch (e: any) { toast({ title: "재탐지 실패", description: e.message }); }
+  }
+  function exportAnomalies(fmt: "json" | "csv") {
+    const rows = filteredAnomalies;
+    let blob: Blob;
+    if (fmt === "json") blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
+    else {
+      const head = "id,created_at,rule,severity,user_id,acknowledged,ack_note,evidence\n";
+      const body = rows.map(r => [r.id, r.created_at, r.rule, r.severity, r.user_id ?? "", r.acknowledged, JSON.stringify(r.ack_note ?? ""), JSON.stringify(r.evidence)].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+      blob = new Blob([head + body], { type: "text/csv" });
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `anomalies-${new Date().toISOString().slice(0, 10)}.${fmt}`;
+    a.click(); URL.revokeObjectURL(url);
+  }
 
   // filters
   const [from, setFrom] = useState<string>("");
