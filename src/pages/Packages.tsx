@@ -29,6 +29,16 @@ export default function Packages() {
   const nav = useNavigate();
   const user = useRequireAuth() ?? db.user;
   const [selected, setSelected] = useState<Pkg | null>(null);
+  const [paywall, setPaywall] = useState<Pkg | null>(null);
+
+  function handleCTA(p: Pkg) {
+    if (isFlagOn("frictionZeroPay") && (p.tier === "STARTER" || p.tier === "VIP" || p.tier === "GOD")) {
+      track("funnel_paywall_shown", { package_id: p.id, tier: p.tier });
+      setPaywall(p);
+      return;
+    }
+    setSelected(p);
+  }
   if (!user) return null;
 
   return (
