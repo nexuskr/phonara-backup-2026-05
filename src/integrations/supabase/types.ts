@@ -2162,6 +2162,30 @@ export type Database = {
         }
         Relationships: []
       }
+      viral_ai_circuit_state: {
+        Row: {
+          id: number
+          last_evaluated_at: string
+          opened_at: string | null
+          reason: string | null
+          state: string
+        }
+        Insert: {
+          id?: number
+          last_evaluated_at?: string
+          opened_at?: string | null
+          reason?: string | null
+          state?: string
+        }
+        Update: {
+          id?: number
+          last_evaluated_at?: string
+          opened_at?: string | null
+          reason?: string | null
+          state?: string
+        }
+        Relationships: []
+      }
       viral_attribution_chain: {
         Row: {
           anon_id: string
@@ -2375,6 +2399,195 @@ export type Database = {
           rrm_last_toggled_by?: string | null
           rrm_no_retroactive_payout?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      viral_settlement_audit: {
+        Row: {
+          actor: string
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
+      viral_settlement_audit_v2: {
+        Row: {
+          actor: string
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
+      viral_settlement_audit_v2_2026_05: {
+        Row: {
+          actor: string
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
+      viral_settlement_audit_v2_2026_06: {
+        Row: {
+          actor: string
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          submission_id: string
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          submission_id: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
+      viral_settlement_log: {
+        Row: {
+          final_bonus_credit: number
+          final_eligible: boolean
+          first_settled_at: string
+          submission_id: string
+        }
+        Insert: {
+          final_bonus_credit: number
+          final_eligible: boolean
+          first_settled_at?: string
+          submission_id: string
+        }
+        Update: {
+          final_bonus_credit?: number
+          final_eligible?: boolean
+          first_settled_at?: string
+          submission_id?: string
+        }
+        Relationships: []
+      }
+      viral_verification_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          signals_raw: Json
+          submission_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          signals_raw: Json
+          submission_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          signals_raw?: Json
+          submission_id?: string | null
+        }
+        Relationships: []
+      }
+      viral_verification_log: {
+        Row: {
+          catalog_key_redacted: string | null
+          created_at: string
+          decided_by: string
+          milestone: string | null
+          risk_score: number
+          signals_initial: Json
+          submission_id: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          catalog_key_redacted?: string | null
+          created_at?: string
+          decided_by?: string
+          milestone?: string | null
+          risk_score: number
+          signals_initial: Json
+          submission_id: string
+          user_id: string
+          verification_status: string
+        }
+        Update: {
+          catalog_key_redacted?: string | null
+          created_at?: string
+          decided_by?: string
+          milestone?: string | null
+          risk_score?: number
+          signals_initial?: Json
+          submission_id?: string
+          user_id?: string
+          verification_status?: string
         }
         Relationships: []
       }
@@ -2893,6 +3106,7 @@ export type Database = {
         Returns: Json
       }
       apply_referral_code: { Args: { _code: string }; Returns: Json }
+      assert_audit_sync: { Args: never; Returns: undefined }
       auto_freeze_critical_anomalies: { Args: never; Returns: Json }
       award_xp: { Args: { _amount: number; _source?: Json }; Returns: Json }
       bulk_acknowledge_anomalies: {
@@ -2959,6 +3173,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      ensure_settlement_audit_partition: {
+        Args: { _when?: string }
+        Returns: undefined
       }
       equip_badge: {
         Args: { _badge_key: string; _slot: number }
@@ -3284,6 +3502,10 @@ export type Database = {
         Args: { _tier: Database["public"]["Enums"]["user_tier"] }
         Returns: number
       }
+      rule_verify_submission: {
+        Args: { p_submission_id: string }
+        Returns: Json
+      }
       run_policy_assertions: { Args: never; Returns: Json }
       run_security_self_audit: { Args: { _source?: string }; Returns: Json }
       run_uptime_canary: { Args: never; Returns: undefined }
@@ -3389,6 +3611,22 @@ export type Database = {
       track_campaign_click: {
         Args: { _anon_id?: string; _slug: string }
         Returns: string
+      }
+      transition_ai_circuit: {
+        Args: { _meta?: Json; _new_state: string; _reason: string }
+        Returns: {
+          id: number
+          last_evaluated_at: string
+          opened_at: string | null
+          reason: string | null
+          state: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "viral_ai_circuit_state"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       trust_record_snapshot: { Args: never; Returns: string }
       unfreeze_expired: { Args: never; Returns: Json }
