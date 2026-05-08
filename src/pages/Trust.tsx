@@ -239,6 +239,7 @@ export default function Trust() {
           </div>
         </section>
 
+        <section className="mt-12 glass-strong rounded-3xl p-6 border border-primary/20 text-xs text-muted-foreground leading-relaxed">
           <div className="font-display font-black text-base text-foreground mb-2">우리의 약속</div>
           <ul className="space-y-1 list-disc list-inside">
             <li>모든 정산은 자동화된 cron이 매일 실행하며, 실패 시 자동 복구가 시도됩니다.</li>
