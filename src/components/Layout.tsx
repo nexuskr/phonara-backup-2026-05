@@ -49,7 +49,6 @@ const NAV: NavItem[] = [
 ];
 
 const SIDE_EXTRA = [
-  { to: "/hall-of-fame", icon: Trophy, labelKey: "legacy" as const },
   { to: "/support", icon: MessageSquare, labelKey: "support" as const },
   { to: "/profile", icon: UserIcon,      labelKey: "my" as const },
 ];
