@@ -51,21 +51,21 @@ export default function Profile() {
 
   // ===== UPGRADED ACHIEVEMENT BADGES =====
   const badges: BadgeDef[] = [
-    { id: "first",       name: "첫 발걸음",       emoji: "🚀", desc: "첫 미션 완료",          rarity: "common",    got: u.xp >= 100, progress: Math.min(100, u.xp) },
-    { id: "vip",         name: "VIP 입성",        emoji: "💎", desc: "VIP 등급 달성",         rarity: "rare",      got: ["VIP","GOD","EMPIRE"].includes(u.tier) },
-    { id: "god",         name: "GOD MODE",        emoji: "⚡", desc: "GOD 등급 달성",         rarity: "epic",      got: ["GOD","EMPIRE"].includes(u.tier) },
-    { id: "empire",      name: "EMPIRE 군주",     emoji: "👑", desc: "EMPIRE 등급 달성",      rarity: "legendary", got: u.tier === "EMPIRE" },
-    { id: "streak3",     name: "3일 연속",        emoji: "🌱", desc: "3일 연속 출석",         rarity: "common",    got: u.streak >= 3,  progress: Math.min(100, (u.streak/3)*100) },
-    { id: "streak7",     name: "주간 챔피언",     emoji: "🔥", desc: "7일 연속 출석",         rarity: "rare",      got: u.streak >= 7,  progress: Math.min(100, (u.streak/7)*100) },
-    { id: "streak30",    name: "월간 마스터",     emoji: "🏆", desc: "30일 연속 출석",        rarity: "epic",      got: u.streak >= 30, progress: Math.min(100, (u.streak/30)*100) },
-    { id: "rich10",      name: "10만원 클럽",     emoji: "💵", desc: "잔고 10만원 돌파",      rarity: "common",    got: u.balance >= 100_000 },
-    { id: "rich100",     name: "백만원 달성",     emoji: "💰", desc: "잔고 100만원 돌파",     rarity: "rare",      got: u.balance >= 1_000_000 },
-    { id: "rich1000",    name: "천만 부호",       emoji: "💸", desc: "잔고 1,000만원 돌파",    rarity: "epic",      got: u.balance >= 10_000_000 },
-    { id: "lvup10",      name: "성장하는 자",     emoji: "📈", desc: "Lv.10 달성",            rarity: "rare",      got: u.level >= 10 },
-    { id: "lvup30",      name: "노련한 도전자",   emoji: "🎯", desc: "Lv.30 달성",            rarity: "epic",      got: u.level >= 30 },
-    { id: "xp10k",       name: "경험의 정수",     emoji: "✨", desc: "누적 XP 10,000",        rarity: "rare",      got: u.xp >= 10_000 },
-    { id: "earner",      name: "오늘의 사냥꾼",   emoji: "🎁", desc: "하루 5만원 적립",       rarity: "common",    got: u.todayEarnings >= 50_000 },
-    { id: "phantom",     name: "PHANTOM 의결권",  emoji: "🛸", desc: "Syndicate Council",      rarity: "legendary", got: u.tier === "EMPIRE" && u.balance >= 50_000_000 },
+    { id: "first",    name: t("badges.first.name"),    emoji: "🚀", desc: t("badges.first.desc"),    rarity: "common",    got: u.xp >= 100, progress: Math.min(100, u.xp) },
+    { id: "vip",      name: t("badges.vip.name"),      emoji: "💎", desc: t("badges.vip.desc"),      rarity: "rare",      got: ["VIP","GOD","EMPIRE"].includes(u.tier) },
+    { id: "god",      name: t("badges.god.name"),      emoji: "⚡", desc: t("badges.god.desc"),      rarity: "epic",      got: ["GOD","EMPIRE"].includes(u.tier) },
+    { id: "empire",   name: t("badges.empire.name"),   emoji: "👑", desc: t("badges.empire.desc"),   rarity: "legendary", got: u.tier === "EMPIRE" },
+    { id: "streak3",  name: t("badges.streak3.name"),  emoji: "🌱", desc: t("badges.streak3.desc"),  rarity: "common",    got: u.streak >= 3,  progress: Math.min(100, (u.streak/3)*100) },
+    { id: "streak7",  name: t("badges.streak7.name"),  emoji: "🔥", desc: t("badges.streak7.desc"),  rarity: "rare",      got: u.streak >= 7,  progress: Math.min(100, (u.streak/7)*100) },
+    { id: "streak30", name: t("badges.streak30.name"), emoji: "🏆", desc: t("badges.streak30.desc"), rarity: "epic",      got: u.streak >= 30, progress: Math.min(100, (u.streak/30)*100) },
+    { id: "rich10",   name: t("badges.rich10.name"),   emoji: "💵", desc: t("badges.rich10.desc"),   rarity: "common",    got: u.balance >= 100_000 },
+    { id: "rich100",  name: t("badges.rich100.name"),  emoji: "💰", desc: t("badges.rich100.desc"),  rarity: "rare",      got: u.balance >= 1_000_000 },
+    { id: "rich1000", name: t("badges.rich1000.name"), emoji: "💸", desc: t("badges.rich1000.desc"), rarity: "epic",      got: u.balance >= 10_000_000 },
+    { id: "lvup10",   name: t("badges.lvup10.name"),   emoji: "📈", desc: t("badges.lvup10.desc"),   rarity: "rare",      got: u.level >= 10 },
+    { id: "lvup30",   name: t("badges.lvup30.name"),   emoji: "🎯", desc: t("badges.lvup30.desc"),   rarity: "epic",      got: u.level >= 30 },
+    { id: "xp10k",    name: t("badges.xp10k.name"),    emoji: "✨", desc: t("badges.xp10k.desc"),    rarity: "rare",      got: u.xp >= 10_000 },
+    { id: "earner",   name: t("badges.earner.name"),   emoji: "🎁", desc: t("badges.earner.desc"),   rarity: "common",    got: u.todayEarnings >= 50_000 },
+    { id: "phantom",  name: t("badges.phantom.name"),  emoji: "🛸", desc: t("badges.phantom.desc"),  rarity: "legendary", got: u.tier === "EMPIRE" && u.balance >= 50_000_000 },
   ];
   const earnedCount = badges.filter(b => b.got).length;
 
