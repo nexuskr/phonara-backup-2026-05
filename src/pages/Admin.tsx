@@ -15,9 +15,10 @@ import AdvancedAnalytics from "@/components/admin/AdvancedAnalytics";
 import ErrorMonitorAdmin from "@/components/admin/ErrorMonitorAdmin";
 import SecurityAuditAdmin from "@/components/admin/SecurityAuditAdmin";
 import ObservabilityCockpit from "@/components/admin/ObservabilityCockpit";
-import { Activity } from "lucide-react";
+import PermissionsAudit from "@/components/admin/PermissionsAudit";
+import { Activity, Lock } from "lucide-react";
 
-type Tab = "dashboard" | "analytics" | "errors" | "security" | "ops" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
+type Tab = "dashboard" | "analytics" | "errors" | "security" | "ops" | "perms" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin";
 
 export default function Admin() {
   const [db, setDb] = useDB();
