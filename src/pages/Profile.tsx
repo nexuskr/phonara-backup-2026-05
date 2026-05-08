@@ -173,9 +173,9 @@ export default function Profile() {
 
         {/* ===== Upgraded Badges ===== */}
         <div className="mt-5 glass-strong rounded-2xl p-4 neon-border">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-bold text-sm flex items-center gap-2"><Award className="w-4 h-4 text-gold" /> 업적 배지</h3>
-            <span className="text-[10px] text-muted-foreground">{earnedCount}/{badges.length} 획득</span>
+          <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
+            <h3 className="font-imperial font-bold text-sm flex items-center gap-2 tracking-[0.04em]"><Award className="w-4 h-4 text-gold" /> {t("badgesTitle")}</h3>
+            <span className="text-[10px] text-muted-foreground tabular-nums">{t("badgesGot", { a: earnedCount, b: badges.length })}</span>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {badges.map(b => (
