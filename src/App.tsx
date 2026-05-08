@@ -42,6 +42,7 @@ const Trust = lazy(() => import("./pages/Trust.tsx"));
 const Status = lazy(() => import("./pages/Status.tsx"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
+const UgcDashboard = lazy(() => import("./pages/UgcDashboard.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
