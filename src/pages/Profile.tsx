@@ -200,27 +200,27 @@ export default function Profile() {
 
         {/* ===== Settings ===== */}
         <div className="mt-5 space-y-2">
-          <SectionTitle>계정 설정</SectionTitle>
+          <SectionTitle>{t("sectionAccount")}</SectionTitle>
 
-          <Row icon={Settings} label="계정 설정" sub="닉네임 · 프로필 정보" onClick={() => { setNickname(u.nickname); setAccountOpen(true); }} />
-          <Row icon={Mail} label="이메일 변경" sub={u.email} onClick={() => setEmailOpen(true)} />
-          <Row icon={KeyRound} label="비밀번호 변경" sub="로그인 비밀번호" onClick={() => setPassOpen(true)} />
-          <Row icon={Lock} label={`출금 PIN ${u.withdrawPw ? "변경" : "설정"}`} sub={u.withdrawPw ? "6자리 PIN 등록됨" : "출금 시 필요한 6자리 PIN"} onClick={() => setPwOpen(true)} statusGood={!!u.withdrawPw} />
-          <Row icon={KeyRound} label="출금 PIN 재설정" sub="비밀번호 재인증 후 새 PIN 설정 (24시간 내 3회)" onClick={() => setPinResetOpen(true)} />
+          <Row icon={Settings} label={t("rowAccount")} sub={t("rowAccountSub")} onClick={() => { setNickname(u.nickname); setAccountOpen(true); }} />
+          <Row icon={Mail} label={t("rowEmail")} sub={u.email} onClick={() => setEmailOpen(true)} />
+          <Row icon={KeyRound} label={t("rowPass")} sub={t("rowPassSub")} onClick={() => setPassOpen(true)} />
+          <Row icon={Lock} label={u.withdrawPw ? t("rowPinChange") : t("rowPinSet")} sub={u.withdrawPw ? t("rowPinSubActive") : t("rowPinSubInactive")} onClick={() => setPwOpen(true)} statusGood={!!u.withdrawPw} statusActive={t("statusActive")} statusInactive={t("statusInactive")} />
+          <Row icon={KeyRound} label={t("rowPinReset")} sub={t("rowPinResetSub")} onClick={() => setPinResetOpen(true)} />
 
-          <SectionTitle>안내</SectionTitle>
+          <SectionTitle>{t("sectionGuide")}</SectionTitle>
           <Link to="/guide" className="block">
-            <Row icon={BookOpen} label="운영원칙 & 이용가이드" sub="등급 · 잭팟 · 충전/환전" />
+            <Row icon={BookOpen} label={t("rowGuide")} sub={t("rowGuideSub")} />
           </Link>
           <Link to="/support" className="block">
-            <Row icon={ShieldCheck} label="고객센터" sub="1:1 실시간 상담" />
+            <Row icon={ShieldCheck} label={t("rowSupport")} sub={t("rowSupportSub")} />
           </Link>
 
-          <button onClick={logout} className="w-full mt-3 glass rounded-2xl p-4 flex items-center gap-3 hover:bg-destructive/10 transition text-left">
+          <button onClick={logout} className="w-full mt-3 glass rounded-2xl p-4 flex items-center gap-3 hover:bg-destructive/10 transition text-left min-h-[64px]">
             <div className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center"><LogOut className="w-4 h-4 text-destructive" /></div>
-            <div className="flex-1">
-              <div className="text-sm font-bold text-destructive">로그아웃</div>
-              <div className="text-[10px] text-muted-foreground">현재 기기에서 로그아웃합니다</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-destructive break-keep">{t("rowLogout")}</div>
+              <div className="text-[10px] text-muted-foreground break-keep">{t("rowLogoutSub")}</div>
             </div>
           </button>
         </div>
