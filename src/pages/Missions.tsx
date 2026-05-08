@@ -44,6 +44,7 @@ const FAIL_MSGS = [
 ];
 
 export default function Missions() {
+  const { t } = useTranslation("missions");
   const [db, setDb] = useDB();
   const nav = useNavigate();
   const user = useRequireAuth() ?? db.user;
