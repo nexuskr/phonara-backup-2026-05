@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ShieldCheck, TrendingUp, Activity, Crown, Clock, Users, FileCheck2, Radar, ArrowLeft, RefreshCw, History } from "lucide-react";
 import Particles from "@/components/Particles";
 import TrustHistoryCharts from "@/components/trust/TrustHistoryCharts";
+import { prefetchTrust, getTrustCache, invalidateTrustCache } from "@/lib/trustPrefetch";
 
 type HistoryRow = {
   taken_at: string;
