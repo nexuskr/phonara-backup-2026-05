@@ -1650,7 +1650,7 @@ i18n
     resources,
     fallbackLng: "ko",
     supportedLngs: ["ko", "en"],
-    ns: ["common", "nav", "topbar", "hubs", "auth", "onboarding", "landing", "wallet", "dashboard", "missions", "admin", "support", "secureWallet", "offline", "forgot", "reset", "completeProfile", "unsubscribe", "status", "packages", "profile", "trust", "settlements", "lang", "guide", "roulette", "seasonPass", "quests", "achievements", "hof", "empire"],
+    ns: ["common", "nav", "topbar", "hubs", "auth", "onboarding", "landing", "wallet", "walletToast", "referral", "live", "jackpot", "faq", "dashboard", "missions", "admin", "support", "secureWallet", "offline", "forgot", "reset", "completeProfile", "unsubscribe", "status", "packages", "profile", "trust", "settlements", "lang", "guide", "roulette", "seasonPass", "quests", "achievements", "hof", "empire"],
     defaultNS: "common",
     interpolation: { escapeValue: false },
     detection: {
