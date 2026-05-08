@@ -51,7 +51,7 @@ export default function WithdrawQueueStatus() {
         .select("id", { count: "exact", head: true })
         .eq("status", "pending")
         .lt("created_at", (data as Latest).created_at);
-      if (isPriority) q = q.in("tier_at_request", ["VIP", "GOD", "EMPIRE"]);
+      if (isPriority) q = q.in("tier_at_request", ["vip", "god", "empire"]);
       const { count } = await q;
       setPosition((count ?? 0) + 1);
     } else {
