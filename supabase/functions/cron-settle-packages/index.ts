@@ -5,9 +5,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Cron-only endpoint. Caller MUST present the project's SUPABASE_SERVICE_ROLE_KEY
-// as the bearer token. We compare the raw token against the env secret in
-// constant time — no JWT decoding, so forged unsigned tokens cannot pass.
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let mismatch = 0;
@@ -34,18 +31,57 @@ Deno.serve(async (req) => {
     });
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const startedAt = Date.now();
+  const caller =
+    req.headers.get("x-caller") ??
+    req.headers.get("user-agent") ??
+    "unknown";
+
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
     const { data, error } = await supabase.rpc("_cron_settle_package_daily");
     if (error) throw error;
-    return new Response(JSON.stringify({ ok: true, result: data }), {
+
+    const duration = Date.now() - startedAt;
+    const settled =
+      typeof data === "object" && data !== null && "settled" in (data as any)
+        ? Number((data as any).settled ?? 0)
+        : 0;
+
+    await supabase.rpc("log_cron_settle", {
+      _ok: true,
+      _settled_count: settled,
+      _duration_ms: duration,
+      _caller: caller,
+      _error: null,
+      _metadata: { result: data ?? null },
+    });
+
+    return new Response(JSON.stringify({ ok: true, result: data, duration_ms: duration }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), {
+    const duration = Date.now() - startedAt;
+    const message = e instanceof Error ? e.message : String(e);
+
+    try {
+      await supabase.rpc("log_cron_settle", {
+        _ok: false,
+        _settled_count: 0,
+        _duration_ms: duration,
+        _caller: caller,
+        _error: message,
+        _metadata: {},
+      });
+    } catch (_) {
+      // best-effort: don't mask the original failure
+    }
+
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
