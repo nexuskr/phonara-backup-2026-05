@@ -25,14 +25,41 @@ type SettleRow = {
 
 type OkFilter = "all" | "ok" | "fail";
 
+type AssertionRun = {
+  id: string;
+  assertion_key: string;
+  passed: boolean;
+  observed: string | null;
+  error: string | null;
+  created_at: string;
+};
+
+type AnomalyEvent = {
+  id: string;
+  user_id: string | null;
+  rule: string;
+  severity: "low" | "medium" | "high" | "critical";
+  evidence: any;
+  acknowledged: boolean;
+  acknowledged_at: string | null;
+  ack_note: string | null;
+  created_at: string;
+};
+
 export default function SecurityAuditAdmin() {
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [settles, setSettles] = useState<SettleRow[]>([]);
   const [slo, setSlo] = useState<any>(null);
+  const [assertionRuns, setAssertionRuns] = useState<AssertionRun[]>([]);
+  const [anomalies, setAnomalies] = useState<AnomalyEvent[]>([]);
   const [running, setRunning] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [runningAssert, setRunningAssert] = useState(false);
+  const [scanningAnom, setScanningAnom] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<AuditRow | null>(null);
+  const [anomalyDetail, setAnomalyDetail] = useState<AnomalyEvent | null>(null);
+  const [showAckOnly, setShowAckOnly] = useState(false);
 
   // filters
   const [from, setFrom] = useState<string>("");
@@ -42,15 +69,60 @@ export default function SecurityAuditAdmin() {
 
   async function load() {
     setLoading(true);
-    const [a, s, sl] = await Promise.all([
+    const [a, s, sl, ar, an] = await Promise.all([
       supabase.from("security_audit_log").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("cron_settle_audit_log").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("settlement_slo"),
+      supabase.from("policy_assertion_runs").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase.from("anomaly_events").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     setAudits((a.data ?? []) as AuditRow[]);
     setSettles((s.data ?? []) as SettleRow[]);
     setSlo(sl.data ?? null);
+    setAssertionRuns((ar.data ?? []) as AssertionRun[]);
+    setAnomalies((an.data ?? []) as AnomalyEvent[]);
     setLoading(false);
+  }
+
+  async function runAssertions() {
+    setRunningAssert(true);
+    try {
+      const { data, error } = await supabase.rpc("run_policy_assertions");
+      if (error) throw error;
+      const r = data as any;
+      toast({
+        title: r?.ok ? "✅ 정책 단언 통과" : `⚠ ${r?.failed ?? "?"}건 실패`,
+        description: `${r?.passed ?? 0}/${r?.total ?? 0} 통과`,
+      });
+      await load();
+    } catch (e: any) {
+      toast({ title: "단언 실행 실패", description: e.message });
+    } finally { setRunningAssert(false); }
+  }
+
+  async function scanAnomalies() {
+    setScanningAnom(true);
+    try {
+      const { data, error } = await supabase.rpc("detect_anomalies");
+      if (error) throw error;
+      const r = data as any;
+      toast({ title: "이상치 스캔 완료", description: `${r?.inserted ?? 0}건 신규 탐지` });
+      await load();
+    } catch (e: any) {
+      toast({ title: "이상치 스캔 실패", description: e.message });
+    } finally { setScanningAnom(false); }
+  }
+
+  async function ackAnomaly(id: string) {
+    const note = window.prompt("처리 메모 (선택)") ?? null;
+    try {
+      const { error } = await supabase.rpc("acknowledge_anomaly", { _id: id, _note: note });
+      if (error) throw error;
+      toast({ title: "확인 처리 완료" });
+      await load();
+    } catch (e: any) {
+      toast({ title: "처리 실패", description: e.message });
+    }
   }
 
   async function recoverNow() {
