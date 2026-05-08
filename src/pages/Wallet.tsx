@@ -15,6 +15,10 @@ import WithdrawalHistoryList from "@/components/wallet/WithdrawalHistoryList";
 import WithdrawIntentInterceptor from "@/components/conversion/WithdrawIntentInterceptor";
 import AMLGate from "@/components/wallet/AMLGate";
 import WithdrawQueueStatus from "@/components/wallet/WithdrawQueueStatus";
+import WithdrawReceiptUpload from "@/components/wallet/WithdrawReceiptUpload";
+import WithdrawETABadge from "@/components/wallet/WithdrawETABadge";
+import NotificationPreferencesPanel from "@/components/wallet/NotificationPreferencesPanel";
+import { z } from "zod";
 
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
