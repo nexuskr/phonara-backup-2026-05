@@ -45,7 +45,7 @@ async function cleanup(admin: any, inviter: string, invitee: string) {
 }
 
 d("Referral 90-day window — _credit_referral_first_deposit", () => {
-  const admin = createClient(URL!, SERVICE_KEY!, { auth: { persistSession: false } });
+  const admin: any = createClient(URL!, SERVICE_KEY!, { auth: { persistSession: false } });
 
   it("credits inviter+invitee inside window, no-op after expiry", async () => {
     const stamp = Date.now();
