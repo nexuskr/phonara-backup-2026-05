@@ -178,16 +178,6 @@ export default function UgcDashboard() {
           <p className="text-xs text-muted-foreground mt-1 break-keep">{t("subtitle")}</p>
         </header>
 
-        {/* Range filter */}
-        <div className="flex gap-2">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRangeKey(r.key)}
-              className={`min-h-[36px] px-3 rounded-lg text-xs font-bold border ${
-                rangeKey === r.key ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-foreground/80"
-              }`}
-            >
         {/* Range filter + CSV export */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex gap-2">
