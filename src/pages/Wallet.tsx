@@ -361,7 +361,7 @@ export default function Wallet() {
 function Field({ label, children }: any) {
   return (
     <div>
-      <div className="text-[11px] text-muted-foreground mb-1.5 font-bold">{label}</div>
+      <div className="text-[10px] tracking-[0.2em] text-muted-foreground mb-2 font-bold uppercase">{label}</div>
       {children}
     </div>
   );
