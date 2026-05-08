@@ -252,18 +252,18 @@ function ChatAdmin() {
   return (
     <div className="grid sm:grid-cols-[200px_1fr] gap-3">
       <div className="glass rounded-2xl p-2 space-y-1 max-h-96 overflow-y-auto">
-        {threads.length === 0 && <div className="text-xs text-muted-foreground p-3">대화 없음</div>}
-        {threads.map(t => (
-          <button key={t.id} onClick={() => setActive(t)} className={`w-full text-left p-2 rounded-lg text-xs ${active?.id === t.id ? "bg-gradient-primary/15" : ""}`}>
-            <div className="font-bold">{t.nickname}</div>
-            <div className="text-[10px] text-muted-foreground truncate">{t.last_message || "—"}</div>
-            <div className="text-[10px] text-muted-foreground">{new Date(t.last_message_at).toLocaleTimeString("ko-KR")}</div>
+        {threads.length === 0 && <div className="text-xs text-muted-foreground p-3 break-keep">{t("noChat")}</div>}
+        {threads.map(th => (
+          <button key={th.id} onClick={() => setActive(th)} className={`w-full text-left p-2 min-h-[56px] rounded-lg text-xs ${active?.id === th.id ? "bg-gradient-primary/15" : ""}`}>
+            <div className="font-bold break-keep">{th.nickname}</div>
+            <div className="text-[10px] text-muted-foreground truncate">{th.last_message || "—"}</div>
+            <div className="text-[10px] text-muted-foreground tabular-nums">{new Date(th.last_message_at).toLocaleTimeString(dtLocale)}</div>
           </button>
         ))}
       </div>
       <div className="glass-strong rounded-2xl neon-border flex flex-col h-96">
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {!active && <div className="text-center text-xs text-muted-foreground mt-10">왼쪽에서 대화를 선택하세요</div>}
+          {!active && <div className="text-center text-xs text-muted-foreground mt-10 break-keep">{t("pickThread")}</div>}
           {msgs.map(m => (
             <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[78%] px-3 py-2 rounded-xl text-xs ${m.sender === "admin" ? "bg-gradient-gold text-gold-foreground" : "glass"}`}>{m.message}</div>
@@ -272,9 +272,8 @@ function ChatAdmin() {
         </div>
         {active && (
           <div className="border-t border-border/40 p-2 flex gap-2">
-            <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && reply()}
-              className="flex-1 bg-input/60 border border-border rounded-lg px-3 py-2 text-sm" placeholder="응답 입력" />
-            <button onClick={reply} className="w-9 h-9 rounded-lg bg-gradient-primary text-primary-foreground flex items-center justify-center"><Send className="w-3.5 h-3.5" /></button>
+            <LuxInput value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === "Enter" && reply()} placeholder={t("replyPh")} />
+            <button onClick={reply} className="w-11 h-11 min-w-[44px] rounded-lg bg-gradient-primary text-primary-foreground flex items-center justify-center"><Send className="w-3.5 h-3.5" /></button>
           </div>
         )}
       </div>
@@ -283,29 +282,25 @@ function ChatAdmin() {
 }
 
 function CoinAdmin() {
+  const { t } = useTranslation("admin");
   return (
     <div className="glass-strong rounded-2xl p-6 neon-border text-center">
       <Coins className="w-8 h-8 text-secondary mx-auto" />
-      <h3 className="font-display font-bold text-sm mt-2">코인 입금 주소 관리</h3>
-      <p className="text-xs text-muted-foreground mt-2">
-        입금 주소/네트워크는 환경변수 또는 서버 설정으로 관리됩니다.<br/>
-        변경이 필요하면 운영팀에 문의해주세요.
-      </p>
+      <h3 className="font-imperial font-bold text-sm mt-2 break-keep">{t("coinTitle")}</h3>
+      <p className="text-xs text-muted-foreground mt-2 break-keep">{t("coinDesc")}</p>
     </div>
   );
 }
 
-function KPI({ icon: Icon, label, v, hot }: any) {
+function KPI({ icon: Icon, label, v, hot, money }: any) {
   return (
     <div className={`glass-strong rounded-2xl p-4 ${hot ? "neon-border animate-pulse-glow" : ""}`}>
       <Icon className="w-4 h-4 text-gold" />
-      <div className="text-[10px] text-muted-foreground mt-2">{label}</div>
-      <div className="font-display font-black text-lg mt-0.5">{v}</div>
+      <div className="text-[10px] text-muted-foreground mt-2 break-keep">{label}</div>
+      {money
+        ? <Money strong className="font-imperial font-black text-lg mt-0.5 block">{v}</Money>
+        : <div className="font-imperial font-black text-lg mt-0.5 tabular-nums">{v}</div>}
     </div>
   );
-}
-function Status({ status }: { status: string }) {
-  const m: any = { pending: ["대기", "text-gold bg-gold/15"], approved: ["승인", "text-secondary bg-secondary/15"], rejected: ["거절", "text-destructive bg-destructive/15"] };
-  return <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${m[status][1]}`}>{m[status][0]}</span>;
 }
 function Empty() { return <div className="glass rounded-2xl p-10 text-center text-sm text-muted-foreground">데이터가 없습니다</div>; }
