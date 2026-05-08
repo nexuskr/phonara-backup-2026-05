@@ -42,7 +42,7 @@ const STATUS_STYLE: Record<Status, string> = {
   approved: "bg-accent/15 text-accent",
   completed: "bg-secondary/20 text-secondary",
   rejected: "bg-destructive/15 text-destructive",
-  canceled: "bg-muted text-muted-foreground",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 const PAGE_SIZE = 20;
