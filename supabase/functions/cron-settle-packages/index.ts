@@ -5,28 +5,29 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Cron-only endpoint. Must be called with the service role key (Supabase
-// scheduled jobs / pg_cron). Any other caller is rejected with 403.
-function isServiceRole(req: Request): boolean {
+// Cron-only endpoint. Caller MUST present the project's SUPABASE_SERVICE_ROLE_KEY
+// as the bearer token. We compare the raw token against the env secret in
+// constant time — no JWT decoding, so forged unsigned tokens cannot pass.
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
+
+function isAuthorizedCron(req: Request): boolean {
+  const expected = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!expected) return false;
   const auth = req.headers.get("Authorization") ?? "";
   const token = auth.replace(/^Bearer\s+/i, "").trim();
   if (!token) return false;
-  try {
-    const [, payloadB64] = token.split(".");
-    if (!payloadB64) return false;
-    const json = JSON.parse(
-      atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"))
-    );
-    return json?.role === "service_role";
-  } catch {
-    return false;
-  }
+  return timingSafeEqual(token, expected);
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  if (!isServiceRole(req)) {
+  if (!isAuthorizedCron(req)) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
