@@ -28,8 +28,8 @@ export default function FloatingChat() {
     let mounted = true;
     (async () => {
       const { data } = await supabase
-        .from("chat_messages")
-        .select("*")
+        .from("chat_messages_public")
+        .select("id, message, created_at, nickname, kind")
         .order("created_at", { ascending: true })
         .limit(100);
       if (mounted) setMessages((data ?? []) as Msg[]);
