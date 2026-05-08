@@ -32,6 +32,8 @@ export default function Wallet() {
   const nav = useNavigate();
   const { t } = useTranslation("wallet");
   const { t: tw } = useTranslation("walletToast");
+  const { i18n } = useTranslation();
+  const lng = (i18n.language || "ko").startsWith("en") ? "en" : "ko";
   const user = useRequireAuth() ?? db.user;
   const [asset, setAsset] = useState<AssetTab>("bank");
   const [action, setAction] = useState<ActionTab>("withdraw");
@@ -270,7 +272,7 @@ export default function Wallet() {
               <>
                 <Field label={t("bank")}>
                   <select value={bank} onChange={e => setBank(e.target.value)} className="w-full min-h-[52px] bg-input/60 border border-border rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-primary">
-                    {["KB국민", "신한", "우리", "하나", "농협", "카카오뱅크", "토스뱅크"].map(b => <option key={b}>{b}</option>)}
+                    {BANKS.map(b => <option key={b} value={b}>{BANK_LABEL[b][lng]}</option>)}
                   </select>
                 </Field>
                 <Field label={t("account")}>
@@ -282,8 +284,8 @@ export default function Wallet() {
 
             {asset === "bank" && action === "deposit" && (
               <div className="glass rounded-xl p-4 text-xs space-y-2 border border-border/40">
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">KB국민 123-456-78901234</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">(주)Phonara</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositBankInfo")}</span><span className="font-bold tabular-nums">{BANK_LABEL["KB"][lng]} 123-456-78901234</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t("depositOwner")}</span><span className="font-bold">{lng === "en" ? "Phonara Inc." : "(주)Phonara"}</span></div>
                 <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/40">{t("depositMemo")}</p>
               </div>
             )}
