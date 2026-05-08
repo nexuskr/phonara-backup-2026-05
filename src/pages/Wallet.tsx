@@ -160,10 +160,9 @@ export default function Wallet() {
             <WalletIcon className="w-6 h-6 text-primary" />
             {t("title")}
           </h1>
-          <div className="mt-2 text-xs text-muted-foreground">
-            <span className="font-imperial tracking-[0.2em] text-primary mr-1">{u.tier}</span>
-            {t("tierLimit", { tier: "" }).replace(" 등급 출금 한도", "").replace(" tier withdraw limit", "")}{" "}
-            <span className="font-bold text-foreground tabular-nums">
+          <div className="mt-2 text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>{t("tierLimit", { tier: u.tier })}</span>
+            <span className="text-money font-black tabular-nums">
               {WITHDRAW_LIMITS[u.tier] === -1 ? t("unlimited") : formatKRW(WITHDRAW_LIMITS[u.tier])}
             </span>
           </div>
