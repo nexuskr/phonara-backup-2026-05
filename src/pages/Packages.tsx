@@ -10,6 +10,9 @@ import PackageBoostPreview from "@/components/PackageBoostPreview";
 import ActiveBoostCounter from "@/components/ActiveBoostCounter";
 import EmpireFoundingCounter from "@/components/EmpireFoundingCounter";
 import EmpireDayCountdown from "@/components/EmpireDayCountdown";
+import PaywallStarter from "@/components/conversion/PaywallStarter";
+import { isFlagOn } from "@/lib/conversion-flags";
+import { track } from "@/lib/analytics";
 
 const tierStyles: Record<Pkg["tier"], { ring: string; bg: string; label: string }> = {
   FREE:    { ring: "from-muted to-muted",                bg: "from-muted/30",      label: "FREE" },
