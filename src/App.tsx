@@ -50,6 +50,8 @@ const queryClient = new QueryClient({
 function SessionWatcher() {
   useSessionGuard();
   useAuthBridge();
+  const loc = useLocation();
+  useEffect(() => { recordRouteChange(loc.pathname); }, [loc.pathname]);
   if (typeof window !== "undefined") {
     const code = new URLSearchParams(window.location.search).get("ref");
     if (code && /^[A-Z0-9]{8}$/i.test(code)) {
