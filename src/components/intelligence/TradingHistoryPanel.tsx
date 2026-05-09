@@ -123,9 +123,39 @@ export default function TradingHistoryPanel() {
           <Trophy className="w-4 h-4 text-primary" />
           My Trading History
         </h2>
-        <Button size="sm" variant="outline" onClick={exportCsv}>
-          <Download className="w-3.5 h-3.5 mr-1" /> Export CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={exportCsv}>
+            <Download className="w-3.5 h-3.5 mr-1" /> Export CSV
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size="sm" variant="outline" className="text-rose-400 hover:text-rose-300 border-rose-400/40">
+                <RotateCcw className="w-3.5 h-3.5 mr-1" /> Reset Paper
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Paper Trading 초기화</AlertDialogTitle>
+                <AlertDialogDescription>
+                  열린 포지션, 거래 기록, Trading Credit이 모두 10,000 USDT로 리셋됩니다.
+                  이 작업은 되돌릴 수 없습니다. (실제 잔액과는 무관합니다.)
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    resetCredit();
+                    notify.success("Paper Trading이 초기화되었습니다");
+                    track("cta_click", { surface: "paper_trade", variant: "reset" });
+                  }}
+                >
+                  초기화
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
