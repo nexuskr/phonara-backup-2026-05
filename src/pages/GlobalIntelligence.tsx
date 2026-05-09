@@ -61,12 +61,14 @@ export default function GlobalIntelligence() {
             <PaperPositionList />
           </div>
           <div className="lg:col-span-2"><TradingHistoryPanel /></div>
+          <WeeklyLeaderboard />
           <PersonalMemoryPanel />
           <GlobalContributionBar />
         </div>
 
         <Disclaimer />
       </div>
+      <WinMomentOverlay />
     </Layout>
   );
 }
