@@ -1515,6 +1515,10 @@ const resources = {
     },
     wallet: {
       title: "Imperial Wallet",
+      dailyCap: "Daily earnings cap",
+      dailyCapRemaining: "Remaining",
+      dailyCapReached: "Daily cap reached",
+      dailyCapNote: "Resets automatically at midnight.",
       tierLimit: "{{tier}} tier withdraw limit",
       unlimited: "Unlimited ∞",
       bankBalance: "KRW balance",
