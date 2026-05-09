@@ -184,6 +184,16 @@ export default function PackagePurchasesAdmin() {
           );
         })}
       </div>
+      {modal && (
+        <AdminReviewModal
+          open
+          kind="package"
+          requestId={modal.id}
+          defaultAction={modal.action}
+          onClose={() => setModal(null)}
+          onResolved={() => void load()}
+        />
+      )}
     </div>
   );
 }
