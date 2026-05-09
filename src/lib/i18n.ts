@@ -1302,6 +1302,8 @@ const resources = {
         runFail: "실행 실패", err: "오류" },
       claimed: "✅ 수령 완료",
       claimedDesc: "+{{val}} · 라운지 공유됨",
+      capReached: "일일 수익 한도 도달",
+      capReachedDesc: "오늘 추가 보상은 지급되지 않습니다. 내일 다시 시도하세요.",
       mini: { active: "AI 봇 활동 중", running: "가동 {{n}}", ready: "수령대기 {{n}}" },
     },
     convert: {
@@ -2615,6 +2617,8 @@ const resources = {
         runFail: "Run failed", err: "Error" },
       claimed: "✅ Claimed",
       claimedDesc: "+{{val}} · shared to lounge",
+      capReached: "Daily earnings cap reached",
+      capReachedDesc: "No additional reward today. Try again tomorrow.",
       mini: { active: "AI bots active", running: "Running {{n}}", ready: "Ready {{n}}" },
     },
     convert: {
