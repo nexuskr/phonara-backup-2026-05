@@ -37,7 +37,17 @@ class BybitFeed {
   onStatus(fn: StatusListener) { this.statusListeners.add(fn); return () => this.statusListeners.delete(fn); }
   getPrices() { return { ...this.prices }; }
 
-  private emit() { for (const fn of this.listeners) fn({ ...this.prices }); }
+  private emit() {
+    this.dirty = true;
+    if (this.emitTimer != null) return;
+    this.emitTimer = window.setTimeout(() => {
+      this.emitTimer = null;
+      if (!this.dirty) return;
+      this.dirty = false;
+      const snap = { ...this.prices };
+      for (const fn of this.listeners) fn(snap);
+    }, 120);
+  }
   private status(s: Parameters<StatusListener>[0]) { for (const fn of this.statusListeners) fn(s); }
 
   private connect() {
