@@ -26,6 +26,8 @@ type WR = {
   rejected_reason: string | null;
   receipt_url: string | null;
   admin_id: string | null;
+  admin_review_memo?: string | null;
+  admin_evidence_checklist?: Record<string, boolean> | null;
 };
 
 const FILTERS: { key: Status | "all"; tKey: string }[] = [
