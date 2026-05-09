@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, Filter, X, Banknote, Coins, Shield } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Loader2, ArrowUpRight, Filter, X, Banknote, Coins, Shield, FileText } from "lucide-react";
+import RequestTimeline from "@/components/RequestTimeline";
 
 type Status = "pending" | "processing" | "approved" | "completed" | "rejected" | "cancelled";
 type Method = "bank" | "coin";
@@ -25,6 +26,8 @@ type WR = {
   rejected_reason: string | null;
   receipt_url: string | null;
   admin_id: string | null;
+  admin_review_memo?: string | null;
+  admin_evidence_checklist?: Record<string, boolean> | null;
 };
 
 const FILTERS: { key: Status | "all"; tKey: string }[] = [
@@ -256,6 +259,22 @@ function DetailModal({ req, onClose }: { req: WR; onClose: () => void }) {
           <Step label={t("modal.approved")} ts={req.approved_at} done={!!req.approved_at} />
           <Step label={t("modal.completed")} ts={req.completed_at} done={!!req.completed_at} />
         </div>
+
+        {/* Realtime status history */}
+        <div className="rounded-2xl border border-border p-3">
+          <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">실시간 처리 이력</div>
+          <RequestTimeline kind="withdrawal" requestId={req.id} />
+        </div>
+
+        {req.admin_review_memo && (
+          <div className="rounded-2xl border border-accent/40 bg-accent/5 p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <FileText className="w-3.5 h-3.5 text-accent" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-accent">관리자 검수 메모</span>
+            </div>
+            <div className="text-xs text-foreground/90 break-keep whitespace-pre-wrap">{req.admin_review_memo}</div>
+          </div>
+        )}
 
         {req.rejected_reason && (
           <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
