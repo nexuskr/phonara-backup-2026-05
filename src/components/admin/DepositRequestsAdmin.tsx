@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { formatKRW } from "@/lib/store";
-import { Check, X, Clock } from "lucide-react";
+import { Check, X, Clock, Inbox } from "lucide-react";
 import AdminReviewModal from "@/components/admin/AdminReviewModal";
 import RequestTimeline from "@/components/RequestTimeline";
+import { EmptyState } from "@/components/ui/empty-state";
 
 type Row = {
   id: string;
@@ -48,7 +49,13 @@ export default function DepositRequestsAdmin() {
     <div className="space-y-3">
       <h3 className="font-display font-black text-lg">충전 신청 (서버)</h3>
       {rows.length === 0 && (
-        <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">신청 내역 없음</div>
+        <EmptyState
+          icon={<Inbox className="w-5 h-5" />}
+          title="신청 내역 없음"
+          description="새로운 충전 신청이 들어오면 여기에 표시됩니다."
+          variant="muted"
+          size="sm"
+        />
       )}
       {rows.map(r => (
         <div key={r.id} className="glass rounded-2xl p-3">
