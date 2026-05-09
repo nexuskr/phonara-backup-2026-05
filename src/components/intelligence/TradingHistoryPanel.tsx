@@ -33,6 +33,7 @@ export default function TradingHistoryPanel() {
   const { prices } = useBybitTicker();
   const positions = usePaperStore((s) => s.positions);
   const history = usePaperStore((s) => s.history);
+  const resetCredit = usePaperStore((s) => s.resetCredit);
 
   const [tab, setTab] = useState<TabKey>("all");
   const [period, setPeriod] = useState<Period>("all");
