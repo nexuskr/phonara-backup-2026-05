@@ -1409,6 +1409,10 @@ const resources = {
       admin: "Admin",
       logout: "Sign out",
       enter: "Enter",
+      tradingArena: "Trading Arena",
+      intelligenceLoop: "Intelligence Loop",
+      infrastructure: "Infrastructure",
+      vision: "Vision",
     },
     topbar: {
       balance: "Balance",
