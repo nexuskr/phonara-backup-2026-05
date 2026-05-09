@@ -260,6 +260,22 @@ function DetailModal({ req, onClose }: { req: WR; onClose: () => void }) {
           <Step label={t("modal.completed")} ts={req.completed_at} done={!!req.completed_at} />
         </div>
 
+        {/* Realtime status history */}
+        <div className="rounded-2xl border border-border p-3">
+          <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">실시간 처리 이력</div>
+          <RequestTimeline kind="withdrawal" requestId={req.id} />
+        </div>
+
+        {req.admin_review_memo && (
+          <div className="rounded-2xl border border-accent/40 bg-accent/5 p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <FileText className="w-3.5 h-3.5 text-accent" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-accent">관리자 검수 메모</span>
+            </div>
+            <div className="text-xs text-foreground/90 break-keep whitespace-pre-wrap">{req.admin_review_memo}</div>
+          </div>
+        )}
+
         {req.rejected_reason && (
           <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
             <div className="text-[10px] font-black uppercase tracking-wider text-destructive mb-1">{t("modal.rejectedReason")}</div>
