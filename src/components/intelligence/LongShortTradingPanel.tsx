@@ -116,7 +116,21 @@ export default function LongShortTradingPanel({ prefilled }: { prefilled?: Prefi
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-xs text-muted-foreground">마진 (USDT, Paper)</label>
+          <div className="flex items-baseline justify-between">
+            <label className="text-xs text-muted-foreground">마진 (USDT, Paper)</label>
+            <div className="flex gap-1">
+              {[0.25, 0.5, 0.75, 1].map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setMarginPct(p)}
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded border border-border/50 bg-background/60 hover:border-primary/50 hover:text-primary transition press"
+                >
+                  {p === 1 ? "MAX" : `${p * 100}%`}
+                </button>
+              ))}
+            </div>
+          </div>
           <Input
             type="number" inputMode="decimal" min={0}
             value={margin} onChange={(e) => setMargin(e.target.value)}
