@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Award } from "lucide-react";
 import { usePaperStore } from "@/lib/paper-trading/store";
 import { computeAchievements } from "@/lib/paper-trading/analytics";
-import { celebrate } from "@/lib/paper-trading/celebrate";
+import { celebrateWin } from "@/lib/paper-trading/celebrate";
 
 export default function AchievementShowcase() {
   const history = usePaperStore((s) => s.history);
@@ -20,7 +20,7 @@ export default function AchievementShowcase() {
     }
     for (const id of ids) {
       if (!seenRef.current.has(id)) {
-        try { celebrate("big"); } catch { /* noop */ }
+        try { celebrateWin("big"); } catch { /* noop */ }
       }
     }
     seenRef.current = ids;
