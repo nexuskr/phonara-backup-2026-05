@@ -91,7 +91,9 @@ export default function NotificationPreferencesPanel({ userId }: { userId: strin
         <MessageSquare className="w-4 h-4 text-primary" />
         <div className="text-sm font-black tracking-wider">출금 알림 설정</div>
       </div>
-      <p className="text-[11px] text-muted-foreground mb-4">상태 변경 시 받을 채널을 선택하세요.</p>
+      <p className="text-[11px] text-muted-foreground mb-3">상태 변경 시 받을 채널을 선택하세요.</p>
+
+      <PushEnableRow />
 
       <div className="overflow-x-auto -mx-1 px-1">
         <table className="w-full text-xs border-separate border-spacing-y-1">
