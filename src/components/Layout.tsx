@@ -53,9 +53,13 @@ const NAV: NavItem[] = [
   { to: "/legacy",   matches: ["/legacy", "/achievements"],                                                   icon: Trophy,          labelKey: "legacy" },
 ];
 
-const SIDE_EXTRA = [
-  { to: "/support", icon: MessageSquare, labelKey: "support" as const },
-  { to: "/profile", icon: UserIcon,      labelKey: "my" as const },
+const SIDE_EXTRA: Array<{ to: string; icon: typeof MessageSquare; labelKey: any; gold?: boolean }> = [
+  { to: "/global-intelligence", icon: TrendingUp, labelKey: "tradingArena", gold: true },
+  { to: "/intelligence-loop", icon: Network, labelKey: "intelligenceLoop" },
+  { to: "/infrastructure", icon: ZapIcon, labelKey: "infrastructure" },
+  { to: "/vision", icon: Eye, labelKey: "vision" },
+  { to: "/support", icon: MessageSquare, labelKey: "support" },
+  { to: "/profile", icon: UserIcon, labelKey: "my" },
 ];
 
 function isActive(item: NavItem, pathname: string) {
