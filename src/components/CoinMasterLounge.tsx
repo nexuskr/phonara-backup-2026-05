@@ -33,7 +33,7 @@ export default function CoinMasterLounge() {
   }, []);
 
   if (loading || !stats) {
-    return <div className="rounded-3xl glass border border-border/50 p-5 text-sm text-muted-foreground">VIP 라운지 로딩 중…</div>;
+    return <LoadingCard className="rounded-3xl" />;
   }
 
   const pct = Math.min(100, Math.round((stats.total_coin_deposits / stats.threshold) * 100));
