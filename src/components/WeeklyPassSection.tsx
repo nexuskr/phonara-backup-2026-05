@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Crown, Zap, Lock, CheckCircle2, Loader2 } from "lucide-react";
 import { notify } from "@/lib/notify";
+import { LoadingCard } from "@/components/ui/loading-state";
 
 interface Reward { level: number; credit: number; badge: string | null; priority: boolean; description: string; }
 interface Progress { xp: number; level: number; claimed_levels: number[]; }
@@ -28,7 +29,7 @@ export default function WeeklyPassSection() {
   }
 
   if (loading || !data) {
-    return <div className="rounded-3xl glass border border-border/50 p-5 text-sm text-muted-foreground">주간패스 로딩 중…</div>;
+    return <LoadingCard className="rounded-3xl" />;
   }
 
   const lvl = data.progress?.level ?? 0;

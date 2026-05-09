@@ -322,4 +322,4 @@ function KPI({ icon: Icon, label, v, hot, money }: any) {
     </div>
   );
 }
-function Empty() { return <div className="glass rounded-2xl p-10 text-center text-sm text-muted-foreground">데이터가 없습니다</div>; }
+function Empty() { return <EmptyState size="sm" variant="muted" />; }
