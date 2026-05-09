@@ -333,7 +333,7 @@ function ContentFarmerCard({ tier, runs, used, loading, dailyCap }: { tier: stri
 /* ============================================================
    2) AI Trading Simulator Bot (8h)
    ============================================================ */
-function TradingBotCard({ tier, runs, used, loading }: { tier: string; runs: Run[]; used: number; loading: boolean }) {
+function TradingBotCard({ tier, runs, used, loading, dailyCap }: { tier: string; runs: Run[]; used: number; loading: boolean; dailyCap: DailyCap & { reload: () => Promise<void> } }) {
   const { t } = useTranslation("aibot");
   const limit = TIER_LIMITS[tier]?.trading ?? 1;
   const baseReward = Math.floor(BASE_REWARD.trading * (TIER_BOOST[tier] ?? 1));
@@ -342,6 +342,11 @@ function TradingBotCard({ tier, runs, used, loading }: { tier: string; runs: Run
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
   const [, force] = useState(0);
+  const claimFlow = useClaimFlow({
+    reloadCap: dailyCap.reload,
+    capRemainingAfter: () => dailyCap.remaining,
+    errorTitle: t("err.err"),
+  });
 
   // Realtime progress tick
   useEffect(() => {
