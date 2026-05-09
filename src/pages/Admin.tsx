@@ -13,6 +13,7 @@ import PackagePurchasesAdmin from "@/components/admin/PackagePurchasesAdmin";
 import ServerUserAdmin from "@/components/admin/ServerUserAdmin";
 import DepositRequestsAdmin from "@/components/admin/DepositRequestsAdmin";
 import AdminDashboardCharts from "@/components/admin/AdminDashboardCharts";
+import TodayKpiCards from "@/components/admin/TodayKpiCards";
 import AdvancedAnalytics from "@/components/admin/AdvancedAnalytics";
 import ErrorMonitorAdmin from "@/components/admin/ErrorMonitorAdmin";
 import SecurityAuditAdmin from "@/components/admin/SecurityAuditAdmin";
