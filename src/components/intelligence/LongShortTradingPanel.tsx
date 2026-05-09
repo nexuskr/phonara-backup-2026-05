@@ -176,9 +176,15 @@ export default function LongShortTradingPanel({ prefilled }: { prefilled?: Prefi
         </Button>
       </div>
 
-      <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
-        ⚠️ Paper Trading은 학습용 시뮬레이션입니다. 실제 잔액에 영향을 주지 않습니다.
-      </p>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+          ⚠️ Paper Trading은 학습용 시뮬레이션입니다. 실제 잔액에 영향을 주지 않습니다.
+        </p>
+        <p className="text-[10px] text-muted-foreground/70 hidden sm:block">
+          단축키: <kbd className="px-1 rounded bg-background/60 border border-border/50">L</kbd> Long ·{" "}
+          <kbd className="px-1 rounded bg-background/60 border border-border/50">S</kbd> Short
+        </p>
+      </div>
     </section>
   );
 }
