@@ -34,6 +34,8 @@ export default function AdminReviewModal({
   requestId,
   defaultAction = "approve",
   onResolved,
+  receiptUrl,
+  expectedAmount,
 }: {
   open: boolean;
   onClose: () => void;
@@ -41,12 +43,38 @@ export default function AdminReviewModal({
   requestId: string;
   defaultAction?: Action;
   onResolved?: () => void;
+  receiptUrl?: string | null;
+  expectedAmount?: number | null;
 }) {
   const [action, setAction] = useState<Action>(defaultAction);
   const [memo, setMemo] = useState("");
   const [reason, setReason] = useState("");
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocr, setOcr] = useState<{ amount: number | null; datetime_iso: string | null; sender: string | null; receiver: string | null; confidence: number; match?: "exact" | "near" | "mismatch" | null } | null>(null);
+
+  async function runOcr() {
+    if (!receiptUrl) { toast({ title: "영수증 이미지가 없습니다", variant: "destructive" }); return; }
+    setOcrBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("receipt-ocr", {
+        body: { image_url: receiptUrl, expected_amount: expectedAmount ?? null },
+      });
+      if (error) throw error;
+      const r = data as any;
+      if (!r?.ok) throw new Error(r?.error || "ocr failed");
+      setOcr({ ...r.ocr, match: r.match });
+      // Auto-tick checklist if amount matches
+      if (r.match === "exact" || r.match === "near") {
+        setChecks((p) => ({ ...p, amount_match: true, receipt_match: true }));
+      }
+      const mTxt = r.match === "exact" ? "정확히 일치" : r.match === "near" ? "근사 일치(±1%)" : r.match === "mismatch" ? "❌ 금액 불일치" : "참고용";
+      toast({ title: `AI 분석 완료 — ${mTxt}`, description: r.ocr?.amount ? `OCR 금액: ₩${Number(r.ocr.amount).toLocaleString()}` : "금액 추출 실패" });
+    } catch (e: any) {
+      toast({ title: "AI 분석 실패", description: e.message ?? String(e), variant: "destructive" });
+    } finally { setOcrBusy(false); }
+  }
 
   if (!open) return null;
 
