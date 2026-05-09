@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Check, X, Clock } from "lucide-react";
+import { Check, X, Clock, Inbox } from "lucide-react";
 import AdminReviewModal from "@/components/admin/AdminReviewModal";
 import RequestTimeline from "@/components/RequestTimeline";
+import { LoadingList } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
 
 type WR = {
   id: string;
@@ -66,8 +68,15 @@ export default function WithdrawRequestsAdmin() {
         <button onClick={load} className="ml-auto px-3 py-1.5 rounded-lg text-xs glass text-muted-foreground">새로고침</button>
       </div>
 
-      {loading && <div className="glass rounded-2xl p-6 text-center text-xs text-muted-foreground">불러오는 중...</div>}
-      {!loading && list.length === 0 && <div className="glass rounded-2xl p-10 text-center text-sm text-muted-foreground">서버 출금 요청이 없습니다</div>}
+      {loading && <LoadingList rows={5} rowHeight="lg" />}
+      {!loading && list.length === 0 && (
+        <EmptyState
+          icon={<Inbox className="w-5 h-5" />}
+          title="서버 출금 요청이 없습니다"
+          description="대기/처리중 또는 전체 필터를 변경해 보세요."
+          variant="muted"
+        />
+      )}
 
       {list.map((w) => (
         <div key={w.id} className="glass-strong rounded-2xl p-4 neon-border">

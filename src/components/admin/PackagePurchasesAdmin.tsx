@@ -3,9 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { settlePackagesNow } from "@/lib/packages-rpc";
 import { toast } from "@/hooks/use-toast";
 import { formatKRW } from "@/lib/store";
-import { Check, X, Zap, RefreshCw, AlertTriangle, Clock, TrendingUp, CheckCircle2, XCircle, Wrench } from "lucide-react";
+import { Check, X, Zap, RefreshCw, AlertTriangle, Clock, TrendingUp, CheckCircle2, XCircle, Wrench, Inbox } from "lucide-react";
 import AdminReviewModal from "@/components/admin/AdminReviewModal";
 import RequestTimeline from "@/components/RequestTimeline";
+import { EmptyState } from "@/components/ui/empty-state";
 
 type Row = {
   id: string;
@@ -115,7 +116,13 @@ export default function PackagePurchasesAdmin() {
 
       <div className="space-y-2">
         {rows.length === 0 && (
-          <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">신청 내역 없음</div>
+          <EmptyState
+            icon={<Inbox className="w-5 h-5" />}
+            title="신청 내역 없음"
+            description="새로운 패키지 결제 신청이 들어오면 여기에 표시됩니다."
+            variant="muted"
+            size="sm"
+          />
         )}
         {rows.map(r => {
           const meta = STATUS_META[r.status] ?? STATUS_META.pending;
