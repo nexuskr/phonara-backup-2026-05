@@ -10,9 +10,10 @@ import {
   MessageSquare,
   User as UserIcon,
   ChevronRight,
-  Zap as ZapIcon,
   Network,
   Eye,
+  TrendingUp,
+} from "lucide-react";
 import { useDB } from "@/lib/store";
 import React from "react";
 import { useTranslation } from "react-i18next";
