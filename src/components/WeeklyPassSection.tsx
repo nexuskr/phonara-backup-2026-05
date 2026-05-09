@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Crown, Zap, Lock, CheckCircle2, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 
 interface Reward { level: number; credit: number; badge: string | null; priority: boolean; description: string; }
 interface Progress { xp: number; level: number; claimed_levels: number[]; }
@@ -23,7 +23,7 @@ export default function WeeklyPassSection() {
     setClaiming(level);
     const { error } = await supabase.rpc("claim_weekly_pass_reward", { _level: level });
     setClaiming(null);
-    if (error) { toast.error("수령 실패", { description: error.message }); return; }
+    if (error) { notify.error("수령 실패", { description: error.message }); return; }
     load();
   }
 

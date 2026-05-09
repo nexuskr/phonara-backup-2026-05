@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Zap, Loader2, Bot, Clock } from "lucide-react";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 
 interface AIMission {
   id: string;
@@ -65,9 +65,9 @@ export default function AIMissionCard() {
           Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
       });
-      if (r.status === 429) { toast.error("AI 호출이 일시적으로 제한되었습니다 (429)"); return; }
-      if (r.status === 402) { toast.error("AI 크레딧이 소진되었습니다 — 워크스페이스 충전 필요"); return; }
-      if (!r.ok) { toast.error("AI 미션 생성 실패"); return; }
+      if (r.status === 429) { notify.error("AI 호출이 일시적으로 제한되었습니다 (429)"); return; }
+      if (r.status === 402) { notify.error("AI 크레딧이 소진되었습니다 — 워크스페이스 충전 필요"); return; }
+      if (!r.ok) { notify.error("AI 미션 생성 실패"); return; }
       const j = await r.json();
       if (j.skipped) toast("⏳ 진행 중인 AI 미션이 이미 있습니다");
       load();
@@ -81,7 +81,7 @@ export default function AIMissionCard() {
     const { error } = await supabase.rpc("claim_ai_mission", { _mission_id: id });
     setClaiming(null);
     if (error) {
-      toast.error("청구 실패", { description: error.message });
+      notify.error("청구 실패", { description: error.message });
       return;
     }
     load();
