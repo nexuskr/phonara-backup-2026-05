@@ -41,6 +41,10 @@ export default function LongShortTradingPanel({ prefilled }: { prefilled?: Prefi
 
   const price = prices[symbol] ?? 0;
   const marginNum = Math.max(0, parseFloat(margin) || 0);
+  const setMarginPct = (pct: number) => {
+    const v = Math.max(0, Math.floor(credit * pct * 100) / 100);
+    setMargin(v.toString());
+  };
   const size = useMemo(() => computeSize(marginNum, leverage, price), [marginNum, leverage, price]);
   const liqLong = useMemo(() => liquidationPrice("long", price, leverage), [price, leverage]);
   const liqShort = useMemo(() => liquidationPrice("short", price, leverage), [price, leverage]);
