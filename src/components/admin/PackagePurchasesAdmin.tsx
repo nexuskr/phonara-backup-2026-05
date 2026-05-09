@@ -58,19 +58,7 @@ export default function PackagePurchasesAdmin() {
     return () => { supabase.removeChannel(ch); };
   }, []);
 
-  async function act(id: string, action: "approve" | "reject") {
-    setBusy(true);
-    try {
-      const reason = action === "reject" ? prompt("거절 사유") ?? "rejected" : undefined;
-      await adminResolvePackage(id, action, reason);
-      toast({ title: action === "approve" ? "승인됨" : "거절됨" });
-      await load();
-    } catch (e: any) {
-      toast({ title: "실패", description: e.message });
-    } finally {
-      setBusy(false);
-    }
-  }
+  // approve/reject now opens AdminReviewModal (forensic checklist + memo)
 
   async function settle() {
     setBusy(true);
