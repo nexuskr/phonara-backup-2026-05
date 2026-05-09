@@ -65,6 +65,19 @@ export default function LongShortTradingPanel({ prefilled }: { prefilled?: Prefi
     });
   };
 
+  // Keyboard shortcuts: L = long, S = short, ESC = clear margin focus
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "l" || e.key === "L") { e.preventDefault(); submit("long"); }
+      else if (e.key === "s" || e.key === "S") { e.preventDefault(); submit("short"); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [symbol, leverage, marginNum, price, credit]);
+
   return (
     <section className="glass-strong rounded-3xl border border-primary/30 p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
