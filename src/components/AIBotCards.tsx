@@ -274,6 +274,7 @@ function ContentFarmerCard({ tier, runs, used, loading, dailyCap }: { tier: stri
   const isClaimed = latest?.status === "claimed";
 
   return (
+    <>
     <BotCard
       icon={<Sparkles className="w-4 h-4" />}
       title={t("content.title")}
@@ -283,6 +284,25 @@ function ContentFarmerCard({ tier, runs, used, loading, dailyCap }: { tier: stri
       used={used}
       limit={limit}
     >
+      {/* keep existing content body — stitched below */}
+      {(() => null)()}
+{/* original-body-content */}
+    </BotCard>
+    <ClaimResultModal
+      open={claimFlow.modal.open}
+      onClose={claimFlow.closeModal}
+      outcome={claimFlow.modal.outcome}
+      expected={claimFlow.modal.expected}
+      actual={claimFlow.modal.actual}
+      pnlPct={claimFlow.modal.pnl_pct}
+      capRemaining={claimFlow.modal.capRemaining}
+      onShare={doShare}
+      shared={claimFlow.modal.shared}
+      botKindLabel={t("content.title")}
+    />
+    </>
+  );
+}
       {!loading && (isReady || isClaimed) && latest && (
         <div className="space-y-2 animate-fade-in">
           {imgUrl && (
