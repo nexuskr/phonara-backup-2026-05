@@ -218,7 +218,7 @@ async function getSignedUrl(path: string) {
 /* ============================================================
    1) Daily AI Content Farmer
    ============================================================ */
-function ContentFarmerCard({ tier, runs, used, loading }: { tier: string; runs: Run[]; used: number; loading: boolean }) {
+function ContentFarmerCard({ tier, runs, used, loading, dailyCap }: { tier: string; runs: Run[]; used: number; loading: boolean; dailyCap: DailyCap & { reload: () => Promise<void> } }) {
   const { t } = useTranslation("aibot");
   const limit = TIER_LIMITS[tier]?.content ?? 1;
   const reward = Math.floor(BASE_REWARD.content * (TIER_BOOST[tier] ?? 1));
@@ -226,6 +226,11 @@ function ContentFarmerCard({ tier, runs, used, loading }: { tier: string; runs: 
   const [busy, setBusy] = useState(false);
   const [topic, setTopic] = useState("");
   const [imgUrl, setImgUrl] = useState<string | null>(null);
+  const claimFlow = useClaimFlow({
+    reloadCap: dailyCap.reload,
+    capRemainingAfter: () => dailyCap.remaining,
+    errorTitle: t("err.err"),
+  });
 
   useEffect(() => {
     if (latest?.output_path) getSignedUrl(latest.output_path).then(setImgUrl);
@@ -243,20 +248,24 @@ function ContentFarmerCard({ tier, runs, used, loading }: { tier: string; runs: 
 
   const claim = async () => {
     if (!latest) return;
-    try {
-      const r = await claimRun(latest.id);
-      if (!r.reward || r.reward <= 0) {
-        toast({ title: t("capReached"), description: t("capReachedDesc"), variant: "destructive" });
-        return;
-      }
-      toast({ title: t("claimed"), description: t("claimedDesc", { val: formatKRW(r.reward) }) });
-      const u = (await supabase.auth.getUser()).data.user;
-      if (u) await shareToLounge({
-        user_id: u.id, nickname: u.user_metadata?.nickname ?? null, tier,
-        kind: "content", reward: r.reward, pnl_pct: r.pnl_pct,
-        output_text: latest.output_text, output_path: latest.output_path,
-      });
-    } catch (e: any) { toast({ title: t("err.err"), description: e.message, variant: "destructive" }); }
+    const r = await claimFlow.runClaim(latest.id, {
+      kind: "content",
+      expected: reward,
+      capLeftBefore: dailyCap.remaining,
+    });
+    if (!r || r.reward <= 0) return;
+  };
+
+  const doShare = async () => {
+    if (!latest) return;
+    const u = (await supabase.auth.getUser()).data.user;
+    if (!u) return;
+    await shareToLounge({
+      user_id: u.id, nickname: u.user_metadata?.nickname ?? null, tier,
+      kind: "content", reward: claimFlow.modal.actual, pnl_pct: claimFlow.modal.pnl_pct,
+      output_text: latest.output_text, output_path: latest.output_path,
+    });
+    claimFlow.markShared();
   };
 
   const isReady = latest?.status === "ready";
