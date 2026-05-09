@@ -132,7 +132,7 @@ export default function Admin() {
           ))}
         </div>
 
-        {tab === "dashboard" && <AdminDashboardCharts />}
+        {tab === "dashboard" && <><TodayKpiCards /><AdminDashboardCharts /></>}
         {tab === "funnel" && <FunnelAnalytics />}
         {tab === "analytics" && <AdvancedAnalytics />}
         {tab === "errors" && <ErrorMonitorAdmin />}
