@@ -38,22 +38,35 @@ async function callText(model: string, system: string, user: string) {
   return j.choices?.[0]?.message?.content ?? "";
 }
 
-async function callImage(prompt: string): Promise<Uint8Array> {
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${LOVABLE_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash-image",
-      messages: [{ role: "user", content: prompt }],
-      modalities: ["image", "text"],
-    }),
-  });
-  if (!r.ok) throw new Error(`ai_image_${r.status}`);
-  const j = await r.json();
-  const url: string | undefined = j.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-  if (!url) throw new Error("no_image");
-  const b64 = url.split(",")[1];
-  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+async function callImage(prompt: string): Promise<Uint8Array | null> {
+  // Try primary then fallback model. Returns null instead of throwing when the
+  // gateway responds with text-only (transient model behavior) — caller decides.
+  const models = ["google/gemini-2.5-flash-image", "google/gemini-3.1-flash-image-preview"];
+  for (const model of models) {
+    try {
+      const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: prompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (r.status === 429 || r.status === 402) throw new Error(`ai_image_${r.status}`);
+      if (!r.ok) { console.error(`image ${model} ${r.status}`, await r.text().catch(() => "")); continue; }
+      const j = await r.json();
+      const url: string | undefined = j.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!url) { console.warn(`image ${model} returned no image`); continue; }
+      const b64 = url.split(",")[1];
+      return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("429") || msg.includes("402")) throw e;
+      console.error(`image ${model} threw`, msg);
+    }
+  }
+  return null;
 }
 
 Deno.serve(async (req) => {
