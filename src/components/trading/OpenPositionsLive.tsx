@@ -102,7 +102,7 @@ export default function OpenPositionsLive({
                 <span className="font-mono tabular-nums text-foreground animate-pulse">{mark.toFixed(4)}</span>
               </div>
               <div className={`text-sm font-mono tabular-nums font-bold ${positive ? "text-emerald-400" : "text-rose-400"}`}>
-                {positive ? "+" : ""}{pnl.toFixed(2)}
+                {positive ? "+" : ""}{fmt(pnl)}
                 <span className="block text-[10px]">{(roi * 100).toFixed(1)}%</span>
               </div>
               <Button
