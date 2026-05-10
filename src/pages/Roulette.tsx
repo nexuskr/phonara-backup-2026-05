@@ -6,6 +6,8 @@ import { toast } from "@/hooks/use-toast";
 import { Sparkles, Crown, History as HistoryIcon, Gift } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LuxButton, Money } from "@/components/ui/lux";
+import { JackpotEmpireBanner } from "@/components/empire/JackpotEmpireBanner";
+import { NearMissOverlay } from "@/components/empire/NearMissOverlay";
 
 const SEG_DEG = 360 / 8;
 
