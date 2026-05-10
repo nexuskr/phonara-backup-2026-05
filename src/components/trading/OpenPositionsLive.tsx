@@ -63,7 +63,7 @@ function OpenPositionsLiveImpl({
       if (roi <= -0.99 && !liqLock.current.has(p.id)) {
         liqLock.current.add(p.id);
         onLiquidate(p.id, m).then(() => {
-          triggerFx({ kind: "liquidate", pnl: -p.margin, roi: -1, symbol: p.symbol });
+          triggerFx({ kind: "liquidate", pnl: -p.margin, roi: -1, symbol: p.symbol, unit });
           setReplay(buildReplay(p, m, -p.margin, -1, "liquidation"));
         }).catch(() => liqLock.current.delete(p.id));
       }
