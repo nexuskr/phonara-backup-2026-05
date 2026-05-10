@@ -140,20 +140,20 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
       {/* Big buttons */}
       <div className="grid grid-cols-2 gap-3">
         <Button
-          disabled={busy || !price}
+          disabled={busy}
           onClick={() => doSubmit("long")}
-          className="h-20 text-xl font-display font-black bg-gradient-to-b from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-emerald-50 shadow-[0_0_40px_rgba(52,211,153,0.5)] border border-emerald-300/40"
+          className="h-20 text-xl font-display font-black bg-gradient-to-b from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-emerald-50 shadow-[0_0_40px_rgba(52,211,153,0.5)] border border-emerald-300/40 disabled:opacity-60"
         >
           <TrendingUp className="w-6 h-6 mr-2" />
-          LONG
+          {busy ? "처리 중…" : !price ? "LONG (가격 대기)" : "LONG"}
         </Button>
         <Button
-          disabled={busy || !price}
+          disabled={busy}
           onClick={() => doSubmit("short")}
-          className="h-20 text-xl font-display font-black bg-gradient-to-b from-rose-500 to-rose-700 hover:from-rose-400 hover:to-rose-600 text-rose-50 shadow-[0_0_40px_rgba(244,63,94,0.5)] border border-rose-400/40"
+          className="h-20 text-xl font-display font-black bg-gradient-to-b from-rose-500 to-rose-700 hover:from-rose-400 hover:to-rose-600 text-rose-50 shadow-[0_0_40px_rgba(244,63,94,0.5)] border border-rose-400/40 disabled:opacity-60"
         >
           <TrendingDown className="w-6 h-6 mr-2" />
-          SHORT
+          {busy ? "처리 중…" : !price ? "SHORT (가격 대기)" : "SHORT"}
         </Button>
       </div>
 
