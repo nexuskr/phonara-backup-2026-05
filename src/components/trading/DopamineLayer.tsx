@@ -3,7 +3,16 @@ import confetti from "canvas-confetti";
 import { sfx } from "@/lib/trading/sounds";
 
 type FxKind = "win" | "legendary" | "liquidate" | "loss" | null;
-interface Fx { kind: FxKind; pnl: number; roi: number; symbol?: string }
+type FxUnit = "USDT" | "KRW";
+interface Fx { kind: FxKind; pnl: number; roi: number; symbol?: string; unit?: FxUnit }
+
+function fmtFx(n: number, unit: FxUnit): string {
+  if (unit === "KRW") {
+    const abs = Math.abs(Math.floor(n));
+    return `${n < 0 ? "-" : ""}₩${abs.toLocaleString()}`;
+  }
+  return `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT`;
+}
 
 const queue: Fx[] = [];
 let pushExternal: ((fx: Fx) => void) | null = null;
