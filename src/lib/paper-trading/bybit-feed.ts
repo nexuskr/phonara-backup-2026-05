@@ -105,6 +105,19 @@ class BybitFeed {
             const last = parseFloat(d.lastPrice ?? d.markPrice);
             if (sym && Number.isFinite(last) && last > 0) {
               this.prices[sym] = last;
+              const change = parseFloat(d.price24hPcnt);
+              const vol = parseFloat(d.volume24h);
+              const turn = parseFloat(d.turnover24h);
+              const hi = parseFloat(d.highPrice24h);
+              const lo = parseFloat(d.lowPrice24h);
+              this.updateStat(sym, {
+                last,
+                ...(Number.isFinite(change) ? { change24hPct: change * 100 } : {}),
+                ...(Number.isFinite(vol) ? { volume24h: vol } : {}),
+                ...(Number.isFinite(turn) ? { turnover24h: turn } : {}),
+                ...(Number.isFinite(hi) ? { high24h: hi } : {}),
+                ...(Number.isFinite(lo) ? { low24h: lo } : {}),
+              });
               this.emit();
             }
           }
