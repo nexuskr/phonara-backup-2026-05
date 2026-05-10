@@ -131,6 +131,9 @@ export default function Roulette() {
           )}
         </div>
 
+        {/* P6-1: Empire Jackpot Pool Banner + Live Bot Feed */}
+        <JackpotEmpireBanner />
+
         {/* Wheel */}
         <div className="glass-strong rounded-3xl p-6 neon-border relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-aurora opacity-[0.05] animate-gradient" style={{ backgroundSize: "300% 300%" }} />
