@@ -7,7 +7,7 @@ import {
   ShieldCheck, ShieldAlert, Fingerprint, KeyRound, Mail, Smartphone,
   Lock, CheckCircle2, Circle, AlertTriangle, ChevronRight, BellRing, Activity,
 } from "lucide-react";
-import LoadingList from "@/components/ui/loading-state";
+import { LoadingList } from "@/components/ui/loading-state";
 
 type Status = "complete" | "partial" | "missing";
 
