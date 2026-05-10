@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW } from "@/lib/store";
-import { ShieldCheck, Star, Trophy, Settings, Award, Lock, X, Mail, KeyRound, BookOpen, LogOut, Crown, Flame, Fingerprint } from "lucide-react";
+import { ShieldCheck, Star, Trophy, Settings, Award, Lock, X, Mail, KeyRound, BookOpen, LogOut, Crown, Flame } from "lucide-react";
 import PinPad from "@/components/PinPad";
 import PinResetDialog from "@/components/PinResetDialog";
 import { toast } from "@/hooks/use-toast";
@@ -178,30 +178,17 @@ export default function Profile() {
         <div className="mt-5 space-y-4">
           <NotificationPrefsCard />
           <Link
-            to="/security/totp"
+            to="/security"
             className="flex items-center justify-between glass-strong rounded-2xl p-4 neon-border hover:scale-[1.01] transition"
           >
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-5 h-5 text-primary" />
               <div>
-                <div className="font-bold text-sm">2단계 인증 (TOTP)</div>
-                <div className="text-xs text-muted-foreground">출금/관리자 작업 보호</div>
+                <div className="font-bold text-sm">보안 센터</div>
+                <div className="text-xs text-muted-foreground">2단계 인증 · Passkey · 보안 점수</div>
               </div>
             </div>
-            <span className="text-xs text-primary font-bold">설정 →</span>
-          </Link>
-          <Link
-            to="/security/passkey"
-            className="flex items-center justify-between glass-strong rounded-2xl p-4 neon-border hover:scale-[1.01] transition"
-          >
-            <div className="flex items-center gap-3">
-              <Fingerprint className="w-5 h-5 text-accent" />
-              <div>
-                <div className="font-bold text-sm">Passkey (생체 인증)</div>
-                <div className="text-xs text-muted-foreground">지문·얼굴로 빠른 강력 인증</div>
-              </div>
-            </div>
-            <span className="text-xs text-accent font-bold">설정 →</span>
+            <span className="text-xs text-primary font-bold">열기 →</span>
           </Link>
         </div>
 
