@@ -87,6 +87,7 @@ function OpenPositionsLiveImpl({
   }
 
   return (
+    <>
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2 px-1">
         <div className="text-xs text-muted-foreground">
