@@ -49,7 +49,18 @@
     --shadow-elegant: 0 30px 80px -20px hsl(44 80% 53% / 0.35);
     --shadow-glass: 0 8px 32px hsl(240 50% 1% / 0.7), inset 0 1px 0 hsl(44 95% 65% / 0.06);
     --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Mobile bottom nav height (used by safe-area utilities) */
+    --bottom-nav-h: 5.5rem;
   }
+}
+@layer utilities {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  .h-safe-bottom { height: env(safe-area-inset-bottom); }
 }
 @layer base {
   * { @apply border-border; }

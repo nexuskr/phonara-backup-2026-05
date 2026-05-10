@@ -11,6 +11,13 @@ export default {
       screens: { "2xl": "1400px" },
     },
     extend: {
+      spacing: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+        "safe-bottom-nav": "calc(var(--bottom-nav-h, 5.5rem) + env(safe-area-inset-bottom) + 0.75rem)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
