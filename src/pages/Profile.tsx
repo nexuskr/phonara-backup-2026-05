@@ -22,6 +22,7 @@ type BadgeDef = {
 };
 
 import ReferralCard from "@/components/ReferralCard";
+import NotificationPrefsCard from "@/components/profile/NotificationPrefsCard";
 import CoinMasterLounge from "@/components/CoinMasterLounge";
 
 export default function Profile() {
@@ -171,6 +172,24 @@ export default function Profile() {
         <div className="mt-5">
           <ReferralCard />
           <CoinMasterLounge />
+        </div>
+
+        {/* ===== Security & Notifications ===== */}
+        <div className="mt-5 space-y-4">
+          <NotificationPrefsCard />
+          <Link
+            to="/security/totp"
+            className="flex items-center justify-between glass-strong rounded-2xl p-4 neon-border hover:scale-[1.01] transition"
+          >
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <div>
+                <div className="font-bold text-sm">2단계 인증 (TOTP)</div>
+                <div className="text-xs text-muted-foreground">출금/관리자 작업 보호</div>
+              </div>
+            </div>
+            <span className="text-xs text-primary font-bold">설정 →</span>
+          </Link>
         </div>
 
         {/* ===== Upgraded Badges ===== */}
