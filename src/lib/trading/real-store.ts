@@ -102,6 +102,7 @@ export const useRealStore = create<State>()((set, get) => ({
     } as never);
     if (error) return { error: error.message };
     await get().load();
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("wallet:refresh"));
     return { id: data as string };
   },
 
@@ -128,6 +129,7 @@ export const useRealStore = create<State>()((set, get) => ({
     const r = data as { pnl: number; roi: number; credit: number; exit: number };
     set((s) => ({ comboWins: r.pnl > 0 ? s.comboWins + 1 : 0 }));
     await get().load();
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("wallet:refresh"));
     return r;
   },
 
