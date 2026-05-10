@@ -15,6 +15,7 @@ interface Props {
   onLiquidate: (id: string, mark: number) => Promise<unknown>;
   onCloseAll: () => void;
   modeLabel: string;
+  unit?: "USDT" | "KRW";
 }
 
 export default function OpenPositionsLive({
