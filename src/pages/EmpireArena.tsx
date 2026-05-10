@@ -131,7 +131,7 @@ export default function EmpireArena() {
 
   return (
     <Layout>
-      <HubTabs hub="trade" />
+      <HubTabs hub="empire" />
       <div className="container pt-6 pb-10 animate-fade-in">
         <div className="mb-4">
           <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial flex items-center gap-2 break-keep">
@@ -244,7 +244,7 @@ export default function EmpireArena() {
             <LoadingList rows={3} />
           ) : battles.length === 0 ? (
             <EmptyState
-              icon={Sword}
+              icon={<Sword className="w-5 h-5" />}
               title="아직 전투 기록이 없습니다"
               description="Long/Short 버튼을 눌러 첫 정복을 시작하세요"
             />
