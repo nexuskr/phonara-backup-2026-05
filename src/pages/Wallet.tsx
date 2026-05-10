@@ -25,6 +25,7 @@ import { z } from "zod";
 import Disclaimer from "@/components/Disclaimer";
 import StepUpGate from "@/components/security/StepUpGate";
 import { useStepUp } from "@/hooks/use-step-up";
+import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
 
 type AssetTab = "bank" | "coin";
 type ActionTab = "withdraw" | "deposit" | "history";
