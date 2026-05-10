@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { TrendingUp, TrendingDown, Zap, Flame } from "lucide-react";
+import { TrendingUp, TrendingDown, Zap, Flame, ShieldCheck, Target } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,27 +9,46 @@ import { applySlippage, computeSize, liquidationPrice, openFee } from "@/lib/tra
 import { sfx } from "@/lib/trading/sounds";
 import { unitForMode, fmtMoney, approxCross } from "@/lib/trading/currency";
 
+export interface OrderTriggers {
+  /** Take-profit ROI percent (e.g. 50 means +50% ROI). */
+  tpPct?: number;
+  /** Stop-loss ROI percent (positive number, e.g. 25 means -25% ROI). */
+  slPct?: number;
+  /** Trailing stop drawdown percent from peak ROI (e.g. 10 means trail at -10% from peak ROI). */
+  trailingPct?: number;
+}
+
 interface Props {
   mode: Mode;
   symbol: string;
   setSymbol: (s: string) => void;
   price: number;
   balance: number;
-  onSubmit: (args: { side: "long" | "short"; leverage: number; margin: number }) => void;
+  onSubmit: (args: { side: "long" | "short"; leverage: number; margin: number; triggers?: OrderTriggers }) => void;
   busy?: boolean;
 }
+
+const SL_QUICK = [10, 25, 50, 75];
+const TP_QUICK = [25, 50, 100, 200];
 
 function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit, busy }: Props) {
   const unit = unitForMode(mode);
   const [leverage, setLeverage] = useState(20);
   const [margin, setMargin] = useState(unit === "KRW" ? "100000" : "100");
+  const [tpPct, setTpPct] = useState<string>("");
+  const [slPct, setSlPct] = useState<string>("");
+  const [trailingOn, setTrailingOn] = useState(false);
+  const [trailingPct, setTrailingPct] = useState<string>("10");
 
-  // Reset margin default when mode/unit changes
   useEffect(() => {
     setMargin(unit === "KRW" ? "100000" : "100");
   }, [unit]);
 
   const marginNum = Math.max(0, parseFloat(margin) || 0);
+  const tpNum = Math.max(0, parseFloat(tpPct) || 0);
+  const slNum = Math.max(0, parseFloat(slPct) || 0);
+  const trailNum = Math.max(0, parseFloat(trailingPct) || 0);
+
   const setPct = (p: number) => {
     const raw = balance * p;
     const v = unit === "KRW" ? Math.floor(raw) : Math.floor(raw * 100) / 100;
@@ -45,10 +64,21 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
   const fee = useMemo(() => openFee(marginNum, leverage), [marginNum, leverage]);
   const cross = approxCross(marginNum, unit);
 
-  const heat = leverage / MAX_LEVERAGE; // 0..1
+  // Estimated PnL preview at TP/SL (in margin units — same currency as `unit`).
+  const estTpPnl = tpNum > 0 ? (marginNum * tpNum) / 100 : 0;
+  const estSlPnl = slNum > 0 ? -(marginNum * slNum) / 100 : 0;
+
+  const heat = leverage / MAX_LEVERAGE;
   const hot = heat >= 0.5;
 
-  // Hotkeys
+  const buildTriggers = (): OrderTriggers | undefined => {
+    const t: OrderTriggers = {};
+    if (tpNum > 0) t.tpPct = tpNum;
+    if (slNum > 0) t.slPct = slNum;
+    if (trailingOn && trailNum > 0) t.trailingPct = trailNum;
+    return Object.keys(t).length ? t : undefined;
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
@@ -59,11 +89,11 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [marginNum, leverage, price]);
+  }, [marginNum, leverage, price, tpNum, slNum, trailingOn, trailNum]);
 
   const doSubmit = (side: "long" | "short") => {
     sfx.click();
-    onSubmit({ side, leverage, margin: marginNum });
+    onSubmit({ side, leverage, margin: marginNum, triggers: buildTriggers() });
   };
 
   return (
@@ -145,6 +175,115 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
             >{v}×</button>
           ))}
         </div>
+      </div>
+
+      {/* TP / SL / Trailing */}
+      <div className="rounded-2xl border border-border/50 bg-background/30 p-3 space-y-3">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-300" />
+          <span className="text-xs font-black tracking-wide uppercase text-muted-foreground">TP / SL / Trailing</span>
+          <span className="text-[10px] text-muted-foreground/70">ROI 기준 %</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {/* TP */}
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-emerald-300 inline-flex items-center gap-1">
+                <Target className="w-3 h-3" /> Take Profit %
+              </label>
+              <button
+                onClick={() => setTpPct("")}
+                className="text-[10px] text-muted-foreground/70 hover:text-foreground"
+              >clear</button>
+            </div>
+            <Input
+              type="number" inputMode="decimal" min={0} placeholder="e.g. 50"
+              value={tpPct} onChange={(e) => setTpPct(e.target.value)}
+              className="mt-1 bg-background/60 font-mono tabular-nums"
+            />
+            <div className="grid grid-cols-4 gap-1 mt-1">
+              {TP_QUICK.map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setTpPct(String(v))}
+                  className={`text-[10px] font-black py-1 rounded border transition press ${
+                    tpNum === v
+                      ? "border-emerald-400/70 bg-emerald-500/15 text-emerald-200"
+                      : "border-border/40 bg-background/60 hover:border-emerald-400/40"
+                  }`}
+                >+{v}%</button>
+              ))}
+            </div>
+          </div>
+
+          {/* SL */}
+          <div>
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-rose-300 inline-flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" /> Stop Loss %
+              </label>
+              <button
+                onClick={() => setSlPct("")}
+                className="text-[10px] text-muted-foreground/70 hover:text-foreground"
+              >clear</button>
+            </div>
+            <Input
+              type="number" inputMode="decimal" min={0} placeholder="e.g. 25"
+              value={slPct} onChange={(e) => setSlPct(e.target.value)}
+              className="mt-1 bg-background/60 font-mono tabular-nums"
+            />
+            <div className="grid grid-cols-4 gap-1 mt-1">
+              {SL_QUICK.map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setSlPct(String(v))}
+                  className={`text-[10px] font-black py-1 rounded border transition press ${
+                    slNum === v
+                      ? "border-rose-400/70 bg-rose-500/15 text-rose-200"
+                      : "border-border/40 bg-background/60 hover:border-rose-400/40"
+                  }`}
+                >-{v}%</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Trailing */}
+        <div className="flex items-center justify-between gap-2">
+          <label className="flex items-center gap-2 text-[11px] font-bold text-amber-200 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={trailingOn}
+              onChange={(e) => setTrailingOn(e.target.checked)}
+              className="accent-amber-400"
+            />
+            Trailing Stop (peak ROI에서 −%)
+          </label>
+          <Input
+            type="number" inputMode="decimal" min={0} disabled={!trailingOn}
+            value={trailingPct} onChange={(e) => setTrailingPct(e.target.value)}
+            className="w-24 h-8 bg-background/60 font-mono tabular-nums text-right disabled:opacity-50"
+          />
+        </div>
+
+        {/* Estimated PnL */}
+        {(tpNum > 0 || slNum > 0) && marginNum > 0 && (
+          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
+            <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/20 p-2">
+              <div className="text-[10px] text-emerald-300/80 uppercase tracking-wider">Est. TP PnL</div>
+              <div className="font-mono tabular-nums font-black text-emerald-300 text-sm">
+                {tpNum > 0 ? `+${fmtMoney(estTpPnl, unit, { decimals: unit === "USDT" ? 2 : 0 })}` : "—"}
+              </div>
+            </div>
+            <div className="rounded-lg bg-rose-500/5 border border-rose-500/20 p-2">
+              <div className="text-[10px] text-rose-300/80 uppercase tracking-wider">Est. SL PnL</div>
+              <div className="font-mono tabular-nums font-black text-rose-300 text-sm">
+                {slNum > 0 ? fmtMoney(estSlPnl, unit, { decimals: unit === "USDT" ? 2 : 0 }) : "—"}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
