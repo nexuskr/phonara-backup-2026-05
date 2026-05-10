@@ -201,6 +201,15 @@ export default function SecurityOverview() {
           <MyDevices />
         </section>
 
+        {/* My Security Events */}
+        <section>
+          <h2 className="text-xs tracking-[0.25em] font-bold text-muted-foreground mb-3">
+            <ShieldAlert className="w-3 h-3 inline mr-1.5" />
+            보안 이벤트
+          </h2>
+          <MySecurityEvents />
+        </section>
+
         {/* Recent activity */}
         <section>
           <h2 className="text-xs tracking-[0.25em] font-bold text-muted-foreground mb-3">
