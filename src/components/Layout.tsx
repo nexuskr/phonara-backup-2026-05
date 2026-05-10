@@ -78,7 +78,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useAdminNotifications(!!user?.isAdmin);
 
   return (
-    <div className="min-h-screen md:pl-60 pb-28 md:pb-6">
+    <div className="min-h-screen md:pl-60 pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+0.75rem)] md:pb-6">
       <FreezeBanner />
       {/* Desktop sidebar */}
       {user && (
@@ -251,7 +251,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile bottom nav — 5 tabs with center FAB */}
       {user && (
-        <nav className="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem)] max-w-md">
+        <nav
+          className="md:hidden fixed left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1rem-env(safe-area-inset-left)-env(safe-area-inset-right))] max-w-md"
+          style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        >
           <div className="glass-strong rounded-2xl px-2 py-2 flex items-end justify-between shadow-2xl neon-border relative overflow-visible">
             {NAV.map((item) => {
               const Icon = item.icon;
