@@ -231,7 +231,6 @@ export default function GlobalIntelligence() {
             <div className="lg:col-span-2">
               <ChartWithHeader symbol={symbol} setSymbol={setSymbol} price={price} stat={stats[symbol]} overlays={overlays} height={380} />
             </div>
-            </div>
             <div className="lg:col-span-2">
               <MegaOrderPanel
                 mode={mode}
