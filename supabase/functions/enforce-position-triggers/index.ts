@@ -129,6 +129,14 @@ Deno.serve(async (req) => {
     const symbols = Array.from(new Set(list.map((p) => p.symbol)));
     const prices = await fetchBybitPrices(symbols);
 
+    // Mirror Bybit prices into oracle_prices (server-trusted truth for safeguards)
+    try {
+      const rows = Object.entries(prices).map(([symbol, last_price]) => ({
+        symbol, last_price, source: "bybit", updated_at: new Date().toISOString(),
+      }));
+      if (rows.length) await supabase.from("oracle_prices").upsert(rows, { onConflict: "symbol" });
+    } catch (e) { console.error("oracle upsert failed", e); }
+
     let closed = 0;
     let trailingPeakUpdates = 0;
     const errors: string[] = [];
