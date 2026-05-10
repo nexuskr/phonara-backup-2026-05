@@ -224,6 +224,7 @@ export default function Index() {
             <span className="ml-2">{t("megaSuffix")}</span>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2">{t("megaSub")}</p>
+          <LivePayoutSlaBadge />
         </div>
       </section>
 
