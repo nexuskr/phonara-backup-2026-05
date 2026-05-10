@@ -176,6 +176,7 @@ export default function Admin() {
           {tab === "ugc" && <AdminUgc />}
           {tab === "insurance" && <InsuranceFundDashboard variant="admin" />}
           {tab === "accounting" && <OperatorAccounting />}
+          {tab === "bots" && <BotStrengthAdmin />}
         </AdminAal2Gate>
       </div>
     </Layout>
