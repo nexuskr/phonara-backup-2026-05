@@ -159,6 +159,7 @@ export default function SecureAuth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <AdultOnlyBanner className="absolute top-0 left-0 right-0 z-20" />
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-primary/25 blur-3xl blob" />
       <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] bg-accent/25 blur-3xl blob" style={{ animationDelay: "-7s" }} />
