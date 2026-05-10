@@ -298,6 +298,7 @@ export default function Wallet() {
 
   return (
     <Layout>
+      <AdultOnlyBanner />
       <StepUpGate {...stepUpProps} />
       <HubTabs hub="treasury" />
       <div className="container pt-6 pb-10 animate-liquid-in max-w-3xl">
