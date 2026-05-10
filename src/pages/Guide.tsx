@@ -395,6 +395,11 @@ function StarterGuide({ t }: any) {
           onClose={() => setPreviewLevel(null)}
         />
       )}
+
+      {/* 시뮬레이션 면책 고지 — Phase 4 필수 */}
+      <p className="mt-6 text-center text-[10px] text-muted-foreground break-keep">
+        본 가이드의 모든 수치는 과거 시뮬레이션 성과이며, 미래 수익을 보장하지 않습니다.
+      </p>
     </div>
   );
 }
