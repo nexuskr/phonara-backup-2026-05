@@ -24,6 +24,8 @@ import { settleMission } from "@/lib/missions-rpc";
 import { emitEarned } from "@/components/onboarding/EarnedToast";
 import { supabase } from "@/integrations/supabase/client";
 import AIBotCards from "@/components/AIBotCards";
+import { usePersonaMissions, PERSONA_LABEL } from "@/hooks/use-persona-missions";
+import { Sparkle } from "lucide-react";
 
 const tierFilters: { key: Tier; tk: string; color: string }[] = [
   { key: "NORMAL", tk: "tierNormal", color: "text-secondary" },
