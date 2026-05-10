@@ -17,6 +17,7 @@ import Disclaimer from "@/components/Disclaimer";
 import { track } from "@/lib/analytics";
 import { LuxButton } from "@/components/ui/lux";
 import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
+import PackageUpgradeCards from "@/components/empire/PackageUpgradeCards";
 
 const tierStyles: Record<Pkg["tier"], { ring: string; bg: string; label: string }> = {
   FREE:    { ring: "from-muted to-muted",                bg: "from-muted/30",      label: "FREE" },
