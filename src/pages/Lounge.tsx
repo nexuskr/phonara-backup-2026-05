@@ -36,7 +36,7 @@ type War = {
 };
 
 export default function Lounge() {
-  const { user } = useAuth();
+  const user = useRequireAuth();
   const [loading, setLoading] = useState(true);
   const [myGuild, setMyGuild] = useState<Guild | null>(null);
   const [leaderboard, setLeaderboard] = useState<Guild[]>([]);
