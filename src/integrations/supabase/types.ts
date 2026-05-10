@@ -2643,6 +2643,36 @@ export type Database = {
           },
         ]
       }
+      user_devices: {
+        Row: {
+          first_seen: string
+          fp_hash: string
+          id: string
+          last_seen: string
+          trusted: boolean
+          ua: string | null
+          user_id: string
+        }
+        Insert: {
+          first_seen?: string
+          fp_hash: string
+          id?: string
+          last_seen?: string
+          trusted?: boolean
+          ua?: string | null
+          user_id: string
+        }
+        Update: {
+          first_seen?: string
+          fp_hash?: string
+          id?: string
+          last_seen?: string
+          trusted?: boolean
+          ua?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_passkeys: {
         Row: {
           counter: number
@@ -4360,6 +4390,7 @@ export type Database = {
       }
       recover_stuck_settlements: { Args: never; Returns: Json }
       redetect_anomaly: { Args: { _id: string }; Returns: Json }
+      register_device: { Args: { _fp: string; _ua?: string }; Returns: Json }
       request_withdraw_otp: { Args: never; Returns: Json }
       request_withdrawal: {
         Args: {
