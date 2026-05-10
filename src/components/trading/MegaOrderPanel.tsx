@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { TrendingUp, TrendingDown, Zap, Flame } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ interface Props {
   busy?: boolean;
 }
 
-export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance, onSubmit, busy }: Props) {
+function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit, busy }: Props) {
   const unit = unitForMode(mode);
   const [leverage, setLeverage] = useState(20);
   const [margin, setMargin] = useState(unit === "KRW" ? "100000" : "100");
@@ -181,6 +181,8 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
     </section>
   );
 }
+
+export default memo(MegaOrderPanelImpl);
 
 function Stat({ label, v, tone }: { label: string; v: string; tone?: "loss" | "warn" }) {
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -19,6 +19,7 @@ import PersonalMemoryPanel from "@/components/intelligence/PersonalMemoryPanel";
 import GlobalContributionBar from "@/components/intelligence/GlobalContributionBar";
 import WinMomentOverlay, { pushWinMoment } from "@/components/intelligence/WinMomentOverlay";
 import Disclaimer from "@/components/Disclaimer";
+import LazyMount from "@/components/util/LazyMount";
 import { Button } from "@/components/ui/button";
 import { useBybitTicker } from "@/hooks/use-bybit-ticker";
 import { useSession, useWallet } from "@/hooks/use-wallet";
@@ -96,7 +97,7 @@ export default function GlobalIntelligence() {
   }, [positionsAsLive, symbol]);
 
   // Submit handler
-  const submit = async ({ side, leverage, margin }: { side: "long"|"short"; leverage: number; margin: number }) => {
+  const submit = useCallback(async ({ side, leverage, margin }: { side: "long"|"short"; leverage: number; margin: number }) => {
     if (!price) return notify.error("가격을 불러오는 중입니다.");
     if (margin <= 0) return notify.error("Margin을 입력하세요.");
 
@@ -112,7 +113,6 @@ export default function GlobalIntelligence() {
       return;
     }
 
-    // Real
     if (!userId) return notify.error("로그인이 필요합니다.");
     if (margin > realAvailable) return notify.error("Empire Balance가 부족합니다.");
     setBusy(true);
@@ -124,10 +124,10 @@ export default function GlobalIntelligence() {
       });
       track("cta_click", { surface: "real_trade", variant: side, meta: { symbol, leverage, margin } });
     } finally { setBusy(false); }
-  };
+  }, [mode, price, paperCredit, paperOpen, symbol, userId, realAvailable, realOpen]);
 
   // Close (paper or real)
-  const closePos = async (id: string, mark: number) => {
+  const closePos = useCallback(async (id: string, mark: number) => {
     if (mode === "real") {
       setBusy(true);
       try {
@@ -146,15 +146,14 @@ export default function GlobalIntelligence() {
       playLossThud();
     }
     return { pnl: cp.pnl, roi: cp.roi, exit: mark, credit: closed!.margin + cp.pnl };
-  };
+  }, [mode, realClose, paperClose]);
 
-  const liquidatePos = async (id: string, mark: number) => {
+  const liquidatePos = useCallback(async (id: string, mark: number) => {
     if (mode === "real") return realLiquidate(id, mark);
-    // paper liquidations handled by usePaperLiquidationWatcher
     return null;
-  };
+  }, [mode, realLiquidate]);
 
-  const closeAll = async () => {
+  const closeAll = useCallback(async () => {
     let total = 0;
     for (const p of [...positionsAsLive]) {
       const m = prices[p.symbol] ?? p.entry;
@@ -164,7 +163,7 @@ export default function GlobalIntelligence() {
     if (total > 0) triggerFx({ kind: total >= 5000 ? "legendary" : "win", pnl: total, roi: 0 });
     else if (total < 0) triggerFx({ kind: "loss", pnl: total, roi: 0 });
     notify.message(`전체 청산: ${total >= 0 ? "+" : ""}${total.toFixed(2)} USDT`);
-  };
+  }, [positionsAsLive, prices, closePos]);
 
   const history = mode === "real" ? realHistory : paperHistory.map((p) => ({
     id: p.id, user_id: userId ?? "paper", symbol: p.symbol, side: p.side,
@@ -249,11 +248,11 @@ export default function GlobalIntelligence() {
               </div>
               <TradingHistoryGold history={history} unit={mode === "real" ? "KRW" : "USDT"} />
             </div>
-            <div className="lg:col-span-2"><EquityCurveCard /></div>
-            <div className="lg:col-span-2"><AchievementShowcase /></div>
-            <WeeklyLeaderboard />
-            <PersonalMemoryPanel />
-            <GlobalContributionBar />
+            <div className="lg:col-span-2"><LazyMount minHeight={200}><EquityCurveCard /></LazyMount></div>
+            <div className="lg:col-span-2"><LazyMount minHeight={200}><AchievementShowcase /></LazyMount></div>
+            <LazyMount minHeight={200}><WeeklyLeaderboard /></LazyMount>
+            <LazyMount minHeight={200}><PersonalMemoryPanel /></LazyMount>
+            <LazyMount minHeight={120}><GlobalContributionBar /></LazyMount>
           </div>
 
           <Disclaimer />

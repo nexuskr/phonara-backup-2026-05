@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LightweightChartPanel from "./LightweightChartPanel";
@@ -24,7 +25,7 @@ const fmtVol = (n: number) => {
   return n.toFixed(2);
 };
 
-export default function ChartWithHeader({ symbol, setSymbol, price, stat, overlays = [], height = 360 }: Props) {
+function ChartWithHeaderImpl({ symbol, setSymbol, price, stat, overlays = [], height = 360 }: Props) {
   const change = stat?.change24hPct ?? 0;
   const up = change >= 0;
   return (
@@ -64,13 +65,15 @@ export default function ChartWithHeader({ symbol, setSymbol, price, stat, overla
 
       <div className="flex items-center justify-between text-[10px] text-muted-foreground/80 px-1">
         <span className="inline-flex items-center gap-1">
-          <BarChart3 className="w-3 h-3" /> 1m candles · live · client-built
+          <BarChart3 className="w-3 h-3" /> 1m candles · Bybit kline live
         </span>
         <span>Vol 24h <span className="font-mono tabular-nums text-foreground">{fmtVol(stat?.volume24h ?? 0)}</span></span>
       </div>
     </section>
   );
 }
+
+export default memo(ChartWithHeaderImpl);
 
 function Cell({ label, v, tone }: { label: string; v: string; tone?: "up" | "down" | "muted" }) {
   const cls = tone === "up" ? "text-emerald-300" : tone === "down" ? "text-rose-300" : "text-foreground";
