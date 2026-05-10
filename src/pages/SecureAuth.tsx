@@ -9,12 +9,13 @@ import { useAuthReady } from "@/hooks/use-auth-ready";
 import { ShieldCheck, Mail, Lock, Sparkles, ArrowRight, User as UserIcon, Calendar, Phone } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import CinematicIntro from "@/components/CinematicIntro";
+import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
 
-function checkAge14(birth: string) {
+function checkAge19(birth: string) {
   if (!birth) return false;
   const d = new Date(birth);
   const age = (Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000);
-  return age >= 14;
+  return age >= 19;
 }
 
 export default function SecureAuth() {
@@ -59,8 +60,8 @@ export default function SecureAuth() {
           toast({ title: t("errInputCheck"), description: parsed.error.errors[0].message, variant: "destructive" });
           return;
         }
-        if (!checkAge14(form.birth)) {
-          toast({ title: t("errAgeTitle"), description: t("errAge"), variant: "destructive" });
+        if (!checkAge19(form.birth)) {
+          toast({ title: "만 19세 이상만 이용 가능합니다", description: "본 서비스는 만 19세 이상 성인 전용입니다.", variant: "destructive" });
           return;
         }
         const redirectUrl = `${window.location.origin}/packages?welcome=1`;
@@ -159,6 +160,7 @@ export default function SecureAuth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <AdultOnlyBanner className="absolute top-0 left-0 right-0 z-20" />
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-primary/25 blur-3xl blob" />
       <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] bg-accent/25 blur-3xl blob" style={{ animationDelay: "-7s" }} />

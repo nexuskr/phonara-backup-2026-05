@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuthReady } from "@/hooks/use-auth-ready";
 import { User as UserIcon, Phone, Calendar, ShieldCheck } from "lucide-react";
 import { LuxButton, LuxInput } from "@/components/ui/lux";
+import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
 
 export default function CompleteProfile() {
   const { t } = useTranslation("completeProfile");
@@ -42,7 +43,7 @@ export default function CompleteProfile() {
     if (!parsed.success) { toast({ title: t("validInput"), description: parsed.error.errors[0].message, variant: "destructive" }); return; }
     if (!form.agreeTerms || !form.agreeAge) { toast({ title: t("validTermsAge"), variant: "destructive" }); return; }
     const age = (Date.now() - new Date(form.birth).getTime()) / (365.25 * 24 * 3600 * 1000);
-    if (age < 14) { toast({ title: t("validAge"), variant: "destructive" }); return; }
+    if (age < 19) { toast({ title: "만 19세 이상만 이용 가능합니다", description: "본 서비스는 만 19세 이상 성인 전용입니다.", variant: "destructive" }); return; }
 
     setBusy(true);
     try {
@@ -64,6 +65,7 @@ export default function CompleteProfile() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <AdultOnlyBanner className="absolute top-0 left-0 right-0 z-20" />
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute -top-32 -right-32 w-[520px] h-[520px] bg-accent/25 blur-3xl blob" />
 

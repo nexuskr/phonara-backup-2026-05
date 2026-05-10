@@ -16,6 +16,7 @@ import { isFlagOn } from "@/lib/conversion-flags";
 import Disclaimer from "@/components/Disclaimer";
 import { track } from "@/lib/analytics";
 import { LuxButton } from "@/components/ui/lux";
+import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
 
 const tierStyles: Record<Pkg["tier"], { ring: string; bg: string; label: string }> = {
   FREE:    { ring: "from-muted to-muted",                bg: "from-muted/30",      label: "FREE" },
@@ -47,6 +48,7 @@ export default function Packages() {
 
   return (
     <Layout>
+      <AdultOnlyBanner />
       <HubTabs hub="empire" />
       <div className="container pt-6 pb-10 animate-liquid-in">
         <div className="mb-6">
