@@ -118,6 +118,9 @@ export default function Trust() {
       sb.rpc("policy_assertions_status").then(({ data, error: e }: any) => {
         if (!e) setAssertStatus((data as AssertionStatus) ?? null);
       });
+      sb.rpc("public_withdrawal_sla").then(({ data, error: e }: any) => {
+        if (!e) setPayoutSla((data as PayoutSla) ?? null);
+      });
       void prefetchTrust(historyDays);
     } catch (e: any) {
       setError(e?.message ?? t("loadFail"));
