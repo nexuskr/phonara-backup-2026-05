@@ -56,8 +56,9 @@ export default function ModeToggle({
             <span className={mode === "real" ? "text-amber-100" : "text-muted-foreground"}>REAL · 100×</span>
           </div>
           <div className={`mt-1 font-mono tabular-nums text-sm font-bold relative ${mode === "real" ? "text-amber-100" : "text-muted-foreground"}`}>
-            {fmt(realAvailable)} USDT
+            {fmtKrw(realAvailable)}
           </div>
+          <div className="text-[9px] mt-0.5 text-amber-300/70 uppercase tracking-wider relative">Empire Balance · 실제 자금</div>
         </button>
       </div>
 
