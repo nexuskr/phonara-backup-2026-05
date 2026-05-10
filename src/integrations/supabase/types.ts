@@ -3649,6 +3649,74 @@ export type Database = {
       }
       is_account_frozen: { Args: { _user_id: string }; Returns: boolean }
       latest_chaos_run: { Args: never; Returns: Json }
+      live_close_position: {
+        Args: { p_mark_price: number; p_position_id: string }
+        Returns: Json
+      }
+      live_get_history: {
+        Args: { p_limit?: number }
+        Returns: {
+          close_price: number
+          closed_at: string
+          entry: number
+          fee_close: number
+          fee_open: number
+          id: string
+          leverage: number
+          margin: number
+          opened_at: string
+          pnl: number
+          reason: string
+          roi: number
+          side: string
+          size: number
+          symbol: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "live_trade_history"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      live_get_open_positions: {
+        Args: never
+        Returns: {
+          entry: number
+          fee_open: number
+          id: string
+          leverage: number
+          liq_price: number
+          margin: number
+          opened_at: string
+          side: string
+          size: number
+          status: string
+          symbol: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "live_positions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      live_liquidate_position: {
+        Args: { p_mark_price: number; p_position_id: string }
+        Returns: Json
+      }
+      live_open_position: {
+        Args: {
+          p_leverage: number
+          p_margin: number
+          p_mark_price: number
+          p_side: string
+          p_symbol: string
+        }
+        Returns: string
+      }
       log_client_error: {
         Args: {
           _context?: Json
