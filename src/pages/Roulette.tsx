@@ -114,11 +114,12 @@ export default function Roulette() {
 
   return (
     <Layout>
+      <NearMissOverlay show={nearMiss} onClose={() => setNearMiss(false)} />
       <div className="container pt-6 pb-10 space-y-5 animate-liquid-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-imperial font-black text-2xl text-gradient-gold flex items-center gap-2 break-keep">
-              <Sparkles className="w-6 h-6 text-gold animate-pulse" /> {t("title")}
+              <Sparkles className="w-6 h-6 text-gold animate-pulse" /> 제국 대박 룰렛
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1 break-keep">{t("subtitle")}</p>
           </div>
