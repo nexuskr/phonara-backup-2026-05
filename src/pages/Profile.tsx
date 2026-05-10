@@ -23,8 +23,6 @@ type BadgeDef = {
 
 import ReferralCard from "@/components/ReferralCard";
 import NotificationPrefsCard from "@/components/profile/NotificationPrefsCard";
-import { Link } from "react-router-dom";
-import { ShieldCheck } from "lucide-react";
 import CoinMasterLounge from "@/components/CoinMasterLounge";
 
 export default function Profile() {
