@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { LoadingList } from "@/components/ui/loading-state";
 import MyDevices from "@/components/security/MyDevices";
+import MySecurityEvents from "@/components/security/MySecurityEvents";
 
 type Status = "complete" | "partial" | "missing";
 
@@ -198,6 +199,15 @@ export default function SecurityOverview() {
             내 디바이스
           </h2>
           <MyDevices />
+        </section>
+
+        {/* My Security Events */}
+        <section>
+          <h2 className="text-xs tracking-[0.25em] font-bold text-muted-foreground mb-3">
+            <ShieldAlert className="w-3 h-3 inline mr-1.5" />
+            보안 이벤트
+          </h2>
+          <MySecurityEvents />
         </section>
 
         {/* Recent activity */}
