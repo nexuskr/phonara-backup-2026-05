@@ -100,8 +100,10 @@ export default function GlobalIntelligence() {
     return list;
   }, [positionsAsLive, symbol]);
 
+  const setTrigger = useTriggerStore((s) => s.set);
+
   // Submit handler
-  const submit = useCallback(async ({ side, leverage, margin }: { side: "long"|"short"; leverage: number; margin: number }) => {
+  const submit = useCallback(async ({ side, leverage, margin, triggers }: { side: "long"|"short"; leverage: number; margin: number; triggers?: OrderTriggers }) => {
     if (!price) return notify.error("가격을 불러오는 중입니다.");
     if (margin <= 0) return notify.error("Margin을 입력하세요.");
 
@@ -110,6 +112,7 @@ export default function GlobalIntelligence() {
       const entry = applySlippage(side, price, true);
       const pos = paperOpen({ symbol, side, leverage, margin, entry });
       if (!pos) return notify.error("주문을 열 수 없습니다.");
+      if (triggers) setTrigger(pos.id, { ...triggers, peakRoiPct: 0 });
       notify.success(`${side === "long" ? "Long" : "Short"} 진입 (Paper)`, {
         description: `${symbol} ${leverage}× · ${margin} USDT`,
       });
@@ -123,12 +126,13 @@ export default function GlobalIntelligence() {
     try {
       const r = await realOpen({ symbol, side, leverage, margin: Math.floor(margin), mark: price });
       if ("error" in r) return notify.error(r.error);
+      if (triggers && "id" in r && typeof (r as any).id === "string") setTrigger((r as any).id, { ...triggers, peakRoiPct: 0 });
       notify.success(`${side === "long" ? "LONG" : "SHORT"} 진입 (REAL)`, {
         description: `${symbol} ${leverage}× · ${margin.toLocaleString()} USDT`,
       });
       track("cta_click", { surface: "real_trade", variant: side, meta: { symbol, leverage, margin } });
     } finally { setBusy(false); }
-  }, [mode, price, paperCredit, paperOpen, symbol, userId, realAvailable, realOpen]);
+  }, [mode, price, paperCredit, paperOpen, symbol, userId, realAvailable, realOpen, setTrigger]);
 
   // Close (paper or real)
   const closePos = useCallback(async (id: string, mark: number) => {
