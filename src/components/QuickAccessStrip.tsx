@@ -37,7 +37,7 @@ export default function QuickAccessStrip() {
     <div
       role="navigation"
       aria-label="초직관 6대 메뉴"
-      className="sticky top-14 md:top-16 z-30 glass border-b border-primary/15"
+      className="glass border-b border-primary/15"
     >
       <div className="container py-2">
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
