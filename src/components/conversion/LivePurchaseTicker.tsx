@@ -105,9 +105,6 @@ export default function LivePurchaseTicker() {
   const it = merged[idx % merged.length];
   if (!it) return null;
 
-  if (!isFlagOn("livePurchaseTicker") || items.length === 0) return null;
-  const it = items[idx];
-  if (!it) return null;
 
   return (
     <div className="fixed bottom-24 md:bottom-6 left-3 z-30">
