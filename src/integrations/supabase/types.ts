@@ -1436,6 +1436,78 @@ export type Database = {
         }
         Relationships: []
       }
+      position_trigger_audit: {
+        Row: {
+          created_at: string
+          entry: number
+          exit_price: number
+          id: string
+          leverage: number
+          margin: number
+          mark_price: number
+          metadata: Json
+          pnl: number
+          position_id: string
+          reason: string
+          roi: number
+          side: string
+          sl_pct: number | null
+          source: string
+          symbol: string
+          tp_pct: number | null
+          trailing_active: boolean
+          trailing_pct: number | null
+          trailing_peak_roi_pct: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry: number
+          exit_price: number
+          id?: string
+          leverage: number
+          margin: number
+          mark_price: number
+          metadata?: Json
+          pnl: number
+          position_id: string
+          reason: string
+          roi: number
+          side: string
+          sl_pct?: number | null
+          source?: string
+          symbol: string
+          tp_pct?: number | null
+          trailing_active?: boolean
+          trailing_pct?: number | null
+          trailing_peak_roi_pct?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry?: number
+          exit_price?: number
+          id?: string
+          leverage?: number
+          margin?: number
+          mark_price?: number
+          metadata?: Json
+          pnl?: number
+          position_id?: string
+          reason?: string
+          roi?: number
+          side?: string
+          sl_pct?: number | null
+          source?: string
+          symbol?: string
+          tp_pct?: number | null
+          trailing_active?: boolean
+          trailing_pct?: number | null
+          trailing_peak_roi_pct?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_confirmed: boolean
