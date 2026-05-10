@@ -247,7 +247,7 @@ export default function GlobalIntelligence() {
                   </Button>
                 )}
               </div>
-              <TradingHistoryGold history={history} />
+              <TradingHistoryGold history={history} unit={mode === "real" ? "KRW" : "USDT"} />
             </div>
             <div className="lg:col-span-2"><EquityCurveCard /></div>
             <div className="lg:col-span-2"><AchievementShowcase /></div>
