@@ -15,17 +15,29 @@ interface Props {
  * Color: emerald for positive, rose for negative.
  */
 function TotalPnLHeaderImpl({ positions, prices, unit }: Props) {
-  const { pnlUSDT, totalMargin } = useMemo(() => {
+  const { pnlUSDT, totalMargin, hasCross, equityUSDT, mmrPct } = useMemo(() => {
     let pnl = 0;
     let mg = 0;
+    let crossInitial = 0;
+    let crossUnrealized = 0;
+    let cross = false;
     for (const p of positions) {
       const mark = prices[p.symbol] ?? p.entry;
-      pnl += computePnl(p.side, p.entry, mark, p.size);
+      const ppnl = computePnl(p.side, p.entry, mark, p.size);
+      pnl += ppnl;
       mg += p.margin;
+      if (p.margin_mode === "cross") {
+        cross = true;
+        crossInitial += p.margin;
+        crossUnrealized += ppnl;
+      }
     }
-    // In real mode, margin is already in KRW credits (per Mode unit conventions).
-    // For display we surface USDT-equivalent: if unit=KRW, divide by reference rate.
-    return { pnlUSDT: unit === "KRW" ? pnl / KRW_PER_USDT : pnl, totalMargin: mg };
+    const pnlU = unit === "KRW" ? pnl / KRW_PER_USDT : pnl;
+    const crossInitialU = unit === "KRW" ? crossInitial / KRW_PER_USDT : crossInitial;
+    const crossUnrealU = unit === "KRW" ? crossUnrealized / KRW_PER_USDT : crossUnrealized;
+    const eq = crossInitialU + crossUnrealU;
+    const mmr = crossInitialU > 0 ? (eq / crossInitialU) * 100 : 0;
+    return { pnlUSDT: pnlU, totalMargin: mg, hasCross: cross, equityUSDT: eq, mmrPct: mmr };
   }, [positions, prices, unit]);
 
   const pnlKRW = pnlUSDT * KRW_PER_USDT;
