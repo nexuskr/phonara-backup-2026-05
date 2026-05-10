@@ -226,6 +226,7 @@ export default function Index() {
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2">{t("megaSub")}</p>
           <LivePayoutSlaBadge />
+          <LivePulseStrip />
         </div>
       </section>
 
