@@ -345,6 +345,7 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
           v={fmtMoney(fee, unit, { decimals: unit === "USDT" ? 4 : 0 })}
           sub={`≈ ${fmtMoney(approxCross(fee, unit).value, approxCross(fee, unit).unit, { decimals: approxCross(fee, unit).unit === "USDT" ? 4 : 0 })}`}
           tone="warn"
+          tooltip={`Taker 수수료 0.1% × 명목가치(=증거금×레버리지)\n진입+청산 양쪽 각각 부과됩니다.\n예: 증거금 ${fmtMoney(marginNum, unit, { decimals: unit === "USDT" ? 2 : 0 })} × ${leverage}× × 0.1% = ${fmtMoney(fee, unit, { decimals: unit === "USDT" ? 4 : 0 })}\n하단 환산값은 USDT/KRW 자동 변환(1 USDT ≈ 1,400 KRW 기준).`}
         />
       </div>
 
