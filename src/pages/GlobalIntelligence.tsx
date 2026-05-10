@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Layout from "@/components/Layout";
 import RedDisclaimerBanner from "@/components/trading/RedDisclaimerBanner";
 import ModeToggle from "@/components/trading/ModeToggle";
-import LightweightChartPanel from "@/components/trading/LightweightChartPanel";
+import ChartWithHeader from "@/components/trading/ChartWithHeader";
 import MegaOrderPanel from "@/components/trading/MegaOrderPanel";
 import OpenPositionsLive from "@/components/trading/OpenPositionsLive";
 import TradingHistoryGold from "@/components/trading/TradingHistoryGold";
@@ -40,7 +40,7 @@ export default function GlobalIntelligence() {
   const userId = session?.user?.id;
   const { wallet } = useWallet(userId);
 
-  const { prices, status } = useBybitTicker();
+  const { prices, stats, status } = useBybitTicker();
   const [mode, setMode] = useState<Mode>("paper");
   const [symbol, setSymbol] = useState<string>("BTCUSDT");
   const [busy, setBusy] = useState(false);
@@ -212,7 +212,7 @@ export default function GlobalIntelligence() {
 
           <div className="grid lg:grid-cols-2 gap-4">
             <div className="lg:col-span-2">
-              <LightweightChartPanel symbol={symbol} price={price} overlays={overlays} height={320} />
+              <ChartWithHeader symbol={symbol} setSymbol={setSymbol} price={price} stat={stats[symbol]} overlays={overlays} height={380} />
             </div>
             <div className="lg:col-span-2">
               <MegaOrderPanel

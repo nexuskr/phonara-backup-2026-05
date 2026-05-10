@@ -1,12 +1,24 @@
 import { SYMBOLS } from "./types";
 
+export interface TickerStat {
+  last: number;
+  change24hPct: number; // -100..+inf, percent
+  volume24h: number; // base volume
+  turnover24h: number; // quote volume (USDT)
+  high24h: number;
+  low24h: number;
+}
+
 type PriceListener = (priceMap: Record<string, number>) => void;
+type StatsListener = (stats: Record<string, TickerStat>) => void;
 type StatusListener = (s: "connecting" | "open" | "reconnecting" | "rest-fallback") => void;
 
 class BybitFeed {
   private ws: WebSocket | null = null;
   private prices: Record<string, number> = {};
+  private stats: Record<string, TickerStat> = {};
   private listeners = new Set<PriceListener>();
+  private statsListeners = new Set<StatsListener>();
   private statusListeners = new Set<StatusListener>();
   private reconnectTimer: number | null = null;
   private pingTimer: number | null = null;
@@ -36,8 +48,10 @@ class BybitFeed {
   }
 
   onPrices(fn: PriceListener) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
+  onStats(fn: StatsListener) { this.statsListeners.add(fn); return () => this.statsListeners.delete(fn); }
   onStatus(fn: StatusListener) { this.statusListeners.add(fn); return () => this.statusListeners.delete(fn); }
   getPrices() { return { ...this.prices }; }
+  getStats() { return { ...this.stats }; }
 
   private emit() {
     this.dirty = true;
@@ -46,11 +60,18 @@ class BybitFeed {
       this.emitTimer = null;
       if (!this.dirty) return;
       this.dirty = false;
-      const snap = { ...this.prices };
-      for (const fn of this.listeners) fn(snap);
+      const psnap = { ...this.prices };
+      const ssnap = { ...this.stats };
+      for (const fn of this.listeners) fn(psnap);
+      for (const fn of this.statsListeners) fn(ssnap);
     }, 120);
   }
   private status(s: Parameters<StatusListener>[0]) { for (const fn of this.statusListeners) fn(s); }
+
+  private updateStat(sym: string, partial: Partial<TickerStat>) {
+    const prev = this.stats[sym] ?? { last: 0, change24hPct: 0, volume24h: 0, turnover24h: 0, high24h: 0, low24h: 0 };
+    this.stats[sym] = { ...prev, ...partial };
+  }
 
   private connect() {
     if (!this.alive) return;
@@ -84,6 +105,19 @@ class BybitFeed {
             const last = parseFloat(d.lastPrice ?? d.markPrice);
             if (sym && Number.isFinite(last) && last > 0) {
               this.prices[sym] = last;
+              const change = parseFloat(d.price24hPcnt);
+              const vol = parseFloat(d.volume24h);
+              const turn = parseFloat(d.turnover24h);
+              const hi = parseFloat(d.highPrice24h);
+              const lo = parseFloat(d.lowPrice24h);
+              this.updateStat(sym, {
+                last,
+                ...(Number.isFinite(change) ? { change24hPct: change * 100 } : {}),
+                ...(Number.isFinite(vol) ? { volume24h: vol } : {}),
+                ...(Number.isFinite(turn) ? { turnover24h: turn } : {}),
+                ...(Number.isFinite(hi) ? { high24h: hi } : {}),
+                ...(Number.isFinite(lo) ? { low24h: lo } : {}),
+              });
               this.emit();
             }
           }
@@ -115,11 +149,26 @@ class BybitFeed {
         if (wl.has(r.symbol)) {
           const last = parseFloat(r.lastPrice);
           if (Number.isFinite(last) && last > 0) this.prices[r.symbol] = last;
+          const change = parseFloat(r.price24hPcnt);
+          const vol = parseFloat(r.volume24h);
+          const turn = parseFloat(r.turnover24h);
+          const hi = parseFloat(r.highPrice24h);
+          const lo = parseFloat(r.lowPrice24h);
+          this.updateStat(r.symbol, {
+            ...(Number.isFinite(last) && last > 0 ? { last } : {}),
+            ...(Number.isFinite(change) ? { change24hPct: change * 100 } : {}),
+            ...(Number.isFinite(vol) ? { volume24h: vol } : {}),
+            ...(Number.isFinite(turn) ? { turnover24h: turn } : {}),
+            ...(Number.isFinite(hi) ? { high24h: hi } : {}),
+            ...(Number.isFinite(lo) ? { low24h: lo } : {}),
+          });
         }
       }
       this.emit();
     } catch {}
   }
+
+
 
   private startRestFallback() {
     if (this.restMode) return;
