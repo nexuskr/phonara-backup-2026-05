@@ -66,10 +66,10 @@ export default function BotStrengthAdmin() {
     });
     setSaving(false);
     if (error) {
-      notify.error("저장 실패", error.message);
+      notify.error("저장 실패", { description: error.message });
       return;
     }
-    notify.success("봇 강도 적용됨", `${pct}% / ${enabled ? "ON" : "OFF"}`);
+    notify.success("봇 강도 적용됨", { description: `${pct}% / ${enabled ? "ON" : "OFF"}` });
     if (data) setS(data as BotSettings);
     void load();
   }
