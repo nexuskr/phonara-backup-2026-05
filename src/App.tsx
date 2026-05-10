@@ -27,6 +27,7 @@ const Support = lazy(() => import("./pages/Support.tsx"));
 const Guide = lazy(() => import("./pages/Guide.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminCockpit = lazy(() => import("./pages/admin/Cockpit.tsx"));
+const AdminOpsReport = lazy(() => import("./pages/admin/OpsReport.tsx"));
 const SecureAuth = lazy(() => import("./pages/SecureAuth.tsx"));
 const SecureWallet = lazy(() => import("./pages/SecureWallet.tsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
@@ -107,6 +108,7 @@ const App = () => (
               <Route path="/guide" element={<Guide />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/cockpit" element={<AdminCockpit />} />
+              <Route path="/admin/ops-report" element={<AdminOpsReport />} />
               <Route path="/secure-auth" element={<SecureAuth />} />
               <Route path="/secure-wallet" element={<SecureWallet />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
