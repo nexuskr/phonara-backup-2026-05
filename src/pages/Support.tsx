@@ -72,14 +72,32 @@ export default function Support() {
   }, [nav, user, db.user?.nickname]);
 
   async function send() {
-    if (!text.trim() || !threadId || !authUid) return;
+    if (!text.trim() || !threadId || !authUid || aiBusy) return;
     const t = text.trim(); setText("");
     await supabase.from("support_messages").insert({
       thread_id: threadId, user_id: authUid, sender: "user", message: t,
     });
     await supabase.from("support_threads").update({
-      last_message: t, last_message_at: new Date().toISOString(), unread_admin: (messages.filter(m=>m.sender==='user').length+1),
+      last_message: t, last_message_at: new Date().toISOString(),
     }).eq("id", threadId);
+
+    // Trigger AI 1차 응답
+    setAiBusy(true);
+    try {
+      const { error } = await supabase.functions.invoke("ai-support-reply", {
+        body: { thread_id: threadId, message: t },
+      });
+      if (error) {
+        const status = (error as any)?.context?.status;
+        if (status === 429) console.warn("AI rate limited");
+        else if (status === 402) console.warn("AI credits exhausted");
+        else console.error("ai-support-reply error:", error);
+      }
+    } catch (e) {
+      console.error("ai-support-reply invoke failed:", e);
+    } finally {
+      setAiBusy(false);
+    }
   }
 
   if (!user) return null;
