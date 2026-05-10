@@ -102,6 +102,13 @@ interface RowProps {
   onClose: (id: string, mark: number) => Promise<CloseResult | CloseError>;
 }
 
+function priceFromRoi(side: "long" | "short", entry: number, leverage: number, roiPct: number) {
+  // change = roiPct/100 / leverage; price = entry * (1 + (side=long ? change : -change))
+  if (entry <= 0 || leverage <= 0) return 0;
+  const change = (roiPct / 100) / leverage;
+  return side === "long" ? entry * (1 + change) : entry * (1 - change);
+}
+
 function PositionRowImpl({ position: p, mark, busy, unit, onClose }: RowProps) {
   const fmt = fmtFn(unit);
   const pnl = computePnl(p.side, p.entry, mark, p.size);
@@ -109,6 +116,14 @@ function PositionRowImpl({ position: p, mark, busy, unit, onClose }: RowProps) {
   const liqPct = liquidationProgress(p.side, p.entry, mark, p.leverage);
   const nearMiss = roi <= -0.85 && roi > -0.99;
   const positive = pnl >= 0;
+
+  const triggers = useTriggerStore((s) => s.triggers[p.id]);
+  const removeTrigger = useTriggerStore((s) => s.remove);
+  const tpPrice = triggers?.tpPct ? priceFromRoi(p.side, p.entry, p.leverage, triggers.tpPct) : 0;
+  const slPrice = triggers?.slPct ? priceFromRoi(p.side, p.entry, p.leverage, -triggers.slPct) : 0;
+
+  // Distance-to-SL in % of price
+  const slDistPct = slPrice > 0 ? ((mark - slPrice) / mark) * 100 : 0;
 
   return (
     <div
@@ -164,6 +179,35 @@ function PositionRowImpl({ position: p, mark, busy, unit, onClose }: RowProps) {
         {nearMiss && <span className="text-red-400 font-black flex items-center gap-1"><Heart className="w-3 h-3 animate-pulse" /> NEAR LIQUIDATION</span>}
         <span>{(liqPct * 100).toFixed(1)}% to liq</span>
       </div>
+
+      {/* SL/TP/Trailing badges */}
+      {triggers && (triggers.tpPct || triggers.slPct || triggers.trailingPct) && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[10px] pt-1 border-t border-border/40">
+          {triggers.tpPct ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-mono tabular-nums">
+              <Target className="w-3 h-3" /> TP +{triggers.tpPct}% <span className="opacity-70">@{tpPrice.toFixed(4)}</span>
+            </span>
+          ) : null}
+          {triggers.slPct ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-300 font-mono tabular-nums">
+              <ShieldCheck className="w-3 h-3" /> SL −{triggers.slPct}% <span className="opacity-70">@{slPrice.toFixed(4)}</span>
+              {slDistPct !== 0 && <span className="opacity-60">({slDistPct >= 0 ? "+" : ""}{slDistPct.toFixed(2)}%)</span>}
+            </span>
+          ) : null}
+          {triggers.trailingPct ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-200 font-mono tabular-nums">
+              <TUp className="w-3 h-3" /> Trail −{triggers.trailingPct}%
+              {triggers.peakRoiPct ? <span className="opacity-70">peak {triggers.peakRoiPct.toFixed(1)}%</span> : null}
+            </span>
+          ) : null}
+          <button
+            onClick={() => removeTrigger(p.id)}
+            className="ml-auto text-[10px] text-muted-foreground/70 hover:text-foreground underline"
+          >
+            clear
+          </button>
+        </div>
+      )}
     </div>
   );
 }
