@@ -16,7 +16,15 @@ export interface OrderTriggers {
   slPct?: number;
   /** Trailing stop drawdown percent from peak ROI (e.g. 10 means trail at -10% from peak ROI). */
   trailingPct?: number;
+  /** Absolute take-profit price. */
+  tpPrice?: number;
+  /** Absolute stop-loss price. */
+  slPrice?: number;
+  /** Absolute trailing offset (price units from peak). */
+  trailingOffset?: number;
 }
+
+export type MarginMode = "isolated" | "cross";
 
 interface Props {
   mode: Mode;
@@ -24,7 +32,14 @@ interface Props {
   setSymbol: (s: string) => void;
   price: number;
   balance: number;
-  onSubmit: (args: { side: "long" | "short"; leverage: number; margin: number; triggers?: OrderTriggers }) => void;
+  onSubmit: (args: {
+    side: "long" | "short";
+    leverage: number;
+    margin: number;
+    triggers?: OrderTriggers;
+    marginMode: MarginMode;
+    allocatedMargin?: number;
+  }) => void;
   busy?: boolean;
 }
 
