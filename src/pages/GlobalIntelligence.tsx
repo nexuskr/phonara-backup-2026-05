@@ -6,10 +6,14 @@ import RedDisclaimerBanner from "@/components/trading/RedDisclaimerBanner";
 import ModeToggle from "@/components/trading/ModeToggle";
 import ChartWithHeader from "@/components/trading/ChartWithHeader";
 import MegaOrderPanel from "@/components/trading/MegaOrderPanel";
+import type { OrderTriggers } from "@/components/trading/MegaOrderPanel";
 import OpenPositionsLive from "@/components/trading/OpenPositionsLive";
 import TradingHistoryGold from "@/components/trading/TradingHistoryGold";
 import ComboStreakHUD from "@/components/trading/ComboStreakHUD";
 import DopamineLayer, { triggerFx } from "@/components/trading/DopamineLayer";
+import TotalPnLHeader from "@/components/trading/TotalPnLHeader";
+import { useTriggerStore } from "@/lib/trading/triggers-store";
+import { usePositionTriggerWatcher } from "@/hooks/use-position-trigger-watcher";
 import LiveCounterRow from "@/components/intelligence/LiveCounterRow";
 import DecisionCoreCard from "@/components/intelligence/DecisionCoreCard";
 import EquityCurveCard from "@/components/intelligence/EquityCurveCard";
@@ -96,8 +100,10 @@ export default function GlobalIntelligence() {
     return list;
   }, [positionsAsLive, symbol]);
 
+  const setTrigger = useTriggerStore((s) => s.set);
+
   // Submit handler
-  const submit = useCallback(async ({ side, leverage, margin }: { side: "long"|"short"; leverage: number; margin: number }) => {
+  const submit = useCallback(async ({ side, leverage, margin, triggers }: { side: "long"|"short"; leverage: number; margin: number; triggers?: OrderTriggers }) => {
     if (!price) return notify.error("가격을 불러오는 중입니다.");
     if (margin <= 0) return notify.error("Margin을 입력하세요.");
 
@@ -106,6 +112,7 @@ export default function GlobalIntelligence() {
       const entry = applySlippage(side, price, true);
       const pos = paperOpen({ symbol, side, leverage, margin, entry });
       if (!pos) return notify.error("주문을 열 수 없습니다.");
+      if (triggers) setTrigger(pos.id, { ...triggers, peakRoiPct: 0 });
       notify.success(`${side === "long" ? "Long" : "Short"} 진입 (Paper)`, {
         description: `${symbol} ${leverage}× · ${margin} USDT`,
       });
@@ -119,12 +126,13 @@ export default function GlobalIntelligence() {
     try {
       const r = await realOpen({ symbol, side, leverage, margin: Math.floor(margin), mark: price });
       if ("error" in r) return notify.error(r.error);
+      if (triggers && "id" in r && typeof (r as any).id === "string") setTrigger((r as any).id, { ...triggers, peakRoiPct: 0 });
       notify.success(`${side === "long" ? "LONG" : "SHORT"} 진입 (REAL)`, {
         description: `${symbol} ${leverage}× · ${margin.toLocaleString()} USDT`,
       });
       track("cta_click", { surface: "real_trade", variant: side, meta: { symbol, leverage, margin } });
     } finally { setBusy(false); }
-  }, [mode, price, paperCredit, paperOpen, symbol, userId, realAvailable, realOpen]);
+  }, [mode, price, paperCredit, paperOpen, symbol, userId, realAvailable, realOpen, setTrigger]);
 
   // Close (paper or real)
   const closePos = useCallback(async (id: string, mark: number) => {
@@ -178,6 +186,13 @@ export default function GlobalIntelligence() {
 
   const combo = mode === "real" ? realCombo : paperCombo;
 
+  // Client-side SL/TP/Trailing enforcement (works for both Paper & Real).
+  usePositionTriggerWatcher({
+    positions: positionsAsLive,
+    prices,
+    onClose: (id, mark) => closePos(id, mark),
+  });
+
   return (
     <>
       <Layout>
@@ -210,6 +225,9 @@ export default function GlobalIntelligence() {
           <DecisionCoreCard onPick={(o) => { if (o.symbol) setSymbol(o.symbol); }} />
 
           <div className="grid lg:grid-cols-2 gap-4">
+            <div className="lg:col-span-2">
+              <TotalPnLHeader positions={positionsAsLive} prices={prices} unit={mode === "real" ? "KRW" : "USDT"} />
+            </div>
             <div className="lg:col-span-2">
               <ChartWithHeader symbol={symbol} setSymbol={setSymbol} price={price} stat={stats[symbol]} overlays={overlays} height={380} />
             </div>
