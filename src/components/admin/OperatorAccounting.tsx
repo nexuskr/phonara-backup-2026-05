@@ -46,7 +46,7 @@ export default function OperatorAccounting() {
   }, [range]);
 
   if (loading) return <LoadingList rows={4} />;
-  if (!data) return <EmptyState icon={ShieldCheck} title="회계 데이터 없음" description="기간을 다시 선택해 주세요." />;
+  if (!data) return <EmptyState icon={<ShieldCheck className="w-6 h-6" />} title="회계 데이터 없음" description="기간을 다시 선택해 주세요." />;
 
   return (
     <div className="space-y-4">
