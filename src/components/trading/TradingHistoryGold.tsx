@@ -2,7 +2,10 @@ import { Flame, Trophy, Skull } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { LiveTrade } from "@/lib/trading/types";
 
-export default function TradingHistoryGold({ history }: { history: LiveTrade[] }) {
+export default function TradingHistoryGold({ history, unit = "USDT" }: { history: LiveTrade[]; unit?: "USDT" | "KRW" }) {
+  const fmt = (n: number) => unit === "KRW"
+    ? `${n < 0 ? "-" : ""}₩${Math.abs(Math.floor(n)).toLocaleString()}`
+    : `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT`;
   if (!history.length) {
     return (
       <EmptyState
