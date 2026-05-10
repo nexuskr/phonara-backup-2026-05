@@ -130,6 +130,7 @@ const App = () => (
               <Route path="/infrastructure" element={<Infrastructure />} />
               <Route path="/intelligence-loop" element={<IntelligenceLoop />} />
               <Route path="/vision" element={<Vision />} />
+              <Route path="/global/live" element={<GlobalLive />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
