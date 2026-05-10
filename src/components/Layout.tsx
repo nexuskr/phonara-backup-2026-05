@@ -26,6 +26,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import FreezeBanner from "./FreezeBanner";
 import { useAchievementWatcher } from "@/hooks/use-achievement-watcher";
 import NeonNotificationFeed from "./NeonNotificationFeed";
+import QuickAccessStrip from "./QuickAccessStrip";
 
 /**
  * Phonara — Empire 5축 IA
@@ -200,6 +201,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+
+      {/* Phase 2 — 초직관 6대 메뉴 (로그인 사용자 전용, 데스크탑/모바일 공통) */}
+      {user && <QuickAccessStrip />}
 
       {/* Mobile secondary nav — extra destinations not in bottom 5-tab bar */}
       {user && (
