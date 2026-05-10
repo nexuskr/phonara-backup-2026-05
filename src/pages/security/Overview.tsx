@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { LoadingList } from "@/components/ui/loading-state";
 import MyDevices from "@/components/security/MyDevices";
+import MySecurityEvents from "@/components/security/MySecurityEvents";
 
 type Status = "complete" | "partial" | "missing";
 
