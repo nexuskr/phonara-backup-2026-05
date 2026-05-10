@@ -52,17 +52,22 @@ class BybitFeed {
 
   private reconnectTimer: number | null = null;
   private pingTimer: number | null = null;
+  private pongWatchdog: number | null = null;
   private restTimer: number | null = null;
   private alive = true;
   private restMode = false;
   private started = false;
   private dirty = false;
   private emitScheduled = false;
+  private reconnectAttempt = 0;
+  private lastMessageAt = 0;
+  private visibilityBound = false;
 
   start() {
     if (this.started) return;
     this.started = true;
     this.alive = true;
+    this.bindVisibility();
     this.fetchRestOnce();
     this.connect();
   }
@@ -71,9 +76,27 @@ class BybitFeed {
     this.alive = false;
     if (this.reconnectTimer) window.clearTimeout(this.reconnectTimer);
     if (this.pingTimer) window.clearInterval(this.pingTimer);
+    if (this.pongWatchdog) window.clearInterval(this.pongWatchdog);
     if (this.restTimer) window.clearInterval(this.restTimer);
     try { this.ws?.close(); } catch {}
     this.ws = null;
+  }
+
+  private bindVisibility() {
+    if (this.visibilityBound || typeof document === "undefined") return;
+    this.visibilityBound = true;
+    const kick = () => {
+      if (!this.alive) return;
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        if (this.reconnectTimer) { window.clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
+        this.reconnectAttempt = 0;
+        this.connect();
+      }
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") kick();
+    });
+    window.addEventListener("online", kick);
   }
 
   onPrices(fn: PriceListener) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
