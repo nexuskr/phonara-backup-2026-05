@@ -6,6 +6,8 @@ import { toast } from "@/hooks/use-toast";
 import { Sparkles, Crown, History as HistoryIcon, Gift } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LuxButton, Money } from "@/components/ui/lux";
+import { JackpotEmpireBanner } from "@/components/empire/JackpotEmpireBanner";
+import { NearMissOverlay } from "@/components/empire/NearMissOverlay";
 
 const SEG_DEG = 360 / 8;
 
@@ -22,6 +24,7 @@ export default function Roulette() {
   const [lastResult, setLastResult] = useState<{ label: string; amount: number; segment: number } | null>(null);
   const [pulling, setPulling] = useState(false);
   const [gachaResult, setGachaResult] = useState<{ grade: string; label: string; amount: number; profit: number } | null>(null);
+  const [nearMiss, setNearMiss] = useState(false);
 
   const SEGMENTS = [
     { label: t("seg0"), color: "hsl(var(--muted))" },
@@ -70,8 +73,16 @@ export default function Roulette() {
     setTimeout(() => {
       setSpinning(false);
       setLastResult({ label: res.label, amount: res.amount, segment: res.segment });
-      if (res.amount > 0) toast({ title: `🎉 ${res.label}`, description: `+${formatKRW(res.amount)}` });
-      else toast({ title: t("tryAgain"), description: res.label });
+      // Near-miss: 잭팟 칸(5,6,7) 인접하지만 비잭팟이면 위기탈출 연출
+      const jackpotSegs = new Set([5, 6, 7]);
+      const adjacentToJackpot = [4, 0].includes(res.segment); // 인접 칸(7→0 wrap, 5←4)
+      if (!jackpotSegs.has(res.segment) && adjacentToJackpot) {
+        setNearMiss(true);
+      } else if (res.amount > 0) {
+        toast({ title: `🎉 ${res.label}`, description: `+${formatKRW(res.amount)}` });
+      } else {
+        toast({ title: t("tryAgain"), description: res.label });
+      }
       loadAll();
     }, 4200);
   }
@@ -103,11 +114,12 @@ export default function Roulette() {
 
   return (
     <Layout>
+      <NearMissOverlay show={nearMiss} onClose={() => setNearMiss(false)} />
       <div className="container pt-6 pb-10 space-y-5 animate-liquid-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-imperial font-black text-2xl text-gradient-gold flex items-center gap-2 break-keep">
-              <Sparkles className="w-6 h-6 text-gold animate-pulse" /> {t("title")}
+              <Sparkles className="w-6 h-6 text-gold animate-pulse" /> 제국 대박 룰렛
             </h1>
             <p className="text-[11px] text-muted-foreground mt-1 break-keep">{t("subtitle")}</p>
           </div>
@@ -118,6 +130,9 @@ export default function Roulette() {
             </div>
           )}
         </div>
+
+        {/* P6-1: Empire Jackpot Pool Banner + Live Bot Feed */}
+        <JackpotEmpireBanner />
 
         {/* Wheel */}
         <div className="glass-strong rounded-3xl p-6 neon-border relative overflow-hidden">
