@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 import { useDB } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { useRequireAuth } from "@/hooks/use-require-auth";
-import { Send, MessageSquare, ChevronDown, BookOpen } from "lucide-react";
+import { Send, MessageSquare, ChevronDown, BookOpen, Sparkles } from "lucide-react";
 import { LuxButton, LuxInput, LuxChip } from "@/components/ui/lux";
 
 const FAQ_KEYS = [
@@ -17,7 +17,7 @@ const FAQ_KEYS = [
   { q: "q6", a: "a6" },
 ] as const;
 
-type Msg = { id: string; sender: "user" | "admin"; message: string; created_at: string };
+type Msg = { id: string; sender: "user" | "admin" | "ai" | "system"; message: string; created_at: string };
 
 export default function Support() {
   const { t, i18n } = useTranslation("support");
