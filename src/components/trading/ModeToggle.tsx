@@ -17,6 +17,7 @@ export default function ModeToggle({
   const [agreed, setAgreed] = useState(false);
 
   const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const fmtKrw = (n: number) => `₩${Math.floor(n).toLocaleString()}`;
 
   return (
     <>
@@ -34,8 +35,9 @@ export default function ModeToggle({
             <span className={mode === "paper" ? "text-cyan-200" : "text-muted-foreground"}>PAPER</span>
           </div>
           <div className={`mt-1 font-mono tabular-nums text-sm font-bold ${mode === "paper" ? "text-cyan-100" : "text-muted-foreground"}`}>
-            {fmt(paperBalance)} USDT
+            {fmt(paperBalance)} <span className="text-[10px] opacity-70">USDT</span>
           </div>
+          <div className="text-[9px] mt-0.5 text-muted-foreground/60 uppercase tracking-wider">시뮬레이션</div>
         </button>
 
         <button
@@ -54,8 +56,9 @@ export default function ModeToggle({
             <span className={mode === "real" ? "text-amber-100" : "text-muted-foreground"}>REAL · 100×</span>
           </div>
           <div className={`mt-1 font-mono tabular-nums text-sm font-bold relative ${mode === "real" ? "text-amber-100" : "text-muted-foreground"}`}>
-            {fmt(realAvailable)} USDT
+            {fmtKrw(realAvailable)}
           </div>
+          <div className="text-[9px] mt-0.5 text-amber-300/70 uppercase tracking-wider relative">Empire Balance · 실제 자금</div>
         </button>
       </div>
 

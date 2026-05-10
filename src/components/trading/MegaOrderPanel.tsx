@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ARENA_SYMBOLS, MAX_LEVERAGE, type Mode } from "@/lib/trading/types";
 import { applySlippage, computeSize, liquidationPrice, openFee } from "@/lib/trading/engine";
 import { sfx } from "@/lib/trading/sounds";
+import { unitForMode, fmtMoney, approxCross } from "@/lib/trading/currency";
 
 interface Props {
   mode: Mode;
@@ -19,11 +20,21 @@ interface Props {
 }
 
 export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance, onSubmit, busy }: Props) {
+  const unit = unitForMode(mode);
   const [leverage, setLeverage] = useState(20);
-  const [margin, setMargin] = useState("100");
+  const [margin, setMargin] = useState(unit === "KRW" ? "100000" : "100");
+
+  // Reset margin default when mode/unit changes
+  useEffect(() => {
+    setMargin(unit === "KRW" ? "100000" : "100");
+  }, [unit]);
 
   const marginNum = Math.max(0, parseFloat(margin) || 0);
-  const setPct = (p: number) => setMargin(Math.max(0, Math.floor(balance * p * 100) / 100).toString());
+  const setPct = (p: number) => {
+    const raw = balance * p;
+    const v = unit === "KRW" ? Math.floor(raw) : Math.floor(raw * 100) / 100;
+    setMargin(Math.max(0, v).toString());
+  };
 
   const longEntry = useMemo(() => price ? applySlippage("long", price, true) : 0, [price]);
   const shortEntry = useMemo(() => price ? applySlippage("short", price, true) : 0, [price]);
@@ -32,6 +43,7 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
   const liqLong = useMemo(() => liquidationPrice("long", longEntry, leverage), [longEntry, leverage]);
   const liqShort = useMemo(() => liquidationPrice("short", shortEntry, leverage), [shortEntry, leverage]);
   const fee = useMemo(() => openFee(marginNum, leverage), [marginNum, leverage]);
+  const cross = approxCross(marginNum, unit);
 
   const heat = leverage / MAX_LEVERAGE; // 0..1
   const hot = heat >= 0.5;
@@ -81,7 +93,10 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
       {/* Margin */}
       <div>
         <div className="flex items-baseline justify-between">
-          <label className="text-xs text-muted-foreground">Margin (USDT)</label>
+          <label className="text-xs text-muted-foreground">
+            Margin ({unit === "KRW" ? "원화 / KRW" : "USDT"})
+            <span className="ml-2 text-[10px] text-muted-foreground/70">잔액 {fmtMoney(balance, unit)}</span>
+          </label>
           <div className="flex gap-1">
             {[0.25, 0.5, 0.75, 1].map((p) => (
               <button
@@ -103,6 +118,9 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
           value={margin} onChange={(e) => setMargin(e.target.value)}
           className="mt-1 bg-background/60 text-lg font-mono tabular-nums font-bold"
         />
+        <div className="mt-1 text-[10px] text-muted-foreground/70">
+          ≈ {fmtMoney(cross.value, cross.unit, { decimals: cross.unit === "USDT" ? 2 : 0 })}
+        </div>
       </div>
 
       {/* Leverage */}
@@ -134,7 +152,7 @@ export default function MegaOrderPanel({ mode, symbol, setSymbol, price, balance
         <Stat label="Long Liq" v={liqLong.toFixed(4)} tone="loss" />
         <Stat label="Short Liq" v={liqShort.toFixed(4)} tone="loss" />
         <Stat label="Size" v={`${sizeLong.toFixed(4)}/${sizeShort.toFixed(4)}`} />
-        <Stat label="Fee 0.1%" v={fee.toLocaleString()} tone="warn" />
+        <Stat label={`Fee 0.1% (${unit})`} v={fmtMoney(fee, unit, { decimals: 0 })} tone="warn" />
       </div>
 
       {/* Big buttons */}

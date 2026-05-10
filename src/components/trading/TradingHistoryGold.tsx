@@ -2,7 +2,10 @@ import { Flame, Trophy, Skull } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { LiveTrade } from "@/lib/trading/types";
 
-export default function TradingHistoryGold({ history }: { history: LiveTrade[] }) {
+export default function TradingHistoryGold({ history, unit = "USDT" }: { history: LiveTrade[]; unit?: "USDT" | "KRW" }) {
+  const fmt = (n: number) => unit === "KRW"
+    ? `${n < 0 ? "-" : ""}₩${Math.abs(Math.floor(n)).toLocaleString()}`
+    : `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT`;
   if (!history.length) {
     return (
       <EmptyState
@@ -46,7 +49,7 @@ export default function TradingHistoryGold({ history }: { history: LiveTrade[] }
               <span className="font-mono tabular-nums text-foreground">{Number(t.close_price).toFixed(4)}</span>
             </div>
             <div className={`font-mono tabular-nums font-black ${pos ? "text-emerald-400" : "text-rose-400"}`}>
-              {pos ? "+" : ""}{t.pnl.toLocaleString()}
+              {pos ? "+" : ""}{fmt(t.pnl)}
             </div>
             <div className={`font-mono tabular-nums ${pos ? "text-emerald-400" : "text-rose-400"}`}>
               {(Number(t.roi) * 100).toFixed(1)}%
