@@ -83,6 +83,7 @@ export default function Trust() {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [historyDays, setHistoryDays] = useState<7 | 30>(30);
   const [assertStatus, setAssertStatus] = useState<AssertionStatus>(null);
+  const [payoutSla, setPayoutSla] = useState<PayoutSla>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
