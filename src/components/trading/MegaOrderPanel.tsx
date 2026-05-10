@@ -378,10 +378,13 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
 
 export default memo(MegaOrderPanelImpl);
 
-function Stat({ label, v, sub, tone }: { label: string; v: string; sub?: string; tone?: "loss" | "warn" }) {
+function Stat({ label, v, sub, tone, tooltip }: { label: string; v: string; sub?: string; tone?: "loss" | "warn"; tooltip?: string }) {
   return (
-    <div className="rounded-xl bg-background/40 border border-border/40 p-2">
-      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
+    <div className="rounded-xl bg-background/40 border border-border/40 p-2" title={tooltip}>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+        <span>{label}</span>
+        {tooltip && <span aria-hidden className="inline-flex items-center justify-center w-3 h-3 rounded-full border border-muted-foreground/40 text-[8px] font-bold cursor-help">?</span>}
+      </div>
       <div className={`font-mono tabular-nums font-bold mt-0.5 text-sm ${
         tone === "loss" ? "text-rose-300" : tone === "warn" ? "text-amber-300" : "text-foreground"
       }`}>{v}</div>
