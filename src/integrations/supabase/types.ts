@@ -872,6 +872,24 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_fund: {
+        Row: {
+          accumulated: number
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          accumulated?: number
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          accumulated?: number
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jackpot_pool: {
         Row: {
           amount: number
@@ -899,6 +917,108 @@ export type Database = {
           last_won_amount?: number | null
           last_won_at?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      live_positions: {
+        Row: {
+          entry: number
+          fee_open: number
+          id: string
+          leverage: number
+          liq_price: number
+          margin: number
+          opened_at: string
+          side: string
+          size: number
+          status: string
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          entry: number
+          fee_open?: number
+          id?: string
+          leverage: number
+          liq_price: number
+          margin: number
+          opened_at?: string
+          side: string
+          size: number
+          status?: string
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          entry?: number
+          fee_open?: number
+          id?: string
+          leverage?: number
+          liq_price?: number
+          margin?: number
+          opened_at?: string
+          side?: string
+          size?: number
+          status?: string
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      live_trade_history: {
+        Row: {
+          close_price: number
+          closed_at: string
+          entry: number
+          fee_close: number
+          fee_open: number
+          id: string
+          leverage: number
+          margin: number
+          opened_at: string
+          pnl: number
+          reason: string
+          roi: number
+          side: string
+          size: number
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          close_price: number
+          closed_at?: string
+          entry: number
+          fee_close?: number
+          fee_open?: number
+          id?: string
+          leverage: number
+          margin: number
+          opened_at: string
+          pnl: number
+          reason: string
+          roi: number
+          side: string
+          size: number
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          close_price?: number
+          closed_at?: string
+          entry?: number
+          fee_close?: number
+          fee_open?: number
+          id?: string
+          leverage?: number
+          margin?: number
+          opened_at?: string
+          pnl?: number
+          reason?: string
+          roi?: number
+          side?: string
+          size?: number
+          symbol?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3867,6 +3987,11 @@ export type Database = {
         | "jackpot_win"
         | "deposit_credit"
         | "package_settle"
+        | "trade_open"
+        | "trade_fee"
+        | "trade_close_win"
+        | "trade_close_loss"
+        | "trade_liquidation"
       user_tier: "normal" | "vip" | "god" | "empire"
       withdrawal_method: "bank" | "coin"
       withdrawal_status:
@@ -4029,6 +4154,11 @@ export const Constants = {
         "jackpot_win",
         "deposit_credit",
         "package_settle",
+        "trade_open",
+        "trade_fee",
+        "trade_close_win",
+        "trade_close_loss",
+        "trade_liquidation",
       ],
       user_tier: ["normal", "vip", "god", "empire"],
       withdrawal_method: ["bank", "coin"],
