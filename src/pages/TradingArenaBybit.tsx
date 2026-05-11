@@ -87,6 +87,7 @@ export default function TradingArenaBybit() {
   const closeReal = useRealStore((s) => s.close);
   const liquidateReal = useRealStore((s) => s.liquidate);
   const subscribeReal = useRealStore((s) => s.subscribe);
+  const realCombo = useRealStore((s) => s.comboWins);
 
   // Paper store
   const paperPositions = usePaperStore((s) => s.positions);
