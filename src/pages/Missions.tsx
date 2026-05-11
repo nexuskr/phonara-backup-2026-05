@@ -300,18 +300,21 @@ export default function Missions() {
           })}
         </div>
 
-        {/* Category sub-tabs */}
-        <div className="flex gap-2 mb-5">
+        {/* Category sub-tabs — 5종 (전체·게임·UGC·매일·수익형) */}
+        <div className="flex gap-2 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
           {([
-            { key: "all", label: t("catAll") },
-            { key: "game", label: t("catGame") },
+            { key: "all",   label: "전체",  icon: null },
+            { key: "game",  label: "게임",  icon: "🎮" },
+            { key: "ugc",   label: "UGC",   icon: "📸" },
+            { key: "daily", label: "매일",  icon: "📅" },
+            { key: "earn",  label: "수익형", icon: "💰" },
           ] as const).map((c) => (
             <button
               key={c.key}
               onClick={() => setCatTab(c.key)}
-              className={`px-4 min-h-[44px] py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition press ${catTab === c.key ? "bg-gradient-cyber text-primary-foreground" : "glass text-muted-foreground"}`}
+              className={`shrink-0 px-4 min-h-[44px] py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition press ${catTab === c.key ? "bg-gradient-cyber text-primary-foreground" : "glass text-muted-foreground"}`}
             >
-              {c.key === "game" && <Gamepad2 className="w-3.5 h-3.5" />} {c.label}
+              {c.icon && <span>{c.icon}</span>}{c.label}
             </button>
           ))}
         </div>
