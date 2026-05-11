@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 import { markLandingStart } from "@/lib/funnel";
 import ThreeSecondHero from "@/components/landing/ThreeSecondHero";
+import FomoScrollHero from "@/components/guide/FomoScrollHero";
+import { SceneProblem, SceneSolution, SceneProof, ScenePersona, ScenePackage } from "@/components/guide/FomoScrollScenes";
+import FomoFinalCTA from "@/components/guide/FomoFinalCTA";
 
 /**
  * 풀스크린 스토리텔링 가이드 — 7씬
@@ -31,6 +34,10 @@ export default function Guide() {
     try { return localStorage.getItem("guide_large_text") === "1"; } catch { return false; }
   });
   const reduce = useReducedMotion();
+
+  // Phase 4 — ?tab=starter (기본): 7씬 FOMO 풀스크롤, ?tab=detail: 기존 디테일 가이드
+  const tab = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
+  const isStarter = tab !== "detail";
 
   const sceneCount = 7;
 
