@@ -11,7 +11,7 @@ import { LoadingList } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
 import { notify } from "@/lib/notify";
 import Layout from "@/components/Layout";
-import GuildActivityTicker from "@/components/lounge/GuildActivityTicker";
+import GuildLiveFeed from "@/components/lounge/GuildLiveFeed";
 
 type Guild = {
   id: string;
