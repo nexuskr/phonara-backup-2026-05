@@ -43,30 +43,32 @@ function LongShortBetPanelInner({
         <button
           onClick={() => onBet("long")}
           disabled={disabled}
-          className="press sheen min-h-[80px] rounded-2xl bg-gradient-to-br from-emerald-500/30 to-emerald-600/20 border-2 border-emerald-500/50 hover:border-emerald-400 disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+          title="Conquest · 영토 정복"
+          className="press sheen min-h-[88px] rounded-2xl bg-gradient-to-br from-emerald-500/30 to-emerald-600/20 border-2 border-emerald-500/50 hover:border-emerald-400 disabled:opacity-50 flex flex-col items-center justify-center gap-1"
         >
-          <TrendingUp className="w-6 h-6 text-emerald-400" />
-          <div className="font-display font-black text-base">📈 오른다</div>
-          <div className="text-[10px] text-emerald-300/80 font-bold">Conquest · 영토 정복</div>
+          <TrendingUp className="w-7 h-7 text-emerald-400" />
+          <div className="font-display font-black text-lg">📈 위쪽 베팅</div>
+          <div className="text-[11px] text-emerald-200 font-bold">내 군대 전진!</div>
         </button>
         <button
           onClick={() => onBet("short")}
           disabled={disabled}
-          className="press sheen min-h-[80px] rounded-2xl bg-gradient-to-br from-rose-500/30 to-rose-600/20 border-2 border-rose-500/50 hover:border-rose-400 disabled:opacity-50 flex flex-col items-center justify-center gap-1"
+          title="Raid · 적국 약탈"
+          className="press sheen min-h-[88px] rounded-2xl bg-gradient-to-br from-rose-500/30 to-rose-600/20 border-2 border-rose-500/50 hover:border-rose-400 disabled:opacity-50 flex flex-col items-center justify-center gap-1"
         >
-          <TrendingDown className="w-6 h-6 text-rose-400" />
-          <div className="font-display font-black text-base">📉 내린다</div>
-          <div className="text-[10px] text-rose-300/80 font-bold">Raid · 적국 약탈</div>
+          <TrendingDown className="w-7 h-7 text-rose-400" />
+          <div className="font-display font-black text-lg">📉 아래쪽 베팅</div>
+          <div className="text-[11px] text-rose-200 font-bold">적 군대 후퇴!</div>
         </button>
       </div>
 
-      {/* TP/SL hint */}
+      {/* TP/SL hint — 한글 우선 */}
       <div className="grid grid-cols-2 gap-2 mb-2 text-[10px] text-muted-foreground">
         <div className="glass rounded-lg p-2 text-center">
-          <span className="text-emerald-400 font-bold">TP</span> +{tpPct}% · 자동 승리
+          <span className="text-emerald-400 font-bold">+{tpPct}%</span> 도달 시 <b>자동 승리</b>
         </div>
         <div className="glass rounded-lg p-2 text-center">
-          <span className="text-rose-400 font-bold">SL</span> -{slPct}% · 자동 종료
+          <span className="text-rose-400 font-bold">-{slPct}%</span> 도달 시 <b>자동 종료</b>
         </div>
       </div>
     </>
