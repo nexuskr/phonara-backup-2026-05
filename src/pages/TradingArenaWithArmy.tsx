@@ -13,6 +13,10 @@ import ArenaTutorialOverlay from "@/components/empire/ArenaTutorialOverlay";
 import ArenaHeader from "@/components/arena/ArenaHeader";
 import LongShortBetPanel from "@/components/arena/LongShortBetPanel";
 import ArmyHUD from "@/components/arena/ArmyHUD";
+import ArmyHeroExplain from "@/components/arena/ArmyHeroExplain";
+import TrustComparisonWall from "@/components/arena/TrustComparisonWall";
+import PersonaPicker from "@/components/arena/PersonaPicker";
+import SeniorModeToggle from "@/components/arena/SeniorModeToggle";
 
 const BattleResultOverlay = lazy(() => import("@/components/arena/BattleResultOverlay"));
 
