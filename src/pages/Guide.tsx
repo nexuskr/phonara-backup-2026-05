@@ -136,6 +136,7 @@ function StarterGuide({ t }: any) {
     if (!isLoggedIn || bonusPaid || !allDone || claiming) return;
     setClaiming(true);
     try {
+      await assertRateLimit(RL_WALLET.scope, RL_WALLET.max);
       const { data, error } = await supabase.rpc("claim_handbook_bonus");
       if (error) throw error;
       const r = data as { ok: boolean; amount?: number; error?: string };
