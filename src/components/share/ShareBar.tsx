@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Share2, Link2, Check } from "lucide-react";
 import { notify } from "@/lib/notify";
+import { track } from "@/lib/analytics";
 
 type Props = {
   url?: string;
