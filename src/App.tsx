@@ -50,16 +50,12 @@ const SecurityPasskey = lazy(() => import("./pages/security/Passkey.tsx"));
 const SecurityOverview = lazy(() => import("./pages/security/Overview.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Achievements = lazy(() => import("./pages/Achievements.tsx"));
-const SeasonPass = lazy(() => import("./pages/SeasonPass.tsx"));
-const Quests = lazy(() => import("./pages/Quests.tsx"));
 const Empire = lazy(() => import("./pages/Empire.tsx"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe.tsx"));
 const Settlements = lazy(() => import("./pages/Settlements.tsx"));
 const Status = lazy(() => import("./pages/Status.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
-const UgcDashboard = lazy(() => import("./pages/UgcDashboard.tsx"));
 const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
-const Whales = lazy(() => import("./pages/Whales.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
