@@ -96,6 +96,8 @@ export default function TradingArenaBybit() {
   const openPaper = usePaperStore((s) => s.open);
   const closePaper = usePaperStore((s) => s.close);
   const tickPaper = usePaperStore((s) => s.tick);
+  const paperCombo = usePaperStore((s) => s.comboWins);
+  const comboWins = mode === "paper" ? paperCombo : realCombo;
 
   // Real-store load + realtime subscription
   useEffect(() => {
