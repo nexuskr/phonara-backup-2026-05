@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crown, Sword, Shield, MapPin, Flame, Trophy, Coins } from "lucide-react";
+import { Crown, Sword, Shield, MapPin, Flame, Trophy, Coins, TrendingUp, TrendingDown } from "lucide-react";
 import Layout from "@/components/Layout";
 import HubTabs from "@/components/HubTabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,8 @@ import { notify } from "@/lib/notify";
 import { formatKRW } from "@/lib/store";
 import { LoadingList } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
+import ArenaTutorialOverlay from "@/components/empire/ArenaTutorialOverlay";
+import { useBybitTicker } from "@/hooks/use-bybit-ticker";
 
 const TERRITORIES = [
   { key: "seoul", name: "서울", x: 30, y: 22 },
