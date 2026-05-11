@@ -391,6 +391,16 @@ export default function Wallet() {
           ))}
         </div>
 
+        {isFirstDepositIntent && action === "deposit" && (
+          <div className="rounded-2xl p-3 mb-4 border-2 border-gold/50 bg-gradient-to-r from-gold/15 to-primary/10 flex items-center gap-2">
+            <span className="text-2xl">🎁</span>
+            <div className="flex-1 text-xs">
+              <div className="font-display font-black text-gold">첫입금 +30% 보너스 활성</div>
+              <div className="text-muted-foreground text-[10px]">입금 즉시 보너스가 자동 지급됩니다</div>
+            </div>
+          </div>
+        )}
+
         {resultCode && (action === "withdraw" || action === "deposit") && (
           <div className="glass-strong rounded-2xl p-6 border border-primary/40 glow-imperial mb-5 text-center">
             <ShieldCheck className="w-8 h-8 text-primary mx-auto" />
