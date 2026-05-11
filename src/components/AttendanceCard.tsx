@@ -6,6 +6,7 @@ import { assertRateLimit, RL_MISSION } from "@/lib/rateLimit";
 import { useEffect, useState } from "react";
 import { emitEarned } from "@/components/onboarding/EarnedToast";
 import { isFlagOn } from "@/lib/conversion-flags";
+import { refreshWallet } from "@/lib/walletRefresh";
 
 export default function AttendanceCard() {
   const [db, setDb] = useDB();
