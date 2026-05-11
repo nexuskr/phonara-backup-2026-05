@@ -165,11 +165,12 @@ export default function TradingArenaBybit() {
         });
         if ("error" in r) {
           notify.error("주문 실패", { description: r.error });
+          try { navigator.vibrate?.([10, 40, 10]); } catch { /* noop */ }
         } else {
           notify.success(`REAL ${args.side.toUpperCase()} ${args.leverage}× 체결`, {
             description: `${symbol} @ ${price.toFixed(4)}`,
           });
-          
+          try { navigator.vibrate?.(15); } catch { /* noop */ }
         }
       }
     } finally {
