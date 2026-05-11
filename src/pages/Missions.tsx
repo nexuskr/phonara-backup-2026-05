@@ -29,6 +29,7 @@ import { usePersonaMissions, PERSONA_LABEL } from "@/hooks/use-persona-missions"
 import { Sparkle } from "lucide-react";
 import MissionDailyCapCard from "@/components/missions/MissionDailyCapCard";
 import BoosterPill from "@/components/imperial/BoosterPill";
+import PaymentStickyCTA from "@/components/missions/PaymentStickyCTA";
 
 const tierFilters: { key: Tier; tk: string; color: string }[] = [
   { key: "NORMAL", tk: "tierNormal", color: "text-secondary" },
