@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { Swords, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { GoldNebulaBg, AnimatedCounter, SimBadge, senior } from "./EmpireFX";
+import { GoldNebulaBg, AnimatedCounter, SimBadge, RankMedal, senior } from "./EmpireFX";
 
 type GuildRow = { id: string; name: string; emblem: string; total_power: number; member_count: number };
 
