@@ -141,7 +141,16 @@ export default function TradingArenaWithArmy() {
     <Layout>
       <HubTabs hub="empire" />
       <ArenaTutorialOverlay />
+      <PersonaPicker />
       <div className="container pt-4 pb-10 animate-fade-in">
+        {/* Senior-mode quick toggle — 60~70대 핵심 진입점 */}
+        <div className="flex justify-end mb-2">
+          <SeniorModeToggle />
+        </div>
+
+        {/* 한국인 3초 이해 비유 카드 */}
+        <ArmyHeroExplain />
+
         <ArenaHeader
           symbol={symbol}
           price={price}
@@ -178,11 +187,14 @@ export default function TradingArenaWithArmy() {
           disabled={fighting}
         />
 
-        <p className="text-center text-[10px] text-muted-foreground mt-3">
+        <p className="text-center text-[11px] text-muted-foreground mt-3">
           {mode === "paper"
-            ? "⚠️ Paper 모드 — 실제 자금 손실 없음."
-            : "🔥 Real 모드 — /trade 에서 실거래 진입."}
+            ? "⚠️ 모의 모드 — 실제 자금 손실 없음. 연습용입니다."
+            : "🔥 실전 모드 — 위/아래 버튼을 누르면 실전 트레이딩 화면으로 이동합니다."}
         </p>
+
+        {/* 신뢰벽 — 주식/전세사기/MLM과의 차이 */}
+        <TrustComparisonWall />
       </div>
 
       <Suspense fallback={null}>
