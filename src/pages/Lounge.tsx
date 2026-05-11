@@ -277,7 +277,21 @@ export default function Lounge() {
                           </div>
                         </div>
                       </div>
-                      {myGuild.leader_id !== user?.id && (
+                      {myGuild.leader_id === user?.id ? (
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button variant="outline" size="sm" onClick={handleLeave}>
+                            리더 탈퇴 (승계)
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDeleteGuild}
+                            className="shadow-[0_0_18px_-6px_hsl(var(--destructive)/0.6)]"
+                          >
+                            길드 해체
+                          </Button>
+                        </div>
+                      ) : (
                         <Button variant="outline" size="sm" onClick={handleLeave}>
                           탈퇴
                         </Button>
