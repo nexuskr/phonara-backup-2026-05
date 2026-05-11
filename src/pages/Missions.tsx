@@ -213,21 +213,15 @@ export default function Missions() {
     <Layout>
       <HubTabs hub="earn" />
       <div className="container pt-6 pb-10 animate-liquid-in">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial flex items-center gap-2 break-keep">
-              <Sparkles className="w-5 h-5 text-primary" /> {t("title")}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1 break-keep">{t("subtitle")}</p>
-          </div>
-          <div className={`text-right glass rounded-xl px-3 py-2 ${limitReached ? "border border-destructive/50" : ""}`}>
-            <div className="text-[9px] tracking-widest text-muted-foreground font-bold">{t("todayPlays")}</div>
-            <div className={`text-sm font-display font-black tabular-nums ${limitReached ? "text-destructive" : "text-gradient-primary"}`}>
-              {playsUsed} / {playLimit}
-            </div>
-            <div className="text-[9px] text-muted-foreground">{userTier} {t("tierSuffix")}</div>
-          </div>
+        <div className="mb-4">
+          <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial flex items-center gap-2 break-keep">
+            <Sparkles className="w-5 h-5 text-primary" /> {t("title")}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1 break-keep">{t("subtitle")}</p>
         </div>
+
+        {/* 일일 한도 카드 (시니어 친화 — 풀폭 진행바 + 카운트다운) */}
+        <MissionDailyCapCard playsUsed={playsUsed} playLimit={playLimit} tier={userTier} />
 
         {/* MEGA JACKPOT BANNER */}
         <div className="mb-5">
