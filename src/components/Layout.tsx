@@ -27,6 +27,7 @@ import FreezeBanner from "./FreezeBanner";
 import { useAchievementWatcher } from "@/hooks/use-achievement-watcher";
 import NeonNotificationFeed from "./NeonNotificationFeed";
 import QuickAccessStrip from "./QuickAccessStrip";
+import EmpirePopulationPulse from "./EmpirePopulationPulse";
 
 /**
  * Phonara — Empire 5축 IA
