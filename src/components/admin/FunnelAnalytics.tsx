@@ -57,14 +57,14 @@ export default function FunnelAnalytics() {
     }
     void load();
     const ch = supabase
-      .channel("admin:conversion_events")
+      .channel(`admin:conversion_events:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "conversion_events" },
         (p) => setRows((prev) => [p.new as EventRow, ...prev].slice(0, 5000)),
       )
       .subscribe();
-    return () => { alive = false; supabase.removeChannel(ch); };
+    return () => { alive = false; void supabase.removeChannel(ch); };
   }, [range]);
 
   const surfaces = useMemo(() => {
