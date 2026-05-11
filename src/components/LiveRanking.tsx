@@ -24,6 +24,7 @@ const TIER_EMOJI: Record<string, string> = {
 export default function LiveRanking() {
   const { t } = useTranslation("live");
   const [list, setList] = useState<Row[]>([]);
+  const [deltas, setDeltas] = useState<Map<string, "up" | "down" | "same" | "new">>(new Map());
   const [celebrate, setCelebrate] = useState(false);
   const prevRanksRef = useRef<Map<string, number>>(new Map());
   const myIdRef = useRef<string | null>(null);
@@ -35,9 +36,19 @@ export default function LiveRanking() {
       .limit(8);
     if (!data) return;
     const next = data as Row[];
-
-    // Diff against previous snapshot to detect personal rank-up
     const prev = prevRanksRef.current;
+
+    // Compute deltas vs previous snapshot
+    const d = new Map<string, "up" | "down" | "same" | "new">();
+    for (const r of next) {
+      const before = prev.get(r.user_id);
+      if (before === undefined) d.set(r.user_id, "new");
+      else if (r.rank < before) d.set(r.user_id, "up");
+      else if (r.rank > before) d.set(r.user_id, "down");
+      else d.set(r.user_id, "same");
+    }
+
+    // Self celebration
     const myId = myIdRef.current;
     if (myId) {
       const before = prev.get(myId);
@@ -48,7 +59,9 @@ export default function LiveRanking() {
         setTimeout(() => setCelebrate(false), 2200);
       }
     }
+
     prevRanksRef.current = new Map(next.map((r) => [r.user_id, r.rank]));
+    setDeltas(d);
     setList(next);
   }
 
