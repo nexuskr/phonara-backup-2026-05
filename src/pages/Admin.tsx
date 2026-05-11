@@ -32,15 +32,17 @@ import AdminAal2Banner from "@/components/admin/AdminAal2Banner";
 import AdminAal2Gate from "@/components/admin/AdminAal2Gate";
 import OperatorAccounting from "@/components/admin/OperatorAccounting";
 import BotStrengthAdmin from "@/components/admin/BotStrengthAdmin";
+import EvHealthAdmin from "@/components/admin/EvHealthAdmin";
+import AbExperimentsAdmin from "@/components/admin/AbExperimentsAdmin";
 
 const SENSITIVE_ADMIN_TABS = [
   "server_wd", "server_dep", "users", "packages", "coin",
   "perms", "aml", "payout_audit", "security", "ops", "viral_forensics",
   "accounting",
 ];
-import { Activity, Lock, Bot, Flame } from "lucide-react";
+import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse } from "lucide-react";
 
-type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots";
+type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "ev_health" | "ab_experiments";
 
 export default function Admin() {
   const [db, setDb] = useDB();
