@@ -489,6 +489,7 @@ export default function Missions() {
       )}
 
       {jackpotWin && <JackpotWinOverlay win={jackpotWin} onClose={() => setJackpotWin(null)} />}
+      <PaymentStickyCTA />
     </Layout>
   );
 }
