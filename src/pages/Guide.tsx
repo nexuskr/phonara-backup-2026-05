@@ -16,6 +16,7 @@ import FomoFinalCTA from "@/components/guide/FomoFinalCTA";
 import { SceneNetworkEffect } from "@/components/guide/SceneNetworkEffect";
 import { SceneGuildWar } from "@/components/guide/SceneGuildWar";
 import { SceneEmpireMap } from "@/components/guide/SceneEmpireMap";
+import { CinemaTransition } from "@/components/guide/EmpireFX";
 
 /**
  * 풀스크린 스토리텔링 가이드 — 7씬
