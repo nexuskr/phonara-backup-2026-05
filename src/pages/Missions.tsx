@@ -14,6 +14,7 @@ import {
   randomFakeNick,
   DAILY_PLAY_LIMITS,
   todayStr,
+  missionBucket,
   type Mission,
   type Tier,
 } from "@/lib/store";
@@ -28,6 +29,7 @@ import { usePersonaMissions, PERSONA_LABEL } from "@/hooks/use-persona-missions"
 import { Sparkle } from "lucide-react";
 import MissionDailyCapCard from "@/components/missions/MissionDailyCapCard";
 import BoosterPill from "@/components/imperial/BoosterPill";
+import PaymentStickyCTA from "@/components/missions/PaymentStickyCTA";
 
 const tierFilters: { key: Tier; tk: string; color: string }[] = [
   { key: "NORMAL", tk: "tierNormal", color: "text-secondary" },
@@ -49,9 +51,23 @@ export default function Missions() {
   const [completing, setCompleting] = useState<string | null>(null);
   const [ugcOpen, setUgcOpen] = useState<Mission | null>(null);
   const [gameOpen, setGameOpen] = useState<Mission | null>(null);
-  const [catTab, setCatTab] = useState<"all" | "game" | "ugc" | "daily" | "earn">("game");
+  // 4-bucket 단순 카테고리: 매일 출석 / 전투 / 보상 받기 / 시니어 안전
+  const initialTab = (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null) as
+    | "daily" | "battle" | "rewards" | "senior" | null;
+  const [catTab, setCatTab] = useState<"daily" | "battle" | "rewards" | "senior">(
+    initialTab && ["daily","battle","rewards","senior"].includes(initialTab) ? initialTab : "battle"
+  );
   const [jackpotWin, setJackpotWin] = useState<{ amount: number; type: "main" | "mini" } | null>(null);
   const { persona, recommended } = usePersonaMissions();
+
+  // 페르소나가 60s/70s+ 이거나 시니어 모드 ON 이면 시니어 탭 강제
+  const isSenior = typeof window !== "undefined" && (
+    document.documentElement.classList.contains("senior-mode") ||
+    persona === "gen5060" || persona === "gen6070"
+  );
+  if (isSenior && catTab !== "senior") {
+    setTimeout(() => setCatTab("senior"), 0);
+  }
 
   if (!user) return null;
   const userTier = user.tier;
@@ -67,12 +83,8 @@ export default function Missions() {
   const missions = [...DEFAULT_MISSIONS, ...db.customMissions];
   const list = missions.filter((m) => {
     if (m.tier !== tierTab) return false;
-    if (catTab === "all") return true;
-    if (catTab === "game") return m.category === "게임";
-    if (catTab === "ugc") return !!m.ugc || m.category === "UGC" || m.category === "리뷰";
-    if (catTab === "daily") return m.category === "출석" || m.category === "퀴즈";
-    if (catTab === "earn") return ["광고", "설문", "추천", "데이터", "AI", "트레이딩", "바이럴"].includes(m.category);
-    return true;
+    const buckets = missionBucket(m);
+    return buckets.includes(catTab);
   });
 
   // Every game play contributes to jackpot + rolls for win
@@ -307,11 +319,10 @@ export default function Missions() {
         {/* Category sub-tabs — 5종 (전체·게임·UGC·매일·수익형) */}
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
           {([
-            { key: "all",   label: "전체",  icon: null },
-            { key: "game",  label: "게임",  icon: "🎮" },
-            { key: "ugc",   label: "UGC",   icon: "📸" },
-            { key: "daily", label: "매일",  icon: "📅" },
-            { key: "earn",  label: "수익형", icon: "💰" },
+            { key: "daily",   label: "⏰ 매일",       icon: null },
+            { key: "battle",  label: "⚔️ 전투",       icon: null },
+            { key: "rewards", label: "🎁 보상받기",  icon: null },
+            { key: "senior",  label: "🏆 시니어 안전", icon: null },
           ] as const).map((c) => (
             <button
               key={c.key}
@@ -483,6 +494,7 @@ export default function Missions() {
       )}
 
       {jackpotWin && <JackpotWinOverlay win={jackpotWin} onClose={() => setJackpotWin(null)} />}
+      <PaymentStickyCTA />
     </Layout>
   );
 }

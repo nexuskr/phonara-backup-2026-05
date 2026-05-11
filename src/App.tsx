@@ -27,8 +27,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const EmpireArena = lazy(() => import("./pages/EmpireArena.tsx"));
 const TradingArenaWithArmy = lazy(() => import("./pages/TradingArenaWithArmy.tsx"));
 const TradingArenaBybit = lazy(() => import("./pages/TradingArenaBybit.tsx"));
-const Lounge = lazy(() => import("./pages/Lounge.tsx"));
-const Roulette = lazy(() => import("./pages/Roulette.tsx"));
+// Lounge/Roulette/Quests/SeasonPass/Ugc/Whales — /missions·/achievements 로 통합 (라우트 redirect 만 유지)
 const Missions = lazy(() => import("./pages/Missions.tsx"));
 const Packages = lazy(() => import("./pages/Packages.tsx"));
 const Wallet = lazy(() => import("./pages/Wallet.tsx"));
@@ -51,16 +50,12 @@ const SecurityPasskey = lazy(() => import("./pages/security/Passkey.tsx"));
 const SecurityOverview = lazy(() => import("./pages/security/Overview.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Achievements = lazy(() => import("./pages/Achievements.tsx"));
-const SeasonPass = lazy(() => import("./pages/SeasonPass.tsx"));
-const Quests = lazy(() => import("./pages/Quests.tsx"));
 const Empire = lazy(() => import("./pages/Empire.tsx"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe.tsx"));
 const Settlements = lazy(() => import("./pages/Settlements.tsx"));
 const Status = lazy(() => import("./pages/Status.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
-const UgcDashboard = lazy(() => import("./pages/UgcDashboard.tsx"));
 const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
-const Whales = lazy(() => import("./pages/Whales.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,15 +111,15 @@ const App = () => (
               <Route path="/empire-arena" element={<Navigate to="/arena" replace />} />
               <Route path="/empire-arena/army" element={<Navigate to="/arena/army" replace />} />
               <Route path="/empire-arena/classic" element={<EmpireArena />} />
-              <Route path="/lounge" element={<Lounge />} />
-              <Route path="/whales" element={<Whales />} />
-              <Route path="/jackpot" element={<Navigate to="/roulette" replace />} />
+              <Route path="/lounge" element={<Navigate to="/achievements" replace />} />
+              <Route path="/whales" element={<Navigate to="/achievements" replace />} />
+              <Route path="/jackpot" element={<Navigate to="/missions?tab=battle" replace />} />
               {/* /wallet 는 이미 존재 */}
 
               {/* 기존 라우트 — 그대로 작동 (HubTabs 통해 통합 UX) */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/missions" element={<Missions />} />
-              <Route path="/roulette" element={<ReviewerGuard><AdultGate><Roulette /></AdultGate></ReviewerGuard>} />
+              <Route path="/roulette" element={<Navigate to="/missions?tab=battle" replace />} />
               <Route path="/packages" element={<ReviewerGuard><AdultGate><Packages /></AdultGate></ReviewerGuard>} />
               <Route path="/wallet" element={<ReviewerGuard><AdultGate><Wallet /></AdultGate></ReviewerGuard>} />
               <Route path="/profile" element={<Profile />} />
@@ -145,14 +140,14 @@ const App = () => (
               <Route path="/security/totp" element={<SecurityTotp />} />
               <Route path="/security/passkey" element={<SecurityPasskey />} />
               <Route path="/achievements" element={<Achievements />} />
-              <Route path="/season-pass" element={<SeasonPass />} />
-              <Route path="/quests" element={<Quests />} />
+              <Route path="/season-pass" element={<Navigate to="/missions?tab=daily" replace />} />
+              <Route path="/quests" element={<Navigate to="/missions?tab=daily" replace />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="/trust" element={<Navigate to="/status" replace />} />
               <Route path="/status" element={<Status />} />
               <Route path="/hall-of-fame" element={<Navigate to="/legacy" replace />} />
               <Route path="/referral" element={<Referral />} />
-              <Route path="/ugc" element={<UgcDashboard />} />
+              <Route path="/ugc" element={<Navigate to="/missions?tab=rewards" replace />} />
               <Route path="/c/:slug" element={<CampaignRedirect />} />
               <Route path="/global-intelligence" element={<Navigate to="/" replace />} />
               <Route path="/infrastructure" element={<Navigate to="/" replace />} />
