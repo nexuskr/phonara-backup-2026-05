@@ -77,14 +77,28 @@ export default function Guide() {
         className={`snap-y snap-mandatory overflow-y-auto h-[calc(100vh-56px)] scroll-smooth ${largeText ? "text-[112%]" : ""}`}
         style={{ scrollbarWidth: "thin" }}
       >
-        <SceneTrust reduce={!!reduce} />
-        <SceneHook reduce={!!reduce} />
-        <SceneLiveProof reduce={!!reduce} />
-        <SceneSimulator />
-        <SceneKakao reduce={!!reduce} />
-        <SceneTiers />
-        <SceneTestimonials />
-        <SceneFinalCTA isLoggedIn={isLoggedIn} />
+        {isStarter ? (
+          <>
+            <FomoScrollHero isLoggedIn={isLoggedIn} />
+            <SceneProblem />
+            <SceneSolution />
+            <SceneProof />
+            <ScenePersona />
+            <ScenePackage />
+            <FomoFinalCTA />
+          </>
+        ) : (
+          <>
+            <SceneTrust reduce={!!reduce} />
+            <SceneHook reduce={!!reduce} />
+            <SceneLiveProof reduce={!!reduce} />
+            <SceneSimulator />
+            <SceneKakao reduce={!!reduce} />
+            <SceneTiers />
+            <SceneTestimonials />
+            <SceneFinalCTA isLoggedIn={isLoggedIn} />
+          </>
+        )}
       </div>
 
       {/* 진행률 도트 (우측 고정) */}
