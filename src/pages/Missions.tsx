@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AIBotCards from "@/components/AIBotCards";
 import { usePersonaMissions, PERSONA_LABEL } from "@/hooks/use-persona-missions";
 import { Sparkle } from "lucide-react";
+import MissionDailyCapCard from "@/components/missions/MissionDailyCapCard";
 
 const tierFilters: { key: Tier; tk: string; color: string }[] = [
   { key: "NORMAL", tk: "tierNormal", color: "text-secondary" },
