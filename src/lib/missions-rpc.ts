@@ -39,6 +39,8 @@ export async function settleMission(missionId: string, isWin: boolean, baseRewar
 
 /** Refresh wallet balance from server (post-RPC reconciliation). */
 export async function refreshWallet() {
+  // Trigger useWallet hook reload immediately (closes realtime postgres_changes lag).
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("wallet:refresh"));
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;
   const { data } = await supabase
