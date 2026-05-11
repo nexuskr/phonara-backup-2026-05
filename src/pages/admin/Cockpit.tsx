@@ -247,7 +247,8 @@ export default function AdminCockpit() {
             </section>
 
             <CronJobsCard />
-
+          </>
+        )}
       </div>
     </Layout>
   );
