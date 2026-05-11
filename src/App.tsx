@@ -59,6 +59,7 @@ const Status = lazy(() => import("./pages/Status.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
 const UgcDashboard = lazy(() => import("./pages/UgcDashboard.tsx"));
 const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
+const Whales = lazy(() => import("./pages/Whales.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
