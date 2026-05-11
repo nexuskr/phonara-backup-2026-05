@@ -22,6 +22,7 @@ import EmpireP2EDashboard from "@/components/empire/EmpireP2EDashboard";
 import { FomoNotificationStrip } from "@/components/empire/FomoNotificationStrip";
 import SixtySecondFlow from "@/components/onboarding/SixtySecondFlow";
 import EarnedToast from "@/components/onboarding/EarnedToast";
+import FirstDepositTopBanner from "@/components/onboarding/FirstDepositTopBanner";
 import EmpireSignature from "@/components/status/EmpireSignature";
 import LivePurchaseTicker from "@/components/conversion/LivePurchaseTicker";
 import TierComparisonCard from "@/components/status/TierComparisonCard";
@@ -50,6 +51,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
+      <FirstDepositTopBanner />
       <SixtySecondFlow enabled={!!user} />
       <EarnedToast />
       <EmpireSignature />
