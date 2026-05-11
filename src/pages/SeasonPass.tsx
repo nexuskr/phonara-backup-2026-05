@@ -41,6 +41,7 @@ export default function SeasonPass() {
     const { data, error } = await supabase.rpc("claim_season_reward" as any, { _level: level, _track: track });
     if (error) return toast({ title: t("claimFail"), description: error.message, variant: "destructive" });
     const r = data as any;
+    import("@/lib/walletRefresh").then(m => m.refreshWallet());
     toast({
       title: t("claimDone"),
       description: r.credit ? formatKRW(r.credit) : (r.badge ? t("badgeEarned", { name: r.badge }) : t("done")),
@@ -51,6 +52,7 @@ export default function SeasonPass() {
   async function buyPass() {
     const { error } = await supabase.rpc("purchase_season_pass" as any);
     if (error) return toast({ title: t("buyFail"), description: error.message, variant: "destructive" });
+    import("@/lib/walletRefresh").then(m => m.refreshWallet());
     toast({ title: t("buyDone") });
     load();
   }
