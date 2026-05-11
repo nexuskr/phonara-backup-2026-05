@@ -74,9 +74,9 @@ export default function Status() {
 
         {s && (
           <div className="mt-6 grid grid-cols-3 gap-3">
-            <Cell label={t("uptime24")} value={`${s.uptime_24h.toFixed(2)}%`} />
-            <Cell label={t("uptime7d")} value={`${s.uptime_7d.toFixed(2)}%`} />
-            <Cell label={t("p95")} value={`${s.p95_ms}ms`} />
+            <Cell label={t("uptime24")} value={`${(s.uptime_24h ?? 0).toFixed(2)}%`} />
+            <Cell label={t("uptime7d")} value={`${(s.uptime_7d ?? 0).toFixed(2)}%`} />
+            <Cell label={t("p95")} value={`${s.p95_ms ?? 0}ms`} />
           </div>
         )}
 
