@@ -4856,6 +4856,7 @@ export type Database = {
       }
       cancel_pending_order: { Args: { p_order_id: string }; Returns: boolean }
       check_achievements: { Args: { _user_id?: string }; Returns: Json }
+      check_daily_ev_health: { Args: never; Returns: Json }
       check_permission_drift: { Args: never; Returns: Json }
       check_rls_integrity: { Args: never; Returns: Json }
       claim_ai_bot_run: { Args: { _run_id: string }; Returns: Json }
