@@ -490,6 +490,10 @@ export default function Wallet() {
                   </div>
                 )}
 
+                {depositChannel === "bank" && (
+                  <DepositReceiptUpload onUploaded={setDepositReceiptUrl} />
+                )}
+
                 {depositChannel === "voucher" && (
                   <>
                     <Field label={t("voucherBrand")}>
