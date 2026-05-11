@@ -199,6 +199,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Live population pulse strip — visible to everyone */}
+      <EmpirePopulationPulse />
+
       {/* Phase 2 — 초직관 6대 메뉴 (로그인 사용자 전용, 데스크탑/모바일 공통) */}
       {user && <QuickAccessStrip />}
 
