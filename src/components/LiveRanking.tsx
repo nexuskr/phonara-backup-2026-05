@@ -85,13 +85,7 @@ export default function LiveRanking() {
     };
   }, []);
 
-  function rankDelta(r: Row): "up" | "down" | "same" | "new" {
-    const prev = prevRanksRef.current.get(r.user_id);
-    if (prev === undefined) return "new";
-    if (r.rank < prev) return "up";
-    if (r.rank > prev) return "down";
-    return "same";
-  }
+  const rankDelta = (r: Row) => deltas.get(r.user_id) ?? "new";
 
   return (
     <div className="glass-strong rounded-2xl p-4 neon-border relative overflow-hidden">
