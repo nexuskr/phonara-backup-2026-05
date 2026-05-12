@@ -92,6 +92,8 @@ const ALLOW_FILES = [
   /\/lib\/i18n\.ts$/,
   /\/lib\/funnel\.ts$/,
   /\/lib\/.*-rpc\.ts$/,
+  /\/hooks\/use-winback\.ts$/,
+  /\/pages\/Whales\.tsx$/,
   /\/test\//,
 ];
 
