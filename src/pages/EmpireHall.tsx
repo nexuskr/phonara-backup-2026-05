@@ -152,7 +152,7 @@ export default function EmpireHall() {
             <Card>
               <Label icon={Swords} text="Crown War" tone={isFinaleWindow ? "destructive" : "primary"} />
               <Value>{myWarRank ? `#${myWarRank}` : "—"}</Value>
-              <Sub>{warSnap?.war ? formatRemaining(remainingMs) + " 남음" : "다음 라운드 대기"}</Sub>
+              <Sub>{warSnap?.war ? formatMSS(remainingMs) + " 남음" : "다음 라운드 대기"}</Sub>
             </Card>
           </div>
 
