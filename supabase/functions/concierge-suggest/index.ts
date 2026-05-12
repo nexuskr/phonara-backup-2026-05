@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     const supa = createClient(SUPABASE_URL, SERVICE_KEY);
 
     // Gather context
-    const [{ data: profile }, { data: boosterRows }, { data: recentEvents }] = await Promise.all([
+    const [{ data: profile }, { data: boosterRows }, { data: recentEvents }, { data: warSnap }] = await Promise.all([
       supa.from("profiles")
         .select("nickname, empire_level, crown_score, attendance_streak, last_attendance, total_deposit, total_withdraw, tier")
         .eq("id", user.id).maybeSingle(),
@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(8),
+      supaUser.rpc("get_crown_war_snapshot" as any),
     ]);
 
     const booster = Array.isArray(boosterRows) && boosterRows.length > 0 ? boosterRows[0] : null;
@@ -95,12 +96,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Pick CTA priority
+    // Crown War context
+    const war = warSnap && (warSnap as any).war ? (warSnap as any) : null;
+    const warEndsMs = war?.war?.ends_at ? new Date(war.war.ends_at).getTime() - Date.now() : 0;
+    const warActive = !!war?.war && war.war.status === "active" && warEndsMs > 0;
+    const warFinale = warActive && warEndsMs <= 5 * 60_000;
+    const myWarRank = war?.me?.rank ?? null;
+    const myWarScore = war?.me?.score ?? 0;
+
+    // Pick CTA priority — Crown War overrides when active
     let cta: CtaKind;
-    if (boosterActive) cta = "baron";          // Booster active → push package conversion
-    else if (level >= 6) cta = "baron";         // Lord+ → Baron push
-    else if (totalDep === 0) cta = "practice";  // First-timer → Practice
-    else if (crownToNext > 0 && crownToNext <= 50) cta = "practice"; // close to level up
+    if (warFinale) cta = "practice";            // Finale window → drive to Practice for last-minute snipes
+    else if (warActive && myWarScore === 0) cta = "practice"; // Not yet participating
+    else if (boosterActive) cta = "baron";
+    else if (level >= 6) cta = "baron";
+    else if (totalDep === 0) cta = "practice";
+    else if (crownToNext > 0 && crownToNext <= 50) cta = "practice";
     else if (level >= 4) cta = "guild";
     else cta = "missions";
 
