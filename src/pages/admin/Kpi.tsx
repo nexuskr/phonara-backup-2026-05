@@ -8,6 +8,7 @@ import { useRequireAdmin } from "@/hooks/use-require-auth";
 import { LoadingList } from "@/components/ui/loading-state";
 import FeedDiagnosticsPanel from "@/components/feed/FeedDiagnosticsPanel";
 import BetaFunnelPanel from "@/components/admin/BetaFunnelPanel";
+import WhaleStrikeFunnelPanel from "@/components/admin/WhaleStrikeFunnelPanel";
 
 type Kpi = {
   mau: number;
@@ -132,6 +133,7 @@ export default function AdminKpi() {
               <Stat icon={TrendingUp} label="총 매출 (7d)" value={fmtKRW(k.revenue7d)} tone="text-money-strong" />
               <Stat icon={Flame} label="평균 Viral Score" value={k.viralAvg.toFixed(3)} hint="최근 500개 영상" />
             </div>
+            <WhaleStrikeFunnelPanel />
             <BetaFunnelPanel />
             <FeedDiagnosticsPanel />
             <div className="glass rounded-2xl p-4 text-xs text-muted-foreground border border-border/40">
