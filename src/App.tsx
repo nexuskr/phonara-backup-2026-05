@@ -37,6 +37,7 @@ const SupportTickets = lazy(() => import("./pages/SupportTickets.tsx"));
 const Guide = lazy(() => import("./pages/Guide.tsx"));
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const AdminCockpit = lazy(() => import("./pages/admin/Cockpit.tsx"));
+const FounderCockpit = lazy(() => import("./pages/Cockpit.tsx"));
 const AdminOpsReport = lazy(() => import("./pages/admin/OpsReport.tsx"));
 const AdminSupport = lazy(() => import("./pages/admin/Support.tsx"));
 const AdminRevenue = lazy(() => import("./pages/admin/Revenue.tsx"));
