@@ -150,7 +150,8 @@ const App = () => (
               <Route path="/season-pass" element={<Navigate to="/missions?tab=daily" replace />} />
               <Route path="/quests" element={<Navigate to="/missions?tab=daily" replace />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
-              <Route path="/trust" element={<Navigate to="/status" replace />} />
+              <Route path="/trust" element={<Trust />} />
+              <Route path="/legal/:docKey" element={<LegalDoc />} />
               <Route path="/status" element={<Status />} />
               <Route path="/hall-of-fame" element={<Navigate to="/legacy" replace />} />
               <Route path="/referral" element={<Referral />} />
