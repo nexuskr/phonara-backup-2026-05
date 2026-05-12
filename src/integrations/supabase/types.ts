@@ -906,6 +906,48 @@ export type Database = {
         }
         Relationships: []
       }
+      concierge_events: {
+        Row: {
+          booster_active: boolean | null
+          created_at: string
+          crown_score: number | null
+          cta: string | null
+          empire_level: number | null
+          id: number
+          kind: string
+          message: string | null
+          payload: Json | null
+          route: string | null
+          user_id: string
+        }
+        Insert: {
+          booster_active?: boolean | null
+          created_at?: string
+          crown_score?: number | null
+          cta?: string | null
+          empire_level?: number | null
+          id?: number
+          kind: string
+          message?: string | null
+          payload?: Json | null
+          route?: string | null
+          user_id: string
+        }
+        Update: {
+          booster_active?: boolean | null
+          created_at?: string
+          crown_score?: number | null
+          cta?: string | null
+          empire_level?: number | null
+          id?: number
+          kind?: string
+          message?: string | null
+          payload?: Json | null
+          route?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversion_events: {
         Row: {
           anon_id: string
