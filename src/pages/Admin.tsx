@@ -42,7 +42,7 @@ const SENSITIVE_ADMIN_TABS = [
   "perms", "aml", "payout_audit", "security", "ops", "viral_forensics",
   "accounting",
 ];
-import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse } from "lucide-react";
+import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse, Gauge } from "lucide-react";
 
 type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "bot_mix" | "ev_health" | "ab_experiments";
 
