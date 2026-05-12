@@ -134,14 +134,19 @@ Deno.serve(async (req) => {
 - 마지막에 행동 유도 동사 1개("지금 가세요", "참여하세요", "활성화하세요" 등).
 - JSON으로만 답하라: {"message":"...","tone":"hype|warm|urgent"}`;
 
+    const warLine = warActive
+      ? `- ⚔️ Crown Wars: 진행중 (남은 ${Math.floor(warEndsMs/60000)}분, 참가자 ${war.war.total_participants}명, 내 순위 ${myWarRank ?? "미참여"}, 내 점수 ${myWarScore})${warFinale ? " · 🔥 5분 이내 종료!" : ""}`
+      : `- Crown Wars: 비활성`;
     const userPrompt = `유저 컨텍스트:
 - Empire Level: ${level} → 다음 ${ctx.nextLevelName}까지 Crown ${crownToNext} 남음
 - 보유 Crown: ${crown} ₡
 - 출석 streak: ${streak}일
 - Empire Booster: ${boosterActive ? `활성 (${ctx.boosterRemMin}분 남음, 수수료 -30% / Crown ×1.5)` : "비활성"}
+${warLine}
 - 첫 입금: ${ctx.hasDeposited ? "완료" : "미완료"}
 - 추천 CTA: ${cta}
 
+${warFinale ? "Crown Wars Finale가 임박했다는 점을 강하게 강조하라. 'Top 3 보너스' 언급." : warActive ? "Crown Wars가 진행 중임을 자연스럽게 언급해도 좋다." : ""}
 위 컨텍스트에 맞춰 1~2문장 발화를 만들어라.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
