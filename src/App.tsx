@@ -40,6 +40,7 @@ const AdminCockpit = lazy(() => import("./pages/admin/Cockpit.tsx"));
 const AdminOpsReport = lazy(() => import("./pages/admin/OpsReport.tsx"));
 const AdminSupport = lazy(() => import("./pages/admin/Support.tsx"));
 const AdminRevenue = lazy(() => import("./pages/admin/Revenue.tsx"));
+const AdminKpi = lazy(() => import("./pages/admin/Kpi.tsx"));
 const SecureAuth = lazy(() => import("./pages/SecureAuth.tsx"));
 const SecureWallet = lazy(() => import("./pages/SecureWallet.tsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
