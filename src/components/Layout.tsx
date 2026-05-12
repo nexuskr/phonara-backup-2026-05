@@ -19,14 +19,32 @@ import { useDB } from "@/lib/store";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import FloatingChat from "./FloatingChat";
 import { useAdminNotifications } from "@/hooks/use-admin-notifications";
 import { useUserNotifications } from "@/hooks/use-user-notifications";
 import TopHUD, { TopHUDCompact } from "./TopHUD";
 import LanguageSwitcher from "./LanguageSwitcher";
 import FreezeBanner from "./FreezeBanner";
 import { useAchievementWatcher } from "@/hooks/use-achievement-watcher";
-import NeonNotificationFeed from "./NeonNotificationFeed";
+
+// Heavy/non-critical UI deferred to idle to reduce TTI on mobile
+const FloatingChat = lazy(() => import("./FloatingChat"));
+const NeonNotificationFeed = lazy(() => import("./NeonNotificationFeed"));
+
+function useIdleMount(delayMs = 1500) {
+  const [ready, setReady] = useStateIdle(false);
+  useEffectIdle(() => {
+    const w: any = typeof window !== "undefined" ? window : null;
+    if (!w) return;
+    const ric = w.requestIdleCallback;
+    if (ric) {
+      const id = ric(() => setReady(true), { timeout: 3000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(t);
+  }, [delayMs]);
+  return ready;
+}
 import QuickAccessStrip from "./QuickAccessStrip";
 import EmpirePopulationPulse from "./EmpirePopulationPulse";
 import ImperialHud from "./imperial/ImperialHud";
