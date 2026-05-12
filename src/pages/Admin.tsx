@@ -32,6 +32,7 @@ import AdminAal2Banner from "@/components/admin/AdminAal2Banner";
 import AdminAal2Gate from "@/components/admin/AdminAal2Gate";
 import OperatorAccounting from "@/components/admin/OperatorAccounting";
 import BotStrengthAdmin from "@/components/admin/BotStrengthAdmin";
+import BotMixMonitor from "@/components/admin/BotMixMonitor";
 import EvHealthAdmin from "@/components/admin/EvHealthAdmin";
 import AbExperimentsAdmin from "@/components/admin/AbExperimentsAdmin";
 import CoinAddressAdmin from "@/components/admin/CoinAddressAdmin";
