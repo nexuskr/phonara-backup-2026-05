@@ -97,6 +97,7 @@ const App = () => (
           <ReviewerMaskRoot />
           <ReviewerBadge />
           <LegalConsentGate />
+          <PracticeModeBanner />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -128,8 +129,8 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/missions" element={<Missions />} />
               <Route path="/roulette" element={<Navigate to="/missions?tab=battle" replace />} />
-              <Route path="/packages" element={<ReviewerGuard><AdultGate><Packages /></AdultGate></ReviewerGuard>} />
-              <Route path="/wallet" element={<ReviewerGuard><AdultGate><Wallet /></AdultGate></ReviewerGuard>} />
+              <Route path="/packages" element={<ReviewerGuard><AdultGate><PracticeModeGate label="패키지 구매"><Packages /></PracticeModeGate></AdultGate></ReviewerGuard>} />
+              <Route path="/wallet" element={<ReviewerGuard><AdultGate><PracticeModeGate label="지갑/출금"><Wallet /></PracticeModeGate></AdultGate></ReviewerGuard>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/support" element={<Support />} />
               <Route path="/support/tickets" element={<SupportTickets />} />
