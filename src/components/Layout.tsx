@@ -287,6 +287,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <BaronPromotionDialog />
           <EmpireBoosterTimer />
           <EmpireConcierge />
+          <ReplayShareGlobal />
           <CrownWarFinaleModal />
         </Suspense>
       )}
