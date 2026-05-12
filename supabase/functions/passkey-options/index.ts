@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
     return json(opts);
   } catch (e) {
     console.error("passkey-options error:", e);
-    return json({ error: (e as Error).message }, 500);
+    return json({ error: "internal_error" }, 500);
   }
 });
 

@@ -50,9 +50,9 @@ Deno.serve(async (req) => {
   });
 
   if (error) {
+    console.error("toggle-rrm rpc error:", error);
     return json(error.code === "42501" ? 403 : 400, {
-      error: "rpc_failed",
-      detail: error.message,
+      error: error.code === "42501" ? "forbidden" : "rpc_failed",
     });
   }
   return json(200, data);

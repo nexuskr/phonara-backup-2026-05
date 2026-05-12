@@ -152,10 +152,12 @@ Deno.serve(async (req) => {
       // Surface AI rate limit cleanly
       if (msg.includes("429")) return json({ error: "rate_limit" }, 429);
       if (msg.includes("402")) return json({ error: "credits_exhausted" }, 402);
-      return json({ error: msg }, 500);
+      console.error("ai-bot-run inner error:", msg);
+      return json({ error: "internal_error" }, 500);
     }
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : "unknown" }, 500);
+    console.error("ai-bot-run outer error:", e);
+    return json({ error: "internal_error" }, 500);
   }
 });
 
