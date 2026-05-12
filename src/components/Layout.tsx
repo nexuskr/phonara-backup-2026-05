@@ -95,6 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useUserNotifications(user?.id);
   useAdminNotifications(!!user?.isAdmin);
+  const idleReady = useIdleMount(1500);
 
   return (
     <div className="min-h-screen md:pl-60 pb-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+0.75rem)] md:pb-6">
