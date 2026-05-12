@@ -6253,6 +6253,7 @@ export type Database = {
           rank: number
         }[]
       }
+      get_whale_strike_funnel: { Args: never; Returns: Json }
       get_whale_strikes_24h: { Args: { _limit?: number }; Returns: Json }
       grant_recovery_bonus: {
         Args: { p_amount: number; p_source?: string }

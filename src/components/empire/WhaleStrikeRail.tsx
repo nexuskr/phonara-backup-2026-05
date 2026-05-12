@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Crown, Flame, Zap, ArrowDownToLine } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { trackClick, useTrackView } from "@/lib/telemetry";
 
 type Strike = {
   kind: "crown" | "baron" | "withdraw";
@@ -23,12 +25,15 @@ const KIND_META: Record<Strike["kind"], { icon: React.ComponentType<{ className?
 };
 
 /**
- * 화이트 스트라이크 라이브 피드 — 24h 동안의 고임팩트 이벤트를 마스킹된 닉네임으로 노출.
- * 가용 데이터가 충분하면 자동 좌→우 무한 스크롤. 60s 간격으로 갱신.
+ * Whale Strike 라이브 피드 — 24h 고임팩트 이벤트 마키 + 클릭 시 합류 깔때기 추적.
  */
 export function WhaleStrikeRail() {
   const [items, setItems] = useState<Strike[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const navigate = useNavigate();
+
+  // PR-10: 노출 추적 (마운트 시 1회)
+  useTrackView("whale_rail", "rail");
 
   useEffect(() => {
     let alive = true;
@@ -43,10 +48,15 @@ export function WhaleStrikeRail() {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  // 끊김 없는 마키 효과를 위해 두 번 펼쳐 렌더
   const doubled = useMemo(() => (items.length ? [...items, ...items] : []), [items]);
 
   if (!loaded || items.length === 0) return null;
+
+  function onStrikeClick(s: Strike) {
+    void trackClick("whale_rail", s.kind, { amount: s.amount, label: s.label });
+    // crown/baron → 패키지 (지금 합류), withdraw → 지갑 (직접 보기)
+    navigate(s.kind === "withdraw" ? "/wallet" : "/packages");
+  }
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary/10 via-primary/10 to-accent/10 backdrop-blur-md">
@@ -65,9 +75,12 @@ export function WhaleStrikeRail() {
           const meta = KIND_META[s.kind] ?? KIND_META.crown;
           const Icon = meta.icon;
           return (
-            <div
+            <button
               key={`${s.kind}-${s.created_at}-${i}`}
-              className="shrink-0 glass rounded-xl px-3 py-2 flex items-center gap-2 min-w-[200px]"
+              type="button"
+              onClick={() => onStrikeClick(s)}
+              className="shrink-0 glass rounded-xl px-3 py-2 flex items-center gap-2 min-w-[200px] text-left hover:border-primary/50 hover:scale-[1.03] transition-all border border-transparent cursor-pointer"
+              aria-label={`${s.nick} ${meta.verb} ${s.amount > 0 ? fmtKRW(s.amount) : ""} — 지금 합류`}
             >
               <Icon className={`w-4 h-4 ${meta.tone}`} />
               <div className="text-xs">
@@ -82,7 +95,7 @@ export function WhaleStrikeRail() {
                   </div>
                 )}
               </div>
-            </div>
+            </button>
           );
         })}
       </motion.div>
