@@ -30,6 +30,7 @@ import { useWinback } from "@/hooks/use-winback";
 import { useTranslation } from "react-i18next";
 import HubTabs from "@/components/HubTabs";
 import Disclaimer from "@/components/Disclaimer";
+import PersonalizedFeedRail from "@/components/feed/PersonalizedFeedRail";
 
 export default function Dashboard() {
   const [db] = useDB();
@@ -96,6 +97,11 @@ export default function Dashboard() {
           {/* 🔥 메인 훅: BoostHero — 첫 0.5초 노출 사수 */}
           <div className="space-y-3">
             <BoostHeroCard />
+          </div>
+
+          {/* V17 — 개인화 추천 피드 */}
+          <div className="mt-4">
+            <PersonalizedFeedRail />
           </div>
 
           {/* Balance hero */}
