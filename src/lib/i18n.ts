@@ -2739,11 +2739,16 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
-    fallbackLng: { ja: ["en", "ko"], default: ["ko"] },
-    supportedLngs: ["ko", "en", "ja"],
+    resources: {
+      ...(resources as Record<string, unknown>),
+      ja: jaPartial,
+      vi: viPartial,
+    } as Record<string, Record<string, Record<string, unknown>>>,
+    fallbackLng: { ja: ["en", "ko"], vi: ["en", "ko"], default: ["ko"] },
+    supportedLngs: ["ko", "en", "ja", "vi"],
     ns: ["common", "nav", "topbar", "hubs", "auth", "onboarding", "landing", "wallet", "walletToast", "referral", "referralPage", "dmComposer", "ugc", "withdrawQueue", "live", "jackpot", "faq", "convert", "dashboard", "missions", "admin", "support", "secureWallet", "offline", "forgot", "reset", "completeProfile", "unsubscribe", "status", "packages", "profile", "trust", "settlements", "lang", "guide", "roulette", "seasonPass", "quests", "achievements", "hof", "empire", "aibot"],
     defaultNS: "common",
+    partialBundledLanguages: true,
     interpolation: { escapeValue: false },
     detection: {
       order: ["querystring", "localStorage", "navigator"],
