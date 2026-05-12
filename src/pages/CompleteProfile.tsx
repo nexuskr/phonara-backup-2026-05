@@ -63,7 +63,16 @@ export default function CompleteProfile() {
       toast({ title: t("doneTitle"), description: t("doneDesc") });
       nav("/dashboard");
     } catch (e: any) {
-      toast({ title: t("error"), description: e.message, variant: "destructive" });
+      // Map server-side validate_profile_input trigger errors to friendly text
+      const msg = String(e?.message ?? "");
+      let friendly = msg;
+      if (msg.includes("profile_input_invalid")) {
+        if (msg.includes("real_name")) friendly = "실명 형식이 올바르지 않습니다 (한글/영문 2~20자)";
+        else if (msg.includes("birth_date")) friendly = "생년월일을 다시 확인해 주세요 (만 19세 이상)";
+        else if (msg.includes("phone")) friendly = "휴대폰 번호 형식이 올바르지 않습니다 (예: 01012345678)";
+        else friendly = "입력값이 서버 검증을 통과하지 못했습니다";
+      }
+      toast({ title: t("error"), description: friendly, variant: "destructive" });
     } finally { setBusy(false); }
   }
 
