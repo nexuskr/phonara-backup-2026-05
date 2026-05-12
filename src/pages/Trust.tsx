@@ -71,7 +71,7 @@ export default function Trust() {
             <h2 className="font-imperial font-bold text-lg tracking-[0.02em]">최근 24시간 출금 운영</h2>
           </div>
           {loading ? (
-            <LoadingList count={3} />
+            <LoadingList rows={3} />
           ) : !stats ? (
             <div className="glass rounded-2xl p-4 text-xs text-muted-foreground">통계를 불러오지 못했습니다.</div>
           ) : (
