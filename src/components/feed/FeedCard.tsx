@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import { Play, Heart, Share2 } from "lucide-react";
 import { recordFeedEvent } from "@/lib/feed-rpc";
 import { Button } from "@/components/ui/button";
+import ViralScoreBadge from "@/components/feed/ViralScoreBadge";
 
 export interface FeedCardProps {
   videoId: string;
   title?: string;
   thumbnail?: string;
   region?: string;
+  viralScore?: number | null;
 }
 
 export default function FeedCard({ videoId, title, thumbnail, region }: FeedCardProps) {
