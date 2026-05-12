@@ -13,6 +13,7 @@ import { notify } from "@/lib/notify";
 import Layout from "@/components/Layout";
 import GuildLiveFeed from "@/components/lounge/GuildLiveFeed";
 import SeasonPrizePool from "@/components/lounge/SeasonPrizePool";
+import GuildRankingPanel from "@/components/guild/GuildRankingPanel";
 
 type Guild = {
   id: string;
