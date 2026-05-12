@@ -139,11 +139,6 @@ export default function Cockpit() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Helmet>
-        <title>Empire Cockpit · Phonara</title>
-        <meta name="theme-color" content="#0a0a0f" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-      </Helmet>
 
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/80 border-b border-white/10">
