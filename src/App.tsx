@@ -58,6 +58,9 @@ const Settlements = lazy(() => import("./pages/Settlements.tsx"));
 const Status = lazy(() => import("./pages/Status.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
 const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
+const Trust = lazy(() => import("./pages/Trust.tsx"));
+const LegalDoc = lazy(() => import("./pages/LegalDoc.tsx"));
+import { LegalConsentGate } from "./components/legal/LegalConsentGate";
 
 const queryClient = new QueryClient({
   defaultOptions: {
