@@ -189,7 +189,7 @@ export default function Admin() {
           {tab === "bot_mix" && <BotMixMonitor />}
           {tab === "ev_health" && <EvHealthAdmin />}
           {tab === "ab_experiments" && <AbExperimentsAdmin />}
-          {tab === "beta" && <BetaInvitesAdmin />
+          {tab === "beta" && <BetaInvitesAdmin />}
         </AdminAal2Gate>
       </div>
     </Layout>
