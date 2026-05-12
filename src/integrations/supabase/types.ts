@@ -6198,6 +6198,10 @@ export type Database = {
         }
         Returns: Json
       }
+      validate_profile_input: {
+        Args: { _birth_date: string; _phone: string; _real_name: string }
+        Returns: Json
+      }
       verify_weekly_pass_finalize: {
         Args: { _iso_week?: string }
         Returns: Json
