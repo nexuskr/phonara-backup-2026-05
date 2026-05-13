@@ -50,9 +50,9 @@ function useIdleMount(delayMs = 1500) {
   }, [delayMs]);
   return ready;
 }
-import QuickAccessStrip from "./QuickAccessStrip";
-import EmpirePopulationPulse from "./EmpirePopulationPulse";
-import ImperialHud from "./imperial/ImperialHud";
+const QuickAccessStrip = lazy(() => import("./QuickAccessStrip"));
+const EmpirePopulationPulse = lazy(() => import("./EmpirePopulationPulse"));
+const ImperialHud = lazy(() => import("./imperial/ImperialHud"));
 
 /**
  * Phonara — Empire 5축 IA
@@ -226,14 +226,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Live population pulse strip — visible to everyone */}
-      <EmpirePopulationPulse />
-
-      {/* Imperial Score HUD — 4-Pillar 통합 표시 (로그인 사용자) */}
-      {user && <ImperialHud />}
-
-      {/* Phase 2 — 초직관 6대 메뉴 (로그인 사용자 전용, 데스크탑/모바일 공통) */}
-      {user && <QuickAccessStrip />}
+      {/* Live population pulse strip — visible to everyone (idle-mounted) */}
+      {idleReady && (
+        <Suspense fallback={null}>
+          <EmpirePopulationPulse />
+          {user && <ImperialHud />}
+          {user && <QuickAccessStrip />}
+        </Suspense>
+      )}
 
       {/* Mobile secondary nav — extra destinations not in bottom 5-tab bar */}
       {user && (
