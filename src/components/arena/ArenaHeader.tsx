@@ -35,16 +35,16 @@ function ArenaHeaderInner({ symbol, price, delta1s, mode, onModeChange, symbols,
         </div>
       </div>
 
-      <div className="flex gap-1.5 mb-2">
+      <div className="flex flex-col sm:flex-row gap-1.5 mb-2">
         {/* Mode toggle */}
         {onModeChange && (
-          <div className="glass rounded-xl p-0.5 inline-flex">
+          <div className="glass rounded-xl p-0.5 inline-flex w-full sm:w-auto">
             {(["paper", "real"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => onModeChange(m)}
                 disabled={disabled}
-                className={`px-3 min-h-[36px] rounded-lg text-[11px] font-black tracking-wider transition-colors ${
+                className={`flex-1 sm:flex-none px-3 min-h-[36px] rounded-lg text-[11px] font-black tracking-wider transition-colors ${
                   mode === m ? "bg-gradient-imperial text-primary-foreground" : "text-muted-foreground"
                 } disabled:opacity-50`}
               >
@@ -54,13 +54,13 @@ function ArenaHeaderInner({ symbol, price, delta1s, mode, onModeChange, symbols,
           </div>
         )}
         {/* Symbol switcher */}
-        <div className="flex-1 flex gap-1.5">
+        <div className="flex-1 grid grid-cols-3 gap-1.5 w-full sm:w-auto sm:flex">
           {symbols.map((s) => (
             <button
               key={s}
               onClick={() => onSymbolChange(s)}
               disabled={disabled}
-              className={`flex-1 min-h-[40px] rounded-xl text-xs font-black tracking-wide transition-colors ${
+              className={`min-h-[40px] rounded-xl text-xs font-black tracking-wide transition-colors truncate px-1 sm:flex-1 ${
                 symbol === s ? "bg-gradient-imperial text-primary-foreground" : "glass"
               } disabled:opacity-50`}
             >

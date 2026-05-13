@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
@@ -52,7 +52,7 @@ export default function Packages() {
     <Layout>
       <AdultOnlyBanner />
       <HubTabs hub="empire" />
-      <div className="container pt-6 pb-10 animate-liquid-in">
+      <div className="container pt-6 pb-32 md:pb-10 animate-liquid-in">
         {/* P6-2: Axie-style Empire Unit cards (XP/진화/스탯) */}
         <PackageUpgradeCards />
         <div className="mb-6">
@@ -80,9 +80,9 @@ export default function Packages() {
             const isEmpire = p.tier === "EMPIRE" || p.tier === "PHANTOM";
             return (
               <div key={p.id} className="relative lift group">
-                <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-br ${ts.ring} opacity-60 blur-md group-hover:opacity-100 transition duration-700`} />
+                <div aria-hidden className={`pointer-events-none absolute -inset-0.5 rounded-3xl bg-gradient-to-br ${ts.ring} opacity-60 blur-md group-hover:opacity-100 transition duration-700`} />
                 <div className="relative glass-strong rounded-3xl p-5 sm:p-6 overflow-hidden sheen">
-                  <div className={`absolute -top-20 -right-20 w-44 h-44 rounded-full bg-gradient-to-br ${ts.bg} to-transparent blur-3xl opacity-70`} />
+                  <div aria-hidden className={`pointer-events-none absolute -top-20 -right-20 w-44 h-44 rounded-full bg-gradient-to-br ${ts.bg} to-transparent blur-3xl opacity-70`} />
                   {isEmpire && (
                     <div className="absolute inset-0 pointer-events-none overflow-hidden">
                       {Array.from({ length: 6 }).map((_, i) => (
@@ -225,6 +225,18 @@ function PurchaseModal({ pkg, onClose }: { pkg: Pkg; onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // P0-3: ESC 닫기 + body 스크롤 락 정리 — 다른 모달이 z-50을 점유해도 X가 항상 위
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
   async function submit() {
     if (!user || busy) return;
     setBusy(true);
@@ -254,9 +266,19 @@ function PurchaseModal({ pkg, onClose }: { pkg: Pkg; onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
-      <div className="w-full max-w-md glass-strong rounded-3xl p-5 sm:p-6 neon-border relative overflow-hidden animate-fade-up">
-        <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 w-10 h-10 rounded-full bg-muted/40 flex items-center justify-center min-h-[40px] min-w-[40px]"><X className="w-4 h-4" /></button>
+    <div
+      className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full max-w-md glass-strong rounded-3xl p-5 sm:p-6 neon-border relative overflow-hidden animate-fade-up my-auto">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-4 right-4 z-[70] w-11 h-11 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center min-h-[44px] min-w-[44px]"
+        ><X className="w-4 h-4" /></button>
         <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-primary blur-3xl opacity-50" />
         <div className="relative">
           <h2 className="font-imperial font-black text-xl sm:text-2xl tracking-[0.02em]">{pkg.name}</h2>

@@ -25,8 +25,19 @@ export default function PersonalizedFeedRail({ limit = 12 }: { limit?: number })
   async function generate() {
     setGenerating(true);
     try {
-      await supabase.functions.invoke("feed-personalize", { body: {} });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const { notify } = await import("@/lib/notify");
+        notify.info("로그인이 필요합니다", { description: "맞춤 피드를 생성하려면 먼저 로그인해 주세요." });
+        return;
+      }
+      const { error } = await supabase.functions.invoke("feed-personalize", { body: {} });
+      if (error) throw error;
       await load();
+    } catch (e: any) {
+      console.error("[PersonalizedFeedRail] generate failed", e);
+      const { notify } = await import("@/lib/notify");
+      notify.error("새로고침 실패", { description: e?.message ?? "잠시 후 다시 시도해 주세요." });
     } finally {
       setGenerating(false);
     }

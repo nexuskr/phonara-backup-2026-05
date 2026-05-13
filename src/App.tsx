@@ -28,7 +28,10 @@ const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const EmpireArena = lazy(() => import("./pages/EmpireArena.tsx"));
 const TradingArenaWithArmy = lazy(() => import("./pages/TradingArenaWithArmy.tsx"));
 const TradingArenaBybit = lazy(() => import("./pages/TradingArenaBybit.tsx"));
-// Lounge/Roulette/Quests/SeasonPass/Ugc/Whales — /missions·/achievements 로 통합 (라우트 redirect 만 유지)
+// Lounge/Whales/Roulette — 통합되었으나 직관적인 진입을 위해 직접 라우팅 복원
+const Lounge = lazy(() => import("./pages/Lounge.tsx"));
+const Whales = lazy(() => import("./pages/Whales.tsx"));
+const Roulette = lazy(() => import("./pages/Roulette.tsx"));
 const Missions = lazy(() => import("./pages/Missions.tsx"));
 const Packages = lazy(() => import("./pages/Packages.tsx"));
 const Wallet = lazy(() => import("./pages/Wallet.tsx"));
@@ -126,9 +129,9 @@ const App = () => (
               <Route path="/empire-arena" element={<Navigate to="/arena" replace />} />
               <Route path="/empire-arena/army" element={<Navigate to="/arena/army" replace />} />
               <Route path="/empire-arena/classic" element={<EmpireArena />} />
-              <Route path="/lounge" element={<Navigate to="/achievements" replace />} />
-              <Route path="/whales" element={<Navigate to="/achievements" replace />} />
-              <Route path="/jackpot" element={<Navigate to="/missions?tab=battle" replace />} />
+              <Route path="/lounge" element={<Lounge />} />
+              <Route path="/whales" element={<Whales />} />
+              <Route path="/jackpot" element={<Roulette />} />
               {/* /wallet 는 이미 존재 */}
 
               {/* 기존 라우트 — 그대로 작동 (HubTabs 통해 통합 UX) */}
