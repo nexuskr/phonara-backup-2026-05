@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { useRequireAdmin } from "@/hooks/use-require-auth";
