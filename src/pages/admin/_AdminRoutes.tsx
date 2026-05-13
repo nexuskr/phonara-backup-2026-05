@@ -145,6 +145,7 @@ export default function AdminRoutes() {
         <Route path="compliance/payout" element={<Section title="Payout Audit"><LeaderboardPayoutAudit /></Section>} />
         <Route path="compliance/viral"  element={<Section title="Viral Forensics"><ViralForensics /></Section>} />
         <Route path="compliance/perms"  element={<Section title="Permissions"><PermissionsAudit /></Section>} />
+        <Route path="compliance/rules"  element={<Section><AutoRulesAdmin /></Section>} />
 
         {/* OPERATIONS */}
         <Route path="ops/observability" element={<Section title="Observability"><ObservabilityCockpit /></Section>} />
