@@ -340,28 +340,45 @@ export default function SecureAuth() {
           ))}
         </div>
 
+        {/* === Vertical light ray between SIM strip and CTA card (static) === */}
+        <div className="relative w-full h-6 -my-1 pointer-events-none" aria-hidden>
+          <span className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gold/55 to-transparent" />
+          <span
+            className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-8 opacity-60"
+            style={{
+              background:
+                "radial-gradient(50% 100% at 50% 50%, hsl(var(--gold)/0.22) 0%, transparent 70%)",
+              filter: "blur(6px)",
+            }}
+          />
+        </div>
+
         {/* === Main CTA card — luxury watch frame === */}
         <div
-          className="relative w-full mt-7 rounded-3xl p-5 sm:p-6 border-2 border-gold/45 bg-background/85 glow-gold-xl outline outline-1 outline-offset-[3px] outline-gold/15 overflow-hidden"
+          className="relative w-full mt-3 rounded-3xl p-5 sm:p-6 border-2 border-gold/50 bg-background/85 outline outline-1 outline-offset-[3px] outline-gold/20 overflow-hidden"
+          style={{
+            boxShadow:
+              "0 0 40px hsl(var(--gold)/0.25), 0 0 80px hsl(var(--gold)/0.12), inset 0 1px 0 hsl(var(--gold)/0.25), inset 0 -1px 0 hsl(var(--gold)/0.12)",
+          }}
         >
           {/* inner top hairline */}
-          <span aria-hidden className="absolute top-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+          <span aria-hidden className="absolute top-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-gold/65 to-transparent" />
           {/* inner bottom hairline */}
-          <span aria-hidden className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-gold/35 to-transparent" />
+          <span aria-hidden className="absolute bottom-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
           {/* static conic shine — no animation */}
           <span
             aria-hidden
-            className="absolute inset-0 pointer-events-none opacity-[0.06]"
+            className="absolute inset-0 pointer-events-none opacity-[0.09]"
             style={{
               background:
                 "conic-gradient(from 210deg at 50% 0%, transparent 0deg, hsl(var(--gold)) 60deg, transparent 140deg, transparent 360deg)",
             }}
           />
           {/* 4 corner L-markers */}
-          <span aria-hidden className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-gold/70 rounded-tl-md" />
-          <span aria-hidden className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-gold/70 rounded-tr-md" />
-          <span aria-hidden className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-gold/70 rounded-bl-md" />
-          <span aria-hidden className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-gold/70 rounded-br-md" />
+          <span aria-hidden className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-gold/80 rounded-tl-md" />
+          <span aria-hidden className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-gold/80 rounded-tr-md" />
+          <span aria-hidden className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-gold/80 rounded-bl-md" />
+          <span aria-hidden className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-gold/80 rounded-br-md" />
 
           {/* email input */}
           <label className="block relative">
@@ -385,7 +402,7 @@ export default function SecureAuth() {
             onClick={sendMagicLink}
             disabled={busy || !form.email}
             data-large={true}
-            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.01] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
+            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-[0_0_48px_hsl(var(--gold)/0.5),0_0_96px_hsl(var(--gold)/0.25)] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
             aria-label="매직링크로 제국 입장하기"
           >
             <span aria-hidden className="text-gold-foreground/90">✦</span>
@@ -394,6 +411,7 @@ export default function SecureAuth() {
             <ArrowRight className="w-6 h-6" />
             <span aria-hidden className="text-gold-foreground/90">✦</span>
           </button>
+
 
           <p className="mt-3 text-center text-sm text-foreground/75 break-keep">
             비밀번호 불필요 · 5분 유효 · 메일함을 확인해 주세요
