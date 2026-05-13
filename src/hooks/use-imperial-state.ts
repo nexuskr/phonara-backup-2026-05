@@ -39,13 +39,26 @@ const EMPTY: ImperialState = {
   whale_rank_today: null,
 };
 
+const DASHBOARD_STATE_DISABLED_KEY = "phonara_disable_dashboard_state_rpc";
+
 export function useImperialState() {
   const [state, setState] = useState<ImperialState>(EMPTY);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
+    if (typeof window !== "undefined" && sessionStorage.getItem(DASHBOARD_STATE_DISABLED_KEY) === "1") {
+      setLoading(false);
+      return;
+    }
     try {
-      const { data } = await supabase.rpc("get_my_dashboard_state" as any);
+      const { data, error } = await supabase.rpc("get_my_dashboard_state" as any);
+      if (error) {
+        if ((error as { code?: string }).code === "PGRST301" || /401|400|unauthorized|bad request/i.test(error.message ?? "")) {
+          try { sessionStorage.setItem(DASHBOARD_STATE_DISABLED_KEY, "1"); } catch { /* noop */ }
+        }
+        setLoading(false);
+        return;
+      }
       if (data && typeof data === "object") {
         setState({ ...EMPTY, ...(data as any) });
       }
