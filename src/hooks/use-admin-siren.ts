@@ -7,6 +7,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { ensureAdminSW, notifyViaSW } from "@/lib/admin-sw";
 
 const MUTE_KEY = "admin_siren_muted_v1";
 const PUSH_KEY = "admin_push_enabled_v1";
@@ -17,29 +18,36 @@ function readPush(): boolean {
 
 async function ensurePushPermission(): Promise<boolean> {
   if (typeof window === "undefined" || !("Notification" in window)) return false;
-  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "granted") {
+    await ensureAdminSW();
+    return true;
+  }
   if (Notification.permission === "denied") return false;
   const r = await Notification.requestPermission();
-  return r === "granted";
+  if (r === "granted") {
+    await ensureAdminSW();
+    return true;
+  }
+  return false;
 }
 
 function fireBrowserNotify(title: string, body: string) {
-  try {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    const n = new Notification(title, {
-      body,
-      icon: "/favicon.ico",
-      tag: "admin-anomaly",
-      requireInteraction: false,
-      silent: false,
-    });
-    n.onclick = () => {
-      try { window.focus(); } catch { /* */ }
-      try { window.location.href = "/admin/ops/errors"; } catch { /* */ }
-      n.close();
-    };
-    setTimeout(() => { try { n.close(); } catch { /* */ } }, 8000);
-  } catch { /* */ }
+  // Try SW first (survives tab unfocus better), fall back to direct Notification
+  notifyViaSW({ title, body, url: "/admin/ops/errors", tag: "admin-anomaly" }).then((ok) => {
+    if (ok) return;
+    try {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      const n = new Notification(title, {
+        body, icon: "/icon-192.png", tag: "admin-anomaly",
+      });
+      n.onclick = () => {
+        try { window.focus(); } catch { /* */ }
+        try { window.location.href = "/admin/ops/errors"; } catch { /* */ }
+        n.close();
+      };
+      setTimeout(() => { try { n.close(); } catch { /* */ } }, 8000);
+    } catch { /* */ }
+  });
 }
 
 function readMuted(): boolean {

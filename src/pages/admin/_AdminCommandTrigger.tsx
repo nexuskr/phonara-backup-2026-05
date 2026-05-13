@@ -6,8 +6,29 @@
  */
 import { useEffect, useState, useMemo, memo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User as UserIcon, Loader2, Snowflake, Sun } from "lucide-react";
+import { Search, User as UserIcon, Loader2, Snowflake, Sun, Clock } from "lucide-react";
 import { notify } from "@/lib/notify";
+
+const RECENTS_KEY = "admin_cmdk_recents_v1";
+const RECENTS_MAX = 6;
+
+type RecentItem = { to: string; name: string; section: string; ts: number };
+
+function readRecents(): RecentItem[] {
+  try {
+    const raw = localStorage.getItem(RECENTS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as RecentItem[];
+  } catch { return []; }
+}
+function writeRecents(items: RecentItem[]) {
+  try { localStorage.setItem(RECENTS_KEY, JSON.stringify(items.slice(0, RECENTS_MAX))); } catch { /* */ }
+}
+function pushRecent(item: Omit<RecentItem, "ts">) {
+  const list = readRecents().filter((r) => r.to !== item.to);
+  list.unshift({ ...item, ts: Date.now() });
+  writeRecents(list);
+}
 import {
   CommandDialog,
   CommandInput,
@@ -78,13 +99,15 @@ function AdminCommandTriggerBase() {
   }, [query]);
 
   const go = useCallback(
-    (to: string) => {
+    (to: string, meta?: { name: string; section: string }) => {
       setOpen(false);
+      if (meta) pushRecent({ to, name: meta.name, section: meta.section });
       requestAnimationFrame(() => navigate(to));
     },
     [navigate],
   );
 
+  const recents = useMemo<RecentItem[]>(() => (open ? readRecents() : []), [open]);
   const groups = useMemo(() => ADMIN_NAV, []);
 
   return (
@@ -114,6 +137,34 @@ function AdminCommandTriggerBase() {
         />
         <CommandList>
           <CommandEmpty>결과 없음</CommandEmpty>
+
+          {/* PR-23 Recents (only when query empty) */}
+          {query.trim().length === 0 && recents.length > 0 && (
+            <>
+              <CommandGroup
+                heading={
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-3 h-3" /> 최근 액션
+                  </span>
+                }
+              >
+                {recents.map((r) => (
+                  <CommandItem
+                    key={`recent-${r.to}`}
+                    value={`recent ${r.name} ${r.to}`}
+                    onSelect={() => go(r.to, { name: r.name, section: r.section })}
+                  >
+                    <Clock className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                    <span className="flex-1 truncate">{r.name}</span>
+                    <span className="text-[9px] tracking-[0.2em] uppercase opacity-60">
+                      {r.section}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandSeparator />
+            </>
+          )}
 
           {/* User results */}
           {query.trim().length >= 2 && (
@@ -217,7 +268,7 @@ function AdminCommandTriggerBase() {
                   <CommandItem
                     key={item.id}
                     value={`${section.label} ${item.name} ${item.to}`}
-                    onSelect={() => go(item.to)}
+                    onSelect={() => go(item.to, { name: item.name, section: section.label })}
                   >
                     <Icon className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
                     <span>{item.name}</span>
