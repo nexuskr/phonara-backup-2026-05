@@ -137,7 +137,7 @@ export default function AdminRoutes() {
         <Route path="treasury/coin"        element={<Section title="Coin Addresses"><CoinAddressAdmin /></Section>} />
         <Route path="treasury/accounting"  element={<Section title="Accounting (Zero-Loss)"><OperatorAccounting /></Section>} />
         <Route path="treasury/insurance"   element={<Section title="Insurance Fund"><InsuranceFundDashboard /></Section>} />
-        <Route path="treasury/pay"         element={<PayPlaceholder />} />
+        <Route path="treasury/pay"         element={<Section><PayConsole /></Section>} />
 
         {/* COMPLIANCE */}
         <Route path="compliance/aml"    element={<Section title="AML Queue"><AMLAdmin /></Section>} />
