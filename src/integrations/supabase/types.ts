@@ -1241,6 +1241,54 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_deposit_intents: {
+        Row: {
+          asset: string
+          created_at: string
+          expires_at: string
+          id: string
+          matched_at: string | null
+          matched_from_addr: string | null
+          matched_tx_hash: string | null
+          network: string
+          receive_address: string
+          requested_amount: number
+          status: string
+          unique_amount: number
+          user_id: string
+        }
+        Insert: {
+          asset?: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          matched_at?: string | null
+          matched_from_addr?: string | null
+          matched_tx_hash?: string | null
+          network?: string
+          receive_address: string
+          requested_amount: number
+          status?: string
+          unique_amount: number
+          user_id: string
+        }
+        Update: {
+          asset?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          matched_at?: string | null
+          matched_from_addr?: string | null
+          matched_tx_hash?: string | null
+          network?: string
+          receive_address?: string
+          requested_amount?: number
+          status?: string
+          unique_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_combo_progress: {
         Row: {
           date: string
@@ -3306,6 +3354,54 @@ export type Database = {
           id?: string
           metadata?: Json
           observed_roles?: string[]
+        }
+        Relationships: []
+      }
+      phon_balances: {
+        Row: {
+          balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phon_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+          ref: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+          ref?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          ref?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -6449,9 +6545,42 @@ export type Database = {
         Returns: boolean
       }
       create_crown_replay: { Args: { _event_id: string }; Returns: Json }
+      create_crypto_deposit_intent: {
+        Args: { _amount: number; _receive_address: string }
+        Returns: {
+          asset: string
+          created_at: string
+          expires_at: string
+          id: string
+          matched_at: string | null
+          matched_from_addr: string | null
+          matched_tx_hash: string | null
+          network: string
+          receive_address: string
+          requested_amount: number
+          status: string
+          unique_amount: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "crypto_deposit_intents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_guild: {
         Args: { _description?: string; _emblem?: string; _name: string }
         Returns: string
+      }
+      credit_crypto_deposit: {
+        Args: {
+          _amount: number
+          _from_addr: string
+          _to_addr: string
+          _tx_hash: string
+        }
+        Returns: Json
       }
       cron_run_finalize_weekly_pass: { Args: never; Returns: Json }
       cron_run_pay_weekly_leaderboard: { Args: never; Returns: Json }
@@ -6754,6 +6883,30 @@ export type Database = {
         }
       }
       get_my_legal_consent_status: { Args: never; Returns: Json }
+      get_my_pending_deposits: {
+        Args: never
+        Returns: {
+          asset: string
+          created_at: string
+          expires_at: string
+          id: string
+          matched_at: string | null
+          matched_from_addr: string | null
+          matched_tx_hash: string | null
+          network: string
+          receive_address: string
+          requested_amount: number
+          status: string
+          unique_amount: number
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "crypto_deposit_intents"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_quests: { Args: never; Returns: Json }
       get_my_security_events: {
         Args: { _limit?: number }
@@ -6788,6 +6941,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_phon_balance: { Args: never; Returns: number }
       get_public_crown_replay: { Args: { _token: string }; Returns: Json }
       get_recent_errors: {
         Args: { _limit?: number }
