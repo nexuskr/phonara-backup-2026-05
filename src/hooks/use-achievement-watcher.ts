@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 
+const ACHIEVEMENT_RPC_DISABLED_KEY = "phonara_disable_achievement_rpc";
+
 /**
  * Calls check_achievements after key user actions and toasts any newly
  * unlocked badges. Pass `trigger` (e.g. timestamp) to re-run on demand,
@@ -13,11 +15,17 @@ export function useAchievementWatcher(trigger?: unknown) {
   useEffect(() => {
     let cancelled = false;
     async function check() {
+      if (typeof window !== "undefined" && sessionStorage.getItem(ACHIEVEMENT_RPC_DISABLED_KEY) === "1") return;
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || cancelled) return;
         const { data, error } = await supabase.rpc("check_achievements", { _user_id: user.id });
-        if (error || !data) return;
+        if (error || !data) {
+          if (error && (/401|400|unauthorized|bad request/i.test(error.message ?? "") || (error as { code?: string }).code === "PGRST301")) {
+            try { sessionStorage.setItem(ACHIEVEMENT_RPC_DISABLED_KEY, "1"); } catch { /* noop */ }
+          }
+          return;
+        }
         const unlocked: string[] = ((data as any)?.unlocked ?? []).filter(Boolean);
         for (const key of unlocked) {
           if (seen.current.has(key)) continue;
