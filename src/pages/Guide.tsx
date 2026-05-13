@@ -17,6 +17,25 @@ import { SceneNetworkEffect } from "@/components/guide/SceneNetworkEffect";
 import { SceneGuildWar } from "@/components/guide/SceneGuildWar";
 import { SceneEmpireMap } from "@/components/guide/SceneEmpireMap";
 import { CinemaTransition } from "@/components/guide/EmpireFX";
+import LazyMount from "@/components/util/LazyMount";
+
+/** Lazy wrapper for full-screen guide scenes — only mounts current ± 1 viewport.
+ *  Keeps the snap-section min-height so the snap container math doesn't shift,
+ *  and shows a flat dark placeholder so unmount/remount is visually invisible. */
+function LazyScene({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="snap-start snap-always min-h-[calc(100dvh-56px)]">
+      <LazyMount
+        rootMargin="120% 0px"
+        unmountOnExit
+        minHeight="calc(100dvh - 56px)"
+        fallback={<div aria-hidden className="w-full bg-background" style={{ minHeight: "calc(100dvh - 56px)" }} />}
+      >
+        {children}
+      </LazyMount>
+    </div>
+  );
+}
 
 /**
  * 풀스크린 스토리텔링 가이드 — 7씬
@@ -85,25 +104,25 @@ export default function Guide() {
       >
         {isStarter ? (
           <>
-            <FomoScrollHero isLoggedIn={isLoggedIn} large={largeText} />
+            <LazyScene><FomoScrollHero isLoggedIn={isLoggedIn} large={largeText} /></LazyScene>
             <CinemaTransition />
-            <SceneProblem large={largeText} />
+            <LazyScene><SceneProblem large={largeText} /></LazyScene>
             <CinemaTransition />
-            <SceneSolution large={largeText} />
+            <LazyScene><SceneSolution large={largeText} /></LazyScene>
             <CinemaTransition />
-            <SceneProof large={largeText} />
+            <LazyScene><SceneProof large={largeText} /></LazyScene>
             <CinemaTransition />
-            <ScenePersona large={largeText} />
+            <LazyScene><ScenePersona large={largeText} /></LazyScene>
             <CinemaTransition />
-            <SceneNetworkEffect large={largeText} isLoggedIn={isLoggedIn} />
+            <LazyScene><SceneNetworkEffect large={largeText} isLoggedIn={isLoggedIn} /></LazyScene>
             <CinemaTransition />
-            <SceneGuildWar large={largeText} />
+            <LazyScene><SceneGuildWar large={largeText} /></LazyScene>
             <CinemaTransition />
-            <SceneEmpireMap large={largeText} />
+            <LazyScene><SceneEmpireMap large={largeText} /></LazyScene>
             <CinemaTransition />
-            <ScenePackage large={largeText} />
+            <LazyScene><ScenePackage large={largeText} /></LazyScene>
             <CinemaTransition />
-            <FomoFinalCTA large={largeText} />
+            <LazyScene><FomoFinalCTA large={largeText} /></LazyScene>
           </>
         ) : (
           <>
