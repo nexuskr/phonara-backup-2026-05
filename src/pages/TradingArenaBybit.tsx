@@ -233,29 +233,52 @@ export default function TradingArenaBybit() {
       if (!closed) return { error: "포지션 없음" };
       const c = closed.closed!;
       triggerFx({ kind: c.pnl >= 0 ? "win" : "loss", pnl: c.pnl, roi: c.roi, symbol: closed.symbol, unit: "USDT" });
+      notify.success("청산 완료", { description: `PnL ${c.pnl >= 0 ? "+" : ""}${c.pnl.toFixed(2)} USDT (${(c.roi * 100).toFixed(2)}%)` });
       return { pnl: c.pnl, roi: c.roi, credit: paperCredit + closed.margin + c.pnl, exit: c.price };
     }
     if (!mark || mark <= 0) {
       notify.warning("가격 수신 대기 중", { description: "차트 가격이 들어오면 다시 시도하세요." });
       return { error: "no price" };
     }
-    const r = await closeReal(id, mark);
-    if ("error" in r) {
-      notify.error("청산 실패", { description: r.error });
-    } else {
-      triggerFx({ kind: r.pnl >= 0 ? "win" : "loss", pnl: r.pnl, roi: r.roi, symbol, unit: "KRW" });
+    setBusy(true);
+    const tId = notify.loading("청산 진행 중…", { description: `${symbol} @ ${mark.toLocaleString()}` });
+    try {
+      const r = await closeReal(id, mark);
+      if ("error" in r) {
+        notify.error("청산 실패", { id: tId, description: r.error });
+      } else {
+        triggerFx({ kind: r.pnl >= 0 ? "win" : "loss", pnl: r.pnl, roi: r.roi, symbol, unit: "KRW" });
+        notify.success("청산 완료", {
+          id: tId,
+          description: `PnL ${r.pnl >= 0 ? "+" : ""}${Math.round(r.pnl).toLocaleString()} KRW (${(r.roi * 100).toFixed(2)}%)`,
+        });
+      }
+      return r;
+    } finally {
+      setBusy(false);
     }
-    return r;
   }, [mode, closePaper, closeReal, paperCredit, symbol]);
 
   const handleLiquidate = useCallback(async (id: string, mark: number) => {
     if (mode === "paper") {
       closePaper(id, mark, "liquidation");
+      notify.warning("강제 청산", { description: "포지션이 강제청산되었습니다." });
       return { liquidated: true as const, margin_lost: 0 };
     }
-    const r = await liquidateReal(id, mark);
-    if ("error" in r) notify.error("강제청산 실패", { description: r.error });
-    return r;
+    if (!mark || mark <= 0) {
+      notify.warning("가격 수신 대기 중", { description: "차트 가격이 들어오면 다시 시도하세요." });
+      return { error: "no price" };
+    }
+    setBusy(true);
+    const tId = notify.loading("강제청산 진행 중…");
+    try {
+      const r = await liquidateReal(id, mark);
+      if ("error" in r) notify.error("강제청산 실패", { id: tId, description: r.error });
+      else notify.warning("강제청산 완료", { id: tId, description: `손실 마진 ${Math.round(r.margin_lost ?? 0).toLocaleString()} KRW` });
+      return r;
+    } finally {
+      setBusy(false);
+    }
   }, [mode, closePaper, liquidateReal]);
 
   const handleCloseAll = useCallback(() => {
