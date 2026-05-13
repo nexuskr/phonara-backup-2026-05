@@ -192,6 +192,7 @@ export default function Admin() {
           {tab === "ev_health" && <EvHealthAdmin />}
           {tab === "ab_experiments" && <AbExperimentsAdmin />}
           {tab === "beta" && <BetaInvitesAdmin />}
+          {tab === "trust_v2" && <TrustV2Admin />}
         </AdminAal2Gate>
       </div>
     </Layout>
