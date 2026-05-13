@@ -102,6 +102,21 @@ export default function AdminCockpitV2() {
   const [freezes, setFreezes] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [refreshedAt, setRefreshedAt] = useState<Date | null>(null);
+  const [thresholds, setThresholds] = useState<Record<string, number>>({
+    deposits_hot: 5, withdrawals_hot: 3, aml_hot: 1, refund_hot: 2, anomaly_hot: 5,
+  });
+
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    (async () => {
+      const { data } = await (supabase as any).rpc("admin_settings_get", {
+        _key: "cockpit.thresholds",
+      });
+      if (data && typeof data === "object") {
+        setThresholds((prev) => ({ ...prev, ...(data as Record<string, number>) }));
+      }
+    })();
+  }, [user?.isAdmin]);
 
   async function load() {
     const [wd, an, fz] = await Promise.all([
