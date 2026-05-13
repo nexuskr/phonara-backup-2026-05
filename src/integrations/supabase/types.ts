@@ -786,6 +786,51 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_loop_sessions: {
+        Row: {
+          completed_at: string | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          is_simulated: boolean
+          phase: string
+          session_token: string
+          sim_balance: number
+          sim_pnl: number
+          started_at: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          is_simulated?: boolean
+          phase?: string
+          session_token: string
+          sim_balance?: number
+          sim_pnl?: number
+          started_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          is_simulated?: boolean
+          phase?: string
+          session_token?: string
+          sim_balance?: number
+          sim_pnl?: number
+          started_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       chaos_runs: {
         Row: {
           duration_ms: number | null
@@ -1813,6 +1858,45 @@ export type Database = {
           served_at?: string
           user_id?: string
           video_id?: string
+        }
+        Relationships: []
+      }
+      first_deposit_godmode: {
+        Row: {
+          bonus_krw: number
+          claimed_at: string
+          created_at: string
+          deposit_amount_krw: number
+          founding_avatar_tier: number
+          id: string
+          loss_protection_until: string
+          meta: Json
+          phon_credited: number
+          user_id: string
+        }
+        Insert: {
+          bonus_krw: number
+          claimed_at?: string
+          created_at?: string
+          deposit_amount_krw: number
+          founding_avatar_tier?: number
+          id?: string
+          loss_protection_until: string
+          meta?: Json
+          phon_credited?: number
+          user_id: string
+        }
+        Update: {
+          bonus_krw?: number
+          claimed_at?: string
+          created_at?: string
+          deposit_amount_krw?: number
+          founding_avatar_tier?: number
+          id?: string
+          loss_protection_until?: string
+          meta?: Json
+          phon_credited?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -6124,6 +6208,29 @@ export type Database = {
         }
         Returns: Json
       }
+      advance_cash_loop_phase: {
+        Args: { _phase: string; _sim_pnl?: number; _token: string }
+        Returns: {
+          completed_at: string | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          is_simulated: boolean
+          phase: string
+          session_token: string
+          sim_balance: number
+          sim_pnl: number
+          started_at: string
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cash_loop_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       ai_bot_base_reward: {
         Args: { _kind: Database["public"]["Enums"]["ai_bot_kind"] }
         Returns: number
@@ -6209,6 +6316,27 @@ export type Database = {
           new_streak: number
           reward: number
         }[]
+      }
+      claim_first_deposit_godmode: {
+        Args: { _deposit_krw: number }
+        Returns: {
+          bonus_krw: number
+          claimed_at: string
+          created_at: string
+          deposit_amount_krw: number
+          founding_avatar_tier: number
+          id: string
+          loss_protection_until: string
+          meta: Json
+          phon_credited: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "first_deposit_godmode"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       claim_founding_seat: { Args: { _purchase_id: string }; Returns: Json }
       claim_handbook_bonus: { Args: never; Returns: Json }
@@ -6507,6 +6635,27 @@ export type Database = {
           to: "fomo_notifications"
           isOneToOne: false
           isSetofReturn: true
+        }
+      }
+      get_my_godmode_status: {
+        Args: never
+        Returns: {
+          bonus_krw: number
+          claimed_at: string
+          created_at: string
+          deposit_amount_krw: number
+          founding_avatar_tier: number
+          id: string
+          loss_protection_until: string
+          meta: Json
+          phon_credited: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "first_deposit_godmode"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       get_my_legal_consent_status: { Args: never; Returns: Json }
@@ -7087,6 +7236,29 @@ export type Database = {
           _prompt: string
         }
         Returns: Json
+      }
+      start_cash_loop_session: {
+        Args: { _token: string }
+        Returns: {
+          completed_at: string | null
+          converted_at: string | null
+          created_at: string
+          id: string
+          is_simulated: boolean
+          phase: string
+          session_token: string
+          sim_balance: number
+          sim_pnl: number
+          started_at: string
+          updated_at: string
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cash_loop_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       start_or_extend_booster: {
         Args: { _hours?: number; _purchase_id: string; _user_id: string }
