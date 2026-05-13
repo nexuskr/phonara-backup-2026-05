@@ -16,6 +16,9 @@ import {
 import Particles from "@/components/Particles";
 import PayoutTicker from "@/components/PayoutTicker";
 import WhaleStrikeRail from "@/components/empire/WhaleStrikeRail";
+const WhaleStrikeRailV3 = lazy(() => import("@/components/empire/WhaleStrikeRailV3"));
+const LiveCounterStrip = lazy(() => import("@/components/empire/LiveCounterStrip"));
+const GhostPulseGlobe = lazy(() => import("@/components/empire/GhostPulseGlobe"));
 import { useOnline, useTotalPayout, useTodayPayout, useTotalUsers } from "@/components/LiveStats.tsx";
 import { useAuthReady } from "@/hooks/use-auth-ready";
 import EmpireFoundingCounter from "@/components/EmpireFoundingCounter";
