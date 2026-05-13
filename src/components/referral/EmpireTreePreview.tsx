@@ -89,8 +89,11 @@ export default function EmpireTreePreview() {
                       )}
                       <circle cx={px} cy={py} r="11" fill={active ? "hsl(var(--card))" : "hsl(var(--muted)/0.5)"} stroke={active ? "hsl(var(--gold)/0.7)" : "hsl(var(--muted-foreground)/0.3)"} strokeWidth="1.5" />
                       <text x={px} y={py + 3} textAnchor="middle" fontSize="9" fill={active ? "hsl(var(--gold))" : "hsl(var(--muted-foreground))"}>
-                  {active ? "👤" : "?"}
-                </text>
+                        {active ? "👤" : "?"}
+                      </text>
+                    </>
+                  );
+                })()}
               </g>
             );
           })}
