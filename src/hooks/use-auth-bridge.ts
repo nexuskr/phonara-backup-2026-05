@@ -3,6 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadDB, saveDB, type Tier } from "@/lib/store";
 import { registerCurrentDevice } from "@/lib/deviceFingerprint";
 
+const RESETTABLE_SESSION_FLAGS = [
+  "phonara_disable_dashboard_state_rpc",
+  "phonara_disable_achievement_rpc",
+  "phonara_disable_fomo_rpc",
+  "phonara_disable_persona_rpc",
+  "phonara_disable_persona_missions_rpc",
+  "phonara_disable_register_device_rpc",
+] as const;
+
 const TIER_MAP: Record<string, Tier> = {
   normal: "NORMAL", vip: "VIP", god: "GOD", empire: "EMPIRE",
   NORMAL: "NORMAL", VIP: "VIP", GOD: "GOD", EMPIRE: "EMPIRE",
@@ -45,22 +54,45 @@ async function syncFromSession(session: any) {
   saveDB({ ...db, user: merged as any });
 }
 
+function resetSessionCircuitBreakers() {
+  try {
+    RESETTABLE_SESSION_FLAGS.forEach((key) => sessionStorage.removeItem(key));
+  } catch {
+    // no-op
+  }
+}
+
+async function assignPersonaSafely() {
+  try {
+    if (sessionStorage.getItem("phonara_disable_persona_rpc") === "1") return;
+    const { data } = await supabase.auth.getSession();
+    if (!data.session?.user) return;
+    const { error } = await supabase.rpc("assign_persona" as any);
+    if (error && ((error as { code?: string }).code === "PGRST301" || /401|400|unauthorized|bad request/i.test(error.message ?? ""))) {
+      sessionStorage.setItem("phonara_disable_persona_rpc", "1");
+    }
+  } catch {
+    // best-effort only
+  }
+}
+
 export function useAuthBridge() {
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       // Defer to avoid deadlock
       setTimeout(() => { syncFromSession(session); }, 0);
       if (event === "SIGNED_IN" && session?.user) {
+        resetSessionCircuitBreakers();
         setTimeout(() => { void registerCurrentDevice(); }, 500);
-        // P1: persona auto-classify (best-effort, never block)
-        setTimeout(() => { void supabase.rpc("assign_persona" as any).then(() => {}); }, 800);
+        setTimeout(() => { void assignPersonaSafely(); }, 800);
       }
     });
     supabase.auth.getSession().then(({ data }) => {
       syncFromSession(data.session);
       if (data.session?.user) {
+        resetSessionCircuitBreakers();
         setTimeout(() => { void registerCurrentDevice(); }, 500);
-        setTimeout(() => { void supabase.rpc("assign_persona" as any).then(() => {}); }, 800);
+        setTimeout(() => { void assignPersonaSafely(); }, 800);
       }
     });
     return () => sub.subscription.unsubscribe();
