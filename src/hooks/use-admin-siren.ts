@@ -9,6 +9,38 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const MUTE_KEY = "admin_siren_muted_v1";
+const PUSH_KEY = "admin_push_enabled_v1";
+
+function readPush(): boolean {
+  try { return localStorage.getItem(PUSH_KEY) === "1"; } catch { return false; }
+}
+
+async function ensurePushPermission(): Promise<boolean> {
+  if (typeof window === "undefined" || !("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const r = await Notification.requestPermission();
+  return r === "granted";
+}
+
+function fireBrowserNotify(title: string, body: string) {
+  try {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    const n = new Notification(title, {
+      body,
+      icon: "/favicon.ico",
+      tag: "admin-anomaly",
+      requireInteraction: false,
+      silent: false,
+    });
+    n.onclick = () => {
+      try { window.focus(); } catch { /* */ }
+      try { window.location.href = "/admin/ops/errors"; } catch { /* */ }
+      n.close();
+    };
+    setTimeout(() => { try { n.close(); } catch { /* */ } }, 8000);
+  } catch { /* */ }
+}
 
 function readMuted(): boolean {
   try {
