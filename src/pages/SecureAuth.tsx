@@ -556,21 +556,25 @@ export default function SecureAuth() {
         </div>
 
         {/* === Trust footer pills === */}
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
-          {[
-            { icon: <ShieldCheck className="w-3.5 h-3.5" />, label: "19+ AdultGate" },
-            { icon: <Clock className="w-3.5 h-3.5" />, label: "Magic Link 5분 유효" },
-            { icon: <LockIcon className="w-3.5 h-3.5" />, label: "AAL2 보안" },
-            { icon: <Crown className="w-3.5 h-3.5" />, label: "운영자 무손실" },
-          ].map((p, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-background/60 text-xs text-foreground/80"
-            >
-              <span className="text-gold">{p.icon}</span>
-              {p.label}
-            </span>
-          ))}
+        <div className="mt-7 flex flex-col items-center gap-3 w-full">
+          <div className="h-px w-40 bg-gradient-to-r from-transparent via-gold/55 to-transparent" />
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              { icon: <ShieldCheck className="w-3.5 h-3.5" />, label: "19+ AdultGate" },
+              { icon: <Clock className="w-3.5 h-3.5" />, label: "Magic Link 5분 유효" },
+              { icon: <LockIcon className="w-3.5 h-3.5" />, label: "AAL2 보안" },
+              { icon: <Crown className="w-3.5 h-3.5" />, label: "운영자 무손실" },
+            ].map((p, i) => (
+              <span
+                key={i}
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/35 bg-gradient-to-b from-background/75 to-background/45 text-xs text-foreground/85 shadow-[0_0_18px_-10px_hsl(var(--gold)/0.5)]"
+              >
+                <span aria-hidden className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+                <span className="text-gold">{p.icon}</span>
+                {p.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground/80 max-w-sm break-keep">
