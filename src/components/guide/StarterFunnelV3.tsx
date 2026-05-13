@@ -291,8 +291,9 @@ function FomoScene({ onFinish }: { onFinish: (target: string) => void }) {
       transition={{ duration: 0.4 }}
     >
       <motion.div
-        animate={{ scale: [1, 1.04, 1] }}
-        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
         className="font-imperial font-black text-2xl sm:text-4xl leading-tight break-keep max-w-md"
       >
         지금 시작하지 않으면<br />
