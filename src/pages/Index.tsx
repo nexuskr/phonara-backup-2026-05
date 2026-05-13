@@ -249,7 +249,7 @@ export default function Index() {
 
       {/* Live payout ticker + Council */}
       <section className="relative z-10 container py-12">
-        <div className="mb-5"><WhaleStrikeRail /></div>
+        <div className="mb-5"><Suspense fallback={null}><WhaleStrikeRailV3 /></Suspense></div>
         <div className="grid md:grid-cols-2 gap-5">
           <PayoutTicker />
           <div className="relative rounded-3xl overflow-hidden border border-primary/40 glow-imperial">
