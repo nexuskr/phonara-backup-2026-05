@@ -177,7 +177,7 @@ export default function SecureAuth() {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-[hsl(var(--background))]" />
         {/* large gold grid */}
         <div
-          className="absolute inset-0 opacity-[0.06]"
+          className="absolute inset-0 opacity-[0.065]"
           style={{
             backgroundImage:
               "linear-gradient(hsl(var(--gold)/0.7) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--gold)/0.7) 1px, transparent 1px)",
@@ -186,7 +186,7 @@ export default function SecureAuth() {
         />
         {/* fine gold grid */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.034]"
           style={{
             backgroundImage:
               "linear-gradient(hsl(var(--gold)/0.6) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--gold)/0.6) 1px, transparent 1px)",
@@ -228,7 +228,7 @@ export default function SecureAuth() {
         />
         {/* top-center static gold ray */}
         <div
-          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[420px] opacity-[0.22]"
+          className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[420px] opacity-[0.24]"
           style={{
             background:
               "conic-gradient(from 270deg at 50% 100%, transparent 0deg, hsl(var(--gold)/0.6) 90deg, transparent 180deg, transparent 360deg)",
@@ -245,7 +245,7 @@ export default function SecureAuth() {
         <LanguageSwitcher variant="auth" />
       </div>
 
-      <main className="relative z-10 flex flex-col items-center px-4 pt-16 pb-10 max-w-xl mx-auto">
+      <main className="relative z-10 flex flex-col items-center px-3 sm:px-4 pt-12 sm:pt-16 pb-10 max-w-xl mx-auto">
         {/* === Static gold wordmark seal — framed double hairline === */}
         <div className="mt-2 flex flex-col items-center select-none">
           <div className="h-px w-56 bg-gradient-to-r from-transparent via-gold/55 to-transparent" />
@@ -279,21 +279,21 @@ export default function SecureAuth() {
           </div>
           {/* Imperial kicker */}
           <div className="inline-flex items-center gap-2 mb-3 text-gold">
-            <Crown className="w-[18px] h-[18px] drop-shadow-[0_0_8px_hsl(var(--gold)/0.65)]" />
+            <Crown className="w-[18px] h-[18px] drop-shadow-[0_0_9px_hsl(var(--gold)/0.7)]" />
             <span
-              className="font-imperial font-black text-[12px] sm:text-[13px] tracking-[0.34em] uppercase"
-              style={{ textShadow: "0 0 14px hsl(var(--gold)/0.4)" }}
+              className="font-imperial font-black text-[11.5px] sm:text-[13px] tracking-[0.3em] sm:tracking-[0.34em] uppercase"
+              style={{ textShadow: "0 0 16px hsl(var(--gold)/0.45)" }}
             >
               패키지 1회로 모든 미션이 자동 완료
             </span>
-            <Crown className="w-[18px] h-[18px] drop-shadow-[0_0_8px_hsl(var(--gold)/0.65)]" />
+            <Crown className="w-[18px] h-[18px] drop-shadow-[0_0_9px_hsl(var(--gold)/0.7)]" />
           </div>
           <h1
-            className="font-imperial font-black text-gradient-gold leading-[1.05] text-[34px] sm:text-[56px]"
+            className="font-imperial font-black text-gradient-gold leading-[1.05] text-[32px] sm:text-[56px]"
             style={{
-              WebkitTextStroke: "1px hsl(var(--gold-stroke) / 0.45)",
+              WebkitTextStroke: "1px hsl(var(--gold-stroke) / 0.48)",
               textShadow:
-                "0 0 32px hsl(var(--gold) / 0.25), 0 0 70px hsl(var(--gold) / 0.15)",
+                "0 0 32px hsl(var(--gold) / 0.28), 0 0 72px hsl(var(--gold) / 0.18)",
             }}
           >
             제국 입장을 위한
@@ -301,11 +301,11 @@ export default function SecureAuth() {
           </h1>
           <p
             data-large={true}
-            className={`mt-4 text-foreground/85 break-keep ${senior.bodyXl} text-[18px] leading-relaxed`}
+            className={`mt-4 text-foreground/85 break-keep ${senior.bodyXl} text-[16px] sm:text-[18px] leading-relaxed`}
           >
             폰 하나로 제국을 쌓는다.
             <br className="sm:hidden" />
-            <span className="text-gold/90"> 비밀번호 없이, 5분 안에.</span>
+            <span className="text-gold/95"> 비밀번호 없이, 5분 안에.</span>
           </p>
         </div>
 
@@ -318,22 +318,22 @@ export default function SecureAuth() {
           ].map((s, i) => (
             <div
               key={i}
-              className="relative rounded-xl border border-gold/30 bg-gradient-to-b from-background/80 to-background/55 px-3 py-3 text-center overflow-hidden"
+              className="relative rounded-xl border border-gold/35 bg-gradient-to-b from-background/85 to-background/55 px-2 sm:px-3 py-2.5 sm:py-3 text-center overflow-hidden"
             >
               {/* gold cap line */}
-              <span aria-hidden className="absolute inset-x-3 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+              <span aria-hidden className="absolute inset-x-3 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold/75 to-transparent" />
               {/* hairline divider on left (skip first) */}
               {i > 0 && (
-                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-gold/30 to-transparent" />
+                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
               )}
               <SimBadge className="absolute top-1.5 right-1.5" />
-              <div className="text-[8px] tracking-[0.4em] text-gold/65 font-black">
+              <div className="text-[8px] tracking-[0.4em] text-gold/70 font-black">
                 {s.micro}
               </div>
               <div className="text-[10px] tracking-widest text-muted-foreground font-bold mt-0.5">
                 {s.label}
               </div>
-              <div className="font-imperial text-gradient-gold text-xl sm:text-2xl mt-1 tabular-nums">
+              <div className="font-imperial text-gradient-gold text-[19px] sm:text-2xl mt-1 tabular-nums">
                 {s.value}<span className="text-sm">{s.suffix}</span>
               </div>
             </div>
@@ -355,10 +355,10 @@ export default function SecureAuth() {
 
         {/* === Main CTA card — luxury watch frame === */}
         <div
-          className="relative w-full mt-3 rounded-3xl p-5 sm:p-6 border-2 border-gold/50 bg-background/85 outline outline-1 outline-offset-[3px] outline-gold/20 overflow-hidden"
+          className="relative w-full mt-3 rounded-3xl p-4 sm:p-6 border-2 border-gold/55 bg-background/85 outline outline-1 outline-offset-[3px] outline-gold/22 overflow-hidden"
           style={{
             boxShadow:
-              "0 0 40px hsl(var(--gold)/0.25), 0 0 80px hsl(var(--gold)/0.12), inset 0 1px 0 hsl(var(--gold)/0.25), inset 0 -1px 0 hsl(var(--gold)/0.12)",
+              "0 0 44px hsl(var(--gold)/0.28), 0 0 84px hsl(var(--gold)/0.14), inset 0 1px 0 hsl(var(--gold)/0.28), inset 0 -1px 0 hsl(var(--gold)/0.14)",
           }}
         >
           {/* inner top hairline */}
@@ -402,14 +402,14 @@ export default function SecureAuth() {
             onClick={sendMagicLink}
             disabled={busy || !form.email}
             data-large={true}
-            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-[0_0_48px_hsl(var(--gold)/0.5),0_0_96px_hsl(var(--gold)/0.25)] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
+            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-[0_0_52px_hsl(var(--gold)/0.55),0_0_104px_hsl(var(--gold)/0.28)] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[64px] sm:min-h-[72px] text-lg sm:text-2xl flex items-center justify-center gap-2 sm:gap-3`}
             aria-label="매직링크로 제국 입장하기"
           >
-            <span aria-hidden className="text-gold-foreground/90">✦</span>
-            <Sparkles className="w-6 h-6" />
+            <span aria-hidden className="text-gold-foreground/90 hidden sm:inline">✦</span>
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
             <span>매직링크로 제국 입장</span>
-            <ArrowRight className="w-6 h-6" />
-            <span aria-hidden className="text-gold-foreground/90">✦</span>
+            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span aria-hidden className="text-gold-foreground/90 hidden sm:inline">✦</span>
           </button>
 
 
