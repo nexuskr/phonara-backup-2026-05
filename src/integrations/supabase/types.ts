@@ -6543,6 +6543,10 @@ export type Database = {
       _cron_security_self_audit: { Args: never; Returns: undefined }
       _cron_settle_package_daily: { Args: never; Returns: Json }
       _edge_internal_auth_header: { Args: never; Returns: Json }
+      _evaluate_deposit_rules_internal: {
+        Args: { _deposit_id: string }
+        Returns: number
+      }
       _grant_guild_crown: {
         Args: {
           _amount: number
