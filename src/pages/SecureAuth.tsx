@@ -605,9 +605,19 @@ export default function SecureAuth() {
         </div>
 
         {/* === Trust footer pills === */}
-        <div className="mt-7 flex flex-col items-center gap-3 w-full">
-          <div className="h-px w-40 bg-gradient-to-r from-transparent via-gold/55 to-transparent" />
-          <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="relative mt-7 flex flex-col items-center gap-3 w-full">
+          {/* footer gold halo */}
+          <span
+            aria-hidden
+            className="absolute left-1/2 -translate-x-1/2 -top-4 w-[420px] h-24 pointer-events-none opacity-70"
+            style={{
+              background:
+                "radial-gradient(60% 80% at 50% 50%, hsl(var(--gold)/0.18) 0%, transparent 70%)",
+              filter: "blur(14px)",
+            }}
+          />
+          <div className="h-px w-40 bg-gradient-to-r from-transparent via-gold/65 to-transparent" />
+          <div className="relative flex flex-wrap items-center justify-center gap-2">
             {[
               { icon: <ShieldCheck className="w-3.5 h-3.5" />, label: "19+ AdultGate" },
               { icon: <Clock className="w-3.5 h-3.5" />, label: "Magic Link 5분 유효" },
@@ -616,15 +626,20 @@ export default function SecureAuth() {
             ].map((p, i) => (
               <span
                 key={i}
-                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/35 bg-gradient-to-b from-background/75 to-background/45 text-xs text-foreground/85 shadow-[0_0_18px_-10px_hsl(var(--gold)/0.5)]"
+                className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/45 bg-gradient-to-b from-background/80 to-background/50 text-xs text-foreground/90"
+                style={{
+                  boxShadow:
+                    "0 0 22px -8px hsl(var(--gold)/0.55), inset 0 1px 0 hsl(var(--gold)/0.18)",
+                }}
               >
-                <span aria-hidden className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+                <span aria-hidden className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
                 <span className="text-gold">{p.icon}</span>
                 {p.label}
               </span>
             ))}
           </div>
         </div>
+
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground/80 max-w-sm break-keep">
           PHONARA EMPIRE는 만 19세 이상 성인만 이용 가능합니다.
