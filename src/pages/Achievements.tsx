@@ -149,11 +149,16 @@ export default function Achievements() {
           {filtered.map((a) => {
             const unlocked = mine.has(a.key);
             const grad = TIER_COLORS[a.badge_tier ?? "bronze"] ?? TIER_COLORS.bronze;
+            const to = routeFor(a);
             return (
-              <div
+              <Link
                 key={a.key}
-                className={`relative rounded-2xl border p-4 overflow-hidden ${
-                  unlocked ? "border-primary/30 bg-card" : "border-border bg-muted/30"
+                to={to}
+                aria-label={`${a.name} — 진행하러 가기`}
+                className={`press group relative rounded-2xl border p-4 overflow-hidden block transition hover:-translate-y-0.5 hover:shadow-lg ${
+                  unlocked
+                    ? "border-primary/30 bg-card hover:border-primary/60"
+                    : "border-border bg-muted/30 hover:border-primary/40"
                 }`}
               >
                 <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full bg-gradient-to-br ${grad} ${unlocked ? "opacity-30" : "opacity-5"} blur-2xl`} />
@@ -172,10 +177,13 @@ export default function Achievements() {
                       {a.reward_credit > 0 && (
                         <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-bold tabular-nums">{formatKRW(a.reward_credit)}</span>
                       )}
+                      <span className="ml-auto text-[10px] font-bold text-muted-foreground group-hover:text-primary transition tracking-widest">
+                        진행하기 →
+                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
