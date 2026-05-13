@@ -303,9 +303,11 @@ export default function Dashboard() {
           </div>
 
           {/* Live ranking */}
-          <div className="mt-8">
-            <LiveRanking />
-          </div>
+          <LazyMount minHeight={320} rootMargin="600px 0px">
+            <div className="mt-8">
+              <Suspense fallback={null}><LiveRanking /></Suspense>
+            </div>
+          </LazyMount>
 
           <Disclaimer className="mt-6" />
         </div>
