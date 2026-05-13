@@ -19,7 +19,7 @@ export default function FoundingSeasonsAdmin() {
 
   async function load() {
     try { setRows(await adminListFoundingSeasons()); }
-    catch (e: any) { notify.error("로드 실패", e.message); }
+    catch (e: any) { notify.error("로드 실패", { description: e.message }); }
   }
   useEffect(() => {
     load();
@@ -36,7 +36,7 @@ export default function FoundingSeasonsAdmin() {
       const r: any = await adminEndFoundingSeason(s.id);
       notify.success("시즌 종료 + 정산 완료", `${r?.settled_users ?? 0}명에게 퍼크 지급`);
       load();
-    } catch (e: any) { notify.error("종료 실패", e.message); }
+    } catch (e: any) { notify.error("종료 실패", { description: e.message }); }
   }
 
   return (
@@ -117,7 +117,7 @@ function CreateModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
   const [endsAt, setEndsAt] = useState("");
   const [busy, setBusy] = useState(false);
   async function save() {
-    if (!code || !title) { notify.error("필수 입력", "코드/제목"); return; }
+    if (!code || !title) { notify.error("필수 입력", { description: "코드/제목" }); return; }
     setBusy(true);
     try {
       await adminCreateFoundingSeason({
@@ -128,7 +128,7 @@ function CreateModal({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
       });
       notify.success("시즌 생성 완료");
       onSaved();
-    } catch (e: any) { notify.error("생성 실패", e.message); }
+    } catch (e: any) { notify.error("생성 실패", { description: e.message }); }
     finally { setBusy(false); }
   }
   return (
@@ -161,7 +161,7 @@ function EditModal({ row, onClose, onSaved }: { row: FoundingSeasonAdminRow; onC
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
       });
       notify.success("수정 완료"); onSaved();
-    } catch (e: any) { notify.error("수정 실패", e.message); }
+    } catch (e: any) { notify.error("수정 실패", { description: e.message }); }
     finally { setBusy(false); }
   }
   return (
@@ -181,12 +181,12 @@ function ReleaseModal({ row, onClose, onSaved }: { row: FoundingSeasonAdminRow; 
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   async function save() {
-    if (!reason || reason.length < 3) { notify.error("사유 입력 필요", "최소 3자"); return; }
+    if (!reason || reason.length < 3) { notify.error("사유 입력 필요", { description: "최소 3자" }); return; }
     setBusy(true);
     try {
       await adminReleaseFoundingSeat(row.id, seatNo, reason);
       notify.success("좌석 해제 완료"); onSaved();
-    } catch (e: any) { notify.error("해제 실패", e.message); }
+    } catch (e: any) { notify.error("해제 실패", { description: e.message }); }
     finally { setBusy(false); }
   }
   return (
