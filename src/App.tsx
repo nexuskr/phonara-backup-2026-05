@@ -72,6 +72,7 @@ import { PracticeModeBanner } from "./components/practice/PracticeModeBanner";
 import { PracticeModeGate } from "./components/practice/PracticeModeGate";
 import SimGlobalBadge from "./components/SimGlobalBadge";
 const EmpireMomentToast = lazy(() => import("./components/empire/EmpireMomentToast"));
+const FloatingCashLoopWidget = lazy(() => import("./components/empire/FloatingCashLoopWidget"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +111,7 @@ const App = () => (
           <PracticeModeBanner />
           <SimGlobalBadge />
           <Suspense fallback={null}><EmpireMomentToast /></Suspense>
+          <Suspense fallback={null}><FloatingCashLoopWidget /></Suspense>
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
