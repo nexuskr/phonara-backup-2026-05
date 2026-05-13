@@ -186,6 +186,7 @@ function AutoRulesAdminBase() {
           },
         ]}
       />
+      <ShadowDecisionsPanel />
     </div>
   );
 }
