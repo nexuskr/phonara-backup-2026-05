@@ -6629,6 +6629,7 @@ export type Database = {
       get_whale_strike_funnel: { Args: never; Returns: Json }
       get_whale_strikes_24h: { Args: { _limit?: number }; Returns: Json }
       ghost_cleanup_expired: { Args: never; Returns: undefined }
+      ghost_pulse_run: { Args: never; Returns: undefined }
       ghost_reset_daily: { Args: never; Returns: undefined }
       ghost_tick: {
         Args: {
