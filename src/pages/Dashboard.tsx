@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Particles from "@/components/Particles";
@@ -9,6 +9,10 @@ import { useDB, DEFAULT_MISSIONS, formatKRW } from "@/lib/store";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { refreshWallet } from "@/lib/missions-rpc";
 import { Flame, Zap, Trophy, ChevronRight, TrendingUp, Sparkles, Crown, Wallet, Users, Activity } from "lucide-react";
+import DashboardBetPanel, { type BetPanelHandle } from "@/components/dashboard/DashboardBetPanel";
+import RecoveryPrompt from "@/components/dashboard/RecoveryPrompt";
+import StreakBadge from "@/components/dashboard/StreakBadge";
+import WithdrawNudge from "@/components/dashboard/WithdrawNudge";
 import CommandHero from "@/components/CommandHero";
 import { FomoNotificationStrip } from "@/components/empire/FomoNotificationStrip";
 import WhaleStrikeRail from "@/components/empire/WhaleStrikeRail";
@@ -168,7 +172,21 @@ export default function Dashboard() {
           {/* P5 — Recovery FOMO cascade */}
           <FomoNotificationStrip />
           <div className="mb-3"><CrownWarHUD /></div>
-          <div className="mb-4"><WhaleStrikeRail /></div>
+          <div className="mb-3"><WhaleStrikeRail /></div>
+
+          {/* 🚀 Cosmic Emperor V3 — 베팅 패널 (PHON·차트·금액·배율·LONG/SHORT) + 복구·연승 */}
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="text-[10px] tracking-[0.3em] font-bold text-primary/80">우주 황제 베팅 패널</div>
+            <StreakBadge />
+          </div>
+          <div className="mb-3">
+            <RecoveryPrompt onResubmit={() => betRef.current?.resubmit()} />
+          </div>
+          <div className="mb-4">
+            <DashboardBetPanel ref={betRef} />
+          </div>
+          <WithdrawNudge />
+
           <div className="mb-4"><LiveRankingMarquee /></div>
           {/* 🏛️ Command Hero — 영웅 카드 (잔고 + 추천 미션 + 100석) */}
           <CommandHero />
