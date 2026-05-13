@@ -203,6 +203,7 @@ export default function AdminCockpitV2() {
             hint="영수증 / 코인 입금"
             to="/admin/treasury/deposits"
             tone="gold"
+            threshold={thresholds.deposits_hot}
           />
           <ActionTile
             icon={ArrowDownToLine}
@@ -211,6 +212,7 @@ export default function AdminCockpitV2() {
             hint="잔액 / KYC / SLA"
             to="/admin/treasury/withdrawals"
             tone="destructive"
+            threshold={thresholds.withdrawals_hot}
             sla={pending.withdrawals_pending && pending.withdrawals_pending > 10 ? "위험" : "30분"}
           />
           <ActionTile
@@ -220,6 +222,7 @@ export default function AdminCockpitV2() {
             hint="고위험 트랜잭션"
             to="/admin/compliance/aml"
             tone="destructive"
+            threshold={thresholds.aml_hot}
           />
           <ActionTile
             icon={HeartHandshake}
@@ -228,6 +231,7 @@ export default function AdminCockpitV2() {
             hint="Trust v2 큐"
             to="/admin/compliance/trust"
             tone="primary"
+            threshold={thresholds.refund_hot}
           />
           <ActionTile
             icon={AlertTriangle}
@@ -236,6 +240,7 @@ export default function AdminCockpitV2() {
             hint="미확인 이벤트"
             to="/admin/ops/errors"
             tone="destructive"
+            threshold={thresholds.anomaly_hot}
           />
         </div>
       </section>
