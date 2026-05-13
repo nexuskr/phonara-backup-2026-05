@@ -31,6 +31,7 @@ const LEVERAGE_GATES: Array<{ x: number; phon: number }> = [
 
 export interface BetPanelHandle {
   resubmit: () => void;
+  focusAmount: () => void;
 }
 
 /**
