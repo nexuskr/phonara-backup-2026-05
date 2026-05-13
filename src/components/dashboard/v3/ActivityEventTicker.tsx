@@ -87,10 +87,10 @@ export default function ActivityEventTicker({
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
+      if (timer) window.clearTimeout(timer);
       supabase.removeChannel(ch);
     };
-  }, [limit]);
+  }, [limit, intervalMs, settings.tickerSpeed]);
 
   if (variant === "strip") {
     return (
