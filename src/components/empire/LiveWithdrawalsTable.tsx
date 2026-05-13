@@ -52,7 +52,7 @@ export default function LiveWithdrawalsTable() {
   if (rows.length === 0) {
     return (
       <EmptyState
-        icon={Banknote}
+        icon={<Banknote className="w-5 h-5" />}
         title="아직 완료된 출금이 없습니다"
         description="첫 출금이 완료되는 순간 이곳에 실시간으로 표시됩니다."
       />
