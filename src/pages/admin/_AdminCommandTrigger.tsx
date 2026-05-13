@@ -268,7 +268,7 @@ function AdminCommandTriggerBase() {
                   <CommandItem
                     key={item.id}
                     value={`${section.label} ${item.name} ${item.to}`}
-                    onSelect={() => go(item.to)}
+                    onSelect={() => go(item.to, { name: item.name, section: section.label })}
                   >
                     <Icon className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
                     <span>{item.name}</span>
