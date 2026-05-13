@@ -84,7 +84,14 @@ export default function WithdrawRequestsAdmin() {
       )}
 
       {list.map((w) => (
-        <div key={w.id} className="glass-strong rounded-2xl p-4 neon-border">
+        <div
+          key={w.id}
+          data-row-id={w.id}
+          className={cn(
+            "glass-strong rounded-2xl p-4 neon-border transition-all",
+            highlightId === w.id && "ring-2 ring-primary shadow-lg shadow-primary/20",
+          )}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="text-[10px] text-muted-foreground flex items-center gap-2">
