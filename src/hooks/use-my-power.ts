@@ -76,19 +76,19 @@ export function useMyPower(): PowerState {
   // Realtime: phon_balances + nft_collection
   useEffect(() => {
     if (!userId) return;
-    const ch = supabase
-      .channel(`my-power:${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "phon_balances", filter: `user_id=eq.${userId}` },
-        () => { void fetchAll(); },
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "nft_collection", filter: `user_id=eq.${userId}` },
-        () => { void fetchAll(); },
-      )
-      .subscribe();
+    const suffix = Math.random().toString(36).slice(2, 10);
+    const ch = supabase.channel(`my-power:${userId}:${suffix}`);
+    ch.on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "phon_balances", filter: `user_id=eq.${userId}` },
+      () => { void fetchAll(); },
+    )
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "nft_collection", filter: `user_id=eq.${userId}` },
+      () => { void fetchAll(); },
+    )
+    .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [userId, fetchAll]);
 
