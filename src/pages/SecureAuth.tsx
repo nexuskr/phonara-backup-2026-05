@@ -318,22 +318,22 @@ export default function SecureAuth() {
           ].map((s, i) => (
             <div
               key={i}
-              className="relative rounded-xl border border-gold/30 bg-gradient-to-b from-background/80 to-background/55 px-3 py-3 text-center overflow-hidden"
+              className="relative rounded-xl border border-gold/35 bg-gradient-to-b from-background/85 to-background/55 px-2 sm:px-3 py-2.5 sm:py-3 text-center overflow-hidden"
             >
               {/* gold cap line */}
-              <span aria-hidden className="absolute inset-x-3 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+              <span aria-hidden className="absolute inset-x-3 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold/75 to-transparent" />
               {/* hairline divider on left (skip first) */}
               {i > 0 && (
-                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-gold/30 to-transparent" />
+                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
               )}
               <SimBadge className="absolute top-1.5 right-1.5" />
-              <div className="text-[8px] tracking-[0.4em] text-gold/65 font-black">
+              <div className="text-[8px] tracking-[0.4em] text-gold/70 font-black">
                 {s.micro}
               </div>
               <div className="text-[10px] tracking-widest text-muted-foreground font-bold mt-0.5">
                 {s.label}
               </div>
-              <div className="font-imperial text-gradient-gold text-xl sm:text-2xl mt-1 tabular-nums">
+              <div className="font-imperial text-gradient-gold text-[19px] sm:text-2xl mt-1 tabular-nums">
                 {s.value}<span className="text-sm">{s.suffix}</span>
               </div>
             </div>
