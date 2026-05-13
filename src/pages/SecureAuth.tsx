@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { Trans, useTranslation } from "react-i18next";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
@@ -13,10 +13,7 @@ import {
 } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
-import {
-  GoldNebulaBg, GoldOrbitField, ParticleField, ParallaxLayer,
-  ImperialSeal, AnimatedCounter, SimBadge, GoldDivider, senior,
-} from "@/components/guide/EmpireFX";
+import { SimBadge, GoldDivider, senior } from "@/components/guide/EmpireFX";
 
 function checkAge19(birth: string) {
   if (!birth) return false;
@@ -174,12 +171,31 @@ export default function SecureAuth() {
     >
       <AdultOnlyBanner className="absolute top-0 left-0 right-0 z-30" />
 
-      {/* === Background cinematic layers === */}
-      <GoldNebulaBg tone="gold" />
-      <ParallaxLayer strength={40}>
-        <GoldOrbitField count={12} />
-      </ParallaxLayer>
-      <ParticleField density={10} />
+      {/* === Static minimal cinematic background (no animation) === */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        {/* deep gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-[hsl(var(--background))]" />
+        {/* faint gold grid */}
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "linear-gradient(hsl(var(--gold)/0.6) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--gold)/0.6) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+          }}
+        />
+        {/* center vignette */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(70% 55% at 50% 30%, transparent 0%, hsl(var(--background)/0.78) 100%)",
+          }}
+        />
+        {/* two corner gold glows — pure CSS, no animation */}
+        <div className="absolute -top-32 -left-32 w-[420px] h-[420px] rounded-full bg-gold/15 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full bg-gold/10 blur-3xl" />
+      </div>
 
       {/* Top-right language switcher */}
       <div className="absolute top-3 right-3 z-20">
@@ -187,39 +203,20 @@ export default function SecureAuth() {
       </div>
 
       <main className="relative z-10 flex flex-col items-center px-4 pt-16 pb-10 max-w-xl mx-auto">
-        {/* === Imperial Seal === */}
-        <motion.div
-          initial={reduce ? false : { scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="mt-2"
-        >
-          <div className="hidden sm:block">
-            <ImperialSeal
-              size={168}
-              label="ENTRY"
-              title={"제국\n입장"}
-              caption="PHONARA EMPIRE · EST. 2026"
-            />
+        {/* === Static gold wordmark seal === */}
+        <div className="mt-2 flex flex-col items-center select-none">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/35 bg-background/60">
+            <Crown className="w-3.5 h-3.5 text-gold" />
+            <span className="text-[10px] tracking-[0.42em] text-gold font-black">
+              PHONARA · EST. 2026
+            </span>
           </div>
-          <div className="sm:hidden">
-            <ImperialSeal
-              size={132}
-              label="ENTRY"
-              title={"제국\n입장"}
-              caption="PHONARA EMPIRE · EST. 2026"
-            />
-          </div>
-        </motion.div>
+          <div className="mt-3 h-px w-40 bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+        </div>
 
         {/* === Hero title === */}
-        <motion.div
-          initial={reduce ? false : { y: 24, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-          className="text-center mt-6"
-        >
-          <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full border border-gold/40 bg-background/50 backdrop-blur">
+        <div className="text-center mt-6">
+          <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full border border-gold/40 bg-background/50">
             <ShieldCheck className="w-3.5 h-3.5 text-gold" />
             <span className="text-[10px] tracking-[0.34em] text-gold/90 font-black">
               SECURE V3 · AAL2 GUARDED
@@ -229,7 +226,6 @@ export default function SecureAuth() {
             className="font-imperial font-black text-gradient-gold leading-[1.05] text-[34px] sm:text-[56px]"
             style={{
               WebkitTextStroke: "1px hsl(var(--gold-stroke) / 0.45)",
-              filter: "drop-shadow(0 6px 24px hsl(var(--gold) / 0.35))",
             }}
           >
             제국 입장을 위한
@@ -243,48 +239,38 @@ export default function SecureAuth() {
             <br className="sm:hidden" />
             <span className="text-gold/90"> 비밀번호 없이, 5분 안에.</span>
           </p>
-        </motion.div>
+        </div>
 
-        {/* === SIM strip === */}
-        <motion.div
-          initial={reduce ? false : { y: 16, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="grid grid-cols-3 gap-2 mt-6 w-full"
-        >
+        {/* === SIM strip — static numbers, SimBadge preserved === */}
+        <div className="grid grid-cols-3 gap-2 mt-6 w-full">
           {[
-            { label: "지금 입장 중", value: 1247, jitter: 4, suffix: "명" },
-            { label: "오늘 가입", value: 384, jitter: 2, suffix: "명" },
-            { label: "평균 입장", value: 22, jitter: 1, suffix: "초" },
+            { label: "지금 입장 중", value: "1,247", suffix: "명" },
+            { label: "오늘 가입", value: "384", suffix: "명" },
+            { label: "평균 입장", value: "22", suffix: "초" },
           ].map((s, i) => (
             <div
               key={i}
-              className="relative rounded-xl border border-gold/25 bg-background/60 backdrop-blur px-3 py-3 text-center"
+              className="relative rounded-xl border border-gold/25 bg-background/60 px-3 py-3 text-center"
             >
               <SimBadge className="absolute top-1.5 right-1.5" />
               <div className="text-[10px] tracking-widest text-muted-foreground font-bold">
                 {s.label}
               </div>
-              <div className="font-imperial text-gradient-gold text-xl sm:text-2xl mt-1">
-                <AnimatedCounter to={s.value} jitter={s.jitter} suffix={s.suffix} />
+              <div className="font-imperial text-gradient-gold text-xl sm:text-2xl mt-1 tabular-nums">
+                {s.value}<span className="text-sm">{s.suffix}</span>
               </div>
             </div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* === Main CTA card === */}
-        <motion.div
-          initial={reduce ? false : { y: 24, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.35 }}
-          className="relative w-full mt-7 rounded-3xl p-5 sm:p-6 border border-gold/40 bg-background/70 backdrop-blur-xl glow-gold-xl"
+        {/* === Main CTA card — solid, no blur, no shimmer === */}
+        <div
+          className="relative w-full mt-7 rounded-3xl p-5 sm:p-6 border border-gold/40 bg-background/85 glow-gold-xl"
         >
           {/* email input */}
           <label className="block">
             <span className="sr-only">이메일</span>
-            <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition">
+            <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition-colors">
               <Mail className="w-5 h-5 text-gold/80 shrink-0" />
               <input
                 type="email"
@@ -298,29 +284,17 @@ export default function SecureAuth() {
             </div>
           </label>
 
-          {/* Magic Link MEGA button */}
+          {/* Magic Link MEGA button — solid gold gradient, no shimmer */}
           <button
             onClick={sendMagicLink}
             disabled={busy || !form.email}
             data-large={true}
-            className={`relative w-full mt-4 overflow-hidden rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
+            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.01] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
             aria-label="매직링크로 제국 입장하기"
           >
             <Sparkles className="w-6 h-6" />
             <span>매직링크로 제국 입장</span>
             <ArrowRight className="w-6 h-6" />
-            {!reduce && (
-              <motion.span
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 w-1/3"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.45), transparent)",
-                }}
-                animate={{ x: ["-120%", "320%"] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
-              />
-            )}
           </button>
 
           <p className="mt-3 text-center text-sm text-foreground/75 break-keep">
@@ -512,16 +486,10 @@ export default function SecureAuth() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
         {/* === Trust footer pills === */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-7 flex flex-wrap items-center justify-center gap-2"
-        >
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
           {[
             { icon: <ShieldCheck className="w-3.5 h-3.5" />, label: "19+ AdultGate" },
             { icon: <Clock className="w-3.5 h-3.5" />, label: "Magic Link 5분 유효" },
@@ -530,13 +498,13 @@ export default function SecureAuth() {
           ].map((p, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-background/60 backdrop-blur text-xs text-foreground/80"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-background/60 text-xs text-foreground/80"
             >
               <span className="text-gold">{p.icon}</span>
               {p.label}
             </span>
           ))}
-        </motion.div>
+        </div>
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground/80 max-w-sm break-keep">
           PHONARA EMPIRE는 만 19세 이상 성인만 이용 가능합니다.
