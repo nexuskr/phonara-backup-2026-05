@@ -8,7 +8,7 @@ import {
   ArrowDownToLine, ArrowUpFromLine, Coins, ShieldCheck, ShieldAlert,
   HeartHandshake, ScrollText, Flame, Lock, Users, Wallet,
   Gauge, KeyRound, FlaskConical, Bot, HeartPulse, BarChart3,
-  Target, MessageSquare, LifeBuoy, Zap, AlertTriangle, Send,
+  Target, MessageSquare, LifeBuoy, Zap, AlertTriangle, Send, Sliders,
 } from "lucide-react";
 
 export type AdminBadgeSource =
