@@ -129,9 +129,39 @@ export default function FirstEmperorBurst({ onCta }: Props) {
               </div>
             </div>
 
+            {nextLevel && usdtNeeded > 0 && (
+              <div className="mt-4 rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-primary/5 to-transparent p-3">
+                <div className="flex items-center justify-between text-[10px] mb-1.5">
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-300">
+                    <ArrowUp className="w-3 h-3" />
+                    다음 티어: <span className="font-imperial tracking-widest">{nextLevel.toUpperCase()} CROWN</span>
+                  </span>
+                  <span className="font-mono tabular-nums text-muted-foreground">{progressPct}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPct}%` }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="h-full bg-gradient-to-r from-amber-400 to-primary"
+                  />
+                </div>
+                <div className="mt-1.5 text-[10px] text-muted-foreground">
+                  남은 입금: <span className="font-black tabular-nums text-foreground">{usdtNeeded} USDT</span>
+                  {" · "}자동 발급 + 추가 부스트
+                </div>
+              </div>
+            )}
+
             <Button
               onClick={() => { close(); onCta?.(); }}
               className="mt-5 w-full h-14 text-base font-black bg-gradient-imperial text-primary-foreground glow-imperial press"
+            >
+              🚀 지금 베팅하러 가기
+            </Button>
+            <button
+              onClick={close}
+              className="mt-2 w-full text-[11px] text-muted-foreground hover:text-foreground"
             >
               🚀 지금 베팅하러 가기
             </Button>
