@@ -6,7 +6,8 @@
  */
 import { useEffect, useState, useMemo, memo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User as UserIcon, Loader2 } from "lucide-react";
+import { Search, User as UserIcon, Loader2, Snowflake, Sun } from "lucide-react";
+import { notify } from "@/lib/notify";
 import {
   CommandDialog,
   CommandInput,
