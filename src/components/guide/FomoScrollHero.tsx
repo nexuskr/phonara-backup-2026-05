@@ -290,11 +290,12 @@ function DashCard({
   return (
     <div
       data-large={large}
-      className={`relative glass-strong rounded-xl px-2.5 py-3 border ${
-        highlight ? "border-gold/55 shadow-[0_0_18px_hsl(var(--gold)/0.32)]" : "border-gold/25"
+      className={`relative glass-strong rounded-xl px-2.5 py-3 border overflow-hidden ${
+        highlight ? "border-gold/60 shadow-[0_0_22px_hsl(var(--gold)/0.38)]" : "border-gold/30"
       }`}
     >
-      <div className="flex items-center justify-center gap-1 text-[9px] tracking-[0.18em] font-black text-gold/80 mb-1">
+      <span aria-hidden className="absolute inset-x-2 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+      <div className="flex items-center justify-center gap-1 text-[9px] tracking-[0.2em] font-black text-gold/85 mb-1">
         {icon}
         <span className="break-keep">{label}</span>
       </div>
