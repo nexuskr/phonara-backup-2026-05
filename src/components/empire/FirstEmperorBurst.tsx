@@ -9,10 +9,11 @@
  */
 import { create } from "zustand";
 import { motion, AnimatePresence } from "framer-motion";
-import { Crown, Sparkles, Zap, Rocket, X } from "lucide-react";
+import { Crown, Sparkles, Zap, Rocket, X, ArrowUp } from "lucide-react";
 import { useEffect } from "react";
 import CrownAura from "@/components/empire/CrownAura";
 import { Button } from "@/components/ui/button";
+import { useMyPower } from "@/hooks/use-my-power";
 
 interface BurstPayload {
   nft_level?: "bronze" | "gold" | "diamond" | null;
@@ -20,6 +21,8 @@ interface BurstPayload {
   max_leverage?: number;
   phon_bonus?: number;
   first_bonus?: boolean;
+  /** 이번 입금 금액 (USDT) — 진행률 계산에 사용 */
+  deposit_usdt?: number;
 }
 interface BurstStore {
   open: boolean;
@@ -48,6 +51,14 @@ interface Props {
 
 export default function FirstEmperorBurst({ onCta }: Props) {
   const { open, payload, close } = useFirstEmperorBurst();
+  const { nextThreshold } = useMyPower();
+
+  // 다음 티어까지 진행률 — gold(50 USDT 누적), diamond(100 USDT 누적) 임계값 가정
+  const nextLevel = nextThreshold?.next_level ?? null;
+  const usdtNeeded = Math.max(0, Number(nextThreshold?.usdt_needed ?? 0));
+  const tierTotal = nextLevel === "gold" ? 50 : nextLevel === "diamond" ? 100 : 0;
+  const progressed = tierTotal > 0 ? Math.max(0, tierTotal - usdtNeeded) : 0;
+  const progressPct = tierTotal > 0 ? Math.min(100, Math.round((progressed / tierTotal) * 100)) : 0;
 
   // ESC to close
   useEffect(() => {
@@ -117,6 +128,30 @@ export default function FirstEmperorBurst({ onCta }: Props) {
                 </div>
               </div>
             </div>
+
+            {nextLevel && usdtNeeded > 0 && (
+              <div className="mt-4 rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-primary/5 to-transparent p-3">
+                <div className="flex items-center justify-between text-[10px] mb-1.5">
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-300">
+                    <ArrowUp className="w-3 h-3" />
+                    다음 티어: <span className="font-imperial tracking-widest">{nextLevel.toUpperCase()} CROWN</span>
+                  </span>
+                  <span className="font-mono tabular-nums text-muted-foreground">{progressPct}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPct}%` }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="h-full bg-gradient-to-r from-amber-400 to-primary"
+                  />
+                </div>
+                <div className="mt-1.5 text-[10px] text-muted-foreground">
+                  남은 입금: <span className="font-black tabular-nums text-foreground">{usdtNeeded} USDT</span>
+                  {" · "}자동 발급 + 추가 부스트
+                </div>
+              </div>
+            )}
 
             <Button
               onClick={() => { close(); onCta?.(); }}
