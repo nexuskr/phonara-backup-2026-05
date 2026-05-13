@@ -59,13 +59,11 @@ export default function StepUpGate({ open, scope = "민감 작업", onClose, onV
     return () => { alive = false; };
   }, [open]);
 
+  const _stepUpTick = useNowTick(1000);
   useEffect(() => {
     if (!emailSentAt) return;
-    const tick = () => setSecondsLeft(Math.max(0, 300 - Math.floor((Date.now() - emailSentAt) / 1000)));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [emailSentAt]);
+    setSecondsLeft(Math.max(0, 300 - Math.floor((Date.now() - emailSentAt) / 1000)));
+  }, [emailSentAt, _stepUpTick]);
 
   async function verifyTotp() {
     if (!factorId || code.length !== 6) return;
