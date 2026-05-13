@@ -112,6 +112,11 @@ const DashboardBetPanel = forwardRef<BetPanelHandle>(function DashboardBetPanel(
 
   useImperativeHandle(ref, () => ({
     resubmit: () => { submit(lastSideRef.current); },
+    focusAmount: () => {
+      amountInputRef.current?.focus();
+      amountInputRef.current?.select();
+      amountInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
   }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // B5 — AUTO REPEAT
