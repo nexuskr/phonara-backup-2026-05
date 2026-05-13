@@ -42,17 +42,27 @@ export default function Packages() {
 
   useEffect(() => {
     const focus = sp.get("focus");
-    if (!focus) return;
-    const el = document.getElementById(`pkg-${focus}`);
-    if (!el) return;
-    requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      setFlashId(focus);
+    if (focus) {
+      const el = document.getElementById(`pkg-${focus}`);
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          setFlashId(focus);
+          setTimeout(() => setFlashId(null), 1800);
+          const next = new URLSearchParams(sp);
+          next.delete("focus");
+          setSp(next, { replace: true });
+        });
+      }
+    }
+    function onFocusEvt(e: Event) {
+      const id = (e as CustomEvent<string>).detail;
+      if (!id) return;
+      setFlashId(id);
       setTimeout(() => setFlashId(null), 1800);
-      const next = new URLSearchParams(sp);
-      next.delete("focus");
-      setSp(next, { replace: true });
-    });
+    }
+    window.addEventListener("packages:focus", onFocusEvt);
+    return () => window.removeEventListener("packages:focus", onFocusEvt);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sp.get("focus")]);
 
