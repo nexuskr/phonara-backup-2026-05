@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { Trans, useTranslation } from "react-i18next";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
@@ -13,10 +13,7 @@ import {
 } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { AdultOnlyBanner } from "@/components/AdultOnlyBanner";
-import {
-  GoldNebulaBg, GoldOrbitField, ParticleField, ParallaxLayer,
-  ImperialSeal, AnimatedCounter, SimBadge, GoldDivider, senior,
-} from "@/components/guide/EmpireFX";
+import { SimBadge, GoldDivider, senior } from "@/components/guide/EmpireFX";
 
 function checkAge19(birth: string) {
   if (!birth) return false;
