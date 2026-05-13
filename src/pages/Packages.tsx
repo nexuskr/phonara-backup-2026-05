@@ -37,6 +37,24 @@ export default function Packages() {
   const user = useRequireAuth() ?? db.user;
   const [selected, setSelected] = useState<Pkg | null>(null);
   const [paywall, setPaywall] = useState<Pkg | null>(null);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const [sp, setSp] = useSearchParams();
+
+  useEffect(() => {
+    const focus = sp.get("focus");
+    if (!focus) return;
+    const el = document.getElementById(`pkg-${focus}`);
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFlashId(focus);
+      setTimeout(() => setFlashId(null), 1800);
+      const next = new URLSearchParams(sp);
+      next.delete("focus");
+      setSp(next, { replace: true });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp.get("focus")]);
 
   function handleCTA(p: Pkg) {
     if (isFlagOn("frictionZeroPay") && (p.tier === "STARTER" || p.tier === "VIP" || p.tier === "GOD")) {
