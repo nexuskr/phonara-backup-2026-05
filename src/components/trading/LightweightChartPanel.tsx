@@ -96,6 +96,8 @@ function LightweightChartPanelImpl({ symbol, price, overlays = [], height = 320,
     candlesRef.current = [];
     series.setData([]);
 
+    const toLine = (b: { time: number; close: number }): LineData => ({ time: b.time as UTCTimestamp, value: b.close });
+
     (async () => {
       const history = await fetchKlineHistory(symbol, interval, 1000);
       if (cancelled || !seriesRef.current) return;
@@ -104,7 +106,11 @@ function LightweightChartPanelImpl({ symbol, price, overlays = [], height = 320,
         open: b.open, high: b.high, low: b.low, close: b.close,
       }));
       candlesRef.current = data;
-      seriesRef.current.setData(data);
+      if (mode === "line") {
+        (seriesRef.current as ISeriesApi<"Line">).setData(data.map((b) => ({ time: b.time, value: b.close })));
+      } else {
+        (seriesRef.current as ISeriesApi<"Candlestick">).setData(data);
+      }
       try { chartRef.current?.timeScale().fitContent(); } catch {}
     })();
 
@@ -124,7 +130,11 @@ function LightweightChartPanelImpl({ symbol, price, overlays = [], height = 320,
       } else if ((last.time as number) === bar.time) {
         last.open = bar.open; last.high = bar.high; last.low = bar.low; last.close = bar.close;
       }
-      seriesRef.current.update(candle);
+      if (mode === "line") {
+        (seriesRef.current as ISeriesApi<"Line">).update(toLine(candle as any));
+      } else {
+        (seriesRef.current as ISeriesApi<"Candlestick">).update(candle);
+      }
       try { chartRef.current?.timeScale().scrollToRealTime(); } catch {}
 
       if (import.meta.env.DEV) {
@@ -138,7 +148,7 @@ function LightweightChartPanelImpl({ symbol, price, overlays = [], height = 320,
     });
 
     return () => { cancelled = true; off(); };
-  }, [symbol, interval]);
+  }, [symbol, interval, mode]);
 
   // Tick fallback: only used if kline events are NOT flowing yet.
   useEffect(() => {
@@ -154,14 +164,16 @@ function LightweightChartPanelImpl({ symbol, price, overlays = [], height = 320,
       const candle: CandlestickData = { time: t, open, high: Math.max(open, price), low: Math.min(open, price), close: price };
       arr.push(candle);
       if (arr.length > 800) arr.shift();
-      series.update(candle);
+      if (mode === "line") (series as ISeriesApi<"Line">).update({ time: t, value: price });
+      else (series as ISeriesApi<"Candlestick">).update(candle);
     } else {
       last.high = Math.max(last.high, price);
       last.low = Math.min(last.low, price);
       last.close = price;
-      series.update(last);
+      if (mode === "line") (series as ISeriesApi<"Line">).update({ time: last.time, value: price });
+      else (series as ISeriesApi<"Candlestick">).update(last);
     }
-  }, [price, interval]);
+  }, [price, interval, mode]);
 
   useEffect(() => {
     const s = seriesRef.current; if (!s) return;
