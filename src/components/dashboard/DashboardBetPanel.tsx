@@ -251,30 +251,58 @@ const DashboardBetPanel = forwardRef<BetPanelHandle>(function DashboardBetPanel(
           <ButtonsRow flash={flash} onLong={() => submit("long")} onShort={() => submit("short")} />
         )}
 
-        {/* 자동 반복 베팅 — 70대 친화 직관 라벨 */}
-        <button
-          type="button"
-          onClick={() => setAutoOn(!autoOn)}
-          aria-label={autoOn ? "자동 반복 베팅 끄기" : "자동 반복 베팅 켜기"}
-          className={`w-full h-14 rounded-xl border-2 font-black text-base flex items-center justify-center gap-2.5 transition press ${
-            autoOn
-              ? "bg-gradient-imperial text-primary-foreground border-primary glow-imperial animate-pulse"
-              : "border-border/60 text-foreground hover:text-primary hover:border-primary/60 bg-background/60"
-          }`}
-        >
-          <Repeat className={`w-5 h-5 ${autoOn ? "animate-spin" : ""}`} />
-          {autoOn ? (
-            <span className="flex flex-col items-start leading-tight">
-              <span>🟢 자동 베팅 작동중</span>
-              <span className="text-[11px] font-semibold opacity-90">3.5초마다 자동 반복 — 누르면 멈춤</span>
-            </span>
-          ) : (
-            <span className="flex flex-col items-start leading-tight">
-              <span>▶️ 자동으로 계속 베팅하기</span>
-              <span className="text-[11px] font-semibold text-muted-foreground">눌러서 켜기 · 3.5초마다 자동</span>
-            </span>
-          )}
-        </button>
+        {/* 자동 반복 베팅 — 방향 선택 + 70대 친화 직관 라벨 */}
+        <div className="space-y-2">
+          {/* 방향 선택 (자동 반복 시 어느 쪽으로 베팅할지) */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => { setAutoSide("long"); lastSideRef.current = "long"; try { localStorage.setItem(LAST_SIDE_KEY, "long"); } catch {} }}
+              className={`h-10 rounded-lg text-sm font-bold border-2 transition press ${
+                autoSide === "long"
+                  ? "border-emerald-500 bg-emerald-500/15 text-emerald-300"
+                  : "border-border/50 text-muted-foreground hover:border-emerald-500/40"
+              }`}
+            >
+              🔴 자동 = 롱(상승)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setAutoSide("short"); lastSideRef.current = "short"; try { localStorage.setItem(LAST_SIDE_KEY, "short"); } catch {} }}
+              className={`h-10 rounded-lg text-sm font-bold border-2 transition press ${
+                autoSide === "short"
+                  ? "border-rose-500 bg-rose-500/15 text-rose-300"
+                  : "border-border/50 text-muted-foreground hover:border-rose-500/40"
+              }`}
+            >
+              🔵 자동 = 숏(하락)
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setAutoOn(!autoOn)}
+            aria-label={autoOn ? "자동 반복 베팅 끄기" : "자동 반복 베팅 켜기"}
+            className={`w-full h-14 rounded-xl border-2 font-black text-base flex items-center justify-center gap-2.5 transition press ${
+              autoOn
+                ? "bg-gradient-imperial text-primary-foreground border-primary glow-imperial animate-pulse"
+                : "border-border/60 text-foreground hover:text-primary hover:border-primary/60 bg-background/60"
+            }`}
+          >
+            <Repeat className={`w-5 h-5 ${autoOn ? "animate-spin" : ""}`} />
+            {autoOn ? (
+              <span className="flex flex-col items-start leading-tight">
+                <span>🟢 자동 {autoSide === "long" ? "롱(상승)" : "숏(하락)"} 베팅 작동중</span>
+                <span className="text-[11px] font-semibold opacity-90">3.5초마다 자동 반복 — 누르면 멈춤</span>
+              </span>
+            ) : (
+              <span className="flex flex-col items-start leading-tight">
+                <span>▶️ {autoSide === "long" ? "롱(상승)" : "숏(하락)"} 자동으로 계속 베팅</span>
+                <span className="text-[11px] font-semibold text-muted-foreground">눌러서 켜기 · 3.5초마다 자동</span>
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       <p className="text-[10px] text-muted-foreground/70 leading-relaxed flex items-center gap-1">
