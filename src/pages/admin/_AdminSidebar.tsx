@@ -61,9 +61,8 @@ function AdminSidebarBase({ pending = {} }: AdminSidebarProps) {
 
       <SidebarContent>
         {ADMIN_NAV.map((section) => {
-          const sectionActive = section.items.some((i) => isExact(i.to));
           return (
-            <SidebarGroup key={section.id} defaultOpen={sectionActive}>
+            <SidebarGroup key={section.id}>
               <SidebarGroupLabel
                 className={cn(
                   "text-[9px] tracking-[0.3em] font-black uppercase",
