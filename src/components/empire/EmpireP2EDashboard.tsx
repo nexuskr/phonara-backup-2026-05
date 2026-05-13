@@ -195,10 +195,10 @@ export default function EmpireP2EDashboard() {
         </div>
       </div>
 
-      {/* ⏳ Idle Growth + ⚡ Tap-to-Reinforce */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* ⏳ Idle Growth — 탭 보강은 의도적으로 제거 (P2-4) */}
+      <div className="grid grid-cols-1 gap-3">
         <div className="glass-strong rounded-2xl p-4 neon-border relative overflow-hidden">
-          <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-gold/30 blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-gold/30 blur-2xl pointer-events-none" />
           <div className="relative">
             <div className="flex items-center gap-1.5 mb-2">
               <Timer className="w-3.5 h-3.5 text-gold" />
@@ -215,40 +215,6 @@ export default function EmpireP2EDashboard() {
             >
               {pendingIdle > 0 ? "지금 수령" : "쌓이는 중"}
             </button>
-          </div>
-        </div>
-
-        <div className="glass-strong rounded-2xl p-4 neon-border relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-primary/30 blur-2xl" />
-          <div className="relative">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Coins className="w-3.5 h-3.5 text-primary" />
-              <div className="text-[10px] tracking-widest text-primary font-black">탭 보강 (100탭 = +500원)</div>
-            </div>
-            <button
-              onClick={handleTap}
-              className="press relative w-full min-h-[60px] rounded-xl bg-gradient-primary text-primary-foreground font-black flex items-center justify-center gap-2 overflow-hidden glow-primary"
-            >
-              <Zap className="w-5 h-5" />
-              <span className="tabular-nums">{tap.count.toLocaleString()}</span>
-              <AnimatePresence>
-                {tapBurst.map((b) => (
-                  <motion.span
-                    key={b.id}
-                    initial={{ opacity: 1, scale: 0.8, x: b.x - 8, y: b.y - 8 }}
-                    animate={{ opacity: 0, scale: 1.5, y: b.y - 40 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="absolute pointer-events-none text-gold text-xs font-black"
-                  >
-                    +1
-                  </motion.span>
-                ))}
-              </AnimatePresence>
-            </button>
-            <div className="text-[9px] text-muted-foreground mt-1.5 text-center">
-              1초당 최대 5탭 · 일 1,000탭 보상 상한
-            </div>
           </div>
         </div>
       </div>
