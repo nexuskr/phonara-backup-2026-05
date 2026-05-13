@@ -263,18 +263,14 @@ export default function SecureAuth() {
           ))}
         </div>
 
-        {/* === Main CTA card === */}
-        <motion.div
-          initial={reduce ? false : { y: 24, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.35 }}
-          className="relative w-full mt-7 rounded-3xl p-5 sm:p-6 border border-gold/40 bg-background/70 backdrop-blur-xl glow-gold-xl"
+        {/* === Main CTA card — solid, no blur, no shimmer === */}
+        <div
+          className="relative w-full mt-7 rounded-3xl p-5 sm:p-6 border border-gold/40 bg-background/85 glow-gold-xl"
         >
           {/* email input */}
           <label className="block">
             <span className="sr-only">이메일</span>
-            <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition">
+            <div className="flex items-center gap-3 px-4 h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition-colors">
               <Mail className="w-5 h-5 text-gold/80 shrink-0" />
               <input
                 type="email"
@@ -288,29 +284,17 @@ export default function SecureAuth() {
             </div>
           </label>
 
-          {/* Magic Link MEGA button */}
+          {/* Magic Link MEGA button — solid gold gradient, no shimmer */}
           <button
             onClick={sendMagicLink}
             disabled={busy || !form.email}
             data-large={true}
-            className={`relative w-full mt-4 overflow-hidden rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
+            className={`relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground font-black tracking-wider transition-[transform,box-shadow] duration-200 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:hover:scale-[1.01] active:scale-[0.99] glow-gold-xl ${senior.btnXl} min-h-[72px] text-xl sm:text-2xl flex items-center justify-center gap-3`}
             aria-label="매직링크로 제국 입장하기"
           >
             <Sparkles className="w-6 h-6" />
             <span>매직링크로 제국 입장</span>
             <ArrowRight className="w-6 h-6" />
-            {!reduce && (
-              <motion.span
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 w-1/3"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.45), transparent)",
-                }}
-                animate={{ x: ["-120%", "320%"] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
-              />
-            )}
           </button>
 
           <p className="mt-3 text-center text-sm text-foreground/75 break-keep">
