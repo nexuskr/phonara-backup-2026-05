@@ -99,13 +99,15 @@ function AdminCommandTriggerBase() {
   }, [query]);
 
   const go = useCallback(
-    (to: string) => {
+    (to: string, meta?: { name: string; section: string }) => {
       setOpen(false);
+      if (meta) pushRecent({ to, name: meta.name, section: meta.section });
       requestAnimationFrame(() => navigate(to));
     },
     [navigate],
   );
 
+  const recents = useMemo<RecentItem[]>(() => (open ? readRecents() : []), [open]);
   const groups = useMemo(() => ADMIN_NAV, []);
 
   return (
