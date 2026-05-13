@@ -73,7 +73,7 @@ export default function ThresholdsAdmin() {
       if (tr.error || sr.error) throw tr.error ?? sr.error;
       notify.success("임계값 저장 완료");
     } catch (e: any) {
-      notify.error("저장 실패", e?.message);
+      notify.fail("저장 실패", e);
     } finally {
       setSaving(false);
     }
