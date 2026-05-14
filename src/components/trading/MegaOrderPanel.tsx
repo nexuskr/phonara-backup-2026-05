@@ -376,26 +376,36 @@ function MegaOrderPanelImpl({ mode, symbol, setSymbol, price, balance, onSubmit,
       {/* Big buttons */}
       <div className="grid grid-cols-2 gap-3">
         <Button
-          disabled={busy}
+          disabled={busy || !price || stale}
           onClick={() => doSubmit("long")}
           className="h-20 text-xl font-display font-black bg-gradient-to-b from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-emerald-50 shadow-[0_0_40px_rgba(52,211,153,0.5)] border border-emerald-300/40 disabled:opacity-60"
         >
           <TrendingUp className="w-6 h-6 mr-2" />
-          {busy ? "처리 중…" : !price ? "LONG (가격 대기)" : "LONG"}
+          {busy ? "처리 중…" : !price ? "LONG (가격 대기)" : stale ? "가격 동기화 중…" : "LONG"}
         </Button>
         <Button
-          disabled={busy}
+          disabled={busy || !price || stale}
           onClick={() => doSubmit("short")}
           className="h-20 text-xl font-display font-black bg-gradient-to-b from-rose-500 to-rose-700 hover:from-rose-400 hover:to-rose-600 text-rose-50 shadow-[0_0_40px_rgba(244,63,94,0.5)] border border-rose-400/40 disabled:opacity-60"
         >
           <TrendingDown className="w-6 h-6 mr-2" />
-          {busy ? "처리 중…" : !price ? "SHORT (가격 대기)" : "SHORT"}
+          {busy ? "처리 중…" : !price ? "SHORT (가격 대기)" : stale ? "가격 동기화 중…" : "SHORT"}
         </Button>
       </div>
 
       <p className="text-[10px] text-muted-foreground/80 text-center">
         Slippage 0.06% · Insurance Fund 25% · Max 5 open · 단축키 L/S
+        {stale && <span className="ml-2 text-amber-300">· 시장가 동기화 대기 중</span>}
       </p>
+
+      <MarginModeDialog
+        open={pendingMode !== null}
+        onOpenChange={(v) => { if (!v) setPendingMode(null); }}
+        current={marginMode}
+        next={pendingMode ?? marginMode}
+        mode={mode}
+        onConfirm={(m) => { setMarginMode(m); setPendingMode(null); }}
+      />
     </section>
   );
 }
