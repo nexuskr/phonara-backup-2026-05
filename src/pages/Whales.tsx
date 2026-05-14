@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useVisibleInterval } from "@/lib/util/visible-interval";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy, Crown, Flame, ArrowRight } from "lucide-react";
