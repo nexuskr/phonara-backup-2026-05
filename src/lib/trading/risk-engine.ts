@@ -114,7 +114,7 @@ export async function preTradeValidate(args: {
 }): Promise<RiskValidationResult & { markPrice: number; equity: number }> {
   const { data, error } = await supabase.rpc("live_pre_trade_validate", {
     p_symbol: args.symbol,
-  } as never);
+  });
 
   let markPrice = args.markPriceFallback ?? 0;
   let equity = 0;
