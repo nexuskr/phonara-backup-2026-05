@@ -120,7 +120,8 @@ function DopamineLayerImpl() {
       {import.meta.env.DEV && <FpsHud />}
 
       {fx?.kind && (
-        <div className="fixed inset-0 z-[60] pointer-events-none flex items-center justify-center">
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center" style={{ zIndex: Z.modal }}>
+
           {fx.kind === "liquidate" && (
             <div className="absolute inset-0 bg-gradient-radial from-red-600/40 via-red-900/30 to-black/0 animate-[fade_0.6s_ease-out]" />
           )}
