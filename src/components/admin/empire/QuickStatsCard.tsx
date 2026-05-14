@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Coins, Activity } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 import { useCountUp } from "@/hooks/use-count-up";
 
 type Row = {

@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Crown, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 import { EmptyState } from "@/components/ui/empty-state";
 
 type Moment = {

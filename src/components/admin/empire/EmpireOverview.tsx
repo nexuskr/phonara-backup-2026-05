@@ -21,6 +21,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Crown, Zap, Users, TrendingUp, Activity } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 import { LoadingCard } from "@/components/ui/loading-state";
 import { useCountUp } from "@/hooks/use-count-up";
 import { LiveGhostEmpireStatus } from "./LiveGhostEmpireStatus";
