@@ -37,7 +37,7 @@ const PermissionsAudit       = lazy(() => import("@/components/admin/Permissions
 const ObservabilityCockpit = lazy(() => import("@/components/admin/ObservabilityCockpit"));
 const ErrorMonitorAdmin    = lazy(() => import("@/components/admin/ErrorMonitorAdmin"));
 const AnomalyAckQueue      = lazy(() => import("@/components/admin/AnomalyAckQueue"));
-const SecurityAuditAdmin   = lazy(() => import("@/components/admin/SecurityAuditAdmin"));
+const SecurityAuditAdmin   = lazy(() => import("@/components/admin/compliance/audit/SecurityAuditAdmin"));
 const CronJobsCard         = lazy(() => import("@/components/admin/CronJobsCard"));
 const OpsReport            = lazy(() => import("./OpsReport"));
 const PayConsole           = lazy(() => import("@/components/admin/PayConsole"));
@@ -175,6 +175,7 @@ export default function AdminRoutes() {
         <Route path="compliance/perms"  element={<Section title="Permissions"><PermissionsAudit /></Section>} />
         <Route path="compliance/rules"  element={<Section><AutoRulesAdmin /></Section>} />
         <Route path="compliance/risk"   element={<Section><RiskCenter /></Section>} />
+        <Route path="compliance/audit"  element={<Section title="Security Audit"><SecurityAuditAdmin /></Section>} />
 
         {/* OPERATIONS */}
         <Route path="ops/observability" element={<Section title="Observability"><ObservabilityCockpit /></Section>} />
@@ -183,7 +184,7 @@ export default function AdminRoutes() {
         <Route path="ops/audit-log"     element={<Suspense fallback={<LoadingList rows={4} />}><AdminAudit /></Suspense>} />
         <Route path="ops/notify"        element={<Section><NotificationCenter /></Section>} />
         <Route path="ops/recovery"      element={<Section><AdminRecovery /></Section>} />
-        <Route path="ops/security"      element={<Section title="Security Audit"><SecurityAuditAdmin /></Section>} />
+        
         <Route path="ops/cron"          element={<CronCombined />} />
         <Route path="ops/report"        element={<Suspense fallback={<LoadingList rows={4} />}><OpsReport /></Suspense>} />
         <Route path="ops/thresholds"    element={<Section title="Mission Control 임계값"><ThresholdsAdmin /></Section>} />
