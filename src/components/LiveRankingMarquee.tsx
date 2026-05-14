@@ -25,22 +25,28 @@ const TIER_COLOR: Record<string, string> = {
 
 export default function LiveRankingMarquee({ limit = 100 }: { limit?: number }) {
   const [rows, setRows] = useState<Row[] | null>(null);
+  const cancelledRef = useRef(false);
+  useEffect(() => () => { cancelledRef.current = true; }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const { data, error } = await supabase.rpc("get_bot_live_ranking" as any, { _limit: limit });
-        if (error) throw error;
-        if (!cancelled) setRows(((data as any[]) ?? []) as Row[]);
-      } catch {
-        if (!cancelled) setRows([]);
-      }
+  const load = async () => {
+    try {
+      const { data, error } = await supabase.rpc("get_bot_live_ranking" as any, { _limit: limit });
+      if (error) throw error;
+      if (!cancelledRef.current) setRows(((data as any[]) ?? []) as Row[]);
+    } catch {
+      if (!cancelledRef.current) setRows([]);
     }
-    void load();
-    const t = setInterval(load, 60_000);
-    return () => { cancelled = true; clearInterval(t); };
-  }, [limit]);
+  };
+
+  useEffect(() => { void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [limit]);
+  // 60s refresh — pauses while tab hidden, catches up on visible.
+  useVisibleInterval(() => { void load(); }, 60_000, true, { catchUpOnVisible: true });
+
+  // Pause marquee when offscreen or tab hidden.
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInViewport(sectionRef, { rootMargin: "200px" });
+  const tabVisible = useDocumentVisible();
+  const animating = inView && tabVisible;
 
   if (!rows || rows.length === 0) return null;
 
@@ -49,6 +55,7 @@ export default function LiveRankingMarquee({ limit = 100 }: { limit?: number }) 
 
   return (
     <section
+      ref={sectionRef}
       aria-label="실시간 랭킹"
       className="glass rounded-2xl border border-primary/15 overflow-hidden"
     >
@@ -60,7 +67,7 @@ export default function LiveRankingMarquee({ limit = 100 }: { limit?: number }) 
       <div className="relative overflow-hidden py-2">
         <motion.div
           className="flex gap-3 whitespace-nowrap"
-          animate={{ x: ["0%", "-50%"] }}
+          animate={animating ? { x: ["0%", "-50%"] } : false}
           transition={{ duration: 80, ease: "linear", repeat: Infinity }}
         >
           {reel.map((r, i) => (
