@@ -87,6 +87,12 @@ export default function JackpotBanner({ compact = false }: { compact?: boolean }
   const nextMile = MAIN_MILESTONE_AMOUNT;
   const pctMile = Math.min(100, (j.amount / nextMile) * 100);
 
+  // 오늘 총 당첨금 — 24h 합산
+  const todayTotal = useMemo(() => {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    return j.recentWins.filter((w) => w.when >= cutoff).reduce((s, w) => s + w.amount, 0);
+  }, [j.recentWins]);
+
   if (compact) {
     return (
       <div className="glass-strong neon-border rounded-2xl p-3 relative overflow-hidden">
