@@ -2,6 +2,10 @@ import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Crown, Globe2, Sparkles, TrendingUp, Users, Zap } from "lucide-react";
+import TopEmperorBanner from "./TopEmperorBanner";
+import CompetitorCompareTicker from "./CompetitorCompareTicker";
+
+type Headline = { text: string; tone: string; created_at: string };
 
 type Stats = {
   gmv_24h: number;
