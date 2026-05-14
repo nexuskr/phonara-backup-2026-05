@@ -16,16 +16,15 @@ export function useAchievementWatcher(trigger?: unknown) {
   useEffect(() => {
     let cancelled = false;
     async function check() {
-      if (typeof window !== "undefined" && sessionStorage.getItem(ACHIEVEMENT_RPC_DISABLED_KEY) === "1") return;
+      if (isCircuitTripped(ACHIEVEMENT_RPC_DISABLED_KEY)) return;
+      if (typeof window !== "undefined" && window.location.pathname.startsWith("/guide")) return;
       try {
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user ?? null;
         if (!user || cancelled) return;
         const { data, error } = await supabase.rpc("check_achievements", { _user_id: user.id });
         if (error || !data) {
-          if (error && (/401|400|unauthorized|bad request/i.test(error.message ?? "") || (error as { code?: string }).code === "PGRST301")) {
-            try { sessionStorage.setItem(ACHIEVEMENT_RPC_DISABLED_KEY, "1"); } catch { /* noop */ }
-          }
+          if (error && shouldTripCircuit(error)) tripCircuit(ACHIEVEMENT_RPC_DISABLED_KEY);
           return;
         }
         const unlocked: string[] = ((data as any)?.unlocked ?? []).filter(Boolean);
