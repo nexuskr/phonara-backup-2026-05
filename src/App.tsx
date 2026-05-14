@@ -119,10 +119,7 @@ const App = () => (
           <SessionWatcher />
           <ReviewerMaskRoot />
           <ReviewerBadge />
-          <PracticeModeBanner />
-          <SimGlobalBadge />
-          <Suspense fallback={null}><EmpireMomentToast /></Suspense>
-          <Suspense fallback={null}><FloatingCashLoopWidget /></Suspense>
+          <GlobalOverlays />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
