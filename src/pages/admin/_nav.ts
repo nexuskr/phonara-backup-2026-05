@@ -80,6 +80,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
       { id: "viral",   name: "바이럴 포렌식",          to: "/admin/compliance/viral",   icon: Flame },
       { id: "perms",   name: "권한 관리",              to: "/admin/compliance/perms",   icon: Lock },
       { id: "rules",   name: "자동 규칙",              to: "/admin/compliance/rules",   icon: Zap },
+      { id: "audit",   name: "보안 감사",              to: "/admin/compliance/audit",   icon: ShieldCheck },
     ],
   },
   {
