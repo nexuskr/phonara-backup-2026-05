@@ -8,6 +8,7 @@ import LiveWithdrawalsTable from "@/components/empire/LiveWithdrawalsTable";
 import TrustGuaranteeBadges from "@/components/empire/TrustGuaranteeBadges";
 import RefundRequestPanel from "@/components/empire/RefundRequestPanel";
 import LossProtectionGate from "@/components/empire/LossProtectionGate";
+import SEOHead from "@/components/seo/SEOHead";
 
 type PayoutStats = {
   window: string;
