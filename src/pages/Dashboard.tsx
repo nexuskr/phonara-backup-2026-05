@@ -27,6 +27,8 @@ import DashboardHeroV3 from "@/components/dashboard/v3/DashboardHeroV3";
 import TradingEntryCard from "@/components/dashboard/v3/TradingEntryCard";
 import KpiGridV3 from "@/components/dashboard/v3/KpiGridV3";
 import MoreSection, { type MoreSectionHandle } from "@/components/dashboard/v3/MoreSection";
+import { useMyPower } from "@/hooks/use-my-power";
+import { useOnline } from "@/components/LiveStats";
 
 // 접힘 영역에 들어가는 기존 컴포넌트들 — 모두 lazy
 const LiveRanking = lazy(() => import("@/components/LiveRanking"));
