@@ -77,14 +77,36 @@ export default function Admin() {
         pendingWd: wPend.count ?? 0,
       });
     };
-    load();
-    const ch = supabase
-      .channel("admin:kpi")
-      .on("postgres_changes", { event: "*", schema: "public", table: "deposit_requests" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "withdrawal_requests" }, load)
-      .subscribe();
-    return () => { alive = false; supabase.removeChannel(ch); };
+    void load();
+    return () => { alive = false; };
   }, [user?.isAdmin]);
+
+  useRealtimeChannel({
+    key: user?.isAdmin ? "admin:kpi" : "",
+    bindings: [
+      { event: "*", table: "deposit_requests" },
+      { event: "*", table: "withdrawal_requests" },
+    ],
+    onEvent: () => {
+      // re-trigger load by bumping a state isn't needed: just re-fetch directly
+      void (async () => {
+        const [u, dApproved, dPend, wPend] = await Promise.all([
+          supabase.from("profiles").select("id", { count: "exact", head: true }),
+          supabase.from("deposit_requests").select("amount").eq("status", "approved"),
+          supabase.from("deposit_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+          supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        ]);
+        const sum = (dApproved.data ?? []).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+        setKpi({
+          users: u.count ?? 0,
+          deposits: sum,
+          pendingDep: dPend.count ?? 0,
+          pendingWd: wPend.count ?? 0,
+        });
+      })();
+    },
+    enabled: !!user?.isAdmin,
+  });
 
   if (!user) return null;
   if (!user.isAdmin) {
