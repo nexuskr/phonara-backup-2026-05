@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Coins, Zap, Rocket } from "lucide-react";
 import { useMyPower, topNftLevel } from "@/hooks/use-my-power";
 import CrownAura from "@/components/empire/CrownAura";
+import NftAvatar from "@/components/profile/NftAvatar";
 import { FloatingSlot } from "@/components/ui/floating-dock";
 
 const LEVEL_TIER: Record<string, number> = { bronze: 5, gold: 7, diamond: 10 };
@@ -42,6 +43,7 @@ export default function PowerHeader() {
             transition={{ duration: 0.4 }}
             className="rounded-full border border-primary/40 bg-card/85 backdrop-blur-xl px-3 py-1.5 flex items-center gap-2 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.6)] hover:border-primary"
           >
+            <NftAvatar size="xs" />
             <span className="relative inline-flex items-center justify-center w-6 h-6">
               {lv ? <CrownAura level={auraLevel} size={24} /> : <Crown className="w-4 h-4 text-primary" />}
             </span>

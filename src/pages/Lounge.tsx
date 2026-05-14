@@ -14,6 +14,7 @@ import Layout from "@/components/Layout";
 import GuildLiveFeed from "@/components/lounge/GuildLiveFeed";
 import SeasonPrizePool from "@/components/lounge/SeasonPrizePool";
 import GuildRankingPanel from "@/components/guild/GuildRankingPanel";
+import NftAvatar from "@/components/profile/NftAvatar";
 
 type Guild = {
   id: string;
@@ -323,8 +324,11 @@ export default function Lounge() {
                                 key={m.id}
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`flex ${mine ? "justify-end" : "justify-start"}`}
+                                className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}
                               >
+                                {!mine && !bot && m.user_id && (
+                                  <NftAvatar userId={m.user_id} size="xs" />
+                                )}
                                 <div
                                   className={`max-w-[78%] rounded-lg px-3 py-2 text-sm ${
                                     mine ? "bg-primary text-primary-foreground" : "bg-muted"
@@ -342,6 +346,7 @@ export default function Lounge() {
                                   )}
                                   {m.message}
                                 </div>
+                                {mine && user && <NftAvatar userId={user.id} size="xs" />}
                               </motion.div>
                             );
                           })}
