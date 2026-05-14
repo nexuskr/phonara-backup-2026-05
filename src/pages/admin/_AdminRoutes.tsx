@@ -184,7 +184,7 @@ export default function AdminRoutes() {
         <Route path="ops/audit-log"     element={<Suspense fallback={<LoadingList rows={4} />}><AdminAudit /></Suspense>} />
         <Route path="ops/notify"        element={<Section><NotificationCenter /></Section>} />
         <Route path="ops/recovery"      element={<Section><AdminRecovery /></Section>} />
-        <Route path="ops/security"      element={<Section title="Security Audit"><SecurityAuditAdmin /></Section>} />
+        
         <Route path="ops/cron"          element={<CronCombined />} />
         <Route path="ops/report"        element={<Suspense fallback={<LoadingList rows={4} />}><OpsReport /></Suspense>} />
         <Route path="ops/thresholds"    element={<Section title="Mission Control 임계값"><ThresholdsAdmin /></Section>} />
