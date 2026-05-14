@@ -38,10 +38,10 @@ export default function PressCurationPanel() {
     setLoading(true);
     const [{ data: h }, { data: s }] = await Promise.all([
       supabase.rpc("admin_list_inbound_hits" as any, { _limit: 200, _only_unreviewed: onlyUnreviewed }),
-      supabase.from("press_sources" as any).select("*").order("rank", { ascending: true }),
+      (supabase.from("press_sources" as any) as any).select("*").order("rank", { ascending: true }),
     ]);
     setHits((h ?? []) as Hit[]);
-    setSources((s ?? []) as Source[]);
+    setSources(((s as unknown) ?? []) as Source[]);
     setLoading(false);
   };
 
@@ -87,7 +87,7 @@ export default function PressCurationPanel() {
         {loading ? (
           <LoadingList rows={4} />
         ) : hits.length === 0 ? (
-          <EmptyState icon={Newspaper} title="아직 들어온 referrer 없음" description="외부 사이트에서 phonara로 유입이 발생하면 여기 자동으로 쌓입니다." />
+          <EmptyState icon={<Newspaper className="h-5 w-5" />} title="아직 들어온 referrer 없음" description="외부 사이트에서 phonara로 유입이 발생하면 여기 자동으로 쌓입니다." />
         ) : (
           <div className="space-y-2">
             {hits.map((h) => (
@@ -123,7 +123,7 @@ export default function PressCurationPanel() {
       <div>
         <h3 className="text-lg font-semibold mb-3">큐레이션된 Press Sources</h3>
         {sources.length === 0 ? (
-          <EmptyState icon={Newspaper} title="등록된 소스 없음" description="후보를 승인하면 여기로 옮겨집니다." />
+          <EmptyState icon={<Newspaper className="h-5 w-5" />} title="등록된 소스 없음" description="후보를 승인하면 여기로 옮겨집니다." />
         ) : (
           <div className="space-y-2">
             {sources.map((s) => (
