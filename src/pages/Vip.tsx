@@ -85,7 +85,7 @@ export default function Vip() {
             </p>
 
             {vip.loading ? (
-              <LoadingState variant="inline" />
+              <LoadingCard className="h-10 w-48" />
             ) : vip.active ? (
               <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/60 bg-amber-500/15 px-4 py-2 text-sm text-amber-100">
                 <CheckCircle2 className="w-4 h-4" />
