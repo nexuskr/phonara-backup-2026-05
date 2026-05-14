@@ -79,13 +79,15 @@ export default function AdminSupport() {
   }
 
   useEffect(() => {
-    loadThreads();
-    const ch = supabase.channel("admin-support-threads")
-      .on("postgres_changes", { event: "*", schema: "public", table: "support_threads" }, () => loadThreads())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    void loadThreads();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
+
+  useRealtimeChannel({
+    key: "admin-support-threads",
+    bindings: [{ event: "*", table: "support_threads" }],
+    onEvent: () => void loadThreads(),
+  });
 
   useEffect(() => { if (tab === "kb") loadKb(); }, [tab]);
 
