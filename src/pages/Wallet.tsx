@@ -138,6 +138,7 @@ export default function Wallet() {
   }
 
   async function submitWithdraw() {
+    if (submitting) return;
     const a = Number(amount);
     if (!a || a < 10000) { toast({ title: tw("minWithdraw") }); return; }
     const balance = asset === "bank" ? u.balance : u.coinBalance;
