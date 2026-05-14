@@ -132,6 +132,47 @@ function WithdrawQueueTable() {
 
   const sortIcon = (k: SortKey) => sortKey === k ? (sortDir === "asc" ? " ↑" : " ↓") : "";
 
+  const handleApprove = useCallback(async () => {
+    if (selected.size === 0 || pending !== null) return;
+    const ids = Array.from(selected);
+    const count = ids.length;
+    setPending("approve");
+    try {
+      const { error: rpcErr } = await supabase.rpc("admin_bulk_approve_withdrawals", { _ids: ids });
+      if (rpcErr) throw rpcErr;
+      notify.success(`${count}건 승인 완료`);
+      setSelected(new Set());
+      await refetch();
+    } catch (e) {
+      notify.fail("벌크 승인 실패", e);
+    } finally {
+      setPending(null);
+    }
+  }, [selected, pending, refetch]);
+
+  const handleReject = useCallback(async () => {
+    if (selected.size === 0 || pending !== null) return;
+    const reason = window.prompt("거절 사유를 입력하세요");
+    if (reason === null || reason.trim() === "") return;
+    const ids = Array.from(selected);
+    const count = ids.length;
+    setPending("reject");
+    try {
+      const { error: rpcErr } = await supabase.rpc("admin_bulk_reject_withdrawals", {
+        _ids: ids,
+        _reason: reason.trim(),
+      });
+      if (rpcErr) throw rpcErr;
+      notify.success(`${count}건 거절 완료`);
+      setSelected(new Set());
+      await refetch();
+    } catch (e) {
+      notify.fail("벌크 거절 실패", e);
+    } finally {
+      setPending(null);
+    }
+  }, [selected, pending, refetch]);
+
   if (error) {
     return (
       <div className="glass rounded-xl border border-destructive/40 p-4 flex items-center justify-between gap-3">
