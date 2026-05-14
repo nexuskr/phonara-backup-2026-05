@@ -200,24 +200,20 @@ function WithdrawQueueTable() {
           <Button
             size="sm"
             variant="outline"
-            disabled={selected.size === 0}
-            onClick={() => {
-              // eslint-disable-next-line no-console
-              console.log("[bulk] approve queued", Array.from(selected));
-            }}
+            disabled={selected.size === 0 || pending !== null}
+            onClick={handleApprove}
           >
-            벌크 승인 (UI)
+            {pending === "approve" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+            벌크 승인
           </Button>
           <Button
             size="sm"
             variant="outline"
-            disabled={selected.size === 0}
-            onClick={() => {
-              // eslint-disable-next-line no-console
-              console.log("[bulk] hold queued", Array.from(selected));
-            }}
+            disabled={selected.size === 0 || pending !== null}
+            onClick={handleReject}
           >
-            벌크 보류 (UI)
+            {pending === "reject" && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+            벌크 거절
           </Button>
           <Button size="sm" variant="ghost" onClick={() => refetch()}>
             <RefreshCw className="w-3 h-3 mr-1" /> 새로고침
