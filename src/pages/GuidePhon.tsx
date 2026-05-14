@@ -212,7 +212,7 @@ const EN = {
   ctaEarnPhon: "Earn via Packages",
 
   nftTitle: "NFT — Tier of the Crown",
-  nftSub: "Crown / Emperor / Founder × Bronze / Gold / Diamond. Auto +5~50% boost when held.",
+  nftSub: "Crown / Emperor / Founder × Bronze / Gold / Diamond. Auto +5~50% boost when held. Your main NFT is shown as your profile, header and chat avatar — your face in the empire (change: first 3 free, then 100 PHON with 24h cooldown).",
   nftMigrationNote: "NFTs are currently Phonara internal NFTs. At 10,000 users, a 1:1 external blockchain (Polygon/Solana) migration is guaranteed; until then they're safely locked.",
   ctaCollection: "View My Collection",
 
