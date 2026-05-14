@@ -21,6 +21,7 @@ const InsuranceFundDashboard = lazy(() => import("@/components/InsuranceFundDash
 import WithdrawIntentInterceptor from "@/components/conversion/WithdrawIntentInterceptor";
 import AMLGate from "@/components/wallet/AMLGate";
 import WithdrawQueueStatus from "@/components/wallet/WithdrawQueueStatus";
+import WithdrawSimpleStatus from "@/components/wallet/WithdrawSimpleStatus";
 import WithdrawReceiptUpload from "@/components/wallet/WithdrawReceiptUpload";
 import DepositReceiptUpload from "@/components/wallet/DepositReceiptUpload";
 import WithdrawETABadge from "@/components/wallet/WithdrawETABadge";
