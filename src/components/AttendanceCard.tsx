@@ -11,6 +11,13 @@ import { refreshWallet } from "@/lib/walletRefresh";
 export default function AttendanceCard() {
   const [db, setDb] = useDB();
   const [busy, setBusy] = useState(false);
+  // streak loss aversion countdown — hooks MUST run before any early return
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000 * 30);
+    return () => clearInterval(t);
+  }, []);
+
   if (!db.user) return null;
 
   const today = todayStr();
