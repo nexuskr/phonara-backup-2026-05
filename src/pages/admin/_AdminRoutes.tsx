@@ -59,6 +59,7 @@ const Support               = lazy(() => import("./Support"));
 const MissionTemplatesAdmin = lazy(() => import("@/components/admin/MissionTemplatesAdmin"));
 const FoundingSeasonsAdmin  = lazy(() => import("@/components/admin/FoundingSeasonsAdmin"));
 const BetaInvitesAdmin      = lazy(() => import("@/components/admin/BetaInvitesAdmin"));
+const EconomyDashboard      = lazy(() => import("@/components/admin/EconomyDashboard"));
 
 // Day 2 — Empire upgrades
 const UserDetail360         = lazy(() => import("@/components/admin/users/UserDetail360"));
@@ -215,6 +216,7 @@ export default function AdminRoutes() {
         <Route path="product/missions"   element={<Section title="AI Missions"><MissionTemplatesAdmin /></Section>} />
         <Route path="product/founding"   element={<Section title="Founding Seasons"><FoundingSeasonsAdmin /></Section>} />
         <Route path="product/beta"       element={<Section title="Beta Codes"><BetaInvitesAdmin /></Section>} />
+        <Route path="economy"            element={<Section title="PHON·NFT 경제"><EconomyDashboard /></Section>} />
 
         {/* Escape hatch — legacy single-page admin */}
         <Route path="legacy" element={<Suspense fallback={<LoadingList rows={4} />}><LegacyAdmin /></Suspense>} />
