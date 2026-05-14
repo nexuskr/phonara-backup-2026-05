@@ -36,8 +36,8 @@ export function QuickStatsCard() {
       });
     };
     load();
-    const id = setInterval(load, 60_000);
-    return () => { on = false; clearInterval(id); };
+    const stop = setVisibleInterval(load, 60_000);
+    return () => { on = false; stop(); };
   }, []);
 
   const dep = useCountUp(d?.deposits_krw ?? 0);

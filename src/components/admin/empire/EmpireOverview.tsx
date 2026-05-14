@@ -62,8 +62,8 @@ export default function EmpireOverview() {
       if (!r3.error && r3.data) setRealtime(r3.data as any);
     };
     refresh();
-    const id = setInterval(refresh, 60_000);
-    return () => { on = false; clearInterval(id); };
+    const stop = setVisibleInterval(refresh, 60_000);
+    return () => { on = false; stop(); };
   }, []);
 
   const pct = useMemo(() => Math.min(100, revenue?.progress_pct ?? 0), [revenue]);

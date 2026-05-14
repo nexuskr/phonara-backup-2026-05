@@ -15,8 +15,8 @@ export function HotUsersCard() {
       if (on) setRows((data as any) ?? []);
     };
     load();
-    const id = setInterval(load, 60_000);
-    return () => { on = false; clearInterval(id); };
+    const stop = setVisibleInterval(load, 60_000);
+    return () => { on = false; stop(); };
   }, []);
 
   return (
