@@ -96,25 +96,44 @@ export default function NftAtelier() {
       const ids = Array.from(selected);
       const { data, error } = await (supabase.rpc as any)("fuse_nft", { _nft_ids: ids });
       if (error) throw error;
-      const r = data as { ok: boolean; new_nft_id: string; type: NFTType; level: NFTLevel; boost_pct: number };
+      const r = data as {
+        ok: boolean;
+        outcome: "success" | "fail" | "jackpot";
+        cost_phon: number;
+        refund_phon: number;
+        new_nft_id: string | null;
+        refund_nft_id: string | null;
+        type: NFTType;
+        level: NFTLevel;
+        boost_pct: number;
+      };
       if (!r?.ok) throw new Error("fusion_failed");
-      // 황제 처형식 스타일 burst
       setBurst({
-        id: r.new_nft_id,
+        id: (r.new_nft_id ?? r.refund_nft_id ?? "x"),
         type: r.type,
         level: r.level,
         boost_pct: r.boost_pct,
-        source: "fusion",
+        source: r.outcome === "jackpot" ? "fusion_jackpot" : r.outcome === "fail" ? "fusion_fail_refund" : "fusion",
         created_at: new Date().toISOString(),
       });
+      (setBurst as any).outcome = r.outcome;
       setSelected(new Set());
       setSelectedGroup(null);
-      notify.success("합성 성공", { description: `${TYPE_LABEL[r.type]} ${LEVEL_LABEL[r.level]} 1장이 주조되었습니다 (+${r.boost_pct}% Boost)` });
+      if (r.outcome === "jackpot") {
+        notify.success("💎 잭팟!", { description: `1-in-20 — ${TYPE_LABEL[r.type]} ${LEVEL_LABEL[r.level]} +${r.boost_pct}% (보너스 부스트)` });
+      } else if (r.outcome === "success") {
+        notify.success("합성 성공", { description: `${TYPE_LABEL[r.type]} ${LEVEL_LABEL[r.level]} +${r.boost_pct}% Boost` });
+      } else {
+        notify.warning("합성 실패", { description: `재료 1장 + ${r.refund_phon} PHON 환불되었습니다` });
+      }
       refresh();
-      window.setTimeout(() => setBurst(null), 3200);
+      window.setTimeout(() => setBurst(null), 3500);
     } catch (e: any) {
       const msg = e?.message ?? String(e);
       const friendly =
+        msg.includes("insufficient_phon") ? "PHON이 부족합니다 (Bronze→Gold 250 / Gold→Diamond 750)" :
+        msg.includes("atelier_daily_limit_exceeded") ? "오늘의 합성 한도(25회)를 모두 사용했습니다." :
+        msg.includes("atelier_disabled") ? "Atelier가 일시 점검 중입니다." :
         msg.includes("cannot_fuse_diamond") ? "다이아몬드는 더 이상 합성할 수 없습니다." :
         msg.includes("fuse_requires_same_type") ? "같은 type 3장만 합성할 수 있습니다." :
         msg.includes("fuse_requires_same_level") ? "같은 등급 3장만 합성할 수 있습니다." :
@@ -125,6 +144,13 @@ export default function NftAtelier() {
       setBusy(false);
     }
   }, [selected, refresh]);
+
+  // Cost for currently selected group
+  const fusionCost = useMemo(() => {
+    if (!selectedGroup) return 0;
+    const lvl = selectedGroup.split("|")[1] as NFTLevel;
+    return lvl === "bronze" ? 250 : lvl === "gold" ? 750 : 0;
+  }, [selectedGroup]);
 
   const totalBoost = useMemo(() => nfts.reduce((s, n) => s + (n.boost_pct ?? 0), 0), [nfts]);
 
