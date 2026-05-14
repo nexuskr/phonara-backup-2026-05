@@ -8,6 +8,7 @@ import { useEmpireBooster } from "@/hooks/use-empire-booster";
 import { useCrownWar, formatMSS } from "@/hooks/use-crown-war";
 import Layout from "@/components/Layout";
 import { LoadingList } from "@/components/ui/loading-state";
+import SEOHead from "@/components/seo/SEOHead";
 
 
 const EmpireHallScene = lazy(() => import("@/components/empire/EmpireHallScene"));
