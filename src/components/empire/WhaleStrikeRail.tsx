@@ -73,7 +73,7 @@ export function WhaleStrikeRail({ compact = false }: { compact?: boolean } = {})
   }
 
   return (
-    <div className={`relative overflow-hidden ${compact ? "rounded-xl border border-primary/20 bg-card/40" : "rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary/10 via-primary/10 to-accent/10"} backdrop-blur-md`}>
+    <div ref={railRef} className={`relative overflow-hidden ${compact ? "rounded-xl border border-primary/20 bg-card/40" : "rounded-2xl border border-secondary/30 bg-gradient-to-r from-secondary/10 via-primary/10 to-accent/10"} backdrop-blur-md`}>
       {!compact && (
         <div className="absolute top-2 left-3 z-10 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] font-imperial text-secondary">
           <Zap className="w-3 h-3 animate-pulse" /> Whale Strikes · 24h
@@ -84,7 +84,7 @@ export function WhaleStrikeRail({ compact = false }: { compact?: boolean } = {})
 
       <motion.div
         className={`flex ${compact ? "gap-2 py-2 pl-2" : "gap-3 py-7 pl-3"} will-change-transform`}
-        animate={{ x: ["0%", "-50%"] }}
+        animate={animating ? { x: ["0%", "-50%"] } : false}
         transition={{ duration: Math.max(20, items.length * 4), ease: "linear", repeat: Infinity }}
       >
         {doubled.map((s, i) => {
