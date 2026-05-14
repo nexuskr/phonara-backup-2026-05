@@ -7929,6 +7929,7 @@ export type Database = {
         Args: { _delta?: number; _metric: string }
         Returns: undefined
       }
+      cancel_bequest: { Args: { _req_id: string }; Returns: Json }
       cancel_dynasty_link: { Args: { _link_id: string }; Returns: Json }
       cancel_pending_order: { Args: { p_order_id: string }; Returns: boolean }
       check_achievements: { Args: { _user_id?: string }; Returns: Json }
@@ -8155,6 +8156,7 @@ export type Database = {
         Returns: number
       }
       evolve_empire_unit: { Args: { _unit_id: string }; Returns: Json }
+      execute_bequest: { Args: { _req_id: string }; Returns: Json }
       fill_pending_order: {
         Args: { p_mark_price: number; p_order_id: string }
         Returns: string
@@ -8317,6 +8319,22 @@ export type Database = {
           rank: number
           reward_pool: number
           total_contribution: number
+        }[]
+      }
+      get_my_bequests: {
+        Args: never
+        Returns: {
+          asset_kind: string
+          child_id: string
+          cooldown_until: string
+          created_at: string
+          executed_at: string
+          id: string
+          nft_id: string
+          parent_id: string
+          phon_amount: number
+          role: string
+          status: string
         }[]
       }
       get_my_dashboard_state: { Args: never; Returns: Json }
