@@ -1,5 +1,6 @@
 // V17 /admin/revenue — daily KPI roll-up of revenue_events (admin only).
 import { useEffect, useState } from "react";
+import { useVisibleInterval } from "@/lib/util/visible-interval";
 import { TrendingUp, RefreshCw, BadgeDollarSign, Megaphone, Coins, Sparkles } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
