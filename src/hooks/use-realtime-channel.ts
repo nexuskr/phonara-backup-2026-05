@@ -302,16 +302,18 @@ export function useRealtimeChannel(opts: UseRealtimeChannelOpts) {
     void start();
 
     // focus/online 재개
-    const onResume = () => {
+    const onResume = async () => {
       if (cancelled) return;
       try { pollRef.current?.(); } catch { /* noop */ }
       // 채널이 down이면 재시도(빠른 재연결 트리거)
       const cur = REGISTRY.get(key);
-      if (!cur || cur.status === "removed") { void start(); return; }
+      if (!cur || (cur.status as string) === "removed") { void start(); return; }
       if (cur.status === "errored" && !cur.retryTimer) {
         cur.retryAttempts = 0;
-        try { if (cur.channel) void supabase.removeChannel(cur.channel); } catch {}
+        // 동일 이름 채널 재사용으로 인한 ".on() after subscribe()" 방지
+        try { if (cur.channel) await supabase.removeChannel(cur.channel); } catch {}
         cur.channel = null;
+        if (cancelled || REGISTRY.get(key) !== cur || (cur.status as string) === "removed") return;
         bindAndSubscribe(cur);
       }
     };
