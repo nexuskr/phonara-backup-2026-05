@@ -584,9 +584,11 @@ export default function SecureAuth() {
         </div>
 
 
-        <p className="mt-6 text-center text-[11px] text-muted-foreground/80 max-w-sm break-keep">
-          PHONARA EMPIRE는 만 19세 이상 성인만 이용 가능합니다.
-          입장과 동시에 이용약관·개인정보처리방침에 동의한 것으로 간주됩니다.
+        {/* === Strengthened trust chips (6) === */}
+        <AuthTrustChips />
+
+        <p className="mt-5 text-center text-[11px] text-muted-foreground/85 max-w-sm break-keep">
+          PHONARA EMPIRE는 만 19세 이상 성인만 이용 가능한 서비스입니다.
         </p>
       </main>
     </div>
