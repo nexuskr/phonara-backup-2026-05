@@ -40,10 +40,12 @@ export default function ActivityEventTicker({
   variant = "hero",
   limit = 3,
   intervalMs,
+  realtime = true,
 }: {
   variant?: "hero" | "strip";
   limit?: number;
   intervalMs?: TickerInterval;
+  realtime?: boolean;
 }) {
   const [settings] = useAppSettings();
   const [feed, setFeed] = useState<{ id: number; icon: string; text: string }[]>(() =>
