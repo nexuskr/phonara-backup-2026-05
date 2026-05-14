@@ -40,32 +40,16 @@ export default function StarterFunnelV3() {
   const [scene, setScene] = useState<Scene>(0);
   const [checked, setChecked] = useState(false);
 
-  // 1) Gate — 이미 본 사람은 즉시 /command (force=1 우회)
+  // 1) Gate — localStorage 기반 즉시 판정 (profiles SELECT 제거 → 0 RPC on mount)
   useEffect(() => {
     const force = new URLSearchParams(window.location.search).get("force") === "1";
     if (force) { setChecked(true); return; }
-    let alive = true;
-    (async () => {
-      try {
-        const seen = localStorage.getItem("phonara_guide_seen_v1") === "1";
-        if (seen) { navigate("/command", { replace: true }); return; }
-        if (db.user?.id) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("has_seen_guide")
-            .eq("id", db.user.id)
-            .maybeSingle();
-          if (alive && (data as any)?.has_seen_guide) {
-            try { localStorage.setItem("phonara_guide_seen_v1", "1"); } catch {}
-            navigate("/command", { replace: true });
-            return;
-          }
-        }
-      } catch { /* noop */ }
-      if (alive) setChecked(true);
-    })();
-    return () => { alive = false; };
-  }, [db.user?.id, navigate]);
+    try {
+      const seen = localStorage.getItem("phonara_guide_seen_v1") === "1";
+      if (seen) { navigate("/command", { replace: true }); return; }
+    } catch { /* noop */ }
+    setChecked(true);
+  }, [navigate]);
 
   // 2) 완주 시 마킹 + 이동
   async function markSeenAndGo(target: string) {
@@ -309,7 +293,7 @@ function FomoScene({ onFinish }: { onFinish: (target: string) => void }) {
       </div>
 
       <div className="mt-4 w-full max-w-sm">
-        <ActivityEventTicker variant="hero" limit={5} />
+        <ActivityEventTicker variant="hero" limit={5} realtime={false} />
       </div>
 
       <motion.button

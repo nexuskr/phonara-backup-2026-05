@@ -50,6 +50,15 @@ function LazyScene({ children }: { children: React.ReactNode }) {
  *  6) Final CTA + 완주 보너스
  */
 export default function Guide() {
+  // ⚡ Starter 분기는 어떤 훅보다도 먼저 — profiles SELECT/scroll listener/ref 모두 차단
+  const tab = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
+  const isStarter = tab !== "detail";
+  if (isStarter) return <StarterFunnelV3 />;
+
+  return <GuideDetail />;
+}
+
+function GuideDetail() {
   const [db] = useDB();
   const isLoggedIn = !!db.user?.id;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,12 +69,9 @@ export default function Guide() {
   const reduce = useReducedMotion();
   const navigate = useNavigate();
 
-  // Phase 4 — ?tab=starter (기본): 7씬 FOMO 풀스크롤, ?tab=detail: 기존 디테일 가이드
-  const tab = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
   const force = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("force") === "1" : false;
-  const isStarter = tab !== "detail";
-
-  const sceneCount = isStarter ? 10 : 7;
+  const isStarter = false;
+  const sceneCount = 7;
 
   // One-Time Guide gate — `?force=1` 이외에는 한 번 본 사용자 즉시 /command 리다이렉트
   useEffect(() => {
@@ -127,11 +133,7 @@ export default function Guide() {
     try { localStorage.setItem("guide_large_text", next ? "1" : "0"); } catch {}
   }
 
-  // ── Phase V3: starter는 3단 심리 압축 엔진(StarterFunnelV3) — 자체 게이트/완주 마킹/스크롤 차단
-  if (isStarter) {
-    return <StarterFunnelV3 />;
-  }
-
+  // detail 모드 전용 — starter는 위 가드에서 이미 리턴됨
   return (
     <Layout>
       <div className="sticky top-0 z-30 px-3 pt-2 pb-1 bg-background/85 backdrop-blur-md">

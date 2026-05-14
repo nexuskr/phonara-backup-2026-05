@@ -94,6 +94,20 @@ function SessionWatcher() {
   return null;
 }
 
+/** /guide 경로에서는 전역 부착 위젯을 전부 미마운트해서 RPC/실시간 0건 유지. */
+function GlobalOverlays() {
+  const loc = useLocation();
+  if (loc.pathname.startsWith("/guide")) return null;
+  return (
+    <>
+      <PracticeModeBanner />
+      <SimGlobalBadge />
+      <Suspense fallback={null}><EmpireMomentToast /></Suspense>
+      <Suspense fallback={null}><FloatingCashLoopWidget /></Suspense>
+    </>
+  );
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -105,10 +119,7 @@ const App = () => (
           <SessionWatcher />
           <ReviewerMaskRoot />
           <ReviewerBadge />
-          <PracticeModeBanner />
-          <SimGlobalBadge />
-          <Suspense fallback={null}><EmpireMomentToast /></Suspense>
-          <Suspense fallback={null}><FloatingCashLoopWidget /></Suspense>
+          <GlobalOverlays />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
