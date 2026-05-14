@@ -50,6 +50,7 @@ const METHOD_ICON: Record<Method, typeof Banknote> = {
 const PAGE_SIZE = 20;
 
 export default function DepositHistoryList() {
+  const [uid, setUid] = useState<string | null>(null);
   const [rows, setRows] = useState<DR[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
