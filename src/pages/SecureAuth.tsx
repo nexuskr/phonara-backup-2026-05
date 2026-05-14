@@ -39,6 +39,7 @@ export default function SecureAuth() {
     agreeTerms: false, agreeAge: false,
   });
   const set = <K extends keyof typeof form>(k: K, v: any) => setForm(f => ({ ...f, [k]: v }));
+  const [pulses, setPulses] = useState<PulseEvent[]>([]);
 
   const signupSchema = useMemo(() => z.object({
     email: z.string().trim().email(t("validEmail")).max(255),
