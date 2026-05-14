@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { useTranslation } from "react-i18next";
 import { Clock, CheckCircle2, XCircle, ArrowUpRight, Filter, X, Banknote, Coins, Shield, FileText, Inbox } from "lucide-react";
 import RequestTimeline from "@/components/RequestTimeline";
@@ -54,6 +55,7 @@ const PAGE_SIZE = 20;
 
 export default function WithdrawalHistoryList() {
   const { t } = useTranslation("withdrawHistory");
+  const [uid, setUid] = useState<string | null>(null);
   const [rows, setRows] = useState<WR[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Status | "all">("all");
@@ -79,21 +81,19 @@ export default function WithdrawalHistoryList() {
 
   useEffect(() => { void load(); }, [filter, page]);
 
-  // Realtime: refresh on any change to user's withdrawal_requests
   useEffect(() => {
-    let ch: ReturnType<typeof supabase.channel> | null = null;
-    (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      ch = supabase
-        .channel(`wh-${u.user.id}`)
-        .on("postgres_changes",
-          { event: "*", schema: "public", table: "withdrawal_requests", filter: `user_id=eq.${u.user.id}` },
-          () => { void load(); })
-        .subscribe();
-    })();
-    return () => { if (ch) supabase.removeChannel(ch); };
-  }, [filter, page]);
+    void supabase.auth.getUser().then(({ data }) => setUid(data.user?.id ?? null));
+  }, []);
+
+  // Realtime: refresh on any change to user's withdrawal_requests
+  useRealtimeChannel({
+    key: uid ? `wh-${uid}` : "",
+    bindings: uid
+      ? [{ event: "*", table: "withdrawal_requests", filter: `user_id=eq.${uid}` }]
+      : [],
+    onEvent: () => { void load(); },
+    enabled: !!uid,
+  });
 
   const opened = useMemo(() => rows.find((r) => r.id === openId) || null, [rows, openId]);
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);

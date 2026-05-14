@@ -3,6 +3,7 @@ import { useNowTick } from "@/hooks/use-now-tick";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import i18n from "@/lib/i18n";
 import { useDB, formatKRW } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
@@ -61,27 +62,32 @@ export default function AIBotCards() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const load = async () => {
+    if (!user?.id) return;
+    const { data } = await supabase
+      .from("ai_bot_runs")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("started_at", { ascending: false })
+      .limit(40);
+    setRuns((data as Run[]) ?? []);
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!user?.id) return;
-    let alive = true;
-    const load = async () => {
-      const { data } = await supabase
-        .from("ai_bot_runs")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("started_at", { ascending: false })
-        .limit(40);
-      if (alive) { setRuns((data as Run[]) ?? []); setLoading(false); }
-    };
-    load();
-    const ch = supabase
-      .channel(`ai_bots:${user.id}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "ai_bot_runs", filter: `user_id=eq.${user.id}` },
-        () => load())
-      .subscribe();
-    return () => { alive = false; supabase.removeChannel(ch); };
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  useRealtimeChannel({
+    key: user?.id ? `ai_bots:${user.id}` : "",
+    bindings: user?.id
+      ? [{ event: "*", table: "ai_bot_runs", filter: `user_id=eq.${user.id}` }]
+      : [],
+    onEvent: () => { void load(); },
+    enabled: !!user?.id,
+  });
 
   if (!user) return null;
 

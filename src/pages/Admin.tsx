@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW, uid, type Mission, type MissionTier } from "@/lib/store";
@@ -76,14 +77,36 @@ export default function Admin() {
         pendingWd: wPend.count ?? 0,
       });
     };
-    load();
-    const ch = supabase
-      .channel("admin:kpi")
-      .on("postgres_changes", { event: "*", schema: "public", table: "deposit_requests" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "withdrawal_requests" }, load)
-      .subscribe();
-    return () => { alive = false; supabase.removeChannel(ch); };
+    void load();
+    return () => { alive = false; };
   }, [user?.isAdmin]);
+
+  useRealtimeChannel({
+    key: user?.isAdmin ? "admin:kpi" : "",
+    bindings: [
+      { event: "*", table: "deposit_requests" },
+      { event: "*", table: "withdrawal_requests" },
+    ],
+    onEvent: () => {
+      // re-trigger load by bumping a state isn't needed: just re-fetch directly
+      void (async () => {
+        const [u, dApproved, dPend, wPend] = await Promise.all([
+          supabase.from("profiles").select("id", { count: "exact", head: true }),
+          supabase.from("deposit_requests").select("amount").eq("status", "approved"),
+          supabase.from("deposit_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+          supabase.from("withdrawal_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        ]);
+        const sum = (dApproved.data ?? []).reduce((s: number, x: any) => s + Number(x.amount || 0), 0);
+        setKpi({
+          users: u.count ?? 0,
+          deposits: sum,
+          pendingDep: dPend.count ?? 0,
+          pendingWd: wPend.count ?? 0,
+        });
+      })();
+    },
+    enabled: !!user?.isAdmin,
+  });
 
   if (!user) return null;
   if (!user.isAdmin) {
@@ -272,35 +295,42 @@ function ChatAdmin() {
   const [adminId, setAdminId] = useState<string | null>(null);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setAdminId(user?.id || null);
       const { data } = await supabase.from("support_threads").select("*").order("last_message_at", { ascending: false });
       setThreads((data as ST[]) || []);
     })();
-    const ch = supabase.channel("admin:threads")
-      .on("postgres_changes", { event: "*", schema: "public", table: "support_threads" }, async () => {
+  }, []);
+
+  useRealtimeChannel({
+    key: "admin:threads",
+    bindings: [{ event: "*", table: "support_threads" }],
+    onEvent: () => {
+      void (async () => {
         const { data } = await supabase.from("support_threads").select("*").order("last_message_at", { ascending: false });
         setThreads((data as ST[]) || []);
-      }).subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, []);
+      })();
+    },
+  });
 
   useEffect(() => {
     if (!active) { setMsgs([]); return; }
-    let ch: any;
-    (async () => {
+    void (async () => {
       const { data } = await supabase.from("support_messages").select("*")
         .eq("thread_id", active.id).order("created_at", { ascending: true });
       setMsgs((data as SM[]) || []);
-      ch = supabase.channel(`admin:msgs:${active.id}`)
-        .on("postgres_changes",
-          { event: "INSERT", schema: "public", table: "support_messages", filter: `thread_id=eq.${active.id}` },
-          (p) => setMsgs(prev => [...prev, p.new as SM])
-        ).subscribe();
     })();
-    return () => { if (ch) supabase.removeChannel(ch); };
   }, [active?.id]);
+
+  useRealtimeChannel({
+    key: active?.id ? `admin:msgs:${active.id}` : "",
+    bindings: active?.id
+      ? [{ event: "INSERT", table: "support_messages", filter: `thread_id=eq.${active.id}` }]
+      : [],
+    onEvent: (p) => setMsgs(prev => [...prev, p.new as unknown as SM]),
+    enabled: !!active?.id,
+  });
 
   async function reply() {
     if (!active || !text.trim() || !adminId) return;
