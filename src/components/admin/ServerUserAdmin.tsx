@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSetTier, adminAdjustBalance } from "@/lib/deposits-rpc";
 import { formatKRW } from "@/lib/store";
 import { notify } from "@/lib/notify";
-import { Snowflake, Flame, Ban, ShieldOff, Trash2, Wallet, RefreshCw, Search } from "lucide-react";
+import { Snowflake, Flame, Ban, ShieldOff, Trash2, Wallet, RefreshCw, Search, ExternalLink } from "lucide-react";
+import BulkUserActions from "@/components/admin/users/BulkUserActions";
 
 type Row = {
   id: string;
