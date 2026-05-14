@@ -201,6 +201,21 @@ export default function ServerUserAdmin() {
         ))}
       </div>
 
+      {selected.size > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-bold text-gold">선택 {selected.size}명</span>
+            <button onClick={clearSelection} className="text-muted-foreground hover:text-foreground underline">
+              선택 해제
+            </button>
+          </div>
+          <BulkUserActions
+            selectedIds={Array.from(selected)}
+            onDone={() => { clearSelection(); void load(); }}
+          />
+        </div>
+      )}
+
       {loading && <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">불러오는 중...</div>}
       {!loading && filtered.length === 0 && (
         <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">회원 없음</div>
@@ -213,11 +228,20 @@ export default function ServerUserAdmin() {
           u.is_frozen && !u.is_banned && { label: "동결", cls: "bg-gold/20 text-gold border-gold/40" },
           !u.profile_completed && { label: "프로필 미완성", cls: "bg-muted/40 text-muted-foreground border-border" },
         ].filter(Boolean) as { label: string; cls: string }[];
+        const isChecked = selected.has(u.id);
 
         return (
-          <div key={u.id} className={`glass rounded-2xl p-4 ${u.is_deleted ? "opacity-60" : ""}`}>
+          <div key={u.id} className={`glass rounded-2xl p-4 ${u.is_deleted ? "opacity-60" : ""} ${isChecked ? "ring-1 ring-gold/60" : ""}`}>
             <div className="flex items-start justify-between gap-2 flex-wrap">
-              <div className="min-w-0 flex-1">
+              <label className="flex items-start gap-2 min-w-0 flex-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => toggleOne(u.id)}
+                  disabled={u.is_deleted}
+                  className="mt-1 accent-gold shrink-0"
+                />
+                <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-bold text-sm truncate">{u.nickname || "(닉네임 없음)"}</div>
                   <span className="text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider glass border border-border">
