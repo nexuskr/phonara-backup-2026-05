@@ -172,7 +172,7 @@ const KO = {
   ctaEarnPhon: "PHON 적립 패키지",
 
   nftTitle: "NFT — 왕관의 등급",
-  nftSub: "Crown / Emperor / Founder × Bronze / Gold / Diamond. 보유 시 부스트 +5~50% 자동.",
+  nftSub: "Crown / Emperor / Founder × Bronze / Gold / Diamond. 보유 시 부스트 +5~50% 자동. 대표 NFT는 프로필·헤더·채팅 아바타로 표시되어 제국 내 신분이 됩니다 (변경: 첫 3회 무료 → 이후 100 PHON, 24h 쿨다운).",
   nftMigrationNote: "현재 NFT는 Phonara 내부 NFT입니다. 1만명 도달 시 외부 블록체인(Polygon/Solana 등) 1:1 마이그레이션이 보장되며, 그 전까지는 안전하게 잠금 보관됩니다.",
   ctaCollection: "내 컬렉션 보기",
 
