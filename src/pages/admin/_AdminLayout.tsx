@@ -22,6 +22,17 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const pending = useAdminPending(!!user?.isAdmin);
   const [pinDialog, setPinDialog] = useState(false);
+  const [adminEmail, setAdminEmail] = useState<string>("");
+
+  useEffect(() => {
+    let alive = true;
+    import("@/integrations/supabase/client").then(({ supabase }) =>
+      supabase.auth.getSession().then(({ data }) => {
+        if (alive) setAdminEmail(data.session?.user?.email ?? "");
+      }),
+    );
+    return () => { alive = false; };
+  }, []);
 
   // Active item label for breadcrumb-ish header.
   const active =
@@ -92,8 +103,8 @@ export default function AdminLayout() {
             <AdminPendingBell pending={pending} />
           </header>
 
-          {pinDialog && user?.email && (
-            <PinResetDialog email={user.email} onClose={() => setPinDialog(false)} />
+          {pinDialog && adminEmail && (
+            <PinResetDialog email={adminEmail} onClose={() => setPinDialog(false)} />
           )}
 
           {/* Body */}
