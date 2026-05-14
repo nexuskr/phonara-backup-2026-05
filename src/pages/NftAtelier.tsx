@@ -116,7 +116,6 @@ export default function NftAtelier() {
         source: r.outcome === "jackpot" ? "fusion_jackpot" : r.outcome === "fail" ? "fusion_fail_refund" : "fusion",
         created_at: new Date().toISOString(),
       });
-      (setBurst as any).outcome = r.outcome;
       setSelected(new Set());
       setSelectedGroup(null);
       if (r.outcome === "jackpot") {
