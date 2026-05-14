@@ -15,7 +15,7 @@ export default function BulkUserActions({ selectedIds, onDone }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [hours, setHours] = useState(24);
   const [reason, setReason] = useState("");
-  const [tier, setTier] = useState<Tier>("bronze");
+  const [tier, setTier] = useState<Tier>("vip");
   const disabled = selectedIds.length === 0 || !!busy;
 
   async function bulkFreeze() {
