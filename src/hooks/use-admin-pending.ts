@@ -50,7 +50,7 @@ export function useAdminPending(enabled: boolean): PendingCounts {
 
     refresh();
     const ch = supabase
-      .channel("admin:pending")
+      .channel("admin:pending:" + Math.random().toString(36).slice(2))
       .on("postgres_changes", { event: "*", schema: "public", table: "deposit_requests" }, schedule)
       .on("postgres_changes", { event: "*", schema: "public", table: "withdrawal_requests" }, schedule)
       .on("postgres_changes", { event: "*", schema: "public", table: "anomaly_events" }, schedule)
