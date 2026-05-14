@@ -80,7 +80,7 @@ export default function CrownAura({ level, size = 48, className = "", children }
         <motion.div
           className="absolute inset-[-6px] rounded-full pointer-events-none"
           style={{ boxShadow: `0 0 28px 6px rgba(${glow})` }}
-          animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.06, 1] }}
+          animate={tabVisible ? { opacity: [0.4, 1, 0.4], scale: [1, 1.06, 1] } : false}
           transition={{ duration: 2.4, ease: "easeInOut", repeat: Infinity }}
         />
       )}
