@@ -117,8 +117,13 @@ function TotalPnLHeaderImpl({ positions, prices, unit }: Props) {
       {/* Hybrid Net View — per-symbol netting (only shows symbols with multiple/opposing positions) */}
       {netBySymbol.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border/40">
-          <div className="text-[10px] uppercase tracking-[0.18em] font-black text-muted-foreground/80 mb-2">
-            Hybrid Net · 심볼별 순포지션
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] uppercase tracking-[0.18em] font-black text-muted-foreground/80">
+              Hybrid Net · 심볼별 순포지션
+            </div>
+            <a href="/trade/net" className="text-[10px] font-mono tracking-wider text-primary hover:underline">
+              전체보기 →
+            </a>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {netBySymbol.map((r) => {
