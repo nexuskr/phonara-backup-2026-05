@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Coins, Zap, Rocket } from "lucide-react";
 import { useMyPower, topNftLevel } from "@/hooks/use-my-power";
 import CrownAura from "@/components/empire/CrownAura";
+import NftAvatar from "@/components/profile/NftAvatar";
 import { FloatingSlot } from "@/components/ui/floating-dock";
 
 const LEVEL_TIER: Record<string, number> = { bronze: 5, gold: 7, diamond: 10 };
