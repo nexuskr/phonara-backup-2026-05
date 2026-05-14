@@ -7353,6 +7353,7 @@ export type Database = {
         }
       }
       admin_get_demo_bias_perf: { Args: never; Returns: Json }
+      admin_get_economy_stats: { Args: never; Returns: Json }
       admin_get_empire_realtime: { Args: never; Returns: Json }
       admin_get_ev_history: {
         Args: { _limit?: number }
@@ -7443,6 +7444,22 @@ export type Database = {
       admin_get_trust_v2_stats: { Args: never; Returns: Json }
       admin_get_user_360: { Args: { _uid: string }; Returns: Json }
       admin_get_user_email: { Args: { _user_id: string }; Returns: string }
+      admin_list_bequests: {
+        Args: { _limit?: number }
+        Returns: {
+          asset_kind: string
+          cancelled_at: string
+          child_id: string
+          cooldown_until: string
+          created_at: string
+          executed_at: string
+          id: string
+          nft_id: string
+          parent_id: string
+          phon_amount: number
+          status: string
+        }[]
+      }
       admin_list_beta_invites: {
         Args: never
         Returns: {
@@ -7563,6 +7580,10 @@ export type Database = {
       admin_oracle_chaos_stale_source: {
         Args: { _minutes?: number; _source: string }
         Returns: number
+      }
+      admin_phon_adjust: {
+        Args: { _delta: number; _reason: string; _uid: string }
+        Returns: Json
       }
       admin_release_founding_seat: {
         Args: { _reason: string; _season_id: string; _seat_no: number }
@@ -9258,6 +9279,7 @@ export type Database = {
         }
         Returns: Json
       }
+      take_phon_snapshot: { Args: never; Returns: Json }
       tap_reinforce: { Args: { _nonce: string }; Returns: Json }
       tick_weekly_leaderboard_ranks: { Args: never; Returns: Json }
       tier_boost: {
