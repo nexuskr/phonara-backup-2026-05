@@ -182,78 +182,81 @@ export default function Wallet() {
       return;
     }
 
-    const { data, error } = await supabase.rpc("request_withdrawal", {
-      _amount: a,
-      _method: asset === "bank" ? "bank" : "coin",
-      _bank_name: asset === "bank" ? bank : null,
-      _bank_account: asset === "bank" ? account : null,
-      _coin_address: asset === "coin" ? coinAddr : null,
-      _coin_network: asset === "coin" ? network : null,
-      _pin: withdrawPw,
-    });
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase.rpc("request_withdrawal", {
+        _amount: a,
+        _method: asset === "bank" ? "bank" : "coin",
+        _bank_name: asset === "bank" ? bank : null,
+        _bank_account: asset === "bank" ? account : null,
+        _coin_address: asset === "coin" ? coinAddr : null,
+        _coin_network: asset === "coin" ? network : null,
+        _pin: withdrawPw,
+      });
 
-    if (error) {
-      const msg = error.message || "";
-      const amlMatch = msg.match(/aml_required:(\d)/);
-      if (amlMatch) {
-        const lvl = Math.min(3, Math.max(1, Number(amlMatch[1]))) as 1 | 2 | 3;
-        setAmlLevel(lvl);
-        setAmlOpen(true);
-        toast({ title: tw("withdrawFail"), description: t("amlBlocked", { level: lvl }) as string, variant: "destructive" });
-        return;
-      }
-      // 서버측 스텝업 강제 — 클라이언트 우회 차단됨
-      if (msg.includes("step_up_required")) {
-        const reAuth = await requireStepUp("출금");
-        if (reAuth) {
-          toast({ title: "재인증 완료", description: "출금 버튼을 다시 눌러주세요." });
-        } else {
-          toast({ title: "추가 인증 필요", description: "보안을 위해 강화 인증이 필요합니다.", variant: "destructive" });
+      if (error) {
+        const msg = error.message || "";
+        const amlMatch = msg.match(/aml_required:(\d)/);
+        if (amlMatch) {
+          const lvl = Math.min(3, Math.max(1, Number(amlMatch[1]))) as 1 | 2 | 3;
+          setAmlLevel(lvl);
+          setAmlOpen(true);
+          toast({ title: tw("withdrawFail"), description: t("amlBlocked", { level: lvl }) as string, variant: "destructive" });
+          return;
         }
+        if (msg.includes("step_up_required")) {
+          const reAuth = await requireStepUp("출금");
+          if (reAuth) {
+            toast({ title: "재인증 완료", description: "출금 버튼을 다시 눌러주세요." });
+          } else {
+            toast({ title: "추가 인증 필요", description: "보안을 위해 강화 인증이 필요합니다.", variant: "destructive" });
+          }
+          return;
+        }
+        if (msg.includes("account_frozen")) {
+          toast({
+            title: "계정이 일시 동결되었습니다",
+            description: "단시간 내 출금 시도가 비정상적으로 많아 24시간 자동 동결되었습니다. 본인이 한 시도가 아니라면 즉시 고객센터로 문의해주세요.",
+            variant: "destructive",
+          });
+          return;
+        }
+        const friendly = msg.includes("pin mismatch") ? tw("pinError")
+          : msg.includes("below_min") ? tw("belowMin")
+          : msg.includes("insufficient_funds") ? tw("insufficient")
+          : msg.includes("daily_withdraw_limit") ? tw("dailyLimit")
+          : msg;
+        toast({ title: tw("withdrawFail"), description: friendly, variant: "destructive" });
         return;
       }
-      if (msg.includes("account_frozen")) {
-        toast({
-          title: "계정이 일시 동결되었습니다",
-          description: "단시간 내 출금 시도가 비정상적으로 많아 24시간 자동 동결되었습니다. 본인이 한 시도가 아니라면 즉시 고객센터로 문의해주세요.",
-          variant: "destructive",
-        });
-        return;
+
+      const r = data as any;
+      setResultCode(r?.tx_code ?? null);
+
+      if (receiptPath && r?.tx_code) {
+        const { error: upErr } = await supabase
+          .from("withdrawal_requests")
+          .update({ receipt_url: receiptPath })
+          .eq("user_id", u.id)
+          .eq("tx_code", r.tx_code);
+        if (upErr) console.warn("[withdraw] receipt attach failed:", upErr.message);
       }
-      const friendly = msg.includes("pin mismatch") ? tw("pinError")
-        : msg.includes("below_min") ? tw("belowMin")
-        : msg.includes("insufficient_funds") ? tw("insufficient")
-        : msg.includes("daily_withdraw_limit") ? tw("dailyLimit")
-        : msg;
-      toast({ title: tw("withdrawFail"), description: friendly, variant: "destructive" });
-      return;
+
+      setDb(d => ({
+        ...d,
+        withdraws: [{
+          id: uid(), userId: u.id, nickname: u.nickname, amount: a, method: asset,
+          bank: asset === "bank" ? bank : undefined, account: asset === "bank" ? account : undefined,
+          coinAddress: asset === "coin" ? coinAddr : undefined, network: asset === "coin" ? network : undefined,
+          txCode: r?.tx_code ?? "", status: "pending", createdAt: Date.now(),
+        }, ...d.withdraws],
+      }));
+      await refreshWallet();
+      setAmount(""); setAccount(""); setCoinAddr(""); setSentCode(null); setAuthCode(""); setWithdrawPw(""); setReceiptPath(null);
+      toast({ title: tw("withdrawDone"), description: tw("withdrawDoneDesc", { tier: u.tier }) });
+    } finally {
+      setSubmitting(false);
     }
-
-    const r = data as any;
-    setResultCode(r?.tx_code ?? null);
-
-    // Attach receipt screenshot to the new withdrawal_requests row (if uploaded)
-    if (receiptPath && r?.tx_code) {
-      const { error: upErr } = await supabase
-        .from("withdrawal_requests")
-        .update({ receipt_url: receiptPath })
-        .eq("user_id", u.id)
-        .eq("tx_code", r.tx_code);
-      if (upErr) console.warn("[withdraw] receipt attach failed:", upErr.message);
-    }
-
-    setDb(d => ({
-      ...d,
-      withdraws: [{
-        id: uid(), userId: u.id, nickname: u.nickname, amount: a, method: asset,
-        bank: asset === "bank" ? bank : undefined, account: asset === "bank" ? account : undefined,
-        coinAddress: asset === "coin" ? coinAddr : undefined, network: asset === "coin" ? network : undefined,
-        txCode: r?.tx_code ?? "", status: "pending", createdAt: Date.now(),
-      }, ...d.withdraws],
-    }));
-    await refreshWallet();
-    setAmount(""); setAccount(""); setCoinAddr(""); setSentCode(null); setAuthCode(""); setWithdrawPw(""); setReceiptPath(null);
-    toast({ title: tw("withdrawDone"), description: tw("withdrawDoneDesc", { tier: u.tier }) });
   }
 
   async function submitDeposit() {
