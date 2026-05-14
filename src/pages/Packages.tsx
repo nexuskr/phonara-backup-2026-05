@@ -10,6 +10,7 @@ import { useRequireAuth } from "@/hooks/use-require-auth";
 import PackageBoostPreview from "@/components/PackageBoostPreview";
 import ActiveBoostCounter from "@/components/ActiveBoostCounter";
 import EmpireFoundingCounter from "@/components/EmpireFoundingCounter";
+import SEOHead from "@/components/seo/SEOHead";
 import EmpireDayCountdown from "@/components/EmpireDayCountdown";
 import PaywallStarter from "@/components/conversion/PaywallStarter";
 import { isFlagOn } from "@/lib/conversion-flags";
