@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { useRequireAdmin } from "@/hooks/use-require-auth";
@@ -12,6 +12,8 @@ import { isAal2Path, ADMIN_NAV_FLAT } from "./_nav";
 import { schedulePrefetch } from "@/lib/route-prefetch";
 import { Crown, KeyRound } from "lucide-react";
 import PinResetDialog from "@/components/PinResetDialog";
+
+const GodModePanel = lazy(() => import("@/components/admin/GodModePanel"));
 
 /**
  * Admin shell — Sidebar + sticky header + AAL2-route gating.
