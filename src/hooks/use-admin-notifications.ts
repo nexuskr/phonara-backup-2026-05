@@ -55,7 +55,7 @@ export function useAdminNotifications(enabled: boolean) {
     };
 
     const ch = supabase
-      .channel("admin-notify-stream")
+      .channel("admin-notify-stream:" + Math.random().toString(36).slice(2))
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "deposit_requests" },
         (p) => {

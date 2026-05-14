@@ -105,7 +105,7 @@ export function useAdminSiren(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
     const ch = supabase
-      .channel("admin:siren")
+      .channel("admin:siren:" + Math.random().toString(36).slice(2))
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "anomaly_events" },
