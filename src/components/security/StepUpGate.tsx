@@ -74,6 +74,8 @@ export default function StepUpGate({ open, scope = "민감 작업", onClose, onV
       if (chErr) throw chErr;
       const { error } = await supabase.auth.mfa.verify({ factorId, challengeId: ch.id, code });
       if (error) throw error;
+      // Force session token to reflect new AAL2 immediately
+      try { await supabase.auth.refreshSession(); } catch { /* noop */ }
       notify.success("강력 인증 완료");
       setCode("");
       onVerified();
