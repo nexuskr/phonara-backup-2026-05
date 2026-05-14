@@ -7,12 +7,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useMyPower } from "@/hooks/use-my-power";
-import { getMainNftStatus, setMainNft, type MainNftStatus, invalidateMainNftCache } from "@/lib/mainNft";
+import { getMainNftStatus, setMainNft, adminGrantSelfNft, type MainNftStatus, invalidateMainNftCache } from "@/lib/mainNft";
 import { getNftImage, getRarityRingClass, getNftTypeLabel } from "@/lib/nftImage";
 import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Coins, Clock, Sparkles } from "lucide-react";
+import { Coins, Clock, Sparkles, Shield } from "lucide-react";
+import { useDB } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+const ADMIN_SHOWCASE: Array<{ type: "crown" | "emperor" | "founder"; level: "bronze" | "gold" | "diamond" }> = [
+  { type: "crown", level: "bronze" }, { type: "crown", level: "gold" }, { type: "crown", level: "diamond" },
+  { type: "emperor", level: "bronze" }, { type: "emperor", level: "gold" }, { type: "emperor", level: "diamond" },
+  { type: "founder", level: "bronze" }, { type: "founder", level: "gold" }, { type: "founder", level: "diamond" },
+];
 
 interface Props {
   open: boolean;
