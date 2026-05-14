@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Crown, Flame, Zap, ArrowDownToLine } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { trackClick, useTrackView } from "@/lib/telemetry";
+import { useVisibleInterval, useDocumentVisible } from "@/lib/util/visible-interval";
+import { useInViewport } from "@/hooks/use-in-viewport";
 
 type Strike = {
   kind: "crown" | "baron" | "withdraw";
