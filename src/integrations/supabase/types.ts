@@ -7204,6 +7204,7 @@ export type Database = {
       }
       _mask_nick: { Args: { _n: string }; Returns: string }
       _period_key: { Args: { _period: string }; Returns: string }
+      accept_dynasty_link: { Args: { _token: string }; Returns: Json }
       accrue_jackpot: { Args: { p_deposit_amount: number }; Returns: Json }
       acknowledge_anomaly: {
         Args: { _id: string; _note?: string }
@@ -7928,6 +7929,7 @@ export type Database = {
         Args: { _delta?: number; _metric: string }
         Returns: undefined
       }
+      cancel_dynasty_link: { Args: { _link_id: string }; Returns: Json }
       cancel_pending_order: { Args: { p_order_id: string }; Returns: boolean }
       check_achievements: { Args: { _user_id?: string }; Returns: Json }
       check_daily_ev_health: { Args: never; Returns: Json }
@@ -8318,6 +8320,19 @@ export type Database = {
         }[]
       }
       get_my_dashboard_state: { Args: never; Returns: Json }
+      get_my_dynasty_links: {
+        Args: never
+        Returns: {
+          accepted_at: string
+          child_email: string
+          child_id: string
+          created_at: string
+          id: string
+          parent_id: string
+          role: string
+          status: string
+        }[]
+      }
       get_my_empire_map: { Args: never; Returns: Json }
       get_my_fomo_notifications: {
         Args: { _limit?: number }
@@ -8987,6 +9002,7 @@ export type Database = {
         Args: { _reason: string; _target: string }
         Returns: string
       }
+      request_dynasty_link: { Args: { _child_email: string }; Returns: Json }
       request_refund: {
         Args: { _reason: string }
         Returns: {
@@ -9131,6 +9147,9 @@ export type Database = {
           p95_ms: number
         }[]
       }
+      spend_phon_for_booster: { Args: never; Returns: Json }
+      spend_phon_for_crown_boost: { Args: never; Returns: Json }
+      spend_phon_for_fee_discount: { Args: { _amount: number }; Returns: Json }
       spin_roulette: { Args: { _kind: string }; Returns: Json }
       start_ai_bot_run: {
         Args: {
