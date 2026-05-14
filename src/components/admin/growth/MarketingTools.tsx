@@ -117,7 +117,7 @@ export default function MarketingTools() {
       {loading ? (
         <LoadingList rows={4} />
       ) : list.length === 0 ? (
-        <EmptyState title="캠페인 없음" description="아직 생성된 캠페인이 없습니다." icon={Megaphone} />
+        <EmptyState title="캠페인 없음" description="아직 생성된 캠페인이 없습니다." icon={<Megaphone className="w-6 h-6" />} />
       ) : (
         <div className="glass-strong rounded-2xl border border-border/40 overflow-hidden">
           <table className="w-full text-sm">

@@ -138,7 +138,7 @@ export default function NotificationCenter() {
         {loading ? (
           <LoadingList rows={4} />
         ) : list.length === 0 ? (
-          <EmptyState title="발송 내역 없음" description="아직 보낸 공지가 없습니다." icon={Bell} />
+          <EmptyState title="발송 내역 없음" description="아직 보낸 공지가 없습니다." icon={<Bell className="w-6 h-6" />} />
         ) : (
           <div className="glass-strong rounded-2xl border border-border/40 overflow-hidden">
             <table className="w-full text-sm">

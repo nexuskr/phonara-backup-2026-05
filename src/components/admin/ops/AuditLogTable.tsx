@@ -75,7 +75,7 @@ export default function AuditLogTable() {
       {loading ? (
         <LoadingList rows={6} />
       ) : rows.length === 0 ? (
-        <EmptyState title="기록 없음" description="조건에 맞는 감사 로그가 없습니다." icon={ScrollText} />
+        <EmptyState title="기록 없음" description="조건에 맞는 감사 로그가 없습니다." icon={<ScrollText className="w-6 h-6" />} />
       ) : (
         <div className="glass-strong rounded-2xl border border-border/40 overflow-hidden">
           <table className="w-full text-sm">
