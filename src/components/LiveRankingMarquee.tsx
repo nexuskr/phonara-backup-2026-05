@@ -1,9 +1,11 @@
 // P1-6 — Live ranking marquee. 결정론적 봇 100건을 시간당 회전.
 // `get_bot_live_ranking` RPC가 실패/비어있으면 컴포넌트는 조용히 사라짐.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { useVisibleInterval, useDocumentVisible } from "@/lib/util/visible-interval";
+import { useInViewport } from "@/hooks/use-in-viewport";
 
 type Row = { rank: number; nickname: string; amount: number; tier: string };
 
