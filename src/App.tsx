@@ -155,6 +155,7 @@ function GlobalOverlays() {
       <Suspense fallback={null}><EmpireMomentToast /></Suspense>
       <Suspense fallback={null}><FloatingCashLoopWidget /></Suspense>
       <Suspense fallback={null}><ForcedShareDialog /></Suspense>
+      <Suspense fallback={null}><VipArrivalAnnouncer /></Suspense>
     </>
   );
 }
