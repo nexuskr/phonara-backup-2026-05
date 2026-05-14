@@ -123,6 +123,9 @@ export default function Dashboard() {
         {/* 🌅 Daily AI Briefing — 5장 카드 */}
         <Suspense fallback={null}><DailyBriefingCard /></Suspense>
 
+        {/* 👑 VIP 30초 선공개 — VIP만 노출 */}
+        <Suspense fallback={null}><VipWhalePreview /></Suspense>
+
         {/* 📣 Imperial Stories — 자동 서사 라이브 */}
         <ImperialStoryRail />
 
