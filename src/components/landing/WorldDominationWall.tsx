@@ -127,22 +127,33 @@ export default function WorldDominationWall() {
   return (
     <section className="relative w-full overflow-hidden border-y border-border/50 bg-gradient-to-b from-background via-background/95 to-background">
       {/* Tone overlay */}
-      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${headline.tone} opacity-30`} />
+      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${sessionFallback.tone} opacity-30`} />
 
       <div className="relative max-w-7xl mx-auto px-4 py-4 md:py-5 space-y-3">
-        {/* 헤드라인 */}
+        {/* AI 헤드라인 회전 + 세션 폴백 */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_currentColor]"
+              className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_currentColor] shrink-0"
             />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">LIVE NOW</span>
-            <span className="text-base md:text-lg font-bold bg-gradient-to-r from-amber-300 via-amber-100 to-amber-300 bg-clip-text text-transparent">
-              {headline.title}
-            </span>
-            <span className="hidden sm:inline text-xs text-muted-foreground">· {headline.sub}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400 shrink-0">LIVE NOW</span>
+            <div className="relative h-7 flex-1 min-w-0 overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={(activeHeadline?.text ?? sessionFallback.title) + hIdx}
+                  initial={{ y: 12, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -12, opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0 flex items-center text-base md:text-lg font-bold bg-gradient-to-r from-amber-300 via-amber-100 to-amber-300 bg-clip-text text-transparent truncate"
+                  title={activeHeadline?.text ?? sessionFallback.title}
+                >
+                  {activeHeadline?.text ?? sessionFallback.title}
+                </motion.span>
+              </AnimatePresence>
+            </div>
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Globe2 className="w-3.5 h-3.5" />
