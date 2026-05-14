@@ -157,7 +157,7 @@ export default function Dynasty() {
       <section className="space-y-2">
         <h2 className="font-display font-bold text-sm">내 자녀 ({parentLinks.filter((l) => l.status === "active").length})</h2>
         {parentLinks.length === 0 ? (
-          <EmptyState icon={UserPlus} title="아직 자녀가 없습니다" description="위에서 자녀 이메일로 초대하세요." />
+          <EmptyState icon={<UserPlus className="w-8 h-8" />} title="아직 자녀가 없습니다" description="위에서 자녀 이메일로 초대하세요." />
         ) : parentLinks.map((l) => (
           <Card key={l.id} className="p-3 space-y-2">
             <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ export default function Dynasty() {
       <section className="space-y-2">
         <h2 className="font-display font-bold text-sm">양도 내역 ({bequests.length})</h2>
         {bequests.length === 0 ? (
-          <EmptyState icon={Clock} title="양도 내역 없음" />
+          <EmptyState icon={<Clock className="w-8 h-8" />} title="양도 내역 없음" />
         ) : bequests.map((b) => {
           const cooldownLeft = new Date(b.cooldown_until).getTime() - Date.now();
           const ready = cooldownLeft <= 0;
