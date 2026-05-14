@@ -91,6 +91,7 @@ function WithdrawQueueTable() {
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [pending, setPending] = useState<null | "approve" | "reject">(null);
 
   const sorted = useMemo(() => {
     const arr = [...withdrawals];
