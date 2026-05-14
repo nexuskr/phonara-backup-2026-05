@@ -81,6 +81,9 @@ const CampaignRedirect = lazy(() => import("./pages/CampaignRedirect.tsx"));
 const ReplayLanding = lazy(() => import("./pages/ReplayLanding.tsx"));
 const Trust = lazy(() => import("./pages/Trust.tsx"));
 const LegalDoc = lazy(() => import("./pages/LegalDoc.tsx"));
+const LiveOverlay = lazy(() => import("./pages/LiveOverlay.tsx"));
+const InfluencerLanding = lazy(() => import("./pages/InfluencerLanding.tsx"));
+const ForcedShareDialog = lazy(() => import("./components/share/ForcedShareDialog.tsx"));
 import { PracticeModeBanner } from "./components/practice/PracticeModeBanner";
 import { PracticeModeGate } from "./components/practice/PracticeModeGate";
 import SimGlobalBadge from "./components/SimGlobalBadge";
@@ -240,6 +243,8 @@ const App = () => (
               <Route path="/ugc" element={<Navigate to="/missions?tab=rewards" replace />} />
               <Route path="/c/:slug" element={<CampaignRedirect />} />
               <Route path="/r/:token" element={<ReplayLanding />} />
+              <Route path="/i/:code" element={<InfluencerLanding />} />
+              <Route path="/live/:token" element={<LiveOverlay />} />
               <Route path="/global-intelligence" element={<Navigate to="/" replace />} />
               <Route path="/infrastructure" element={<Navigate to="/" replace />} />
               <Route path="/intelligence-loop" element={<Navigate to="/" replace />} />
