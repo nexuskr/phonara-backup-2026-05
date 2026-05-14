@@ -43,6 +43,8 @@ const HUBS: Record<HubKey, { tabs: Tab[] }> = {
       { to: "/ugc",                  tKey: "legacy.ugc",          icon: BarChart3 },
       { to: "/legacy",               tKey: "legacy.ranking",      icon: Trophy },
       { to: "/achievements",         tKey: "legacy.achievements", icon: Award },
+      { to: "/dynasty",              tKey: "legacy.dynasty",      icon: Heart },
+      { to: "/guide/phon",           tKey: "legacy.phonGuide",    icon: BookOpen },
     ],
   },
 };
