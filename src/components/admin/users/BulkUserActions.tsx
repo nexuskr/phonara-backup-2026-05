@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 import { Snowflake, ThermometerSun, Crown, Loader2 } from "lucide-react";
 
-type Tier = "rookie" | "bronze" | "silver" | "gold" | "platinum" | "diamond";
-const TIERS: Tier[] = ["rookie", "bronze", "silver", "gold", "platinum", "diamond"];
+type Tier = "normal" | "vip" | "god" | "empire";
+const TIERS: Tier[] = ["normal", "vip", "god", "empire"];
 
 interface Props {
   selectedIds: string[];
@@ -15,7 +15,7 @@ export default function BulkUserActions({ selectedIds, onDone }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [hours, setHours] = useState(24);
   const [reason, setReason] = useState("");
-  const [tier, setTier] = useState<Tier>("bronze");
+  const [tier, setTier] = useState<Tier>("vip");
   const disabled = selectedIds.length === 0 || !!busy;
 
   async function bulkFreeze() {

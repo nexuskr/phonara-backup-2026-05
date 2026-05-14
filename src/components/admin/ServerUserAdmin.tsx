@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { adminSetTier, adminAdjustBalance } from "@/lib/deposits-rpc";
 import { formatKRW } from "@/lib/store";
 import { notify } from "@/lib/notify";
-import { Snowflake, Flame, Ban, ShieldOff, Trash2, Wallet, RefreshCw, Search } from "lucide-react";
+import { Snowflake, Flame, Ban, ShieldOff, Trash2, Wallet, RefreshCw, Search, ExternalLink } from "lucide-react";
+import BulkUserActions from "@/components/admin/users/BulkUserActions";
 
 type Row = {
   id: string;
@@ -46,6 +47,16 @@ export default function ServerUserAdmin() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState(sp.get("q") ?? "");
   const [filter, setFilter] = useState<Filter>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleOne = useCallback((id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+  const clearSelection = useCallback(() => setSelected(new Set()), []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -190,6 +201,21 @@ export default function ServerUserAdmin() {
         ))}
       </div>
 
+      {selected.size > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-bold text-gold">선택 {selected.size}명</span>
+            <button onClick={clearSelection} className="text-muted-foreground hover:text-foreground underline">
+              선택 해제
+            </button>
+          </div>
+          <BulkUserActions
+            selectedIds={Array.from(selected)}
+            onDone={() => { clearSelection(); void load(); }}
+          />
+        </div>
+      )}
+
       {loading && <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">불러오는 중...</div>}
       {!loading && filtered.length === 0 && (
         <div className="text-center text-xs text-muted-foreground py-8 glass rounded-2xl">회원 없음</div>
@@ -202,11 +228,20 @@ export default function ServerUserAdmin() {
           u.is_frozen && !u.is_banned && { label: "동결", cls: "bg-gold/20 text-gold border-gold/40" },
           !u.profile_completed && { label: "프로필 미완성", cls: "bg-muted/40 text-muted-foreground border-border" },
         ].filter(Boolean) as { label: string; cls: string }[];
+        const isChecked = selected.has(u.id);
 
         return (
-          <div key={u.id} className={`glass rounded-2xl p-4 ${u.is_deleted ? "opacity-60" : ""}`}>
+          <div key={u.id} className={`glass rounded-2xl p-4 ${u.is_deleted ? "opacity-60" : ""} ${isChecked ? "ring-1 ring-gold/60" : ""}`}>
             <div className="flex items-start justify-between gap-2 flex-wrap">
-              <div className="min-w-0 flex-1">
+              <label className="flex items-start gap-2 min-w-0 flex-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => toggleOne(u.id)}
+                  disabled={u.is_deleted}
+                  className="mt-1 accent-gold shrink-0"
+                />
+                <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="font-bold text-sm truncate">{u.nickname || "(닉네임 없음)"}</div>
                   <span className="text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider glass border border-border">
@@ -229,10 +264,17 @@ export default function ServerUserAdmin() {
                     ❄ 동결 {new Date(u.frozen_until).toLocaleString("ko-KR")}까지 · {u.freeze_reason ?? ""}
                   </div>
                 )}
-              </div>
-              <div className="text-right shrink-0">
+                </div>
+              </label>
+              <div className="text-right shrink-0 flex flex-col items-end gap-1">
                 <div className="font-display font-bold text-sm text-gradient-primary">{formatKRW(u.available_balance)}</div>
                 <div className="text-[10px] text-muted-foreground">총 {formatKRW(u.total_balance)}</div>
+                <Link
+                  to={`/admin/product/users/${u.id}`}
+                  className="text-[10px] text-primary hover:underline inline-flex items-center gap-0.5"
+                >
+                  360 상세 <ExternalLink className="w-3 h-3" />
+                </Link>
               </div>
             </div>
 
