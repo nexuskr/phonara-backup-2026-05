@@ -133,11 +133,7 @@ function GuideDetail() {
     try { localStorage.setItem("guide_large_text", next ? "1" : "0"); } catch {}
   }
 
-  // ── Phase V3: starter는 3단 심리 압축 엔진(StarterFunnelV3) — 자체 게이트/완주 마킹/스크롤 차단
-  if (isStarter) {
-    return <StarterFunnelV3 />;
-  }
-
+  // detail 모드 전용 — starter는 위 가드에서 이미 리턴됨
   return (
     <Layout>
       <div className="sticky top-0 z-30 px-3 pt-2 pb-1 bg-background/85 backdrop-blur-md">
