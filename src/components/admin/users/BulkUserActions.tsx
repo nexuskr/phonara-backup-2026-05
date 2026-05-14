@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 import { Snowflake, ThermometerSun, Crown, Loader2 } from "lucide-react";
 
-type Tier = "rookie" | "bronze" | "silver" | "gold" | "platinum" | "diamond";
-const TIERS: Tier[] = ["rookie", "bronze", "silver", "gold", "platinum", "diamond"];
+type Tier = "normal" | "vip" | "god" | "empire";
+const TIERS: Tier[] = ["normal", "vip", "god", "empire"];
 
 interface Props {
   selectedIds: string[];
