@@ -275,7 +275,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Phase D Week 1 — World Domination Wall */}
+      {/* Phase D Week 1 — World Domination Wall + VIP Arrivals */}
+      <Suspense fallback={null}><VipArrivalsTicker /></Suspense>
       <Suspense fallback={null}><WorldDominationWall /></Suspense>
 
       {/* Live payout ticker + Council */}
