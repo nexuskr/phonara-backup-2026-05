@@ -109,7 +109,7 @@ export default function HybridNetPage() {
           {/* NET */}
           <TabsContent value="net" className="space-y-2">
             {loading ? (
-              <LoadingList lines={4} />
+              <LoadingList rows={4} />
             ) : net.length === 0 ? (
               <EmptyState
                 icon={<Layers className="h-8 w-8 text-muted-foreground" />}
@@ -151,7 +151,7 @@ export default function HybridNetPage() {
           {/* RAW */}
           <TabsContent value="raw" className="space-y-2">
             {loading ? (
-              <LoadingList lines={4} />
+              <LoadingList rows={4} />
             ) : raw.length === 0 ? (
               <EmptyState
                 icon={<List className="h-8 w-8 text-muted-foreground" />}

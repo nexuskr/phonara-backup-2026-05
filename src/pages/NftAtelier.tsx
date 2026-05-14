@@ -179,7 +179,7 @@ export default function NftAtelier() {
       {/* Body */}
       <div className="max-w-5xl mx-auto px-4 mt-5 space-y-5">
         {loading ? (
-          <LoadingList lines={4} />
+          <LoadingList rows={4} />
         ) : nfts.length === 0 ? (
           <EmptyState
             icon={<Crown className="h-8 w-8 text-amber-400" />}
