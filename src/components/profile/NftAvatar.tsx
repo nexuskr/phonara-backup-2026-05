@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { getMainNft, type MainNftRow, invalidateMainNftCache } from "@/lib/mainNft";
 import { getNftImage, getRarityRingClass } from "@/lib/nftImage";
 import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type SizeKey = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
@@ -27,17 +28,30 @@ interface Props {
 
 export default function NftAvatar({ userId, mainNft, size = "md", className, showBadge, onClick }: Props) {
   const px = SIZE_PX[size];
+  const [selfId, setSelfId] = useState<string | undefined>(userId);
   const [resolved, setResolved] = useState<MainNftRow | null | undefined>(
     mainNft !== undefined ? mainNft : undefined,
   );
 
+  // Resolve self id when no userId or mainNft is provided
   useEffect(() => {
-    if (mainNft !== undefined) { setResolved(mainNft); return; }
-    if (!userId) { setResolved(null); return; }
+    if (userId || mainNft !== undefined) return;
     let alive = true;
-    getMainNft(userId).then((r) => { if (alive) setResolved(r); });
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setSelfId(data?.session?.user?.id);
+    });
     return () => { alive = false; };
   }, [userId, mainNft]);
+
+  const effectiveId = userId ?? selfId;
+
+  useEffect(() => {
+    if (mainNft !== undefined) { setResolved(mainNft); return; }
+    if (!effectiveId) { setResolved(null); return; }
+    let alive = true;
+    getMainNft(effectiveId).then((r) => { if (alive) setResolved(r); });
+    return () => { alive = false; };
+  }, [effectiveId, mainNft]);
 
   // Realtime invalidate on profile.main_nft_id update
   useRealtimeChannel({
