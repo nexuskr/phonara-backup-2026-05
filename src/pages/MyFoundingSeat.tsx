@@ -28,14 +28,16 @@ export default function MyFoundingSeat() {
     } finally { setLoading(false); }
   }
 
-  useEffect(() => {
-    load();
-    const ch = supabase.channel("my:fs")
-      .on("postgres_changes", { event: "*", schema: "public", table: "founding_season_seats" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "founding_seat_events" }, load)
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, []);
+  useEffect(() => { void load(); }, []);
+
+  useRealtimeChannel({
+    key: "my:fs",
+    bindings: [
+      { event: "*", table: "founding_season_seats" },
+      { event: "*", table: "founding_seat_events" },
+    ],
+    onEvent: () => void load(),
+  });
 
   return (
     <Layout>
