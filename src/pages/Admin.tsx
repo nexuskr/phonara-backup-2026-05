@@ -43,14 +43,15 @@ import FoundingSeasonsAdmin from "@/components/admin/FoundingSeasonsAdmin";
 const SENSITIVE_ADMIN_TABS = [
   "server_wd", "server_dep", "users", "packages", "coin",
   "perms", "aml", "payout_audit", "security", "ops", "viral_forensics",
-  "accounting", "bot_mix", "trust_v2", "founding", "kernel", "oracle",
+  "accounting", "bot_mix", "trust_v2", "founding", "kernel", "oracle", "economy",
 ];
 import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse, Gauge, KeyRound, HeartHandshake, Cpu, Radio } from "lucide-react";
 import TrustV2Admin from "@/components/admin/TrustV2Admin";
 import KernelObservability from "@/components/admin/KernelObservability";
 import OracleFortress from "@/components/admin/OracleFortress";
+import EconomyDashboard from "@/components/admin/EconomyDashboard";
 
-type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "bot_mix" | "ev_health" | "ab_experiments" | "beta" | "trust_v2" | "founding" | "kernel" | "oracle";
+type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "bot_mix" | "ev_health" | "ab_experiments" | "beta" | "trust_v2" | "founding" | "kernel" | "oracle" | "economy";
 
 export default function Admin() {
   const [db, setDb] = useDB();
@@ -161,6 +162,7 @@ export default function Admin() {
     { id: "founding", label: "Founding 시즌", icon: Crown },
     { id: "kernel", label: "Kernel (v3.2)", icon: Cpu },
     { id: "oracle", label: "Oracle Fortress", icon: Radio },
+    { id: "economy", label: "PHON·NFT 경제", icon: Coins },
   ];
 
   return (
@@ -225,6 +227,7 @@ export default function Admin() {
           {tab === "founding" && <FoundingSeasonsAdmin />}
           {tab === "kernel" && <KernelObservability />}
           {tab === "oracle" && <OracleFortress />}
+          {tab === "economy" && <EconomyDashboard />}
         </AdminAal2Gate>
       </div>
     </Layout>
