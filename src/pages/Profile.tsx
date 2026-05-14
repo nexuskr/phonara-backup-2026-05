@@ -305,6 +305,8 @@ export default function Profile() {
           <LuxButton onClick={changePass} disabled={busy} block size="lg" className="mt-2">{busy ? t("passProcessing") : t("passSubmit")}</LuxButton>
         </Modal>
       )}
+
+      <NftGalleryDialog open={nftGalleryOpen} onOpenChange={setNftGalleryOpen} />
     </Layout>
   );
 }
