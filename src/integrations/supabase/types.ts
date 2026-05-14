@@ -751,6 +751,69 @@ export type Database = {
         }
         Relationships: []
       }
+      bequest_requests: {
+        Row: {
+          asset_kind: string
+          cancelled_at: string | null
+          child_id: string
+          cooldown_until: string
+          created_at: string
+          executed_at: string | null
+          id: string
+          link_id: string
+          nft_id: string | null
+          notes: string | null
+          parent_id: string
+          phon_amount: number | null
+          status: string
+        }
+        Insert: {
+          asset_kind: string
+          cancelled_at?: string | null
+          child_id: string
+          cooldown_until: string
+          created_at?: string
+          executed_at?: string | null
+          id?: string
+          link_id: string
+          nft_id?: string | null
+          notes?: string | null
+          parent_id: string
+          phon_amount?: number | null
+          status?: string
+        }
+        Update: {
+          asset_kind?: string
+          cancelled_at?: string | null
+          child_id?: string
+          cooldown_until?: string
+          created_at?: string
+          executed_at?: string | null
+          id?: string
+          link_id?: string
+          nft_id?: string | null
+          notes?: string | null
+          parent_id?: string
+          phon_amount?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bequest_requests_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "dynasty_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bequest_requests_nft_id_fkey"
+            columns: ["nft_id"]
+            isOneToOne: false
+            referencedRelation: "nft_collection"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       beta_invites: {
         Row: {
           code: string
@@ -1759,6 +1822,42 @@ export type Database = {
           tone?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      dynasty_links: {
+        Row: {
+          accepted_at: string | null
+          child_email: string
+          child_id: string | null
+          created_at: string
+          id: string
+          invite_token: string
+          parent_id: string
+          revoked_at: string | null
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          child_email: string
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          invite_token: string
+          parent_id: string
+          revoked_at?: string | null
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          child_email?: string
+          child_id?: string | null
+          created_at?: string
+          id?: string
+          invite_token?: string
+          parent_id?: string
+          revoked_at?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -3646,30 +3745,42 @@ export type Database = {
       }
       nft_collection: {
         Row: {
+          bequeathed_from: string | null
           boost_pct: number
           created_at: string
+          external_chain: string | null
+          external_token_id: string | null
           id: string
           level: string
+          locked_for_migration: boolean
           source: string
           source_ref: string
           type: string
           user_id: string
         }
         Insert: {
+          bequeathed_from?: string | null
           boost_pct?: number
           created_at?: string
+          external_chain?: string | null
+          external_token_id?: string | null
           id?: string
           level: string
+          locked_for_migration?: boolean
           source: string
           source_ref?: string
           type: string
           user_id: string
         }
         Update: {
+          bequeathed_from?: string | null
           boost_pct?: number
           created_at?: string
+          external_chain?: string | null
+          external_token_id?: string | null
           id?: string
           level?: string
+          locked_for_migration?: boolean
           source?: string
           source_ref?: string
           type?: string
@@ -4126,16 +4237,22 @@ export type Database = {
       phon_balances: {
         Row: {
           balance: number
+          snapshot_at: string | null
+          snapshot_balance: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           balance?: number
+          snapshot_at?: string | null
+          snapshot_balance?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           balance?: number
+          snapshot_at?: string | null
+          snapshot_balance?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -7087,6 +7204,7 @@ export type Database = {
       }
       _mask_nick: { Args: { _n: string }; Returns: string }
       _period_key: { Args: { _period: string }; Returns: string }
+      accept_dynasty_link: { Args: { _token: string }; Returns: Json }
       accrue_jackpot: { Args: { p_deposit_amount: number }; Returns: Json }
       acknowledge_anomaly: {
         Args: { _id: string; _note?: string }
@@ -7235,6 +7353,7 @@ export type Database = {
         }
       }
       admin_get_demo_bias_perf: { Args: never; Returns: Json }
+      admin_get_economy_stats: { Args: never; Returns: Json }
       admin_get_empire_realtime: { Args: never; Returns: Json }
       admin_get_ev_history: {
         Args: { _limit?: number }
@@ -7325,6 +7444,22 @@ export type Database = {
       admin_get_trust_v2_stats: { Args: never; Returns: Json }
       admin_get_user_360: { Args: { _uid: string }; Returns: Json }
       admin_get_user_email: { Args: { _user_id: string }; Returns: string }
+      admin_list_bequests: {
+        Args: { _limit?: number }
+        Returns: {
+          asset_kind: string
+          cancelled_at: string
+          child_id: string
+          cooldown_until: string
+          created_at: string
+          executed_at: string
+          id: string
+          nft_id: string
+          parent_id: string
+          phon_amount: number
+          status: string
+        }[]
+      }
       admin_list_beta_invites: {
         Args: never
         Returns: {
@@ -7445,6 +7580,10 @@ export type Database = {
       admin_oracle_chaos_stale_source: {
         Args: { _minutes?: number; _source: string }
         Returns: number
+      }
+      admin_phon_adjust: {
+        Args: { _delta: number; _reason: string; _uid: string }
+        Returns: Json
       }
       admin_release_founding_seat: {
         Args: { _reason: string; _season_id: string; _seat_no: number }
@@ -7811,6 +7950,8 @@ export type Database = {
         Args: { _delta?: number; _metric: string }
         Returns: undefined
       }
+      cancel_bequest: { Args: { _req_id: string }; Returns: Json }
+      cancel_dynasty_link: { Args: { _link_id: string }; Returns: Json }
       cancel_pending_order: { Args: { p_order_id: string }; Returns: boolean }
       check_achievements: { Args: { _user_id?: string }; Returns: Json }
       check_daily_ev_health: { Args: never; Returns: Json }
@@ -8036,6 +8177,7 @@ export type Database = {
         Returns: number
       }
       evolve_empire_unit: { Args: { _unit_id: string }; Returns: Json }
+      execute_bequest: { Args: { _req_id: string }; Returns: Json }
       fill_pending_order: {
         Args: { p_mark_price: number; p_order_id: string }
         Returns: string
@@ -8200,7 +8342,36 @@ export type Database = {
           total_contribution: number
         }[]
       }
+      get_my_bequests: {
+        Args: never
+        Returns: {
+          asset_kind: string
+          child_id: string
+          cooldown_until: string
+          created_at: string
+          executed_at: string
+          id: string
+          nft_id: string
+          parent_id: string
+          phon_amount: number
+          role: string
+          status: string
+        }[]
+      }
       get_my_dashboard_state: { Args: never; Returns: Json }
+      get_my_dynasty_links: {
+        Args: never
+        Returns: {
+          accepted_at: string
+          child_email: string
+          child_id: string
+          created_at: string
+          id: string
+          parent_id: string
+          role: string
+          status: string
+        }[]
+      }
       get_my_empire_map: { Args: never; Returns: Json }
       get_my_fomo_notifications: {
         Args: { _limit?: number }
@@ -8870,6 +9041,16 @@ export type Database = {
         Args: { _reason: string; _target: string }
         Returns: string
       }
+      request_bequest: {
+        Args: {
+          _asset_kind: string
+          _link_id: string
+          _nft_id?: string
+          _phon_amount?: number
+        }
+        Returns: Json
+      }
+      request_dynasty_link: { Args: { _child_email: string }; Returns: Json }
       request_refund: {
         Args: { _reason: string }
         Returns: {
@@ -9014,6 +9195,9 @@ export type Database = {
           p95_ms: number
         }[]
       }
+      spend_phon_for_booster: { Args: never; Returns: Json }
+      spend_phon_for_crown_boost: { Args: never; Returns: Json }
+      spend_phon_for_fee_discount: { Args: { _amount: number }; Returns: Json }
       spin_roulette: { Args: { _kind: string }; Returns: Json }
       start_ai_bot_run: {
         Args: {
@@ -9095,6 +9279,7 @@ export type Database = {
         }
         Returns: Json
       }
+      take_phon_snapshot: { Args: never; Returns: Json }
       tap_reinforce: { Args: { _nonce: string }; Returns: Json }
       tick_weekly_leaderboard_ranks: { Args: never; Returns: Json }
       tier_boost: {
