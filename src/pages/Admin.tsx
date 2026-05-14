@@ -43,13 +43,14 @@ import FoundingSeasonsAdmin from "@/components/admin/FoundingSeasonsAdmin";
 const SENSITIVE_ADMIN_TABS = [
   "server_wd", "server_dep", "users", "packages", "coin",
   "perms", "aml", "payout_audit", "security", "ops", "viral_forensics",
-  "accounting", "bot_mix", "trust_v2", "founding", "kernel",
+  "accounting", "bot_mix", "trust_v2", "founding", "kernel", "oracle",
 ];
-import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse, Gauge, KeyRound, HeartHandshake, Cpu } from "lucide-react";
+import { Activity, Lock, Bot, Flame, FlaskConical, HeartPulse, Gauge, KeyRound, HeartHandshake, Cpu, Radio } from "lucide-react";
 import TrustV2Admin from "@/components/admin/TrustV2Admin";
 import KernelObservability from "@/components/admin/KernelObservability";
+import OracleFortress from "@/components/admin/OracleFortress";
 
-type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "bot_mix" | "ev_health" | "ab_experiments" | "beta" | "trust_v2" | "founding" | "kernel";
+type Tab = "dashboard" | "funnel" | "analytics" | "errors" | "security" | "ops" | "perms" | "viral_forensics" | "aml" | "ai_missions" | "payout_audit" | "referrals" | "server_dep" | "server_wd" | "packages" | "users" | "missions" | "chats" | "coin" | "ugc" | "insurance" | "accounting" | "bots" | "bot_mix" | "ev_health" | "ab_experiments" | "beta" | "trust_v2" | "founding" | "kernel" | "oracle";
 
 export default function Admin() {
   const [db, setDb] = useDB();
