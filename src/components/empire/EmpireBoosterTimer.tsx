@@ -67,7 +67,8 @@ export default function EmpireBoosterTimer() {
             style={{ width: `${Math.max(2, Math.min(100, ratio * 100))}%` }}
           />
         </div>
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+    </FloatingSlot>
   );
 }
