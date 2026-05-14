@@ -40,6 +40,14 @@ export interface OpenArgs {
   tpPrice?: number;
   slPrice?: number;
   trailingOffset?: number;
+  /**
+   * v3.2: client-issued idempotency key. One UUID per logical user click.
+   * If the same click triggers retries (e.g. oracle_stale -> refresh -> retry),
+   * the SAME crid MUST be reused so the server can collapse duplicates and
+   * replay the original result. If omitted, the store auto-generates one
+   * (single-shot semantics).
+   */
+  clientRequestId?: string;
 }
 
 export interface SetTriggersArgs {
