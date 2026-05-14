@@ -14,6 +14,7 @@ import Layout from "@/components/Layout";
 import GuildLiveFeed from "@/components/lounge/GuildLiveFeed";
 import SeasonPrizePool from "@/components/lounge/SeasonPrizePool";
 import GuildRankingPanel from "@/components/guild/GuildRankingPanel";
+import NftAvatar from "@/components/profile/NftAvatar";
 
 type Guild = {
   id: string;
