@@ -74,7 +74,9 @@ function StatCell({ icon, label, value, accent }: { icon: React.ReactNode; label
 export default function WorldDominationWall() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [feed, setFeed] = useState<Activity[]>([]);
-  const headline = useSessionHeadline();
+  const [headlines, setHeadlines] = useState<Headline[]>([]);
+  const [hIdx, setHIdx] = useState(0);
+  const sessionFallback = useSessionHeadline();
 
   useEffect(() => {
     let alive = true;
@@ -91,6 +93,27 @@ export default function WorldDominationWall() {
     const id = window.setInterval(tick, 5000);
     return () => { alive = false; window.clearInterval(id); };
   }, []);
+
+  // AI 헤드라인 풀
+  useEffect(() => {
+    let alive = true;
+    async function load() {
+      const { data } = await supabase.rpc("get_daily_headlines" as any, { _locale: "any", _limit: 10 } as any);
+      if (alive && Array.isArray(data) && data.length > 0) setHeadlines(data as Headline[]);
+    }
+    load();
+    const id = window.setInterval(load, 5 * 60_000); // 5분마다 갱신
+    return () => { alive = false; window.clearInterval(id); };
+  }, []);
+
+  // 8초마다 헤드라인 회전
+  useEffect(() => {
+    if (headlines.length <= 1) return;
+    const id = window.setInterval(() => setHIdx((i) => (i + 1) % headlines.length), 8000);
+    return () => window.clearInterval(id);
+  }, [headlines.length]);
+
+  const activeHeadline = headlines[hIdx];
 
   // 빈 피드 시 시드(데모) — 실데이터 1건이라도 오면 즉시 교체
   const displayFeed: Activity[] = feed.length > 0 ? feed : [
