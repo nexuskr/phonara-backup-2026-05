@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { Clock, CheckCircle2, XCircle, ArrowUpRight, X, Banknote, Coins, Ticket, Shield, FileText, Inbox } from "lucide-react";
 import RequestTimeline from "@/components/RequestTimeline";
 import { LoadingList } from "@/components/ui/loading-state";
