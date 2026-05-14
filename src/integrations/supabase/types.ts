@@ -8314,6 +8314,7 @@ export type Database = {
         Returns: Json
       }
       finalize_weekly_pass: { Args: never; Returns: Json }
+      fuse_nft: { Args: { _nft_ids: string[] }; Returns: Json }
       gacha_pull: { Args: never; Returns: Json }
       gc_live_position_idempotency: { Args: never; Returns: number }
       gc_rate_limit_buckets: { Args: never; Returns: number }
@@ -8577,6 +8578,20 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_my_hybrid_net: {
+        Args: never
+        Returns: {
+          long_count: number
+          long_size: number
+          net_side: string
+          net_size: number
+          short_count: number
+          short_size: number
+          symbol: string
+          total_margin: number
+          weighted_entry: number
+        }[]
       }
       get_my_journey_progress: { Args: never; Returns: Json }
       get_my_legal_consent_status: { Args: never; Returns: Json }
