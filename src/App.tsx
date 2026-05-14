@@ -242,6 +242,7 @@ const App = () => (
               <Route path="/revenue" element={<Navigate to="/admin/revenue" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </MaintenanceGate>
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
