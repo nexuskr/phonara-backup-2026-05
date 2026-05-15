@@ -164,7 +164,14 @@ export default function SlotSignatureWrapper({
         </div>
 
         {/* MAX WIN cinematic */}
-        {MaxWinOverlay && <MaxWinOverlay triggerAt={triggerAt} />}
+        {MaxWinOverlay && (
+          <MaxWinOverlay
+            triggerAt={triggerAt}
+            slotId={slotId}
+            themeKey={themeKey ?? theme.symbolPack}
+            onMaxWinTriggered={handleMaxWinTriggered}
+          />
+        )}
 
         {/* DEV cheats — production 자동 제거 */}
         <DevWinCheats
