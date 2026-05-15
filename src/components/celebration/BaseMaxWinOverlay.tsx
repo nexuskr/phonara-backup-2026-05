@@ -174,6 +174,8 @@ export default function BaseMaxWinOverlay({
         window.clearTimeout(dismissTimer.current);
         dismissTimer.current = null;
       }
+      window.clearTimeout(restoreId);
+      try { soundManager.restoreBgm(200); } catch { /* */ }
       burstTimers.current.forEach((id) => window.clearTimeout(id));
       burstTimers.current = [];
     };
