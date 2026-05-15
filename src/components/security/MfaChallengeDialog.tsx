@@ -29,11 +29,11 @@ export default function MfaChallengeDialog({ open, factorId, onClose, onVerified
       if (chErr) throw chErr;
       const { error } = await supabase.auth.mfa.verify({ factorId, challengeId: ch.id, code });
       if (error) throw error;
-      notify.success("강력 인증 완료");
       setCode("");
+      await supabase.auth.refreshSession();
       window.dispatchEvent(new CustomEvent("phonara:mfa-verified"));
+      notify.success("강력 인증 완료");
       onVerified();
-      void supabase.auth.refreshSession().catch(() => undefined);
     } catch (e: any) {
       notify.error("인증 실패", { description: e?.message });
     } finally {
