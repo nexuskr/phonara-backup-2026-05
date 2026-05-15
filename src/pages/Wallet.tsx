@@ -369,6 +369,9 @@ export default function Wallet() {
           </div>
         </div>
 
+        {/* Tri-currency display layer (KRW / USDT / PHON) */}
+        <MultiCurrencyBalance className="mb-5" />
+
         {/* Asset switcher */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           {([
