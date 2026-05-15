@@ -20,6 +20,7 @@ import { useCurrencyPref } from "@/hooks/use-currency-pref";
 import { formatFromPhon } from "@/lib/displayCurrency";
 import { getSymbolImages, type SymbolPack } from "./symbolMap";
 import { playSlotCue, unlockSlotAudio, isSlotMuted, setSlotMuted, type SoundPack } from "@/lib/slotSound";
+import { logSlotAnomaly } from "@/lib/slots/anomaly";
 
 import bgOlympus from "@/assets/slots/olympus/bg.jpg";
 import logoOlympus from "@/assets/slots/olympus/logo.png";
