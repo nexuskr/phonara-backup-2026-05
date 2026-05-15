@@ -164,7 +164,7 @@ export function useAuthLiveData() {
           const cc = pseudoCountry(nick + (r.created_at ?? i));
           const flag = FLAG_BY_CC[cc] ?? "🌐";
           const amount = Number(r.amount ?? 0);
-          const kind: LiveFeedItem["kind"] = r.kind ?? "crown";
+          const kind: LiveFeedItem["kind"] = (["crown","baron","withdraw","nft","tier"] as const).includes(r.kind) ? r.kind : "crown";
           const text =
             kind === "crown" ? `Whale ${nick}님이 Crown Explosion +${amount.toLocaleString()}!`
             : kind === "withdraw" ? `${nick}님이 ${amount.toLocaleString()} PHON 출금 완료`
