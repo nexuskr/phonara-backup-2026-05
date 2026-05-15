@@ -112,7 +112,7 @@ class SoundManagerImpl {
         sound.play();
         return;
       } catch (e) {
-        logSlotAnomaly({ kind: "sound_init_failed", meta: { cue, channel, error: String(e) } });
+        logSlotAnomaly("sound_init_failed", null, null, null, { cue, channel, error: String(e) });
       }
     }
     // 폴백
