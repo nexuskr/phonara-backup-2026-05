@@ -252,6 +252,11 @@ export default function ServerUserAdmin() {
                   <span className="text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider glass border border-border">
                     {providerLabel(u.auth_provider)}
                   </span>
+                  {isSelf && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-md font-bold border bg-primary/15 text-primary border-primary/40">
+                      본인 계정
+                    </span>
+                  )}
                   {statusBadges.map(b => (
                     <span key={b.label} className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold border ${b.cls}`}>
                       {b.label}
