@@ -109,7 +109,7 @@ export const GAMES: GameConfig[] = [
     maxMultiplier: 4000,
     reels: 5, rows: 3,
     symbolWeights: W_HIGH,
-    paytable: pt(0.87, 2.05, 4.35, 8.66),
+    paytable: pt(0.83, 1.95, 4.13, 8.23),
     scatterTrigger: 3,
     bonus: {
       kind: "three_path",
