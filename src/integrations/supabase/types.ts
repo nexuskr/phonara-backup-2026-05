@@ -6202,6 +6202,39 @@ export type Database = {
         }
         Relationships: []
       }
+      slot_anomaly_log: {
+        Row: {
+          actual: number | null
+          created_at: string
+          expected: number | null
+          game_code: string | null
+          id: string
+          kind: string
+          meta: Json
+          user_id: string | null
+        }
+        Insert: {
+          actual?: number | null
+          created_at?: string
+          expected?: number | null
+          game_code?: string | null
+          id?: string
+          kind: string
+          meta?: Json
+          user_id?: string | null
+        }
+        Update: {
+          actual?: number | null
+          created_at?: string
+          expected?: number | null
+          game_code?: string | null
+          id?: string
+          kind?: string
+          meta?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       slot_demo_balances: {
         Row: {
           balance_chips: number
