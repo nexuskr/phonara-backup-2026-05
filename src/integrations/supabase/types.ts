@@ -6205,21 +6205,39 @@ export type Database = {
       slot_demo_balances: {
         Row: {
           balance_chips: number
+          last_class: string
           last_refill_at: string
+          loss_streak: number
+          spins_count: number
+          total_bet: number
+          total_paid: number
           updated_at: string
           user_id: string
+          win_streak: number
         }
         Insert: {
           balance_chips?: number
+          last_class?: string
           last_refill_at?: string
+          loss_streak?: number
+          spins_count?: number
+          total_bet?: number
+          total_paid?: number
           updated_at?: string
           user_id: string
+          win_streak?: number
         }
         Update: {
           balance_chips?: number
+          last_class?: string
           last_refill_at?: string
+          loss_streak?: number
+          spins_count?: number
+          total_bet?: number
+          total_paid?: number
           updated_at?: string
           user_id?: string
+          win_streak?: number
         }
         Relationships: []
       }
@@ -8418,6 +8436,10 @@ export type Database = {
           _server_seed: string
         }
         Returns: Json
+      }
+      _slot_demo_classify: {
+        Args: { _bet: number; _result: Json }
+        Returns: string
       }
       _slot_mulberry32: {
         Args: { _index: number; _seed: number }
