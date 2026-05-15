@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Timer, Trophy, Users, Sparkles } from "lucide-react";
 import { useReducedMotionPref } from "@/lib/app-settings";
-import { useRealtimeChannel } from "@/lib/realtime/useRealtimeChannel";
+import { useRealtimeChannel } from "@/hooks/use-realtime-channel";
 import { formatKRW } from "@/lib/store";
 
 // Korean nicknames used for bot ticker (mixed with seeded bots if available)
@@ -87,10 +87,9 @@ export function JackpotEmpireBanner() {
   // Real roulette_spins via unified realtime (no per-mount ghost channels)
   useRealtimeChannel({
     key: "jackpot-roulette-spins",
-    table: "roulette_spins",
-    event: "INSERT",
-    onInsert: (payload) => {
-      const r: any = payload.new;
+    bindings: [{ event: "INSERT", schema: "public", table: "roulette_spins" }],
+    onEvent: (payload: any) => {
+      const r: any = payload?.new;
       if (!r) return;
       setFeed((prev) => [
         {
