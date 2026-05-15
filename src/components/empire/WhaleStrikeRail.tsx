@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackClick, useTrackView } from "@/lib/telemetry";
 import { useVisibleInterval, useDocumentVisible } from "@/lib/util/visible-interval";
 import { useInViewport } from "@/hooks/use-in-viewport";
+import { useReducedMotionPref } from "@/lib/app-settings";
 
 type Strike = {
   kind: "crown" | "baron" | "withdraw";
@@ -84,7 +85,7 @@ export function WhaleStrikeRail({ compact = false }: { compact?: boolean } = {})
 
       <motion.div
         className={`flex ${compact ? "gap-2 py-2 pl-2" : "gap-3 py-7 pl-3"} will-change-transform`}
-        animate={animating ? { x: ["0%", "-50%"] } : false}
+        animate={animating && !reduce ? { x: ["0%", "-50%"] } : false}
         transition={{ duration: Math.max(20, items.length * 4), ease: "linear", repeat: Infinity }}
       >
         {doubled.map((s, i) => {

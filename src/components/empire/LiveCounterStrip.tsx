@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Flame, Globe2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SimChip } from "@/components/sim/SimChip";
+import { useReducedMotionPref } from "@/lib/app-settings";
 
 type Pulse = {
   live_users: number;
