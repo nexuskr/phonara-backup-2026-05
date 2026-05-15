@@ -38,7 +38,7 @@ function PharaohCinematic() {
         transition={{ duration: 2.8, ease: "easeOut" }}
         aria-hidden
       >
-        <Ankh
+        <AnkhIcon
           className="text-amber-200"
           style={{
             width: "clamp(180px, 40vw, 360px)",
@@ -139,7 +139,7 @@ export default function PharaohMaxWinOverlay({ triggerAt = 2500, durationMs = 34
       titleText="PHARAOH'S VAULT"
       titleDelayMs={550}
       icon={
-        <Ankh
+        <AnkhIcon
           className="h-20 w-20 sm:h-28 sm:w-28 text-amber-200 mb-3"
           style={{
             filter:
