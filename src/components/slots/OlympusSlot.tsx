@@ -6,6 +6,7 @@ import { useDB } from "@/lib/store";
 import { refreshWallet } from "@/lib/missions-rpc";
 import { useFakePlayerCount } from "@/hooks/use-fake-player-count";
 import { useAuthReady } from "@/hooks/use-auth-ready";
+import { useMyPower } from "@/hooks/use-my-power";
 import Reel from "./reels/Reel";
 import BalanceTicker from "./BalanceTicker";
 import WinOverlay, { classifyWin, type WinTier } from "./overlays/WinOverlay";
