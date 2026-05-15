@@ -1,7 +1,7 @@
 // SakuraMaxWinOverlay — 벚꽃의 축복 cinematic on BaseMaxWinOverlay.
 // Low volatility 슬롯에 맞춘 짧고 우아한 셀러브레이션 (3.4s, voice line 생략, 파스텔 톤).
 import { motion } from "framer-motion";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 import type { CelebrationData } from "@/lib/celebration/WinCelebrationManager";
 
 interface Props {

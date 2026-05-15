@@ -1,7 +1,7 @@
 // WizardMaxWinOverlay — Pentagram sweep + rune storm on BaseMaxWinOverlay.
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 
 const RUNE_GLYPHS = ["ᚠ", "ᚢ", "ᚦ", "ᚨ", "ᚱ", "ᚲ", "ᚷ", "ᚹ", "ᚺ", "ᛁ"];
 

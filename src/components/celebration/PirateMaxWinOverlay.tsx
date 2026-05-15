@@ -1,7 +1,7 @@
 // PirateMaxWinOverlay — Cannon flash + Skull/Coin storm + Treasure eruption on BaseMaxWinOverlay.
 import { motion } from "framer-motion";
 import { Skull } from "lucide-react";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 
 const STORM_GLYPHS = ["💀", "🪙", "💀", "⚔️", "🪙", "💎"];
 

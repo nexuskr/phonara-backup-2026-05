@@ -1,6 +1,6 @@
 // CosmicMaxWinOverlay — Cosmic Emperor cinematic on BaseMaxWinOverlay.
 import { Crown } from "lucide-react";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 
 interface Props {
   triggerAt?: number;

@@ -1,7 +1,7 @@
 // NeonMaxWinOverlay — System Hacked + Matrix rain cinematic on BaseMaxWinOverlay.
 import { useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 
 const MATRIX_CHARS = "アカサタナハマヤラワ0123456789@#$%";
 

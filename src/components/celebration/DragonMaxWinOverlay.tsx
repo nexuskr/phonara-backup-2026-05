@@ -1,7 +1,7 @@
 // DragonMaxWinOverlay — Lava eruption + ember storm on BaseMaxWinOverlay.
 import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
-import BaseMaxWinOverlay from "@/components/celebration/BaseMaxWinOverlay";
+import BaseMaxWinOverlay, { type MaxWinTriggeredPayload } from "@/components/celebration/BaseMaxWinOverlay";
 
 function EmberStorm() {
   return (
