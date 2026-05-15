@@ -250,6 +250,37 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
       } else if (mode === "real") {
         await refreshWallet();
         refreshPower();
+
+        // Progressive jackpot roll — server decides; idempotent on spin_id.
+        // We look up our most recent spin row (RLS-scoped to caller) and pass it.
+        try {
+          const { data: latestSpin } = await supabase
+            .from("slot_spins")
+            .select("id")
+            .eq("game_code", GAME_CODE)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (latestSpin?.id) {
+            const { data: jp } = await supabase.rpc("try_jackpot_hit", {
+              _game_code: GAME_CODE,
+              _spin_id: latestSpin.id,
+              _bet_phon: bet,
+            });
+            const row = Array.isArray(jp) ? jp[0] : jp;
+            if (row?.hit && Number(row.amount_phon) > 0) {
+              const amt = Number(row.amount_phon);
+              setJackpotWin({ amount: amt });
+              SoundManager.playWinTier(amt, bet);
+              haptics.bigWin();
+              await refreshWallet();
+              refreshPower();
+            }
+          }
+        } catch (jpErr) {
+          // Silent — jackpot is purely additive UX, never blocks spin flow.
+          console.warn("[jackpot] roll skipped", jpErr);
+        }
       }
 
       // BONUS PIPELINE
