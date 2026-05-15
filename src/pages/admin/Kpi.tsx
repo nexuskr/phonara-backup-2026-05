@@ -137,6 +137,7 @@ export default function AdminKpi() {
               <Stat icon={Flame} label="평균 Viral Score" value={k.viralAvg.toFixed(3)} hint="최근 500개 영상" />
             </div>
             <PhaseCMetricsPanel />
+            <SlotAnomalyPanel />
             <ReactivationFunnelPanel />
             <WhaleStrikeFunnelPanel />
             <BetaFunnelPanel />
