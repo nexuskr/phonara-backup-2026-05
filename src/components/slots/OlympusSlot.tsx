@@ -25,7 +25,7 @@ import JackpotMeter from "./JackpotMeter";
 import { useCurrencyPref } from "@/hooks/use-currency-pref";
 import { formatFromPhon } from "@/lib/displayCurrency";
 import { getSymbolImages, type SymbolPack } from "./symbolMap";
-import { playSlotCue, unlockSlotAudio, isSlotMuted, setSlotMuted, type SoundPack } from "@/lib/slotSound";
+import { playSlotCue, unlockSlotAudio, isSlotMuted, type SoundPack } from "@/lib/slotSound";
 import { SoundManager } from "@/lib/sound/SoundManager";
 import { GAME_TO_THEME } from "@/lib/sound/themes";
 import { logSlotAnomaly } from "@/lib/slots/anomaly";
@@ -168,9 +168,11 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
   }, [rawBalance, spinning]);
 
   // Load Howler theme pack for this game (assets fall back to procedural if missing)
+  // BGM은 첫 사용자 제스처(SPIN/뮤트 토글)에서 시작 — autoplay 정책 회피.
   useEffect(() => {
     const themeKey = GAME_TO_THEME[GAME_CODE];
     if (themeKey) SoundManager.loadPack(themeKey);
+    return () => { SoundManager.stopBGM(300); };
   }, [GAME_CODE]);
 
   useEffect(() => {
@@ -206,6 +208,7 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
     // Sound: spin start + reel-stop staccato (best-effort, never blocks gameplay)
     unlockSlotAudio();
     SoundManager.unlock();
+    SoundManager.playBGM({ fadeMs: 1200 });
     SoundManager.playReelSpin("normal");
     playSlotCue(soundPack, "spin");
     haptics.spinStart();
@@ -502,11 +505,28 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
               )}
             </div>
             <button
-              onClick={() => { const v = !muted; setMuted(v); setSlotMuted(v); if (!v) unlockSlotAudio(); }}
+              onClick={() => {
+                const v = !muted;
+                setMuted(v);
+                SoundManager.setMuted(v);
+                if (!v) {
+                  unlockSlotAudio();
+                  SoundManager.unlock();
+                  SoundManager.playBGM({ fadeMs: 1000 });
+                }
+              }}
               aria-label={muted ? "사운드 켜기" : "사운드 끄기"}
               className="p-2 rounded-lg border border-border/40 hover:bg-muted/40 transition text-muted-foreground"
             >
               {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => { SoundManager.unlock(); SoundManager.setMuted(false); setMuted(false); SoundManager.testAll(); }}
+              aria-label="사운드 테스트"
+              title="사운드 테스트 (모든 cue 순차 재생)"
+              className="p-2 rounded-lg border border-border/40 hover:bg-muted/40 transition text-muted-foreground text-xs"
+            >
+              🎵
             </button>
             <SpinHistorySheet gameCode={GAME_CODE} />
             <GameInfoSheet />
