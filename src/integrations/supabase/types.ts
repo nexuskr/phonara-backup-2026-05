@@ -6245,6 +6245,7 @@ export type Database = {
         Row: {
           active: boolean
           bonus_frequency: number
+          bonus_kind: string
           bonus_table: Json | null
           buy_bonus_multiplier: number
           created_at: string
@@ -6266,6 +6267,7 @@ export type Database = {
         Insert: {
           active?: boolean
           bonus_frequency?: number
+          bonus_kind?: string
           bonus_table?: Json | null
           buy_bonus_multiplier?: number
           created_at?: string
@@ -6287,6 +6289,7 @@ export type Database = {
         Update: {
           active?: boolean
           bonus_frequency?: number
+          bonus_kind?: string
           bonus_table?: Json | null
           buy_bonus_multiplier?: number
           created_at?: string
@@ -10208,6 +10211,10 @@ export type Database = {
       get_referral_stats: { Args: never; Returns: Json }
       get_roulette_stats: { Args: never; Returns: Json }
       get_season_overview: { Args: never; Returns: Json }
+      get_slot_buy_bonus_quote: {
+        Args: { _bet_phon: number; _game_code: string }
+        Returns: Json
+      }
       get_starter_trust_stats: { Args: never; Returns: Json }
       get_tier_distribution: {
         Args: never
