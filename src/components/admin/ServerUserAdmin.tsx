@@ -293,7 +293,7 @@ export default function ServerUserAdmin() {
               {TIERS.map(t => (
                 <button
                   key={t}
-                  disabled={busy || u.is_deleted}
+                  disabled={busy || u.is_deleted || isSelf}
                   onClick={() => setTier(u.id, t)}
                   className={`py-1.5 rounded-lg text-[10px] font-bold disabled:opacity-40 ${
                     u.tier === t ? "bg-gradient-gold text-gold-foreground" : "glass"
@@ -308,7 +308,7 @@ export default function ServerUserAdmin() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-2">
               <button
                 onClick={() => adjust(u.id)}
-                disabled={busy || u.is_deleted}
+                disabled={busy || u.is_deleted || isSelf}
                 className="py-2 rounded-xl glass border border-border text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
               >
                 <Wallet className="w-3 h-3" /> 잔액
@@ -317,7 +317,7 @@ export default function ServerUserAdmin() {
               {u.is_frozen ? (
                 <button
                   onClick={() => unfreeze(u.id)}
-                  disabled={busy || u.is_deleted}
+                  disabled={busy || u.is_deleted || isSelf}
                   className="py-2 rounded-xl bg-gold/15 border border-gold/40 text-gold text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
                 >
                   <Flame className="w-3 h-3" /> 동결 해제
@@ -325,7 +325,7 @@ export default function ServerUserAdmin() {
               ) : (
                 <button
                   onClick={() => freeze(u.id)}
-                  disabled={busy || u.is_deleted || u.is_banned}
+                  disabled={busy || u.is_deleted || u.is_banned || isSelf}
                   className="py-2 rounded-xl glass border border-border text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
                 >
                   <Snowflake className="w-3 h-3" /> 동결
@@ -335,7 +335,7 @@ export default function ServerUserAdmin() {
               {u.is_banned ? (
                 <button
                   onClick={() => unban(u.id)}
-                  disabled={busy || u.is_deleted}
+                  disabled={busy || u.is_deleted || isSelf}
                   className="py-2 rounded-xl bg-destructive/15 border border-destructive/40 text-destructive text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
                 >
                   <ShieldOff className="w-3 h-3" /> 차단 해제
@@ -343,7 +343,7 @@ export default function ServerUserAdmin() {
               ) : (
                 <button
                   onClick={() => ban(u.id)}
-                  disabled={busy || u.is_deleted}
+                  disabled={busy || u.is_deleted || isSelf}
                   className="py-2 rounded-xl glass border border-border text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
                 >
                   <Ban className="w-3 h-3" /> 차단
@@ -352,7 +352,7 @@ export default function ServerUserAdmin() {
 
               <button
                 onClick={() => softDelete(u.id, u.nickname)}
-                disabled={busy || u.is_deleted}
+                disabled={busy || u.is_deleted || isSelf}
                 className="py-2 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-40"
               >
                 <Trash2 className="w-3 h-3" /> 탈퇴
