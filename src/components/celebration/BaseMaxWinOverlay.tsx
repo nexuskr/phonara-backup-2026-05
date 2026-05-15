@@ -47,6 +47,14 @@ export interface BaseMaxWinPalette {
   subTextClass: string;
 }
 
+export interface MaxWinTriggeredPayload {
+  multiplier: number;
+  totalWin: number;
+  slotId: string;
+  themeKey?: string;
+  startedAt: number;
+}
+
 export interface BaseMaxWinOverlayProps {
   triggerAt?: number;
   durationMs?: number;
@@ -62,6 +70,10 @@ export interface BaseMaxWinOverlayProps {
   confettiBursts?: BurstSpec[];
   /** 타이틀 슬램 시작 딜레이 (ms). cinematic 이후에 슬램 띄우려면 사용. */
   titleDelayMs?: number;
+  /** Phase 3 — Empire/Crown 연동: legendary trigger 직후 1회 호출 (idempotent). */
+  onMaxWinTriggered?: (payload: MaxWinTriggeredPayload) => void;
+  slotId?: string;
+  themeKey?: string;
 }
 
 const DEFAULT_BURSTS: BurstSpec[] = [
@@ -81,6 +93,9 @@ export default function BaseMaxWinOverlay({
   cinematic,
   confettiBursts = DEFAULT_BURSTS,
   titleDelayMs = 0,
+  onMaxWinTriggered,
+  slotId,
+  themeKey,
 }: BaseMaxWinOverlayProps) {
   const [data, setData] = useState<CelebrationData | null>(null);
   const lastFiredAt = useRef(0);
