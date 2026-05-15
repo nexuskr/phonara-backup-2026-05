@@ -20,6 +20,7 @@ import { useCurrencyPref } from "@/hooks/use-currency-pref";
 import { formatFromPhon } from "@/lib/displayCurrency";
 import { getSymbolImages, type SymbolPack } from "./symbolMap";
 import { playSlotCue, unlockSlotAudio, isSlotMuted, setSlotMuted, type SoundPack } from "@/lib/slotSound";
+import { logSlotAnomaly } from "@/lib/slots/anomaly";
 
 import bgOlympus from "@/assets/slots/olympus/bg.jpg";
 import logoOlympus from "@/assets/slots/olympus/logo.png";
@@ -128,7 +129,7 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
   const [scatterCount, setScatterCount] = useState(0);
   const [showScatter, setShowScatter] = useState(false);
   const [showBonusIntro, setShowBonusIntro] = useState(false);
-  const [bonusWheel, setBonusWheel] = useState<{ mult: number } | null>(null);
+  const [bonusWheel, setBonusWheel] = useState<{ mult: number; onDone?: (winAmount: number) => void } | null>(null);
 
   // Auto-spin
   const [autoActive, setAutoActive] = useState(false);
@@ -249,11 +250,33 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
           setTimeout(() => { clearInterval(id); res(); }, 4000);
         });
 
-        // Mechanic-specific or fallback wheel
+        // Mechanic-specific or fallback wheel.
+        // The overlay narrates the same total — its onComplete(winAmount) MUST
+        // equal the server payout. Mismatches and timeouts get logged.
+        const expectedBonusWin = Math.round(bonusMult * bet);
         await new Promise<void>((res) => {
-          setBonusWheel({ mult: bonusMult });
-          // Each overlay calls onComplete; 12s is the hard ceiling guard.
-          setTimeout(res, 12000);
+          let settled = false;
+          const finish = (overlayWin: number, reason: "complete" | "timeout") => {
+            if (settled) return;
+            settled = true;
+            if (reason === "timeout") {
+              logSlotAnomaly("overlay_timeout", GAME_CODE, expectedBonusWin, overlayWin, {
+                bonus_kind: theme.bonusKind ?? "wheel",
+                bonus_mult: bonusMult,
+                bet,
+              });
+            } else if (Math.abs(overlayWin - expectedBonusWin) > 1) {
+              logSlotAnomaly("payout_mismatch", GAME_CODE, expectedBonusWin, overlayWin, {
+                bonus_kind: theme.bonusKind ?? "wheel",
+                bonus_mult: bonusMult,
+                bet,
+                server_payout: payout,
+              });
+            }
+            res();
+          };
+          setBonusWheel({ mult: bonusMult, onDone: (w: number) => finish(w, "complete") });
+          setTimeout(() => finish(0, "timeout"), 12000);
         });
         setBonusWheel(null);
       }
@@ -284,7 +307,9 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
         return true;
       }
     } catch (e: any) {
-      notify.error(describeError(String(e?.message ?? e)));
+      const msg = String(e?.message ?? e);
+      notify.error(describeError(msg));
+      logSlotAnomaly("spin_failed", GAME_CODE, bet, 0, { error: msg, mode, buyBonus });
       // Restore balance on failure
       setDisplayBalance(rawBalance);
       return false;
@@ -479,7 +504,10 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
               targetMultiplier={bonusWheel.mult}
               betAmount={bet}
               unitLabel={balanceLabel}
-              onComplete={() => setBonusWheel(null)}
+              onComplete={(winAmount: number) => {
+                bonusWheel.onDone?.(winAmount);
+                setBonusWheel(null);
+              }}
             />
           )}
           {winOverlay && (
