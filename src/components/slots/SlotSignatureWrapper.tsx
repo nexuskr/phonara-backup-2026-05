@@ -65,6 +65,7 @@ export default function SlotSignatureWrapper({
 }: SlotSignatureWrapperProps) {
   const user = useRequireAuth();
   useSlotSound(slotId);
+  const { handleMaxWinTriggered } = useEmpireCrown(slotId);
 
   // 위임형 햅틱 — Spin/Bet 영역 버튼 누름에만 navigator.vibrate(8).
   // 메모리 누수 0 — root 단일 listener.
