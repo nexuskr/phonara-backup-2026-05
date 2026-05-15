@@ -233,6 +233,7 @@ export default function ServerUserAdmin() {
           !u.profile_completed && { label: "프로필 미완성", cls: "bg-muted/40 text-muted-foreground border-border" },
         ].filter(Boolean) as { label: string; cls: string }[];
         const isChecked = selected.has(u.id);
+        const isSelf = selfId === u.id;
 
         return (
           <div key={u.id} className={`glass rounded-2xl p-4 ${u.is_deleted ? "opacity-60" : ""} ${isChecked ? "ring-1 ring-gold/60" : ""}`}>
