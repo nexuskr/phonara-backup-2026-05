@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { subscribeRealtime } from "@/lib/realtime";
+import { subscribeRealtime } from "@/hooks/use-realtime-channel";
 
 type Pool = {
   game_code: string;
@@ -67,11 +67,14 @@ export default function JackpotMeter({ gameCode }: { gameCode: string }) {
   // Realtime — every spin (anyone, anywhere) bumps pool_phon, we want to feel it.
   useEffect(() => {
     const off = subscribeRealtime({
-      channel: `jackpot:${gameCode}`,
-      table: "slot_jackpot_pools",
-      filter: `game_code=eq.${gameCode}`,
-      event: "UPDATE",
-      onMessage: (payload: any) => {
+      key: `jackpot:${gameCode}`,
+      bindings: [{
+        event: "UPDATE",
+        schema: "public",
+        table: "slot_jackpot_pools",
+        filter: `game_code=eq.${gameCode}`,
+      }],
+      onEvent: (payload: any) => {
         const next = payload?.new as Pool | undefined;
         if (next) setPool((p) => (p ? { ...p, ...next } : next));
       },
