@@ -39,7 +39,12 @@ export type SlotTheme = {
   cardFilter?: string;       // CSS filter for shared card art (10/J/Q/K/A)
   reelFrameClass?: string;   // tailwind class for the reel frame container
   spinStreakClass?: string;  // tailwind class for the spinning gradient overlay
+  bgOverlay?: string;        // CSS gradient layered above bg image
+  bgPosition?: string;       // background-position, default "center"
 };
+
+const DEFAULT_BG_OVERLAY =
+  "linear-gradient(180deg, hsl(var(--background) / 0.35) 0%, hsl(var(--background) / 0.55) 60%, hsl(var(--background) / 0.88) 100%)";
 
 const OLYMPUS_THEME: SlotTheme = {
   gameCode: "olympus_1000",
@@ -362,9 +367,9 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
       <div
         className="absolute inset-0 -z-10 rounded-3xl overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(180deg, hsl(var(--background) / 0.7), hsl(var(--background) / 0.95)), url(${bgImage})`,
+          backgroundImage: `${theme.bgOverlay ?? DEFAULT_BG_OVERLAY}, url(${bgImage})`,
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: theme.bgPosition ?? "center",
         }}
       />
 
