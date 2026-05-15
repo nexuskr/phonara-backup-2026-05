@@ -37,13 +37,19 @@ function EmberStorm() {
 interface Props {
   triggerAt?: number;
   durationMs?: number;
+  onMaxWinTriggered?: (payload: MaxWinTriggeredPayload) => void;
+  slotId?: string;
+  themeKey?: string;
 }
 
-export default function DragonMaxWinOverlay({ triggerAt = 500, durationMs = 3200 }: Props) {
+export default function DragonMaxWinOverlay({ triggerAt = 500, durationMs = 3200, onMaxWinTriggered, slotId, themeKey }: Props) {
   return (
     <BaseMaxWinOverlay
       triggerAt={triggerAt}
       durationMs={durationMs}
+      onMaxWinTriggered={onMaxWinTriggered}
+      slotId={slotId}
+      themeKey={themeKey}
       ariaLabel="Dragon Max Win"
       soundKeys={{ primary: "legendary_win", voice: "dragon_roar" }}
       titleText="DRAGON ROAR"

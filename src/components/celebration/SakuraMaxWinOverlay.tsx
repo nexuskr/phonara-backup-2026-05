@@ -7,6 +7,9 @@ import type { CelebrationData } from "@/lib/celebration/WinCelebrationManager";
 interface Props {
   triggerAt?: number;
   durationMs?: number;
+  onMaxWinTriggered?: (payload: MaxWinTriggeredPayload) => void;
+  slotId?: string;
+  themeKey?: string;
 }
 
 // 인라인 5-petal sakura SVG — gold stroke + soft pink fill.
@@ -154,11 +157,17 @@ function GoldenBurst() {
 export default function SakuraMaxWinOverlay({
   triggerAt = 500,
   durationMs = 3400,
+  onMaxWinTriggered,
+  slotId,
+  themeKey,
 }: Props) {
   return (
     <BaseMaxWinOverlay
       triggerAt={triggerAt}
       durationMs={durationMs}
+      onMaxWinTriggered={onMaxWinTriggered}
+      slotId={slotId}
+      themeKey={themeKey}
       ariaLabel="Cherry Sakura Max Win"
       soundKeys={{ primary: "legendary_win" }} // voice line 생략 — 우아하게
       titleText="벚꽃의 축복"

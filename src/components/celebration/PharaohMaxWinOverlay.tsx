@@ -127,13 +127,19 @@ function PharaohCinematic() {
 interface Props {
   triggerAt?: number;
   durationMs?: number;
+  onMaxWinTriggered?: (payload: MaxWinTriggeredPayload) => void;
+  slotId?: string;
+  themeKey?: string;
 }
 
-export default function PharaohMaxWinOverlay({ triggerAt = 2500, durationMs = 3400 }: Props) {
+export default function PharaohMaxWinOverlay({ triggerAt = 2500, durationMs = 3400, onMaxWinTriggered, slotId, themeKey }: Props) {
   return (
     <BaseMaxWinOverlay
       triggerAt={triggerAt}
       durationMs={durationMs}
+      onMaxWinTriggered={onMaxWinTriggered}
+      slotId={slotId}
+      themeKey={themeKey}
       ariaLabel="Pharaoh's Vault Max Win"
       soundKeys={{ primary: "legendary_win", voice: "pharaoh_voice" }}
       titleText="PHARAOH'S VAULT"

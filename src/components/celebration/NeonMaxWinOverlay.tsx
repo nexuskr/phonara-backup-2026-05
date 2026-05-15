@@ -65,13 +65,19 @@ function MatrixRain() {
 interface Props {
   triggerAt?: number;
   durationMs?: number;
+  onMaxWinTriggered?: (payload: MaxWinTriggeredPayload) => void;
+  slotId?: string;
+  themeKey?: string;
 }
 
-export default function NeonMaxWinOverlay({ triggerAt = 8888, durationMs = 3200 }: Props) {
+export default function NeonMaxWinOverlay({ triggerAt = 8888, durationMs = 3200, onMaxWinTriggered, slotId, themeKey }: Props) {
   return (
     <BaseMaxWinOverlay
       triggerAt={triggerAt}
       durationMs={durationMs}
+      onMaxWinTriggered={onMaxWinTriggered}
+      slotId={slotId}
+      themeKey={themeKey}
       ariaLabel="Neon Max Win"
       soundKeys={{ primary: "legendary_win", voice: "cyber_announce" }}
       titleText="SYSTEM HACKED"
