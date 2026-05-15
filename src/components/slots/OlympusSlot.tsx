@@ -250,11 +250,33 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
           setTimeout(() => { clearInterval(id); res(); }, 4000);
         });
 
-        // Mechanic-specific or fallback wheel
+        // Mechanic-specific or fallback wheel.
+        // The overlay narrates the same total — its onComplete(winAmount) MUST
+        // equal the server payout. Mismatches and timeouts get logged.
+        const expectedBonusWin = Math.round(bonusMult * bet);
         await new Promise<void>((res) => {
-          setBonusWheel({ mult: bonusMult });
-          // Each overlay calls onComplete; 12s is the hard ceiling guard.
-          setTimeout(res, 12000);
+          let settled = false;
+          const finish = (overlayWin: number, reason: "complete" | "timeout") => {
+            if (settled) return;
+            settled = true;
+            if (reason === "timeout") {
+              logSlotAnomaly("overlay_timeout", GAME_CODE, expectedBonusWin, overlayWin, {
+                bonus_kind: theme.bonusKind ?? "wheel",
+                bonus_mult: bonusMult,
+                bet,
+              });
+            } else if (Math.abs(overlayWin - expectedBonusWin) > 1) {
+              logSlotAnomaly("payout_mismatch", GAME_CODE, expectedBonusWin, overlayWin, {
+                bonus_kind: theme.bonusKind ?? "wheel",
+                bonus_mult: bonusMult,
+                bet,
+                server_payout: payout,
+              });
+            }
+            res();
+          };
+          setBonusWheel({ mult: bonusMult, onDone: (w: number) => finish(w, "complete") });
+          setTimeout(() => finish(0, "timeout"), 12000);
         });
         setBonusWheel(null);
       }
