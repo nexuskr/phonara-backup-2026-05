@@ -159,19 +159,19 @@ function runMissionTrail(
 ): number {
   let pos = 0;
   let win = 0;
-  // simple model: keep rolling moves until reach end or "stop" (here: capped 25 rolls)
-  for (let i = 0; i < 25 && pos < spec.steps; i++) {
+  const collected = new Set<number>();
+  // capped roll budget — most bonuses don't reach 100
+  for (let i = 0; i < 12 && pos < spec.steps; i++) {
     pos += pickWeightedT(spec.moveDistWeights, rng);
     if (pos > spec.steps) pos = spec.steps;
-    // collect any checkpoint passed
     for (const k of Object.keys(spec.checkpoints)) {
       const stepNum = Number(k);
-      if (stepNum <= pos && stepNum > pos - 5) {
+      if (stepNum <= pos && !collected.has(stepNum)) {
+        collected.add(stepNum);
         const r = spec.checkpoints[stepNum];
-        win += typeof r === "number" ? r : 1000; // jackpot
+        win += typeof r === "number" ? r : 500; // jackpot fixed
       }
     }
-    if (pos >= spec.steps) break;
   }
   return win;
 }
