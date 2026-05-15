@@ -1,125 +1,94 @@
-# BaseMaxWinOverlay 추출 + Pirate's Curse 착수
+# Cherry Sakura 500 — 7번째 Signature Slot 착수 계획
 
-Wrapper 보완 마지막 단계로 4개 슬롯에 산재한 MaxWinOverlay 공통 코드를 `BaseMaxWinOverlay`로 추출하고, 그 위에서 Pirate's Curse (1500×, Mid volatility) Signature Slot을 착수합니다.
+마지막 Signature Slot. Low volatility · MAX 500× · 한국 50–70대 친화적 따뜻한 사쿠라 테마.
+기존 모든 추상화(SlotSignatureWrapper, useAnimatedCanvas, BasePaytableSheet, BaseMaxWinOverlay) 그대로 활용.
 
-## Phase 1 — BaseMaxWinOverlay 추출
+## 1. 신규 파일
 
-신규: `src/components/celebration/BaseMaxWinOverlay.tsx`
+### `src/components/slots/SakuraPetalCanvas.tsx`
+- `useAnimatedCanvas` 사용, dpr=1, 60fps cap
+- 레이어 (뒤→앞):
+  - 원경 산 실루엣 + 사쿠라 나무 (정적, setup 시 1회 스탬프)
+  - 부드러운 안개 띠 (sin 기반 느린 좌우 이동, alpha 0.05)
+  - 중앙 lantern glow 펄스 (radial gradient, 2.4s breathe)
+  - 벚꽃 petal 45개: 느린 낙화(vy 0.25–0.55) + 바람(sin 진동) + rotation drift, 색상 #fbcfe8/#fda4af/#fff1f5 mix
+- prefers-reduced-motion: 정적 1프레임만 (drawStaticFn)
 
-추출 책임 (4개 overlay에서 100% 동일):
-- `WinCelebrationManager.subscribe` + `multiplier >= triggerAt` 게이트 + `lastFiredAt` 중복 방지
-- `prefers-reduced-motion` 분기 + `(max-width:640px)` 모바일 confetti factor (0.55)
-- `soundManager.play(...)` Facade 호출 (슬롯별 키만 다름)
-- backdrop fade, 좌/우 edge flare, 하단 shockwave, 자동 dismiss 타이머
-- 타이틀 슬램(아이콘 + 그라디언트 텍스트 + 멀티플라이어 + 윈 금액)
-- Cleanup: unmount 시 setTimeout 정리
+### `src/components/slots/SakuraPaytableSheet.tsx`
+- `BasePaytableSheet` 사용, TitleIcon=`Flower2`
+- 톤: Soft Pink (#fbcfe8) + Warm Gold (#fde68a) + Light Mint (#a7f3d0)
+- 섹션:
+  - 고배당: 🌸 Sakura Crown / 🏯 Pagoda / 🍶 Sake / 🎴 Hanafuda  (5x: ×100/×60/×40/×25)
+  - 저배당: A/K/Q/J  (5x: ×15~×8)
+  - 특수: WILD(🌸 Golden Sakura), SCATTER(🏮 Lantern)
+  - 잭팟: MAX ×500 도달 시 "벚꽃의 축복" cinematic
+  - footer: "Low volatility · 안정적 · RTP 96.5% — 천천히 즐기세요"
 
-슬롯별 주입 props:
-```ts
-interface BaseMaxWinOverlayProps {
-  triggerAt?: number;
-  durationMs?: number;
-  ariaLabel: string;
-  // 사운드
-  soundKeys: { primary: string; voice?: string };
-  // 비주얼 토큰
-  palette: {
-    backdrop: string;          // radial-gradient string
-    flareLeft: string;         // linear-gradient string
-    flareRight: string;
-    shockwave?: string;        // 하단 shockwave gradient (optional)
-    confettiColors: string[];
-    titleGradientClass: string; // tailwind bg-gradient-to-b ... bg-clip-text
-    titleGlow: string;         // drop-shadow filter
-    subTextClass: string;
-  };
-  // 텍스트
-  icon: ReactNode;             // 슬롯 아이콘 (Flame, Star, Sparkles, Skull...)
-  titleText: string;           // "DRAGON ROAR", "PIRATE'S CURSE" 등
-  // 슬롯별 cinematic 레이어 (Pentagram, Matrix rain, Cannon explosion 등)
-  cinematic?: (data: CelebrationData) => ReactNode;
-}
+### `src/components/celebration/SakuraMaxWinOverlay.tsx`
+- `BaseMaxWinOverlay` 사용
+- palette: warm pink radial backdrop / soft gold ↔ pink flares / shockwave 미사용 (우아하게)
+- triggerAt=500, durationMs=3400, titleDelayMs=250
+- titleText="벚꽃의 축복" (한국 유저 우선)
+- icon: 인라인 Sakura 5-petal SVG (gold stroke + pink fill, drop-shadow soft)
+- cinematic:
+  - 80개 petal storm (CSS animated divs, transform-only)
+  - 3개 떠오르는 lantern (slow upward float, warm orange glow)
+  - 중앙 golden light burst (1회 1.2s scale 0→3 fade)
+- confetti: factor 그대로지만 색상 [#fbcfe8, #fde68a, #a7f3d0, #fff1f5], scalar 1.1 (덜 과하게)
+
+### `src/pages/casino/CherrySakura500.tsx` (in-place 교체)
+- 기존 OlympusSlot 호출 제거, `SlotSignatureWrapper` 15 LOC 패턴
+- `useRequireAuth` 가드는 Wrapper가 처리하므로 단순화
+
+```tsx
+<SlotSignatureWrapper
+  slotId="cherry_sakura"
+  theme={CHERRY_SAKURA_THEME}
+  Background={SakuraPetalCanvas}
+  PaytableSheet={SakuraPaytableSheet}
+  MaxWinOverlay={SakuraMaxWinOverlay}
+  flareColors={{ left: "rgba(249,168,212,0.22)", right: "rgba(163,230,187,0.18)" }}
+  signatureLabel="Cherry Sakura · Signature"
+  accentDotColor="rgba(249,168,212,1)"
+  themeKey="sakura"
+/>
 ```
 
-`cinematic` render-prop 으로 슬롯 고유 효과(Cosmic 별 폭발, Neon 매트릭스 비, Wizard Pentagram, Dragon ember storm, Pirate cannon+skull) 만 슬롯별 파일에 남깁니다.
+## 2. 수정하지 않는 파일
+- `themes.ts` — `CHERRY_SAKURA_THEME` 이미 존재, 그대로 사용
+- `SlotSignatureWrapper`, `BaseMaxWinOverlay`, `BasePaytableSheet`, `useAnimatedCanvas` — 전혀 변경 없음
+- 다른 6개 슬롯 — 무영향
 
-리팩토링 (4개 파일, 각 ~200 LOC → ~60 LOC):
-- `CosmicMaxWinOverlay.tsx`
-- `NeonMaxWinOverlay.tsx`
-- `WizardMaxWinOverlay.tsx`
-- `DragonMaxWinOverlay.tsx`
+## 3. 한국 유저 친화 디자인 디테일
+- petal 낙화 속도: vy 0.25–0.55 px/frame (다른 슬롯의 절반)
+- Win cinematic 길이: 3.4s (Low vol에 맞춰 짧고 우아)
+- 색상 채도: 모두 파스텔 (saturation < 60%)
+- 음향: BaseMaxWinOverlay의 voice line 생략 (primary jingle만)
+- 한국어 우선: titleText "벚꽃의 축복", paytable 톤 "천천히 즐기세요"
 
-각 파일은 palette/sound/icon/title/cinematic 만 정의하고 Base 호출.
+## 4. 성능 목표
+- Mobile Lighthouse 96–98/100
+- Canvas paint ops/frame ≤ 16 (petal 45 + 안개 1 + lantern 1)
+- GPU composite-only (transform/opacity), reflow 0
+- petal 풀 사전할당, GC 압력 0
 
-## Phase 2 — Pirate's Curse 착수
+## 5. 기술 세부 (참고)
 
-### 신규 파일
+```text
+SakuraPetalCanvas
+├─ setup: stamp mountain+tree silhouette to offscreen, seed petals[45]
+├─ draw(t):
+│   ├─ ctx.globalCompositeOperation = 'source-over'
+│   ├─ drawImage(offscreen)            // 원경 정적
+│   ├─ drawFog(t)                      // 1 path, alpha 0.05
+│   ├─ drawLanternGlow(t)              // 1 radial gradient
+│   └─ drawPetals(t)                   // 45 × {arc/bezier + rotate}
+└─ static: 동일하지만 t=0 고정
+```
 
-1. `src/components/slots/PirateOceanCanvas.tsx`
-   - `useAnimatedCanvas` 사용 (60fps cap, dpr=1, pauseOnHidden)
-   - 레이어: 사인파 기반 파도 3겹(다른 진폭/속도), 안개 그라디언트(상단 fade), 실루엣 해적선(2척, 좌→우/우→좌 느린 패럴렉스), 보물 glow(하단 중앙 펄스)
-   - 색상: `#0c1a2b` 심해, `#7c2d12` 우드, `#fbbf24` 보물 골드, `#b91c1c` 혈홍
-
-2. `src/components/slots/PiratePaytableSheet.tsx`
-   - `BasePaytableSheet` 사용
-   - 토큰: crimson(#b91c1c) / gold(#eab308) / wood(#7c2d12) / bone(#f5f5dc)
-   - Mid volatility 카피, 1500× MAX Win 강조
-
-3. `src/components/celebration/PirateMaxWinOverlay.tsx`
-   - `BaseMaxWinOverlay` 사용
-   - palette: 혈홍 backdrop + 골드 flare + 우드 톤 shockwave
-   - sound: `legendary_win` + `voice_pirate_curse` (없으면 fallback)
-   - icon: lucide `Skull`
-   - titleText: `"PIRATE'S CURSE"`
-   - cinematic: 좌우 cannon flash 2회(0ms / 380ms) + 30개 skull/coin emoji 부유 storm + 보물상자 폭발 confetti(중앙 하단)
-
-4. `src/pages/casino/PiratesCurse.tsx` (15 LOC 이하)
-   ```tsx
-   import SlotSignatureWrapper from "@/components/slots/SlotSignatureWrapper";
-   import { PIRATE_CURSE_THEME } from "@/components/slots/themes";
-   import PirateOceanCanvas from "@/components/slots/PirateOceanCanvas";
-   import PiratePaytableSheet from "@/components/slots/PiratePaytableSheet";
-   import PirateMaxWinOverlay from "@/components/celebration/PirateMaxWinOverlay";
-
-   export default function PiratesCursePage() {
-     return (
-       <SlotSignatureWrapper
-         slotId="pirate_curse"
-         theme={PIRATE_CURSE_THEME}
-         Background={PirateOceanCanvas}
-         PaytableSheet={PiratePaytableSheet}
-         MaxWinOverlay={PirateMaxWinOverlay}
-         flareColors={{ left: "rgba(185,28,28,0.22)", right: "rgba(234,179,8,0.18)" }}
-         signatureLabel="Pirate's Curse · Signature"
-         accentDotColor="rgba(234,179,8,1)"
-         themeKey="pirate"
-       />
-     );
-   }
-   ```
-
-### 수정 파일
-
-- `src/components/slots/themes.ts`: `PIRATE_CURSE_THEME` 이미 존재 — `maxWinMultiplier: 1500` 검증 후 필요 시 메타 보강
-- `src/App.tsx` 또는 라우터: 기존 `PiratesCurse1500.tsx` 라우트가 있다면 신규 `PiratesCurse.tsx` 로 교체 (or `PiratesCurse1500.tsx` 자체를 Wrapper 본으로 덮어쓰기 — 라우트 경로 보존을 위해 후자 권장)
-
-→ **결정**: 신규 파일을 만들지 말고 기존 `src/pages/casino/PiratesCurse1500.tsx` 를 Wrapper 본으로 덮어써 라우트 영향 0. 파일명 정리는 후속 PR.
-
-## 라우팅 영향
-Phase 2는 기존 `PiratesCurse1500.tsx` 를 in-place 교체하므로 App.tsx 라우터 변경 불필요.
-
-## 성능
-- BaseMaxWinOverlay: 4개 overlay 합산 ~800 LOC → ~400 LOC (50% 감소)
-- 모든 cinematic 레이어 GPU composite-only (transform/opacity)
-- 모바일 confetti factor 0.55 유지 → Lighthouse 96–98/100 유지 예상
-- PirateOceanCanvas: 파도 3겹 + 해적선 2척 + 안개/glow → 약 18 paint ops/frame, 60fps 안정
-
-## 다음 슬롯 준비 (Pharaoh's Vault 2500×)
-BaseMaxWinOverlay + BasePaytableSheet + useAnimatedCanvas 3종이 모두 갖춰지므로 Pharaoh는 Sand canvas + Hieroglyph cinematic 만 작성하면 ~250 LOC 신규 코드로 완료 가능.
-
-## 작업 순서
-1. `BaseMaxWinOverlay.tsx` 작성
-2. Cosmic/Neon/Wizard/Dragon overlay 4개 리팩토링 + 수동 동작 확인
-3. `PirateOceanCanvas.tsx` → `PiratePaytableSheet.tsx` → `PirateMaxWinOverlay.tsx`
-4. `PiratesCurse1500.tsx` 를 Wrapper 본으로 교체
-5. 빌드 통과 확인
+## 6. 작업 후 보고에 포함될 항목
+- 신규 파일 4개 경로
+- CherrySakura500.tsx 최종 구조 (LOC)
+- Mobile Performance 예상치
+- 7개 Signature Slot 완료 요약 (LOC 절감, 추상화 사용률)
+- 다음 Phase 제안: (a) 슬롯 음원 통일 / (b) Empire/Crown 연동 강화 / (c) PWA + 배포 준비 / (d) Sim 리그래시
