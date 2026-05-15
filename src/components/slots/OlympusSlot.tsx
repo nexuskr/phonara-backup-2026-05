@@ -241,11 +241,13 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
         const bonusMult = useMechanic ? result.bonus_multiplier : snapToSegment(result.bonus_multiplier);
 
         if (scatters >= 3) {
+          SoundManager.playScatter();
           setShowScatter(true);
           await new Promise((r) => setTimeout(r, 1700));
           setShowScatter(false);
         }
 
+        SoundManager.playBonusTrigger();
         setShowBonusIntro(true);
         await new Promise<void>((res) => {
           const id = setInterval(() => {
