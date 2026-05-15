@@ -241,7 +241,14 @@ export default function Wallet() {
           .update({ receipt_url: receiptPath })
           .eq("user_id", u.id)
           .eq("tx_code", r.tx_code);
-        if (upErr) console.warn("[withdraw] receipt attach failed:", upErr.message);
+        if (upErr) {
+          console.warn("[withdraw] receipt attach failed:", upErr.message);
+          toast({
+            title: "영수증 첨부 실패",
+            description: "출금 요청은 정상 접수되었습니다. 마이페이지 > 출금 내역에서 영수증을 다시 첨부해주세요.",
+            variant: "destructive",
+          });
+        }
       }
 
       setDb(d => ({
