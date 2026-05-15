@@ -385,6 +385,21 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
     autoActiveRef.current = autoActive;
   }, [autoActive]);
 
+  // Keyboard: Space / Enter triggers spin (when not typing in an input)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== " " && e.key !== "Enter") return;
+      const tgt = e.target as HTMLElement | null;
+      const tag = tgt?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tgt?.isContentEditable) return;
+      if (spinning || autoActive) return;
+      e.preventDefault();
+      performSpin(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [spinning, autoActive, performSpin]);
+
   const startAuto = useCallback(() => {
     setAutoActive(true);
     setAutoRemaining(autoSettings.rounds);
