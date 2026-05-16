@@ -188,11 +188,109 @@ src/packages/
 | Identity | 공개 프로필 임베드 | 1,000+ |
 | 3D | 모바일 60fps 유지 세션 | 95%+ |
 
-## 12. 지금 바로 1번 작업
+## 12. Ω-Core 5 Additions (LOCKED — 마지막 퍼즐)
 
-**Week 1 항목 #1, #3, #9 병렬 착수:**
+### 12-1. Interaction Budget System
+모든 UI는 예산 안에서만 산다. 초과하면 PR reject.
+
+```text
+Layer 1 (Instant)
+  - 동시 애니메이션 ≤ 3
+  - CPU 사용 ≤ 20% idle
+  - GPU long frame > 16ms 금지
+
+Mobile 전역
+  - 첫 입력 응답 < 100ms
+  - 화면 전환 < 150ms
+  - JS main thread block > 1s 금지
+```
+
+새 UI/모션 PR은 description에 **"Budget Impact"** 줄 필수 (예: `+1 anim, +2% CPU, INP+0ms`). `web-vitals` + PerformanceObserver 텔레메트리로 자동 측정 → `/admin/kpi`에 budget-violations 패널.
+
+### 12-2. Death Cleanup Day (매주 금요일 강제)
+추가만 하면 결국 무거워진다. 매주 1회 삭제 전용 PR:
+
+```text
+- 안 쓰는 state / hook / dep 제거
+- dead websocket 채널 제거
+- duplicate fetch 통합
+- stale cache 만료
+- unused export / 500줄+ 컴포넌트 분해
+- depcheck + ts-prune + unimported 자동 리포트
+```
+
+CI에 `scripts/death-cleanup-report.ts` 추가 → 매주 PR로 자동 리포트. 1주 이상 미정리 시 빨간불.
+
+### 12-3. Emotion Timing System (조용함 90% · 폭발 10%)
+항상 흥분 상태 = 피로 = 이탈. 평소는 무채색·정보 중심, 이벤트 순간만 폭발.
+
+```text
+PEACEFUL (default 90%)
+  - 무채색 · 정적 · 정보 중심
+  - 무한 애니/glow 금지
+  - typography·spacing으로 hierarchy
+
+EXPLOSIVE (event 10%, ≤ 2.5s burst)
+  - Crown explosion · Baron 승급 · 대형 출금 · 예측 적중
+  - 전체화면 가능, 그 외엔 금지
+  - 끝나면 즉시 PEACEFUL로 회귀
+```
+
+`@pkg/ui/EmotionMode` provider — 상태 = `peaceful | explosive(reason, ttl)`. 이벤트 RPC가 broadcast하면 자동 burst → ttl 후 peaceful 복귀. 컴포넌트는 `mode` 구독해 스타일 토글.
+
+### 12-4. Fail-Soft Architecture (Critical Path Isolation)
+하나 죽어도 돈 흐름은 살아야 한다.
+
+```text
+critical = [auth, wallet, deposit, withdraw, oracle, kernel]
+optional = [chat, clip, avatar, feed, prediction, 3d, social]
+
+규칙:
+  - optional ❌ ⇒ critical에 영향 0
+  - optional 컴포넌트는 모두 ErrorBoundary로 격리
+  - optional 데이터는 throw 대신 graceful fallback (빈 카드 + 재시도)
+  - optional realtime 채널 실패는 critical 채널과 무관
+```
+
+`@pkg/ui/SoftBoundary` — 자식 throw 시 작은 빈 카드 + 자동 5s 재시도 + `telemetry.softFail(name)`. 모든 optional 마운트 지점은 SoftBoundary 필수.
+
+### 12-5. Silent Billionaire Rule (고래 친화 UI 모드)
+진짜 돈 쓰는 사람 = Bloomberg + Apple + 조용한 카지노 감성을 선호.
+
+```text
+유저 설정: theme.density = "loud" | "quiet" (default 자동)
+자동 전환: Baron(7+) 또는 누적 입금 1k USDT+ ⇒ "quiet" 기본값
+
+quiet 모드:
+  - glow / gradient / shimmer 비활성
+  - 채도 -30%, 폰트 weight -100
+  - 마키/티커 → 정적 카드
+  - explosive burst는 유지 (희소성 보존)
+  - 숫자 typography Bloomberg-grade (탭ular nums + 우측 정렬)
+```
+
+설정은 `profiles.ui_density` 컬럼 + `useUIDensity()` 훅. quiet 사용자는 자동 telemetry로 분리 코호트 추적 — 이탈/체류 비교.
+
+---
+
+## 13. 최종 느낌 (체크리스트)
+
+플랫폼이 아래 5개 다 충족하면 출시 합격:
+- [ ] 조용한데 살아있다 (Emotion Timing)
+- [ ] 가벼운데 깊다 (3-Layer)
+- [ ] 복잡한데 사용은 단순하다 (Layer 1 instant)
+- [ ] 돈 플랫폼인데 게임처럼 쉽다 (Trust + Identity)
+- [ ] 게임인데 돈은 거래소처럼 신뢰된다 (Receipts + Status + Oracle)
+
+---
+
+## 14. 지금 바로 1번 작업
+
+**Week 1 detox 3종 + Ω-Core 12-1/12-4 토대 병렬 착수:**
 - Toast 4-Tier (`notify.critical/important/passive/silent`) + ESLint `no-direct-sonner` 룰
 - `@pkg/realtime` 4채널 진입점 + GodModePanel·AIBotCards 마이그레이션
 - `setVisibleInterval` 헬퍼로 30+ setInterval 일괄 교체
+- `@pkg/ui/SoftBoundary` 도입 + optional 마운트 지점 1차 적용
+- `web-vitals` + budget telemetry 수집 시작 (`/admin/kpi` 패널 후속)
 
-이 3개가 끝나야 #2/#4/#5… 로 진행. **Week 1 끝까지 신규 기능 금지.**
+이 5개가 끝나야 Week 1 #2/#4/#5… 로 진행. **Week 1 끝까지 신규 기능 금지. 매주 금요일 Death Cleanup Day 시작.**
