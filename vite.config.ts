@@ -41,22 +41,13 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("/src/locales/ja")) return "locale-ja";
           if (id.includes("/src/locales/vi")) return "locale-vi";
 
-          // Phase 4 — Signature Slot 코드 분리
-          // 슬롯별 전용 Canvas/Overlay는 슬롯 페이지 청크에 자연스럽게 포함됨.
-          // 공통 엔진(SlotSignatureWrapper, OlympusSlot core, Base overlay, useAnimatedCanvas)은
-          // 7개 슬롯이 공유하므로 별도 청크로 분리.
-          if (
-            id.includes("/src/components/slots/SlotSignatureWrapper") ||
-            id.includes("/src/components/slots/OlympusSlot") ||
-            id.includes("/src/components/celebration/BaseMaxWinOverlay") ||
-            id.includes("/src/hooks/useAnimatedCanvas") ||
-            id.includes("/src/hooks/useSlotSound") ||
-            id.includes("/src/hooks/useEmpireCrown") ||
-            id.includes("/src/lib/empireConfig")
-          ) return "signature-engine";
+          // PR-A: signature-engine 수동 그룹 제거.
+          // 이전 manualChunks 그룹은 `cn` 같은 공용 유틸을 흡수해서
+          // 모든 페이지에서 import → 자동 modulepreload 되며 Layer 1을 73KB 부풀렸음.
+          // 슬롯 페이지가 router-lazy 이므로 자연 코드 스플리팅에 맡긴다.
 
-          // 사운드 매니저(소스) — 7개 슬롯이 공유
-          if (id.includes("/src/lib/sounds/") || id.includes("/src/lib/sound/")) return "audio";
+          // 사운드 매니저(소스) — 슬롯 공통이지만 슬롯 페이지가 router-lazy 이므로
+          // async chunk 로 자연 분리됨. 명시적 그룹화는 위와 같은 흡수 이슈를 유발하므로 제거.
 
           if (!id.includes("node_modules")) return;
 
