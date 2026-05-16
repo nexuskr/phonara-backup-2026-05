@@ -253,6 +253,7 @@ const App = () => (
               <Route path="/casino/viking-thunder-4000" element={<VikingThunder4000 />} />
               <Route path="/casino/aztec-sun-1200" element={<AztecSun1200 />} />
               <Route path="/casino/cherry-sakura-500" element={<CherrySakura500 />} />
+              <Route path="/casino/olympus-legacy-5000" element={<OlympusLegacy5000 />} />
               {/* /wallet 는 이미 존재 */}
 
               {/* 기존 라우트 — 그대로 작동 (HubTabs 통해 통합 UX) */}
