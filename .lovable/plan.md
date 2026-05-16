@@ -425,5 +425,5 @@ export const DEPOSIT_STATUS_PRIORITY = {
 - Race QA: filled vs expired grace, 더블탭 idempotency, 새로고침 resume, replay duplicate, drift recovery
 - Duplicate QA: 같은 amount/메모 중복 차단, paste sanitize round-trip, nav guard 분기 5종
 
-## 17. 의미
+## 18. 의미 — SPEC LOCKED v1.0
 입금 모달이 아니라 **Production Deposit Operating Layer**. 출금만 쉬우면 빠져나가고, 입금까지 쉬워야 다시 들어온다. State machine / realtime / recoverability / telemetry / senior UX / fraud soft / draft resume / grace / safe-checking / balance snapshot / timeline / sanitizer / heartbeat / soft-freeze / ownership / replay protection / drift correction / abandon reason / nav guard — "내 돈이 안전하게 처리되고 있다"는 확신을 끝까지 지키는 시스템.
