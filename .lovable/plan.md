@@ -1,5 +1,9 @@
 # Sprint 2 — Wallet & Withdraw UX
 
+## 입출금 정책 (절대 준수)
+- 입금: USDT + 원화 계좌이체 + 상품권(수동)
+- 출금: USDT + 원화 계좌이체 **(상품권 출금 불가)**
+
 ## 목표
 Earn으로 모은 PHON을 5분 안에 실제 출금까지 끝낼 수 있다는 신뢰를 50–70대에게 5초 안에 전달한다. `/wallet` 진입 → 잔액 인지 → 3스텝 출금 → ProcessingBanner → History 갱신까지 한 손, Zero lag.
 
@@ -51,10 +55,12 @@ Step 1 Amount
   - Client 검증: min(tier) ≤ amount ≤ available
   - 실패 시 inline hint (Hot Pink)
 
-Step 2 Method
-  - 계좌이체 (기본 선택, bank)
-  - 코인 출금 (coin)
-  - 상품권 (disabled + "준비중" 칩)
+Step 2 Method (입출금 정책 반영)
+  - 계좌이체 (기본 선택, bank) — 은행명 + 계좌번호
+  - USDT 출금 (coin) — 네트워크 + 주소
+  - 상품권 → 카드 자체를 비활성 + 안내문 "상품권은 입금 전용입니다"
+    · 출금 옵션 배열에서 제외하여 선택 불가
+    · 정책 안내 라인은 상시 노출 (혼동 방지)
 
 Step 3 Confirm + PIN
   - 요약 카드: 금액 / 수단 / 예상 도착 ≤ 5분
