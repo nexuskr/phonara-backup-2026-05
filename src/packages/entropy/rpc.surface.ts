@@ -121,23 +121,36 @@ export function installRpcSurface() {
   function diffReport(baseline: Surface, after: Surface) {
     const verdict = (delta: number, target: number) =>
       delta <= target ? "PASS" : "FAIL";
+    // hidden/idle은 baseline.foreground 대비로 비교 (시나리오 구조상 baseline.hidden/idle은 항상 0).
+    const fg = baseline.foreground.count;
     return {
       generatedAt: new Date().toISOString(),
-      baseline: { fg: baseline.foreground.count, hidden: baseline.hidden.count, idle: baseline.idle.count },
-      after:    { fg: after.foreground.count,    hidden: after.hidden.count,    idle: after.idle.count    },
+      baseline: { fg, hidden: baseline.hidden.count, idle: baseline.idle.count },
+      after:    { fg: after.foreground.count, hidden: after.hidden.count, idle: after.idle.count },
       deltaPct: {
-        foreground: pct(baseline.foreground.count, after.foreground.count),
-        hidden:     pct(baseline.hidden.count,     after.hidden.count),
-        idle:       pct(baseline.idle.count,       after.idle.count),
+        foreground: pct(fg, after.foreground.count),
+        hidden:     pct(fg, after.hidden.count),
+        idle:       pct(fg, after.idle.count),
       },
       thresholds: { hidden: -90, idle: -70 },
       verdict: {
-        hidden: verdict(pct(baseline.hidden.count, after.hidden.count), -90),
-        idle:   verdict(pct(baseline.idle.count,   after.idle.count),   -70),
+        hidden: verdict(pct(fg, after.hidden.count), -90),
+        idle:   verdict(pct(fg, after.idle.count),   -70),
       },
       byRpc: { baseline, after },
     };
   }
+
+  // phase boundary settle: visibilitychange listener + setVisibleInterval catch-up 소진용.
+  const flushPhaseBoundary = () => new Promise<void>((resolve) => {
+    setTimeout(() => {
+      if (typeof requestAnimationFrame !== "undefined") {
+        requestAnimationFrame(() => setTimeout(resolve, 50));
+      } else {
+        setTimeout(resolve, 50);
+      }
+    }, 50);
+  });
 
   window.__phonaraSurface = {
     report() {
@@ -176,23 +189,31 @@ export function installRpcSurface() {
       const baseline: Surface = JSON.parse(JSON.stringify(surface));
 
       // Phase 1 — hidden window.
-      this.reset();
-      forcedMode = "hidden";
-      // Also flip the runtime governor by dispatching visibilitychange semantics.
+      // 먼저 실제 런타임 상태(hidden + governor pause cosmetic)부터 확정.
       Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
       document.dispatchEvent(new Event("visibilitychange"));
+      // visibilitychange 리스너 + setVisibleInterval onVisible/catch-up 소진 대기.
+      await flushPhaseBoundary();
+      // 이제 분류 모드 켜고 카운터 reset → 실제 측정 시작.
+      forcedMode = "hidden";
+      this.reset();
       await new Promise((r) => setTimeout(r, hiddenMs));
       const hiddenWindow: Surface = JSON.parse(JSON.stringify(surface));
 
-      // Phase 2 — idle window: tab visible, governor sees no input.
+      // Phase 2 — idle window: tab visible + governor idle pause 먼저 확정.
+      // 측정 시작 전에 visibility 복귀를 측정 바깥에서 처리.
+      forcedMode = "foreground"; // 경계 호출이 idle 버킷에 섞이지 않도록 임시 foreground.
       Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
       document.dispatchEvent(new Event("visibilitychange"));
-      this.reset();
-      forcedMode = "idle";
-      lastInteraction = 0; // ensure collector idle classification
-      // Force runtime.idle into idle state so governor pauses category="admin".
+      await flushPhaseBoundary();
+      // Force runtime.idle into idle state so governor pauses admin + cosmetic.
+      lastInteraction = 0;
       (window as unknown as { __phonaraIdle?: { force: (on: boolean) => void } })
         .__phonaraIdle?.force(true);
+      await flushPhaseBoundary();
+      // 모두 확정된 다음 분류 모드 켜고 reset → 실제 측정 시작.
+      forcedMode = "idle";
+      this.reset();
       await new Promise((r) => setTimeout(r, idleMs));
       const idleWindow: Surface = JSON.parse(JSON.stringify(surface));
       // Release idle state.
