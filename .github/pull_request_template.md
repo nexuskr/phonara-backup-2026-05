@@ -26,6 +26,12 @@ PRs without both sections will be rejected.
 | New animations on screen      |        |       |       |
 | Expected INP impact (ms)      |        |       |       |
 
+## Phase 2 — Runtime Visibility (required for any PR touching intervals/RPC)
+
+- [ ] Entropy ledger snapshot attached — `untracked` count: ____
+- [ ] Coverage % (tracked / (tracked + untracked)): ____ %
+- [ ] RPC surface baseline JSON attached (`reports/rpc.surface.*.json`) — `foreground` / `hidden` / `idle` all populated
+
 ## PHON freeze check
 
 - [ ] No change to PHON token structure / balance logic / API signatures / staking / claim / schema.
