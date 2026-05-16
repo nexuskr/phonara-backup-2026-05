@@ -346,7 +346,7 @@ export function useRealtimeChannel(opts: UseRealtimeChannelOpts) {
 
     return () => {
       cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
+      if (pollTimer) pollTimer();
       if (resumeOnFocus) {
         document.removeEventListener("visibilitychange", onVisible);
         window.removeEventListener("online", onResume);
