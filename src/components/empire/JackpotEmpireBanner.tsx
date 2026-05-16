@@ -73,7 +73,7 @@ export function JackpotEmpireBanner() {
   const tickRef = useRef(0);
   const nextFeedAtRef = useRef(0);
   useEffect(() => {
-    const t = window.setInterval(() => {
+    const t = setVisibleInterval(() => {
       if (document.hidden) return;
       tickRef.current += 1;
       const tick = tickRef.current;
