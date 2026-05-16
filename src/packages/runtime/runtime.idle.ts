@@ -62,10 +62,10 @@ export function installIdleSuspension(): void {
       force(on: boolean) {
         if (on) {
           lastInput = 0;
-          if (!idle) { idle = true; pauseCategory("admin"); }
+          enterIdle();
         } else {
           lastInput = Date.now();
-          if (idle) { idle = false; resumeCategory("admin"); }
+          exitIdle();
         }
       },
       isIdle: () => idle,
