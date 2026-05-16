@@ -5,6 +5,12 @@
  */
 import { useEffect, useState } from "react";
 import { counts, snapshot, subscribe, byCategory, type LedgerEntry } from "@pkg/runtime";
+import { surfaceReport } from "./entropy.surface";
+
+// Expose snapshot for the baseline collector (scripts/rpc.surface.baseline.mjs).
+if (typeof window !== "undefined") {
+  (window as unknown as { __entropyExport?: () => unknown }).__entropyExport = () => surfaceReport();
+}
 
 export default function EntropyChip() {
   const [, force] = useState(0);
