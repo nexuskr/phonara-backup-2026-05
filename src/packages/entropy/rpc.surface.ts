@@ -51,9 +51,10 @@ export function installRpcSurface() {
     idle: { count: 0, byRpc: {} },
   };
 
-  let mode: "foreground" | "hidden" | "idle" = document.hidden ? "hidden" : "foreground";
+  type Mode = "foreground" | "hidden" | "idle";
+  let mode: Mode = document.hidden ? "hidden" : "foreground";
   let lastInteraction = Date.now();
-  let forcedMode: typeof mode | null = null; // scenario override
+  let forcedMode: Mode | null = null; // scenario override
 
   const computeMode = () => {
     if (forcedMode) return forcedMode;
@@ -194,8 +195,7 @@ export function installRpcSurface() {
 
       // Restore
       forcedMode = null;
-      // @ts-expect-error restore native getter
-      delete (document as any).hidden;
+      delete (document as unknown as { hidden?: boolean }).hidden;
       lastInteraction = Date.now();
 
       // Build a synthetic "after" surface for diff: hidden bucket from hiddenWindow.hidden bucket,
