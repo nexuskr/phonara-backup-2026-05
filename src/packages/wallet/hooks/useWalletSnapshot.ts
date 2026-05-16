@@ -47,7 +47,7 @@ export function useWalletSnapshot() {
         .select("amount,kind,direction,created_at")
         .eq("user_id", userId)
         .eq("direction", "credit")
-        .in("kind", EARN_KINDS as unknown as string[])
+        .in("kind", EARN_KINDS as unknown as EarnKind[])
         .gte("created_at", sinceIso)
         .limit(1000),
     ]);
