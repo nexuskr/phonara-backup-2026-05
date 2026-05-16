@@ -15,13 +15,17 @@
  */
 import {
   useRealtimeChannel,
+  subscribeRealtime,
   type UseRealtimeChannelOpts,
   type ConnState,
+  type ChannelBinding,
 } from "@/hooks/use-realtime-channel";
 
 export type RealtimePartition = "wallet" | "game" | "chat" | "market";
 export type PartitionOpts = UseRealtimeChannelOpts;
-export type { ConnState };
+export type { ConnState, ChannelBinding };
+/** Imperative (non-React) entry — for stores / modules. Prefer the 4 hooks below in components. */
+export { subscribeRealtime };
 
 const LOG = "[PHONARA REALTIME]";
 
