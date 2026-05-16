@@ -1,66 +1,144 @@
-# 긴급 안정화 패치 — RPC drift + Sound 404 + UX 4종
+# Phonara World — Stake×롤빛×Freecash 리빌드 마스터플랜
 
-사용자가 정리한 패치 계획 전체를 그대로 진행한다. 코드/DB 사전 점검으로 가정을 모두 검증했고, 누락된 보강 항목 5건을 추가했다.
+## 목표 (한 줄)
 
-## 가정 검증 결과 (모두 사실)
+"입금 안 해도 매일 들어오게 만들고, 들어오면 슬롯/크래쉬에 안 빠질 수 없게 만들고, 빠지면 자기 친구를 끌고 오게 만든다."
 
-- `imperial_scores` 컬럼: `total_is/daily_is/weekly_is/season_is` (score/level 없음) — 확인
-- `fomo_notifications` 컬럼: `id, user_id, kind, title, message, cta_label, cta_url, payload, priority, read_at, expires_at, dedupe_key, created_at` (level 없음) — 확인
-- `get_slot_leaderboard` pg_proc에 미존재 — 확인 (호출처: `src/components/slots/SlotLeaderboard.tsx`)
-- `try_jackpot_hit(_game_code, _spin_id, _bet_phon)` — 시그니처 정상, 400은 auth_required + 중복 호출
-- `BaronPromotionDialog.tsx:88` `select("id, kind, level, payload, created_at")` — level 컬럼 참조 확인
-- `public/sounds/` 디렉토리 자체가 repo에 없음 — 확인 (404 영구 가드 필요)
-- `use-imperial-state.ts`는 이미 세션 가드 있음 → `check_achievements` 400은 cascade이므로 1.1 수정 후 자동 해소 (별도 코드 변경 불요, 회귀 검증만)
+포지셔닝: **PHON 기반 디지털 카지노 + Earn 허브 + 살아있는 세계**
+타깃: 한국 20~70대 전 연령. 1차 한국 점령 → 글로벌 확장.
 
-## 작업 항목 (사용자 계획 그대로 + 추가 보강)
+---
 
-### A. 백엔드 마이그레이션 (1회)
-1. `get_my_dashboard_state` 재정의 — `_score.score → total_is`, `_score.level → floor(log10(greatest(total_is,1)))`, 반환 JSON 키 동일 유지
-2. `get_slot_leaderboard(_window text, _game_code text, _metric text, _limit int)` 신규 — `slot_spins` 집계, SECURITY DEFINER STABLE, `mask_nickname` 적용, 프런트 Row 모양과 일치
-3. cron 정리: `recompute_daily_whale_leaderboard`의 `pp.amount_krw → pp.amount`, `update_bot_ratio_phase`의 `p.last_seen_at` 참조 제거
-4. **(추가)** `get_recent_roulette_spins(_limit int)` 신규 SECURITY DEFINER — JackpotEmpireBanner 시드용. 마스킹 nick + amount + prize_label 반환, 공개 RPC
+## 핵심 진단 (지금 부족한 것)
 
-### B. 프런트 수정
-5. `BaronPromotionDialog.tsx` — select에서 `level` 제거, 필요 시 `payload->>level` 사용. Row 타입에서 `level` 필드 제거
-6. `SlotSoundManager.ts` — fetch 실패 try/catch silent, `console.error → console.debug` 1회 한정 (영구 가드)
-7. `JackpotBanner.tsx` + `Missions.tsx` — `useNavigate` + `setSearchParams({tab:"battle"})` + `scrollIntoView` + 1.5s 골드 펄스 ring. Missions에 `id="roulette-card"` 부여
-8. `PracticeModeBanner.tsx` — setOn(false) 후 1s delay → `navigate("/wallet")`, 동일 경로면 reload, 토스트 문구 "이제 입출금/베팅이 활성화됐어요"
-9. `PersonalizedFeedRail.tsx` — generate 8s timeout + `get_trending_videos`/최근 videos 폴백 시드, 새로고침 버튼은 항상 강제 재호출(3s 쿨다운) + `setAutoGenTried(false)`
-10. `JackpotEmpireBanner.tsx` — 마운트 시 `get_recent_roulette_spins(20)` 시드, realtime INSERT는 마스킹 실유저로 표시, 봇 시드는 빈 상태에서만 "SIM" 칩, prize_label NULL/amount=0만 "꽝"
-11. `OlympusSlot.tsx` — `try_jackpot_hit` 호출 `useRef` 가드로 spin.id 기준 1회 dedupe
+기존 자산은 이미 세계 1위급:
+- 카지노(슬롯/크래쉬/룰렛) + PHON 경제 + NFT + Empire 10티어
+- VIP Empire Pass + Founding Seats + Crown War
+- Whale Strike Rail / Empire Booster / Oracle Fortress
+- Trust v2 (환불·손실보호) + AI Coach + Reactivation
 
-### C. 메모리 / 회귀 방지 (추가 보강)
-12. `mem://features/rpc-drift-fix-2026-05-16` 신규 메모 — fomo_notifications 컬럼셋, imperial_scores 컬럼셋, get_slot_leaderboard 시그니처, 신규 RPC 등록
-13. **(추가)** mem index Core에 한 줄 추가: "PostgREST `.select()` 작성 시 mem 컬럼셋 메모 우선 확인. drift 의심 시 `\d <table>`로 실측 후 호출."
-14. **(추가)** `.lovable/sim-report.md`에 4종 RPC 200/JSON 키 7개 + fomo GET 200 검증 로그 1줄
+사용자 갈증: **"세계가 살아있는 느낌이 없다."**
+→ 콘텐츠는 많은데 **하나로 묶인 가상세계 정체성**이 약함.
+→ 첫 5분에 "이 안에서 살고 싶다"는 후킹이 없음.
 
-### 범위 외 (이번 패치 미포함)
-- 실제 음원 파일 업로드 (Audio Director 작업)
-- `/admin/perms` drift baseline 갱신
-- BGM seamless loop 검증
-- `check_achievements` 자체 변경 — 1.1 수정 후 cascade 자동 해소만 검증
+## 풀어야 할 3가지
 
-## 검증 체크리스트
-- `psql -c "select get_my_dashboard_state();"` 비로그인 `{}`, 로그인 시 키 7개
-- 브라우저 콘솔: 4종 RPC 200, fomo GET 200, /sounds 404 0건 (silent)
-- `/missions`: "지금 룰렛 돌리기" → scrollIntoView + 펄스 발동
-- `/wallet`: Practice 자동 해제 + 입출금 활성
-- FOR YOU 새로고침: 항상 카드 표기 (폴백 포함)
-- 잭팟 배너: realtime 도착 시 봇 시드 자연 소실 + "실유저" 표기
-- 슬롯 1회 스핀당 `try_jackpot_hit` 정확히 1회 호출 (network 탭 확인)
+1. **중독성 코어 루프** — 매일 30분 이상 안 나가게
+2. **Earn 허브** — 무자본 유저를 슬롯 머니로 전환
+3. **세계관 통합** — 흩어진 기능들을 "Phonara World"로 묶기
 
-## 변경 파일 요약
-```text
-supabase migration (4 RPC: get_my_dashboard_state, get_slot_leaderboard, get_recent_roulette_spins, cron 2개 정리)
-src/components/empire/BaronPromotionDialog.tsx
-src/lib/sounds/SlotSoundManager.ts
-src/components/JackpotBanner.tsx
-src/pages/Missions.tsx
-src/components/practice/PracticeModeBanner.tsx
-src/components/feed/PersonalizedFeedRail.tsx
-src/components/empire/JackpotEmpireBanner.tsx
-src/components/slots/OlympusSlot.tsx
-mem://features/rpc-drift-fix-2026-05-16  (신규)
-mem://index.md                            (Core 1줄 추가)
-.lovable/sim-report.md                    (검증 로그)
-```
+---
+
+## 6주 스프린트 (Phase 1: 한국 점령)
+
+### Week 1 — Earn Hub MVP (`/earn`)
+
+기존 미션/스트릭/초대 시스템을 **하나의 허브**로 통합.
+
+- `/earn` 신규 라우트, 좌측 사이드 메인 진입점에 🎁 배지
+- 5개 카드: 일일출석 · 일일미션 · 친구초대 · 플레이투언 · 주간보스
+- **일일 로그인 스트릭**: D1=100 → D7=1,000 PHON + 슬롯 프리스핀 10
+- **일일 미션 5종** (자동 롤): 슬롯 50스핀 / 크래쉬 3판 / 친구초대 / 채팅 / 트레이딩 1회
+- **친구 초대 2단**: 가입(+200) → 첫 입금(양쪽 +1,500)
+- **Play-to-Earn**: 누적 베팅 10k PHON마다 보너스 크레딧 100 PHON (출금 불가, 베팅만)
+- **오퍼월 슬롯** (UI만, 실제 광고 SDK는 Week 5): 설문/앱설치 placeholder + "Coming Soon"
+
+### Week 2 — 중독성 코어 루프 강화
+
+- **슬롯 빅윈 연출 3단** (Mega/Epic/Legendary 풀화면 + 화면 흔들림 + 사운드 빌드업)
+- **연속 스핀 콤보**: 3연승 시 "Hot Streak" 오버레이 + 다음 스핀 1.2x 멀티
+- **크래쉬 라이브 채팅** + 베팅 마키 (현재 라운드 베팅 중인 유저 닉네임 흘림)
+- **룰렛 일일 무료 1회** (Earn에서 클레임, 잭팟 확률 0.1%로 떡밥)
+- **세션 종료 방지**: 5분 비활동 시 "🔥 지금 잭팟 임박" 토스트 (실데이터 기반)
+
+### Week 3 — 세계관 통합 ("Phonara World")
+
+- **메인 페이지 리디자인**: Stake처럼 다크 + 골드, 좌측 영구 사이드바
+  - Casino / Crash / Roulette / Trading / Earn / Empire / Lounge
+- **상단 라이브 티커**: Whale Strike + VIP 입장 + 최근 출금 한 줄 마키 (이미 있는 RPC 재활용)
+- **PowerHeader 확장**: PHON 잔액 + NFT 부스트 + Empire Tier + Crown 카운트 (이미 있음, 위치 강화)
+- **온보딩 60초**: 가입 → 무료 룰렛 1회 → Earn 일일미션 1개 → 슬롯 데모 → 패키지 추천
+- **사운드 디자인**: 모든 화면 진입 시 짧은 시그니처 사운드 (음소거 가능)
+
+### Week 4 — 소셜 레이어
+
+- **글로벌 채팅 강화**: 빅윈 자동 브로드캐스트 + 이모지 리액션
+- **친구 시스템**: 친구 추가 / 친구 빅윈 알림 / 친구 랭킹
+- **라이브 스트리밍 뷰어 카운트** (이미 있는 /live에 viewer count UI 추가)
+- **TikTok형 빅윈 피드** (V17 PersonalizedFeedRail 재활용, 자동재생 풀스크린 모드)
+
+### Week 5 — Earn 실수익 연결
+
+- **오퍼월 SDK 연동** (AdGate Media 또는 OfferToro): 외부 광고/설문 완료 → PHON
+- **시크릿 키** 필요: `OFFERWALL_API_KEY` (선택한 SDK 결정 후 secrets 추가)
+- **CPA 마진**: 광고주 페이 1$ = 유저 800 PHON (≈0.6$) → 마진 40%
+- **출금 안전망**: Earn으로만 번 PHON은 상품권/NFT로만 환급 (이미 있는 Trust v2 활용)
+
+### Week 6 — 데이터 & 폴리시
+
+- **신규 대시보드 패널** (`/admin/kpi`):
+  - D1/D7/D30 리텐션 · ARPU · Earn→실입금 전환율 · 평균 세션 길이
+- **A/B 테스트 프레임워크**: 빅윈 연출 강도 / 온보딩 순서 / 미션 리워드 금액
+- **푸시 알림** (PWA): 잭팟 임박 / 친구 빅윈 / 일일미션 리셋
+
+---
+
+## Phase 2 (6주 이후, 미루기로 한 것들)
+
+- 코인 트레이딩 UX 고도화 (TradingView 차트 / 원클릭 베팅 / NFT 부스터 연동 강화)
+- 메타버스 레이어 (아바타 / 가상 라운지 룸 / 보이스 채팅)
+- 글로벌 확장 (영어/일본어/베트남어 + Curacao 라이선스 검토)
+
+---
+
+## 기술 사항 (개발용)
+
+### 신규 라우트
+- `src/pages/Earn.tsx` (5카드 그리드)
+- `src/pages/PhonaraWorld.tsx` (메인 리디자인, 기존 Index 대체 또는 병행)
+
+### 신규 테이블 (migration)
+- `daily_login_streaks` (user_id, current_streak, last_claim_at, total_claimed)
+- `daily_missions` (id, user_id, mission_code, progress, target, claimed_at, expires_at)
+- `play_to_earn_ledger` (user_id, total_wagered_phon, bonus_credit_balance, last_credit_at)
+- `referral_rewards` (referrer_id, referee_id, signup_reward_at, deposit_reward_at)
+- `offerwall_completions` (user_id, provider, offer_id, payout_phon, completed_at, status)
+
+### 신규 RPC
+- `claim_daily_streak()` → 보상 + streak++
+- `roll_daily_missions()` (cron 매일 00:00 KST) → 유저별 5개 미션 자동 생성
+- `claim_mission(mission_id)`
+- `process_referral_deposit(referee_id)` (입금 트리거에서 호출)
+- `credit_play_to_earn(user_id, wagered)` (베팅 RPC 내부 호출)
+
+### 재활용 (이미 있는 자산)
+- Whale Strike Rail / VIP Arrivals / Reactivation Campaign / Trust v2 / NFT Boost
+- AI Coach (Earn 일일 브리핑 카드로 통합)
+- Founding Seats / Crown War (Empire 탭 그대로)
+
+### 디자인 토큰
+- 다크 베이스 `#0B0E1A` + 골드 `#F0B935` + 액센트 핫핑크 `#FF3B7C`
+- 폰트: Pretendard (한글) + Space Grotesk (영문)
+- 모든 카드: 그라디언트 보더 + 펄스 글로우 (Stake 스타일)
+
+### 결제 제약 (메모 준수)
+코인 입금 + 한국 계좌이체 + 상품권 수동 — Stripe/PG 자동 제안 금지.
+
+---
+
+## 검증 지표 (6주 후 성공 기준)
+
+| 지표 | 현재 추정 | 6주 목표 |
+|---|---|---|
+| D1 리텐션 | ~30% | 55%+ |
+| D7 리텐션 | ~10% | 25%+ |
+| 평균 세션 | ~5분 | 18분+ |
+| Earn→실입금 전환 | N/A | 8%+ |
+| DAU | 기준선 | 5x |
+
+---
+
+## 다음 액션
+
+승인 시 Week 1 (Earn Hub MVP)부터 착수.
+스프린트 1주 단위로 보고 + 다음 주 우선순위 재확인.
