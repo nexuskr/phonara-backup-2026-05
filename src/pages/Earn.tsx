@@ -13,6 +13,7 @@ import ShareRewardCard from "@/components/earn/ShareRewardCard";
 import RouletteCard from "@/components/earn/RouletteCard";
 import VipBoostCard from "@/components/earn/VipBoostCard";
 import ShareChannelsSheet from "@/components/share/ShareChannelsSheet";
+import { useFakePlayerCount } from "@/hooks/use-fake-player-count";
 import { G } from "@/lib/glossary";
 
 function useCountUp(target: number, ms = 600) {
@@ -39,6 +40,7 @@ export default function Earn() {
   const user = useRequireAuth();
   const { state, loading, claim, claimAttendance, refresh } = useEarnHub();
   const earned = useCountUp(state.today_earned);
+  const livePlayers = useFakePlayerCount(1100, 1450);
   const [shareOpen, setShareOpen] = useState(false);
 
   if (!user) return null;
@@ -76,8 +78,8 @@ export default function Earn() {
             </div>
             <div className="text-lg font-bold text-foreground/70 pb-1">PHON</div>
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
-            {G.earnTodayLabel} · {G.earnFomoLine}
+          <div className="text-sm text-muted-foreground mt-1 font-medium">
+            {G.earnTodayLabel} · {G.earnFomoLive.replace("{n}", livePlayers.toLocaleString())}
           </div>
         </motion.header>
 
