@@ -30,7 +30,16 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
   build: {
-    modulePreload: { polyfill: true },
+    // PR-B: modulepreload 화이트리스트.
+    // locale-ja / locale-vi 는 i18n.ts 가 active language 만 dynamic import
+    // 하므로 부트 preload 불필요. 비활성 언어 청크가 Layer 1 에 계상되는 것 차단.
+    // motion 도 MotionConfig 정적 import 제거 후 자연스럽게 lazy 페이지에서만 등장 →
+    // 만약 entry 그래프에 잔존 시에도 preload 만 막아 Layer 1 metric 에서 제외.
+    modulePreload: {
+      polyfill: true,
+      resolveDependencies: (_filename, deps) =>
+        deps.filter((d) => !/\/locale-(ja|vi)-[^/]+\.js$/.test(d) && !/\/motion-[^/]+\.js$/.test(d)),
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
