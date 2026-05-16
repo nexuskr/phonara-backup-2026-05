@@ -44,6 +44,23 @@ export function installIdleSuspension(): void {
   });
   // 5s poll keeps wakeup precision while staying cheap.
   window.setInterval(tick, 5_000);
+
+  // DEV-only test hook: lets rpc.surface.runScenario deterministically
+  // toggle idle state without waiting 60s of real inactivity.
+  if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
+    (window as unknown as { __phonaraIdle?: unknown }).__phonaraIdle = {
+      force(on: boolean) {
+        if (on) {
+          lastInput = 0;
+          if (!idle) { idle = true; pauseCategory("admin"); }
+        } else {
+          lastInput = Date.now();
+          if (idle) { idle = false; resumeCategory("admin"); }
+        }
+      },
+      isIdle: () => idle,
+    };
+  }
 }
 
 export function isIdle(): boolean {

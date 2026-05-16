@@ -189,9 +189,15 @@ export function installRpcSurface() {
       document.dispatchEvent(new Event("visibilitychange"));
       this.reset();
       forcedMode = "idle";
-      lastInteraction = 0; // ensure idle suspension trips
+      lastInteraction = 0; // ensure collector idle classification
+      // Force runtime.idle into idle state so governor pauses category="admin".
+      (window as unknown as { __phonaraIdle?: { force: (on: boolean) => void } })
+        .__phonaraIdle?.force(true);
       await new Promise((r) => setTimeout(r, idleMs));
       const idleWindow: Surface = JSON.parse(JSON.stringify(surface));
+      // Release idle state.
+      (window as unknown as { __phonaraIdle?: { force: (on: boolean) => void } })
+        .__phonaraIdle?.force(false);
 
       // Restore
       forcedMode = null;
