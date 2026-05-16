@@ -103,12 +103,13 @@ export const SLOT_SOUND_MAP: Record<
     legendary: { primary: "legendary_win", voice: "zeus_decree" },
   },
   sugar_fever: {
-    // Placeholder — reuses olympus pack until dedicated candy SFX/voice ship.
-    // When ready, add /sounds/sugar_fever/sfx/candy_pop.mp3, chocolate_splash.mp3
-    // and /sounds/sugar_fever/voice/sugar_announce.mp3 — Howl auto-registers.
-    sfx: ["zeus_strike", "marble_chime"],
-    voice: ["zeus_decree"],
-    legendary: { primary: "legendary_win", voice: "zeus_decree" },
+    // Dedicated candy SFX/voice keys. Howl auto-registers under
+    //   /sounds/sugar_fever/sfx/{candy_pop,chocolate_splash,lollipop_chime}.mp3
+    //   /sounds/sugar_fever/voice/sugar_announce.mp3
+    // Missing mp3 → SlotSoundManager fails silent (warn only), game keeps running.
+    sfx: ["candy_pop", "chocolate_splash", "lollipop_chime"],
+    voice: ["sugar_announce"],
+    legendary: { primary: "legendary_win", voice: "sugar_announce" },
   },
 };
 
