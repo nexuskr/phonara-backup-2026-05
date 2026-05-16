@@ -189,23 +189,31 @@ export function installRpcSurface() {
       const baseline: Surface = JSON.parse(JSON.stringify(surface));
 
       // Phase 1 — hidden window.
-      this.reset();
-      forcedMode = "hidden";
-      // Also flip the runtime governor by dispatching visibilitychange semantics.
+      // 먼저 실제 런타임 상태(hidden + governor pause cosmetic)부터 확정.
       Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
       document.dispatchEvent(new Event("visibilitychange"));
+      // visibilitychange 리스너 + setVisibleInterval onVisible/catch-up 소진 대기.
+      await flushPhaseBoundary();
+      // 이제 분류 모드 켜고 카운터 reset → 실제 측정 시작.
+      forcedMode = "hidden";
+      this.reset();
       await new Promise((r) => setTimeout(r, hiddenMs));
       const hiddenWindow: Surface = JSON.parse(JSON.stringify(surface));
 
-      // Phase 2 — idle window: tab visible, governor sees no input.
+      // Phase 2 — idle window: tab visible + governor idle pause 먼저 확정.
+      // 측정 시작 전에 visibility 복귀를 측정 바깥에서 처리.
+      forcedMode = "foreground"; // 경계 호출이 idle 버킷에 섞이지 않도록 임시 foreground.
       Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
       document.dispatchEvent(new Event("visibilitychange"));
-      this.reset();
-      forcedMode = "idle";
-      lastInteraction = 0; // ensure collector idle classification
-      // Force runtime.idle into idle state so governor pauses category="admin".
+      await flushPhaseBoundary();
+      // Force runtime.idle into idle state so governor pauses admin + cosmetic.
+      lastInteraction = 0;
       (window as unknown as { __phonaraIdle?: { force: (on: boolean) => void } })
         .__phonaraIdle?.force(true);
+      await flushPhaseBoundary();
+      // 모두 확정된 다음 분류 모드 켜고 reset → 실제 측정 시작.
+      forcedMode = "idle";
+      this.reset();
       await new Promise((r) => setTimeout(r, idleMs));
       const idleWindow: Surface = JSON.parse(JSON.stringify(surface));
       // Release idle state.
