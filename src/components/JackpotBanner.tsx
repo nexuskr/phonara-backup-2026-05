@@ -220,8 +220,3 @@ function RouletteCtaButton() {
   );
 }
 
-function _Tail() { return null;
-      </div>
-    </div>
-  );
-}
