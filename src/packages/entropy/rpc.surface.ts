@@ -121,23 +121,36 @@ export function installRpcSurface() {
   function diffReport(baseline: Surface, after: Surface) {
     const verdict = (delta: number, target: number) =>
       delta <= target ? "PASS" : "FAIL";
+    // hidden/idle은 baseline.foreground 대비로 비교 (시나리오 구조상 baseline.hidden/idle은 항상 0).
+    const fg = baseline.foreground.count;
     return {
       generatedAt: new Date().toISOString(),
-      baseline: { fg: baseline.foreground.count, hidden: baseline.hidden.count, idle: baseline.idle.count },
-      after:    { fg: after.foreground.count,    hidden: after.hidden.count,    idle: after.idle.count    },
+      baseline: { fg, hidden: baseline.hidden.count, idle: baseline.idle.count },
+      after:    { fg: after.foreground.count, hidden: after.hidden.count, idle: after.idle.count },
       deltaPct: {
-        foreground: pct(baseline.foreground.count, after.foreground.count),
-        hidden:     pct(baseline.hidden.count,     after.hidden.count),
-        idle:       pct(baseline.idle.count,       after.idle.count),
+        foreground: pct(fg, after.foreground.count),
+        hidden:     pct(fg, after.hidden.count),
+        idle:       pct(fg, after.idle.count),
       },
       thresholds: { hidden: -90, idle: -70 },
       verdict: {
-        hidden: verdict(pct(baseline.hidden.count, after.hidden.count), -90),
-        idle:   verdict(pct(baseline.idle.count,   after.idle.count),   -70),
+        hidden: verdict(pct(fg, after.hidden.count), -90),
+        idle:   verdict(pct(fg, after.idle.count),   -70),
       },
       byRpc: { baseline, after },
     };
   }
+
+  // phase boundary settle: visibilitychange listener + setVisibleInterval catch-up 소진용.
+  const flushPhaseBoundary = () => new Promise<void>((resolve) => {
+    setTimeout(() => {
+      if (typeof requestAnimationFrame !== "undefined") {
+        requestAnimationFrame(() => setTimeout(resolve, 50));
+      } else {
+        setTimeout(resolve, 50);
+      }
+    }, 50);
+  });
 
   window.__phonaraSurface = {
     report() {
