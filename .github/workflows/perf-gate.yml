@@ -29,6 +29,8 @@ jobs:
         run: bun run lint
       - name: dependency-cruiser (architectural boundaries)
         run: bunx depcruise --config .dependency-cruiser.cjs --output-type err src
+      - name: Money-flow FREEZE inventory check (Phase 2 Visibility)
+        run: node scripts/check-money-flow-freeze.mjs
 
   perf:
     name: Bundle budget + Lighthouse

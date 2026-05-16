@@ -51,7 +51,13 @@
       "@pkg/realtime": ["./src/packages/realtime"],
       "@pkg/realtime/*": ["./src/packages/realtime/*"],
       "@pkg/operator": ["./src/packages/operator"],
-      "@pkg/operator/*": ["./src/packages/operator/*"]
+      "@pkg/operator/*": ["./src/packages/operator/*"],
+      "@pkg/runtime": ["./src/packages/runtime"],
+      "@pkg/runtime/*": ["./src/packages/runtime/*"],
+      "@pkg/entropy": ["./src/packages/entropy"],
+      "@pkg/entropy/*": ["./src/packages/entropy/*"],
+      "@pkg/risk": ["./src/packages/risk"],
+      "@pkg/risk/*": ["./src/packages/risk/*"]
     }
   },
   "include": ["src"]
