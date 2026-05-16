@@ -41,21 +41,42 @@ export function JackpotEmpireBanner() {
   const [pool, setPool] = useState<number>(() => 480_000_000 + Math.floor(Math.random() * 30_000_000));
   const [secondsLeft, setSecondsLeft] = useState<number>(() => 47 + Math.floor(Math.random() * 30));
   const [feed, setFeed] = useState<FeedItem[]>([]);
+  const hasRealRef = useRef(false);
   const [participantsToday, setParticipantsToday] = useState<number>(10247);
 
-  // M-1: SINGLE merged 1-Hz tick that drives pool drift, countdown, participant
-  // counter and synthetic feed. Replaces 3 separate intervals (2s/8s/3.5±2.5s)
-  // → 1 timer instead of 3, and gates entirely when the tab is hidden so
-  // background tabs incur zero work.
+  // Seed with real roulette_spins (마스킹된 최근 20건). 실데이터가 있으면 봇 시드는 자연 소실.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const { data } = await (supabase as any).rpc("get_recent_roulette_spins", { _limit: 20 });
+        if (!alive || !Array.isArray(data) || data.length === 0) return;
+        const seeded: FeedItem[] = data.slice(0, 6).map((r: any) => {
+          const amt = Number(r.amount ?? 0);
+          const label: string = r.prize_label ?? "스핀 결과";
+          return {
+            id: r.id ?? `seed-${Math.random()}`,
+            name: r.masked_name ?? "익명",
+            prize: amt === 0 || !r.prize_label ? "다음 기회에" : label,
+            amount: amt,
+            sim: false,
+          };
+        });
+        hasRealRef.current = true;
+        setFeed(seeded);
+      } catch { /* silent — 봇 시드 그대로 운영 */ }
+    })();
+    return () => { alive = false; };
+  }, []);
+
   const tickRef = useRef(0);
   const nextFeedAtRef = useRef(0);
   useEffect(() => {
     const t = window.setInterval(() => {
-      if (document.hidden) return; // background tab: skip every effect
+      if (document.hidden) return;
       tickRef.current += 1;
       const tick = tickRef.current;
 
-      // Pool drift every 2s + 6-12M jackpot reset on countdown wrap
       if (tick % 2 === 0) {
         setSecondsLeft((s) => {
           if (s <= 2) {
@@ -67,17 +88,22 @@ export function JackpotEmpireBanner() {
         setPool((p) => p + Math.floor(80_000 + Math.random() * 120_000));
       }
 
-      // Participant drift every 8s
       if (tick % 8 === 0) {
         setParticipantsToday((n) => n + Math.floor(Math.random() * 8));
       }
 
-      // Synthetic feed every 4-7s (jittered)
-      if (tick >= nextFeedAtRef.current) {
+      // 봇 시드: 실데이터가 비어 있을 때만 보조 표기. 실데이터가 들어오면 봇 자연 소실.
+      if (!hasRealRef.current && tick >= nextFeedAtRef.current) {
         nextFeedAtRef.current = tick + 4 + Math.floor(Math.random() * 4);
         const pick = rollPrize();
         setFeed((prev) => [
-          { id: `b${Date.now()}-${tick}`, name: pickBotName(tick + Math.floor(Math.random() * 999)), prize: pick.label, amount: pick.amount },
+          {
+            id: `b${Date.now()}-${tick}`,
+            name: pickBotName(tick + Math.floor(Math.random() * 999)),
+            prize: pick.amount === 0 ? "다음 기회에" : pick.label,
+            amount: pick.amount,
+            sim: true,
+          },
           ...prev,
         ].slice(0, 6));
       }
@@ -85,21 +111,24 @@ export function JackpotEmpireBanner() {
     return () => clearInterval(t);
   }, []);
 
-  // Real roulette_spins via unified realtime (no per-mount ghost channels)
+  // Real roulette_spins via unified realtime — 실유저 표기 + 봇 시드 종료.
   useRealtimeChannel({
     key: "jackpot-roulette-spins",
     bindings: [{ event: "INSERT", schema: "public", table: "roulette_spins" }],
     onEvent: (payload: any) => {
       const r: any = payload?.new;
       if (!r) return;
+      const amt = Number(r.amount ?? 0);
+      hasRealRef.current = true;
       setFeed((prev) => [
         {
           id: r.id ?? `r${Date.now()}`,
           name: "실유저",
-          prize: r.prize_label ?? "스핀 결과",
-          amount: Number(r.amount ?? 0),
+          prize: amt === 0 || !r.prize_label ? "다음 기회에" : (r.prize_label as string),
+          amount: amt,
+          sim: false,
         },
-        ...prev,
+        ...prev.filter((x) => !x.sim),
       ].slice(0, 6));
       setPool((p) => p + 25_000 + Math.floor(Math.random() * 40_000));
     },
