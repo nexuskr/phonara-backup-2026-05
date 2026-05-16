@@ -231,7 +231,6 @@ function GlobalOverlays() {
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <MotionConfig reducedMotion="user">
       <TooltipProvider>
         <Toaster />
         <Sonner />
