@@ -17,6 +17,8 @@ export interface EarnHubState {
   play_today: { claimed: boolean; amount: number };
   share_today: { channels: string[]; amount_each: number };
   referral: { code: string; invited: number; earned_total: number };
+  roulette?: { spun_today: boolean; last_amount: number; multiplier: number; next_at?: string };
+  vip_boost?: { active: boolean; multiplier: number; tier?: string; ends_at?: string | null };
 }
 
 const EMPTY: EarnHubState = {
@@ -31,6 +33,8 @@ const EMPTY: EarnHubState = {
   play_today: { claimed: false, amount: 80 },
   share_today: { channels: [], amount_each: 200 },
   referral: { code: "", invited: 0, earned_total: 0 },
+  roulette: { spun_today: false, last_amount: 0, multiplier: 1 },
+  vip_boost: { active: false, multiplier: 1, ends_at: null },
 };
 
 export function useEarnHub() {
