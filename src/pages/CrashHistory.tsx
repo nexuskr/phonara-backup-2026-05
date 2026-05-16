@@ -6,7 +6,7 @@ import { getMyHistory, getMyStats, type HistoryFilter, type HistoryRow } from "@
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingList } from "@/components/ui/loading-state";
 import FairnessPanel from "@/components/crash/FairnessPanel";
-import { toCsv } from "@/lib/csv";
+import { toCSV, downloadCSV } from "@/lib/csv";
 import { notify } from "@/lib/notify";
 
 const FILTERS: { id: HistoryFilter; label: string }[] = [
@@ -35,7 +35,7 @@ export default function CrashHistory() {
 
   const onExport = () => {
     if (!rows?.length) { notify.info("내보낼 기록이 없어요"); return; }
-    const csv = toCsv(rows.map((r) => ({
+    const csv = toCSV(rows.map((r) => ({
       time: r.created_at,
       round: r.round_id,
       bet: r.bet_phon,
@@ -44,12 +44,17 @@ export default function CrashHistory() {
       crash_x: r.crash_multiplier,
       payout: r.payout_phon,
       won: r.won,
-    })));
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `crash-history-${Date.now()}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    })), [
+      { key: "time", label: "시간" },
+      { key: "round", label: "라운드" },
+      { key: "bet", label: "베팅" },
+      { key: "auto", label: "자동" },
+      { key: "cashout_x", label: "캐시아웃 배수" },
+      { key: "crash_x", label: "크래시 배수" },
+      { key: "payout", label: "정산" },
+      { key: "won", label: "승리" },
+    ]);
+    downloadCSV(`crash-history-${Date.now()}.csv`, csv);
   };
 
   return (
