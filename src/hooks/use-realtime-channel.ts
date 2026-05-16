@@ -258,7 +258,7 @@ export function useRealtimeChannel(opts: UseRealtimeChannelOpts) {
         if (s !== "live" && !pollTimer) {
           pollTimer = setVisibleInterval(() => { try { pollRef.current?.(); } catch {} }, pollMs , { meta: { owner: "use-realtime-channel", category: "admin" } });
         } else if (s === "live" && pollTimer) {
-          clearInterval(pollTimer); pollTimer = null;
+          pollTimer(); pollTimer = null;
         }
       }
     };
