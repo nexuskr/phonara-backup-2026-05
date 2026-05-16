@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Anchor } from "lucide-react";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 /** Pirate's Curse — Crash Cannon. Multiplier curve climbs, cannon fires at server-decided cashout. */
 export default function CrashCannonBonus({
@@ -21,7 +22,7 @@ export default function CrashCannonBonus({
     if (!show) { setTick(0); setExploded(false); return; }
     let cancelled = false;
     let i = 0;
-    const id = setInterval(() => {
+    const id = setVisibleInterval(() => {
       if (cancelled) return;
       i++;
       setTick(i);
@@ -30,7 +31,7 @@ export default function CrashCannonBonus({
         setExploded(true);
         setTimeout(() => !cancelled && onComplete(totalWin), 1500);
       }
-    }, stepMs);
+    }, stepMs , { meta: { owner: "CrashCannonBonus", category: "cosmetic" } });
     return () => { cancelled = true; clearInterval(id); };
   }, [show, ticks, totalWin, onComplete]);
 

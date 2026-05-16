@@ -63,7 +63,7 @@ export default function SlotTournamentBanner() {
       if (!cancelled) setLoading(false);
     }
     load();
-    const i = setInterval(load, 30000);
+    const i = setVisibleInterval(load, 30000 , { meta: { owner: "SlotTournamentBanner", category: "cosmetic" } });
     return () => { cancelled = true; clearInterval(i); };
   }, []);
 

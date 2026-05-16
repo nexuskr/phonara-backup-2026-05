@@ -78,7 +78,7 @@ export function AuthSocialProof({
       });
     };
     load();
-    const t = setInterval(load, 30_000);
+    const t = setVisibleInterval(load, 30_000 , { meta: { owner: "AuthSocialProof", category: "cosmetic" } });
     return () => {
       mounted = false;
       clearInterval(t);
@@ -112,7 +112,7 @@ export function AuthSocialProof({
       rows.forEach((r) => seen.current.add(r.created_at + r.nick));
     };
     load();
-    const t = setInterval(load, 60_000);
+    const t = setVisibleInterval(load, 60_000 , { meta: { owner: "AuthSocialProof", category: "cosmetic" } });
     return () => {
       mounted = false;
       clearInterval(t);
@@ -160,7 +160,7 @@ export function AuthSocialProof({
       setTop5(data as Top5Row[]);
     };
     load();
-    const t = setInterval(load, 60_000);
+    const t = setVisibleInterval(load, 60_000 , { meta: { owner: "AuthSocialProof", category: "cosmetic" } });
     return () => {
       mounted = false;
       clearInterval(t);
@@ -180,7 +180,7 @@ export function AuthSocialProof({
       if (mounted && typeof count === "number") setCrownCount(count);
     };
     load();
-    const t = setInterval(load, 60_000);
+    const t = setVisibleInterval(load, 60_000 , { meta: { owner: "AuthSocialProof", category: "cosmetic" } });
     return () => {
       mounted = false;
       clearInterval(t);

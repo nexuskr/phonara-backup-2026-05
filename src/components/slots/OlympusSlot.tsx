@@ -34,6 +34,7 @@ import { haptics } from "@/lib/haptics";
 
 import bgOlympus from "@/assets/slots/olympus/bg.jpg";
 import logoOlympus from "@/assets/slots/olympus/logo.png";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 // Theme contract — Olympus/Wizard/Dragon all flow through this single shell.
 // Engine, RPCs, mode separation are identical; only paytable (server-side)
@@ -321,9 +322,9 @@ export default function OlympusSlot({ theme = OLYMPUS_THEME }: { theme?: SlotThe
         SoundManager.playBonusTrigger();
         setShowBonusIntro(true);
         await new Promise<void>((res) => {
-          const id = setInterval(() => {
+          const id = setVisibleInterval(() => {
             if (!showBonusIntroRefVal.current) { clearInterval(id); res(); }
-          }, 100);
+          }, 100 , { meta: { owner: "OlympusSlot", category: "cosmetic" } });
           setTimeout(() => { clearInterval(id); res(); }, 4000);
         });
 

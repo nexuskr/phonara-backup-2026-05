@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNowTick } from "@/hooks/use-now-tick";
 import { subscribePostgres } from "@/lib/realtime-bus";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 export type CrownWarLeader = {
   rnk: number;
@@ -47,9 +48,9 @@ export function useCrownWar(pollMs = 15000) {
 
   // Poll
   useEffect(() => {
-    const t = setInterval(() => {
+    const t = setVisibleInterval(() => {
       if (Date.now() - lastFetch.current > pollMs - 100) void load();
-    }, pollMs);
+    }, pollMs , { meta: { owner: "use-crown-war", category: "cosmetic" } });
     return () => clearInterval(t);
   }, [load, pollMs]);
 

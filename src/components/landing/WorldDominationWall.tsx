@@ -91,7 +91,7 @@ export default function WorldDominationWall() {
       if (f.data && Array.isArray(f.data)) setFeed(f.data as Activity[]);
     }
     tick();
-    const id = window.setInterval(tick, 5000);
+    const id = window.setVisibleInterval(tick, 5000 , { meta: { owner: "WorldDominationWall", category: "cosmetic" } });
     return () => { alive = false; window.clearInterval(id); };
   }, []);
 
@@ -103,7 +103,7 @@ export default function WorldDominationWall() {
       if (alive && Array.isArray(data) && data.length > 0) setHeadlines(data as Headline[]);
     }
     load();
-    const id = window.setInterval(load, 5 * 60_000); // 5분마다 갱신
+    const id = window.setVisibleInterval(load, 5 * 60_000 , { meta: { owner: "WorldDominationWall", category: "cosmetic" } }); // 5분마다 갱신
     return () => { alive = false; window.clearInterval(id); };
   }, []);
 

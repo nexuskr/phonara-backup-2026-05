@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Crown } from "lucide-react";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 type TopEmperor = {
   user_mask: string;
@@ -27,7 +28,7 @@ export default function TopEmperorBanner() {
       if (alive && Array.isArray(data) && data[0]) setEmp(data[0] as TopEmperor);
     }
     load();
-    const id = window.setInterval(load, 30_000);
+    const id = window.setVisibleInterval(load, 30_000 , { meta: { owner: "TopEmperorBanner", category: "cosmetic" } });
     return () => { alive = false; window.clearInterval(id); };
   }, []);
 

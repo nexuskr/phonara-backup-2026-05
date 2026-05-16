@@ -52,9 +52,9 @@ export default function LiveCounterStrip() {
       }
     }
     fetchOnce();
-    timer = setInterval(() => {
+    timer = setVisibleInterval(() => {
       if (!document.hidden) fetchOnce();
-    }, 2000);
+    }, 2000 , { meta: { owner: "LiveCounterStrip", category: "cosmetic" } });
     return () => {
       alive = false;
       clearInterval(timer);

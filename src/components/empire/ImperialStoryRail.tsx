@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Crown, Sparkles, Gem, Castle, Rocket, Trophy } from "lucide-react";
 import { Link } from "react-router-dom";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 type Story = {
   id: number;
@@ -42,7 +43,7 @@ export default function ImperialStoryRail() {
       if (mounted && Array.isArray(data)) setStories(data as Story[]);
     };
     void load();
-    const id = window.setInterval(load, 60_000);
+    const id = window.setVisibleInterval(load, 60_000 , { meta: { owner: "ImperialStoryRail", category: "cosmetic" } });
     return () => { mounted = false; window.clearInterval(id); };
   }, []);
 

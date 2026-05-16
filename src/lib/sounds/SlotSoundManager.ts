@@ -15,6 +15,7 @@ import {
 import { volumeStore } from "./volumeStore";
 import { playSlotCue, type Cue as ProcCue, type SoundPack as ProcPack } from "@/lib/slotSound";
 import type { SlotThemeKey } from "@/lib/sound/themes";
+import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 const SSR = typeof window === "undefined";
 
@@ -236,7 +237,7 @@ class SlotSoundManagerImpl {
       const v = start + (target - start) * t;
       try { SoundManager.setChannelVolume?.("bgm", v); } catch { /* */ }
     };
-    this.duckTween = window.setInterval(tick, 24);
+    this.duckTween = window.setVisibleInterval(tick, 24 , { meta: { owner: "SlotSoundManager", category: "cosmetic" } });
   }
 
   // ===== Reduced-motion mute =====
