@@ -41,42 +41,28 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("/src/locales/ja")) return "locale-ja";
           if (id.includes("/src/locales/vi")) return "locale-vi";
 
-          // Phase 4 — Signature Slot 코드 분리
-          // 슬롯별 전용 Canvas/Overlay는 슬롯 페이지 청크에 자연스럽게 포함됨.
-          // 공통 엔진(SlotSignatureWrapper, OlympusSlot core, Base overlay, useAnimatedCanvas)은
-          // 7개 슬롯이 공유하므로 별도 청크로 분리.
-          if (
-            id.includes("/src/components/slots/SlotSignatureWrapper") ||
-            id.includes("/src/components/slots/OlympusSlot") ||
-            id.includes("/src/components/celebration/BaseMaxWinOverlay") ||
-            id.includes("/src/hooks/useAnimatedCanvas") ||
-            id.includes("/src/hooks/useSlotSound") ||
-            id.includes("/src/hooks/useEmpireCrown") ||
-            id.includes("/src/lib/empireConfig")
-          ) return "signature-engine";
+          // PR-A: signature-engine 수동 그룹 제거.
+          // 이전 manualChunks 그룹은 `cn` 같은 공용 유틸을 흡수해서
+          // 모든 페이지에서 import → 자동 modulepreload 되며 Layer 1을 73KB 부풀렸음.
+          // 슬롯 페이지가 router-lazy 이므로 자연 코드 스플리팅에 맡긴다.
 
-          // 사운드 매니저(소스) — 7개 슬롯이 공유
-          if (id.includes("/src/lib/sounds/") || id.includes("/src/lib/sound/")) return "audio";
+          // 사운드 매니저(소스) — 슬롯 공통이지만 슬롯 페이지가 router-lazy 이므로
+          // async chunk 로 자연 분리됨. 명시적 그룹화는 위와 같은 흡수 이슈를 유발하므로 제거.
 
           if (!id.includes("node_modules")) return;
 
-          // howler — audio 청크에 함께 포함
-          if (id.includes("howler")) return "audio";
+          // PR-C: 라이브러리 수동 그룹화 최소화.
+          // 부트 핵심(supabase auth / i18n / icons / motion) 만 별도 청크로 유지.
+          // 그 외(howler/recharts/d3/lightweight-charts/date-fns)는 자연 코드 스플리팅에 맡겨
+          // 자동 modulepreload 흡수 이슈를 차단한다.
           if (id.includes("@supabase")) return "supabase";
-          if (id.includes("recharts") || id.includes("d3-")) return "charts";
-          if (id.includes("lightweight-charts")) return "lwcharts";
           if (id.includes("lucide-react")) return "icons";
-          if (id.includes("date-fns")) return "date";
           if (id.includes("i18next")) return "i18n";
-          // H-4: framer-motion own chunk so route bundles don't redownload it
           if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils")) return "motion";
-          // M-9: pickers/overlays chunk — heavy but only used by a few routes
-          if (
-            id.includes("/cmdk/") ||
-            id.includes("/vaul/") ||
-            id.includes("embla-carousel") ||
-            id.includes("react-day-picker")
-          ) return "pickers";
+          // PR-B: pickers 수동 그룹 제거.
+          // cmdk/vaul/embla/day-picker는 admin/special 페이지만 사용하며
+          // 해당 페이지는 router-lazy. 수동 그룹화 시 공용 청크로 승격되어
+          // 자동 modulepreload 됨 (signature-engine 과 동일 패턴).
           // 나머지(react, react-dom, react-router, radix, tanstack 등)는
           // 단일 vendor chunk로 묶어 createContext 순서 문제를 회피.
         },
