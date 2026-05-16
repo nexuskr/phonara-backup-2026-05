@@ -27,6 +27,12 @@
     /* Gold = primary alias kept for legacy classes */
     --gold: 44 80% 53%;
     --gold-foreground: 240 28% 3%;
+    /* v14.0 — Hot Pink accent (5초룰 CTA + 빅 모먼트) */
+    --pink: 340 100% 62%;
+    --pink-foreground: 0 0% 100%;
+    /* v14.0 aliases — --bg / --text use existing background/foreground */
+    --bg: 240 28% 3%;
+    --text: 42 30% 96%;
     /* SIM (시뮬레이션) — gold-saturated, distinct from Real (cyan) */
     --sim-gold: 44 95% 60%;
     --sim-gold-foreground: 240 28% 3%;
