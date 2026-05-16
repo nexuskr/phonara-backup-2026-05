@@ -73,7 +73,7 @@ export function JackpotEmpireBanner() {
   const tickRef = useRef(0);
   const nextFeedAtRef = useRef(0);
   useEffect(() => {
-    const t = window.setInterval(() => {
+    const t = setVisibleInterval(() => {
       if (document.hidden) return;
       tickRef.current += 1;
       const tick = tickRef.current;
@@ -108,8 +108,8 @@ export function JackpotEmpireBanner() {
           ...prev,
         ].slice(0, 6));
       }
-    }, 1000);
-    return () => clearInterval(t);
+    }, 1000, { meta: { owner: "JackpotEmpireBanner", category: "cosmetic" } });
+    return () => t();
   }, []);
 
   // Real roulette_spins via unified realtime — 실유저 표기 + 봇 시드 종료.
