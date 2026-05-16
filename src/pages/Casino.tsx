@@ -21,6 +21,8 @@ import bgSakura from "@/assets/slots/sakura/bg.jpg";
 import logoSakura from "@/assets/slots/sakura/logo.png";
 import bgDragon from "@/assets/slots/dragon/bg.jpg";
 import logoDragon from "@/assets/slots/dragon/logo.png";
+import bgSugarFever from "@/assets/slots/sugar-fever/bg.jpg";
+import logoSugarFever from "@/assets/slots/sugar-fever/logo.png";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 type GameCard = {
@@ -37,7 +39,7 @@ type GameCard = {
 
 const GAMES: GameCard[] = [
   { to: "/casino/sugar-fever-3000", code: "sugar_fever_3000", title: "Sugar Fever 3000",
-    subtitle: "고변동 · Cluster Tumble · Multiplier Bomb", rtp: "RTP 96.0%", max: "MAX 3000×", bg: bgImage, logo: logoImage },
+    subtitle: "고변동 · Cluster Tumble · Multiplier Bomb", rtp: "RTP 96.0%", max: "MAX 3000×", bg: bgSugarFever, logo: logoSugarFever },
   { to: "/casino/olympus-legacy-5000", code: "olympus_legacy_5000", title: "Olympus Legacy 5000",
     subtitle: "고변동 · Cluster Tumble · Zeus Ladder", rtp: "RTP 96.0%", max: "MAX 5000×", bg: bgImage, logo: logoImage },
   { to: "/casino/cosmic-forge-5000", code: "cosmic_forge_5000", title: "Cosmic Forge 5000",

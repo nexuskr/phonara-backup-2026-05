@@ -18,6 +18,8 @@ import bgAztec from "@/assets/slots/aztec/bg.jpg";
 import logoAztec from "@/assets/slots/aztec/logo.png";
 import bgSakura from "@/assets/slots/sakura/bg.jpg";
 import logoSakura from "@/assets/slots/sakura/logo.png";
+import bgSugarFever from "@/assets/slots/sugar-fever/bg.jpg";
+import logoSugarFever from "@/assets/slots/sugar-fever/logo.png";
 import type { SlotTheme } from "./OlympusSlot";
 
 const SHEER_OVERLAY =
@@ -299,11 +301,9 @@ const SUGAR_FEVER_PATTERN =
 
 export const SUGAR_FEVER_THEME: SlotTheme = {
   gameCode: "sugar_fever_3000",
-  // ── Background asset strategy ──────────────────────────────────────────────
-  // Reusing the olympus art behind the cinematic Canvas (the Canvas covers it
-  // anyway). When dedicated candy hero assets ship, swap these two lines.
-  bg: bgOlympus,
-  logo: logoOlympus,
+  // Dedicated Sugar Fever candy hero assets (pastel pink + chocolate + lollipops).
+  bg: bgSugarFever,
+  logo: logoSugarFever,
   title: "Sugar Fever 3000",
   rtpLabel: "96.0%",
   volatility: "high",
@@ -316,7 +316,9 @@ export const SUGAR_FEVER_THEME: SlotTheme = {
   // Card symbols (10/J/Q/K/A) are shared olympus art — keep the warm pink shift so
   // they sit naturally next to the new pastel candy premiums. Premium symbols are
   // already painted in the right palette, so the filter mostly affects cards.
-  cardFilter: "hue-rotate(310deg) saturate(1.20) brightness(1.10)",
+  // Soft apricot-pink shift — cards melt into the pastel candy palette without
+  // clashing with the already-saturated macaron/strawberry/chocolate premiums.
+  cardFilter: "hue-rotate(335deg) saturate(1.15) brightness(1.08) contrast(1.02)",
   // Pastel pink frame on creamy backdrop with warm gold glow — never dark/cocoa
   reelFrameClass:
     "rounded-2xl border-2 border-pink-300/80 bg-gradient-to-b from-[#ffe4e8]/40 to-[#f8c8a0]/35 backdrop-blur-[2px] p-2 sm:p-3 shadow-[inset_0_0_60px_rgba(255,182,193,0.55)]",

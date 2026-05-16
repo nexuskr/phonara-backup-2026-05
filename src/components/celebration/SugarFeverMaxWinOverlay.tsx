@@ -52,10 +52,9 @@ export default function SugarFeverMaxWinOverlay({
       slotId={slotId}
       themeKey={themeKey}
       ariaLabel="Sugar Fever Max Win"
-      // sugar_fever currently borrows the olympus audio pack at the facade level
-      // (see SLOT_ID_TO_THEME). We reuse the common legendary_win cue + zeus_decree
-      // as the placeholder voice line until dedicated candy voice ships.
-      soundKeys={{ primary: "legendary_win", voice: "zeus_decree" }}
+      // Dedicated candy cue. Falls back silently if mp3 not yet uploaded
+      // under /sounds/sugar_fever/voice/sugar_announce.mp3.
+      soundKeys={{ primary: "legendary_win", voice: "sugar_announce" }}
       titleText="SUGAR FEVER"
       icon={
         <Candy
