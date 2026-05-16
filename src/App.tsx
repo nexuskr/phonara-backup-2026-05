@@ -237,6 +237,9 @@ const App = () => (
           <ReviewerMaskRoot />
           <ReviewerBadge />
           <GlobalOverlays />
+          {EntropyChip && (
+            <Suspense fallback={null}><EntropyChip /></Suspense>
+          )}
           <Suspense fallback={null}><BigWinShareHost /></Suspense>
           <Suspense fallback={<RouteFallback />}>
             <MaintenanceGate>
