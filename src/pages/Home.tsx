@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import Layout from "@/components/Layout";
+import SlimShell from "@/components/layout/SlimShell";
 import PhonaraNav from "@/components/nav/PhonaraNav";
 import WorldHero from "@/components/nav/WorldHero";
 import { useRequireAuth } from "@/hooks/use-require-auth";
@@ -54,7 +54,7 @@ export default function Home() {
   if (!user) return null;
 
   return (
-    <Layout>
+    <SlimShell>
       <WorldHero />
       <PhonaraNav />
 
@@ -98,6 +98,6 @@ export default function Home() {
           <WhaleStrikeRail compact />
         </Suspense>
       </div>
-    </Layout>
+    </SlimShell>
   );
 }

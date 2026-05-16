@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Layout from "@/components/Layout";
+import SlimShell from "@/components/layout/SlimShell";
 import PhonaraNav from "@/components/nav/PhonaraNav";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import {
@@ -59,7 +59,7 @@ export default function Earn() {
   if (!user) return null;
 
   return (
-    <Layout>
+    <SlimShell>
       <PhonaraNav />
 
       <div className="container py-5 space-y-5">
@@ -119,6 +119,6 @@ export default function Earn() {
           </div>
         </div>
       </div>
-    </Layout>
+    </SlimShell>
   );
 }
