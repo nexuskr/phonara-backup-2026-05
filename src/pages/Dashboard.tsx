@@ -35,11 +35,9 @@ import RoutingMigrationBanner from "@/components/RoutingMigrationBanner";
 import ChurnReactivationBanner from "@/components/reactivation/ChurnReactivationBanner";
 const DailyChest = lazy(() => import("@/components/gamification/DailyChest"));
 const LevelProgressBar = lazy(() => import("@/components/gamification/LevelProgressBar"));
-const LivePayoutCounter = lazy(() => import("@/components/fomo/LivePayoutCounter"));
-const YesterdayPayoutsBanner = lazy(() => import("@/components/fomo/YesterdayPayoutsBanner"));
+// v19 Slice 2: LivePayoutCounter / YesterdayPayoutsBanner / FriendGapToast / FoundingContendersBadge
+// 마운트 해제 — Imperial Live Pulse Rail 하나로 통합. 파일은 보존 (다른 페이지에서 재사용 가능).
 const FriendLeaderboard = lazy(() => import("@/components/fomo/FriendLeaderboard"));
-const FriendGapToast = lazy(() => import("@/components/fomo/FriendGapToast"));
-const FoundingContendersBadge = lazy(() => import("@/components/fomo/FoundingContendersBadge"));
 
 // 접힘 영역에 들어가는 기존 컴포넌트들 — 모두 lazy
 const LiveRanking = lazy(() => import("@/components/LiveRanking"));
