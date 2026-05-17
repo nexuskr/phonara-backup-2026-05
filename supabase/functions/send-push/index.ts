@@ -109,3 +109,33 @@ function payloadUrl(kind: string): string {
   if (kind.startsWith("deposit") || kind.startsWith("package")) return "/wallet";
   return "/dashboard";
 }
+
+// SECURITY: Strict whitelist payload builder. Strips any non-allowed field.
+// Prevents leakage of balances, amounts, PII through Web Push payload.
+interface SecurePushPayload {
+  title?: string;
+  body?: string;
+  icon?: string;
+  badge?: string;
+  data?: {
+    url?: string;
+    type?: string;
+    timestamp?: number;
+    notification_id?: string | null;
+  };
+}
+function createSecurePayload(input: SecurePushPayload): SecurePushPayload {
+  const d = input.data ?? {};
+  return {
+    title: typeof input.title === "string" ? input.title.slice(0, 120) : "Phonara",
+    body: typeof input.body === "string" ? input.body.slice(0, 300) : "",
+    icon: typeof input.icon === "string" ? input.icon.slice(0, 200) : "/icon-192.png",
+    badge: typeof input.badge === "string" ? input.badge.slice(0, 200) : "/icon-192.png",
+    data: {
+      url: typeof d.url === "string" ? d.url.slice(0, 300) : "/dashboard",
+      type: typeof d.type === "string" ? d.type.slice(0, 64) : "general",
+      timestamp: typeof d.timestamp === "number" ? d.timestamp : Date.now(),
+      notification_id: typeof d.notification_id === "string" ? d.notification_id : null,
+    },
+  };
+}
