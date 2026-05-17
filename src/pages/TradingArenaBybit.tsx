@@ -35,6 +35,9 @@ const LiveSideCounter = lazy(() => import("@/components/trading/v3/LiveSideCount
 const MobileOrderSheet = lazy(() => import("@/components/trading/v3/MobileOrderSheet"));
 const PhonBettingNudge = lazy(() => import("@/components/trading/v3/PhonBettingNudge"));
 const VipTradingRoom = lazy(() => import("@/components/trading/v3/VipTradingRoom"));
+const PhonOrderPanel = lazy(() => import("@/components/trading/v3/PhonOrderPanel"));
+const PhonLiveSocialProof = lazy(() => import("@/components/trading/v3/PhonLiveSocialProof"));
+const PhonPositionsList = lazy(() => import("@/components/trading/v3/PhonPositionsList"));
 
 function usePriceStore() {
   return useSyncExternalStore(priceStore.subscribe, priceStore.getSnapshot, priceStore.getSnapshot);
@@ -407,6 +410,7 @@ export default function TradingArenaBybit() {
         </Suspense>
         <Suspense fallback={null}><PhonAdvantageRibbon /></Suspense>
         <Suspense fallback={null}><PhonBettingNudge /></Suspense>
+        <Suspense fallback={null}><PhonLiveSocialProof /></Suspense>
         <Suspense fallback={null}><VipTradingRoom /></Suspense>
 
         {/* v3: hot coins */}
@@ -429,8 +433,9 @@ export default function TradingArenaBybit() {
             <Suspense fallback={null}><LiveSideCounter symbol={symbol} /></Suspense>
           </div>
 
-          {/* Desktop: 사이드 컬럼에 패널 그대로. Mobile: 숨기고 BottomSheet로 노출 */}
-          <div className="hidden lg:block" data-mega-order-panel>
+          {/* Desktop: 사이드 컬럼에 PHON 사이드카 + KRW 패널 그대로. Mobile: 숨기고 BottomSheet로 노출 */}
+          <div className="hidden lg:block space-y-3" data-mega-order-panel>
+            <Suspense fallback={null}><PhonOrderPanel symbol={symbol} price={price} /></Suspense>
             <MegaOrderPanel
               mode={mode}
               symbol={symbol}
@@ -440,6 +445,10 @@ export default function TradingArenaBybit() {
               onSubmit={handleSubmit}
               busy={busy}
             />
+          </div>
+          {/* Mobile: PHON 사이드카는 메인 흐름에 노출, KRW 패널은 BottomSheet */}
+          <div className="lg:hidden">
+            <Suspense fallback={null}><PhonOrderPanel symbol={symbol} price={price} /></Suspense>
           </div>
           <Suspense fallback={null}>
             <MobileOrderSheet>
@@ -455,6 +464,15 @@ export default function TradingArenaBybit() {
             </MobileOrderSheet>
           </Suspense>
         </div>
+
+        {/* PHON 열린 포지션 (실연동) */}
+        <section className="space-y-2">
+          <h2 className="font-display font-black text-sm tracking-widest text-amber-300/90 px-1 flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
+            PHON 포지션
+          </h2>
+          <Suspense fallback={null}><PhonPositionsList /></Suspense>
+        </section>
 
         {/* Live positions */}
         <section className="space-y-2">
