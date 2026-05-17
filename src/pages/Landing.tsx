@@ -30,22 +30,6 @@ export default function Landing() {
   );
 }
 
-function AnimatedEarning() {
-  const target = 4800;
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    let raf = 0; const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / 1200);
-      setN(Math.floor(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-  return <span className="tabular-nums">{n.toLocaleString()}</span>;
-}
-
 /** 정적 골드 입자 오버레이 — JS 0, CSS radial-gradient만 */
 function GoldParticles() {
   return (
