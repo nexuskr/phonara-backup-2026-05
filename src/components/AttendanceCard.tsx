@@ -8,6 +8,8 @@ import { emitEarned } from "@/components/onboarding/EarnedToast";
 import { isFlagOn } from "@/lib/conversion-flags";
 import { refreshWallet } from "@/lib/walletRefresh";
 import { setVisibleInterval } from "@/lib/util/visible-interval";
+import StreakFlame from "@/components/streak/StreakFlame";
+import { useStreakLoss } from "@/hooks/use-streak-loss";
 
 export default function AttendanceCard() {
   const [db, setDb] = useDB();
