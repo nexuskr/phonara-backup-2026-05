@@ -14,6 +14,7 @@ import { useStreakLoss } from "@/hooks/use-streak-loss";
 export default function AttendanceCard() {
   const [db, setDb] = useDB();
   const [busy, setBusy] = useState(false);
+  useStreakLoss();
   // streak loss aversion countdown — hooks MUST run before any early return
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
