@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Crown } from "lucide-react";
+import { FOMO } from "@/lib/glossary";
 
 type Props = {
   symbol: string;
