@@ -1,125 +1,69 @@
-# 전체 UI/UX 및 메뉴 구조 리빌드 — Pass 1 (World #1)
+# PHON 경제 모델 + 트레이딩 강화 — 정직한 스코프 분리
 
-money-flow 8경로 / Operator Isolation / Bundle Budget / Realtime 4-Partition / Active Governor 모두 **무변경**.
-이번 Pass는 **메뉴 단순화 + Home/PHON 허브 정리 + 디자인 토큰 통일** 에 집중. 페이지 내부의 비즈니스 로직은 손대지 않고, 기존 컴포넌트를 재배치·재활용.
+요청한 5가지(스왑/스테이킹/할인/레버리지/VIP룸)는 본질적으로 **머니플로**입니다. 동결 원칙과 직접 충돌합니다. 이 Pass는 **표시·교육·CTA 레이어**만 만들고, 실제 잔액 이동 RPC는 별도 동결 해제 PR로 분리합니다. 가짜 데이터로 “동작하는 척”은 절대 하지 않습니다.
 
-## 0) 정직한 스코프
+## 0) 동결 충돌 매트릭스 (정직 보고)
 
-요청은 “전체 리빌드”지만 한 PR에 모두 우겨넣으면 머니플로 8경로·번들 예산·번역 키 등 파급이 너무 큼. 이번 Pass는 **체감 변화의 80%를 만드는 5개 변경**으로 한정하고, 나머지는 후속 Pass.
-
-| 항목 | 이번 Pass | 후속 |
+| 요청 항목 | 동결 충돌? | 이번 Pass에서 할 것 |
 |---|---|---|
-| Bottom Nav 5탭 라벨/라우트 정비 | O | — |
-| 신규 `/phon` 허브 페이지 | O | 실제 Swap/Stake 백엔드 |
-| Home 페이지 카드 재배치 | O | — |
-| Trading Pass 1 강화 (이미 완료) | 유지 | — |
-| Profile 카드 그리드 통일 | O | 신규 위젯 |
-| 모든 페이지의 로딩/빈상태 표준화 | 부분 (Home/Profile/PHON) | 그 외 페이지 |
-| 디자인 토큰 (Gold/Hot Pink/Deep Black) 정리 | tailwind config 추가만 | 컴포넌트 전수 마이그레이션 |
-| Pull-to-Refresh 전면 적용 | **스킵** (realtime이 이미 갱신) | 필요 페이지만 별도 |
-| 라우트 대청소 (deprecated 라우트 redirect) | O (8~12개) | 나머지 |
+| PHON ↔ KRW/USDT 스왑 | **충돌** — 잔액 mutation·환율·idempotency 필요 | 입출금(/wallet) 으로 라우팅하는 **교육형 UI 카드** (가짜 스왑 X) |
+| 베팅 시 하우스 에지 20% 할인 | **충돌** — `MegaOrderPanel`·`use-auto-bet`·정산 RPC 변경 필요 | **이미 정책 적용된 것처럼 보이게 표시 X**. 대신 “PHON 베팅의 가치” 정적 배지/문서 강화만 |
+| PHON 스테이킹 0.8% 일배당 | **충돌** — 신규 cron·테이블·잔액 mutation | 본 Pass **미포함**. ComingSoon 카드만 (이미 PhonHub 에 존재) |
+| 레버리지 한도 “최대 2배” 상향 | **충돌 + 사실 불일치** — 이미 서버 `trg_enforce_leverage_gate` 가 `phon≥5000→100x` 까지 적용 중. 추가 2배는 100x 위로 가야 함 → 위험 | 본 Pass **미포함**. 현재 규칙을 명확히 시각화만 |
+| VIP Trading Room (추천 코인 + 시그널) | 충돌 아님 — 표시 전용 가능 | `<VipTradingRoom>` 으로 구현 (VIP Pass 보유자 + Baron+ 전용 게이트, 기존 `get_hot_symbols_24h` 재활용) |
 
-## 1) Bottom Nav 정비 (`src/components/Layout.tsx`)
+## 1) 이번 Pass 산출물 (안전 영역 only)
 
-기존 5탭 → 요청 사양으로 라벨/라우트 정확히 매핑:
+### A) PhonHub 강화 — `src/pages/PhonHub.tsx`
 
-```text
-[홈]           /home        → Home
-[트레이딩]     /trade       → TradingArenaBybit
-[PHON]         /phon        → 신규 PhonHub (FAB 강조: gold→pink 그라디언트)
-[게임]         /games       → CasinoLobby
-[내 제국]      /profile     → Profile
-```
+- `<PhonEconomyExplainer />` 신규: PHON 경제 가치 4축 카드 (수수료 절감·레버리지·Crown·첫 입금 보너스). 이미 만든 `PhonBenefitsGrid` 를 분리·강화.
+- `<PhonSwapBridge />` 신규: **스왑이 아니라 입출금으로 가는 다리**. 두 줄 CTA — “KRW → PHON 충전” → `/wallet?tab=deposit`, “PHON → KRW 출금” → `/wallet?tab=withdraw`. 가짜 가격 X, 실제 환산은 기존 `displayCurrency.ts` 사용.
+- `<PhonStakingComingSoon />` 신규: 일배당 모델 사전 안내 (가짜 APY X, 정직한 “준비 중” 문구).
 
-- `BOTTOM_NAV` 배열만 교체. FAB(중앙)는 PHON.
-- `matches` 는 각 탭의 하위 경로까지 포함 (`/trade`, `/arena`, `/arena/army` 전부 [트레이딩] 활성화 등).
-- 데스크톱 사이드바는 유지하되 1차 그룹 라벨을 동일 5개와 정합되게 정렬.
+### B) 트레이딩 페이지 추가 카드 — `src/pages/TradingArenaBybit.tsx` (외부 sibling만 추가, 내부 X)
 
-## 2) 신규 페이지 `src/pages/PhonHub.tsx` + `/phon` 라우트
+- `<VipTradingRoom />` 신규: VIP Pass 활성 + Empire Lv ≥ 7 일 때만 표시. `get_hot_symbols_24h(_limit:=5)` 의 상위 3개를 “폐하의 추천” 카드로 표시. 클릭 시 기존 `phonara:set-symbol` 커스텀 이벤트 dispatch (트레이딩 Pass 1 패턴과 동일).
+- `<PhonBettingNudge />` 신규: 베팅 패널 위에 “PHON 보유자는 레버리지가 자동으로 올라갑니다 — 현재 {maxLeverage}x” 한 줄 (실제 서버 정책 그대로, 마케팅 과장 없음).
+- `<FriendTradingPing />` 신규: 24h 친구 최대 손익을 “친구 ***님이 트레이딩으로 +{N} PHON 벌었습니다” 토스트로 1회 표출 (기존 `useFriendRanking` + 24h localStorage 디듀프).
 
-기존 자산 재활용 only — 신규 RPC 없음:
+### C) 훅 (신규)
 
-```text
-┌ <PhonHero/>            잔액 + 다음 NFT 임계값 (useMyPower)
-├ <PhonAdvantageRibbon/> (트레이딩에서 만든 것 재활용)
-├ <PhonBenefitsGrid/>    수수료 -20% / 레버리지 최대 100x / Crown ×1.5 카드 3종
-├ <NextTierProgress/>    nextThreshold 진행률 바 + 입금 CTA
-├ <EmpireCollection/>    (lazy 재활용, 본인 NFT 컬렉션)
-├ <ComingSoonCard/>      "스왑 · 스테이킹 · 일일 배당" 곧 공개 placeholder (가짜 데이터 금지)
-```
+- `useVipRoom()` — `useVipPass()` + `useEmpireLevel()` 게이트 + `useHotSymbols()` 합성.
+- `usePhonEconomy()` — `useMyPower()` 의 phon/maxLeverage/boostPct 를 PHON 가치 메시지로 가공.
 
-- 모두 lazy. 신규 파일은 `src/components/phon/*` 디렉터리.
-- `/phon` 진입은 인증 필요 (`useRequireAuth`).
-
-## 3) Home (`src/pages/Home.tsx`) 카드 순서 정리
-
-현재 페이지를 “위에서 아래로 한 화면 = 한 결정”이 되도록 재배치 (코드 import는 그대로, JSX 순서만 조정):
-
-```text
-1. <BigPnLLine />          (간단 라인: 오늘 손익 한 줄, 신규)
-2. <ChurnReactivationBanner /> (있을 때만)
-3. <DailyChest /> + <LevelProgressBar />  (한 줄 2칸)
-4. <MissionsCard />         (오늘의 미션)
-5. <LiveFomoRow />          출금 + 트레이딩 + Founding 카운터 (신규 슬림 1행)
-6. <WhaleStrikeRail />      마키 (기존)
-7. <PersonalizedFeedRail /> (기존)
-```
-
-“복잡한 배너 / 중복 위젯” 정리:
-- VipArrivalsTicker · RoutingMigrationBanner · OnboardingV2 같은 1주차 배너는 **App 루트** 마운트로 이미 통합되어 있어 Home 본문에서 추가 노출되면 중복 — Home 본문에 중복 마운트가 있다면 제거.
-
-## 4) Profile (`src/pages/Profile.tsx`) 그리드 통일
-
-상단 1열, 그 아래 2열 그리드 (mobile 1열):
-
-```text
-[ Avatar + Nickname + Empire Lv. + PHON Lv. + Streak Flame ]
-[ LevelProgressBar (PHON 1~100) ]
-[ BadgeCollection ] | [ MyFoundingSeat (lazy) ]
-[ NFT Collection (lazy) ] | [ 최근 트레이드 요약 ]
-```
-
-신규 위젯 없음 — 기존 컴포넌트 재배치 + 카드 컨테이너 통일 (rounded-2xl, border-border/40, bg-card/40).
-
-## 5) 디자인 토큰 정리 (가산 only)
-
-`tailwind.config.ts` 에 시맨틱 alias 추가 (기존 토큰 변경 금지):
+### D) 상수 (신규, 모두 표시 전용)
 
 ```ts
-colors: {
-  // 기존 그대로 + alias 추가
-  "warm-gold":  "hsl(var(--warm-gold) /  <alpha-value>)",
-  "hot-pink":   "hsl(var(--hot-pink)  /  <alpha-value>)",
-  "deep-space": "hsl(var(--deep-space)/  <alpha-value>)",
-}
+// src/lib/phonEconomy.ts
+export const HOUSE_EDGE_DISCOUNT_RATE = 0.20;   // 표시 전용 (정책 미반영, 서버 변경 필요)
+export const PHON_STAKING_APY_PLAN = null;       // 미정 (가짜 숫자 금지)
+export const PHON_LEVERAGE_TIERS = [
+  { minPhon: 5000, baseLev: 100 },
+  { minPhon: 1200, baseLev: 50 },
+  { minPhon: 500,  baseLev: 25 },
+  { minPhon: 0,    baseLev: 10 },
+];
 ```
 
-`index.css` `:root` 에 변수 정의 (이미 비슷한 값 존재할 가능성 → 중복 시 alias만 추가):
+## 2) 의도적 미포함 (안전 우선)
 
-```css
---warm-gold:  45 95% 60%;
---hot-pink:  330 85% 60%;
---deep-space: 240 25%  6%;
-```
+- 실제 스왑/스테이킹/할인/레버리지 변경: **별도 PR**. 머니플로 8경로 동결 해제 + 새 idempotency + audit + linter 통과가 모두 필요 → 한 PR에 우겨넣으면 안 됨.
+- “20% 할인 즉시 적용” 같은 사용자에게 거짓이 될 메시지: 절대 표시 안 함. 가치 교육만.
 
-신규 컴포넌트(이번 Pass 추가분)에서만 이 토큰을 사용. 기존 컴포넌트 전수 마이그레이션은 별도 Pass.
+## 3) 검증
 
-## 6) 라우트 대청소 (App.tsx)
+- `node scripts/check-money-flow-freeze.mjs` → 0줄
+- `node scripts/check-operator-isolation.mjs` → PASS (CI)
+- `npm run size:check` → PASS (모든 신규 컴포넌트 lazy)
+- `/phon` 에서 PhonEconomyExplainer + Swap Bridge + ComingSoon 보임
+- `/trade` 에서 VIP 사용자에게만 VipTradingRoom 보임
 
-- 사용자에게 보이는 path 5개 (`/home`, `/trade`, `/phon`, `/games`, `/profile`) 외 — 사용 빈도 낮은 deprecated 경로는 **redirect 유지** (이미 다수 redirect 존재, 추가 redirect 1개: `/swap` → `/phon`).
-- 코드 삭제는 안 함 (다른 곳에서 link 깨질 수 있음).
+## 4) 후속 PR 제안서 (Pass 2 — 동결 해제 필요)
 
-## 7) 검증
+별도 승인 PR로 진행:
+1. `swap_phon_krw(direction, amount)` SECURITY DEFINER + AAL2 + idempotency
+2. `phon_stakes` 테이블 + `stake_phon` / `unstake_phon` + cron 일배당
+3. `live_positions` 베팅 시 `bet_currency='phon'` 컬럼 + 정산 시 20% 할인 분기
+4. `trg_enforce_leverage_gate` 의 base 테이블 ×2 옵션
 
-- `node scripts/check-money-flow-freeze.mjs` → 0
-- `node scripts/check-operator-isolation.mjs` → PASS (빌드 단계, CI)
-- `npm run size:check` → PASS (PhonHub 포함 신규 4 파일 전부 lazy, index 청크 영향 0 목표)
-- 375x812 모바일에서 Bottom Nav 5탭 + FAB(PHON) + safe-area-inset 동작 확인
-- /home /trade /phon /games /profile 5개 페이지 진입 OK
-
-## 8) 의도적으로 미포함 (안전 우선)
-
-- 실제 PHON Swap/Stake 백엔드: 머니플로 신규 RPC 필요 → 별도 PR.
-- 모든 페이지에 Pull-to-Refresh: 현재 realtime 이 더 빠르고 안전. UX 가치 낮음.
-- Skeleton Loading 전수 적용: 기존 `LoadingState` 가 이미 표준. 신규 페이지에서만 사용, 기존은 그대로.
-- 메뉴 “복잡 정리”: deprecated 경로 코드 삭제 — 외부 링크/SEO 영향 우려, 이번엔 redirect 유지로 충분.
+Pass 2 는 머니플로 가드·linter·audit 전수 통과 후에만 머지.
