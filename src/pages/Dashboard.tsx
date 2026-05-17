@@ -113,6 +113,10 @@ export default function Dashboard() {
     <Layout>
       <RoutingMigrationBanner />
       <div className="container pt-3"><ChurnReactivationBanner /></div>
+      <div className="container pt-3 grid gap-3 md:grid-cols-2">
+        <Suspense fallback={null}><DailyChest /></Suspense>
+        <Suspense fallback={null}><LevelProgressBar /></Suspense>
+      </div>
       <Suspense fallback={null}>
         <FirstDepositTopBanner />
         <SixtySecondFlow enabled={!!user} onClosed={() => setAllowOnboardingV2(true)} />
