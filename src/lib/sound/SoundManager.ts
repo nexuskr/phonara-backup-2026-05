@@ -204,24 +204,55 @@ class SoundManagerImpl {
     seq.forEach(({ cue, ch, delay }) => setTimeout(() => this.play(cue, ch), delay));
   }
 
-  /** 내부: 자산 없으면 procedural 폴백으로 라우팅. */
+  /** 내부: override mp3 → pack mp3 → procedural 폴백 순으로 라우팅. */
   private play(cue: CueKey, channel: Channel) {
     if (this.isMuted()) return;
+
+    // 1) Uploaded mp3 override (cueOverrides.ts) — 있으면 최우선.
+    const ov = resolveCueOverride(cue as string, this.slotId);
+    if (ov && !this.overrideMissing.has(ov.url)) {
+      let h = this.overrideCache.get(ov.url);
+      if (!h) {
+        h = new Howl({
+          src: [ov.url],
+          html5: false,
+          preload: true,
+          onloaderror: () => { this.overrideMissing.add(ov.url); },
+          onplayerror: () => { this.overrideMissing.add(ov.url); },
+        });
+        this.overrideCache.set(ov.url, h);
+      }
+      try {
+        h.volume(effVol(channel));
+        h.play();
+        recordLastPlayed({ cue, channel, source: "override-mp3", url: ov.url, at: Date.now() });
+        return;
+      } catch { /* fall through */ }
+    }
+
+    // 2) Theme pack mp3 (get_slot_sound_pack RPC 로 로드된 자산).
     const sound = this.cache.get(cue);
     if (sound) {
       try {
         sound.volume(effVol(channel));
         sound.play();
+        recordLastPlayed({ cue, channel, source: "pack-mp3", at: Date.now() });
         return;
       } catch (e) {
         logSlotAnomaly("sound_init_failed", null, null, null, { cue, channel, error: String(e) });
       }
     }
-    // 풀 폴백 — CUE_TO_PROC에 정의된 cue는 모두 procedural로 들리게
+
+    // 3) 풀 폴백 — CUE_TO_PROC에 정의된 cue는 모두 procedural로 들리게
     if (this.theme) {
       const pf = CUE_TO_PROC[cue];
-      if (pf) playSlotCue(PROC_PACK[this.theme], pf);
+      if (pf) {
+        playSlotCue(PROC_PACK[this.theme], pf);
+        recordLastPlayed({ cue, channel, source: "procedural", at: Date.now() });
+        return;
+      }
     }
+    recordLastPlayed({ cue, channel, source: "missing", at: Date.now() });
   }
 
   pauseAll() {
