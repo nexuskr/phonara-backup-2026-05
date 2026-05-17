@@ -18,7 +18,8 @@ function dispatchSymbol(sym: string) {
 
 export default function VipTradingRoom() {
   const gate = useVipRoom();
-  const { rows, loading } = useHotSymbols(5);
+  const rows = useHotSymbols(5);
+  const loading = rows.length === 0;
 
   // 미인증/잠금 상태에서는 작은 티저만 노출 (정직한 마케팅)
   if (!gate.unlocked) {
