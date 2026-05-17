@@ -41,9 +41,9 @@
 - 모드와 무관하게 양측 응원 사이드바, 라이브 입장 토스트 노출.
 
 `SpectatorDeck.tsx` (NEW)
-- 좌/우 군중 비율 게이지 (gold→pink gradient bar).
+- 좌/우 군중 비율 게이지 (gold→pink gradient bar) — 실시간 풀 비율과 동기.
+- 관중 수 실시간 변동(±1~4명 매 2.5s, cap 활성 룸 heat 기반) + "황실이 뜨겁게 끓고 있습니다" 펄스 헤더.
 - 가짜 마스킹 닉네임 ("황제#3094 ▸ 적군 합류") 6초 폴링 토스트.
-- "지금 N명이 폐하의 결투를 지켜보고 있습니다" 라이브 헤더.
 
 `useSpectatorSync.ts` (NEW) — `useGameChannel` wrapper, presence count.
 
@@ -51,15 +51,17 @@
 
 `BettingPanel.tsx` (NEW)
 - Desktop: arena 우측 dock. Mobile: `BottomSheet` (이미 존재).
-- Left/Right 진영 카드 (실시간 odds 펄스), 슬라이더(시뮬레이션 PHON 100~50,000), `placeBet` CTA.
-- 라운드 종료 시 가상 정산 토스트 (`notify.success`) — 실잔액 변동 없음, 명시 표기 "데모 베팅".
+- Left/Right 진영 카드 — 실시간 odds **펄스 애니메이션** (odds 변동 시 scale 1.04 + gold glow 220ms).
+- Near-Miss 발생 시 "졌지만 아슬했던" 진영 카드에 **2s 핑크 ring + shake** 강조 → "한 끗 차이였습니다 — 폐하, 다시 옥좌에 베팅을 올리소서".
+- 슬라이더(시뮬레이션 PHON 100~50,000), `placeBet` CTA, 라운드 정산 시 가상 토스트 (`notify.success`) — 명시 "데모 베팅".
 - Thumb-zone: 슬라이더 하단 56px, CTA 56px 높이.
 
 ## 4. Cinematic Arena v2
 
 `ThroneStage.tsx` (EDIT)
 - 다층 글로우: outer radial + inner highlight + sweep (`background-position` keyframe).
-- Crown particle: `canvas-confetti` lazy (이미 의존성), Empyrean/Divine 만 트리거.
+- **Dynamic glow**: prop `nearMissIntensity?: number (0..1)` → outer radial alpha 0.18 → 0.55, sweep 속도 6s → 1.8s, pink layer scale.
+- Crown particle: `canvas-confetti` lazy. Particle count = `60 + intensity*180`; Empyrean/Divine + strong near-miss(>0.6) 만 트리거.
 
 `RewardTierBanner.tsx` (NEW)
 - 라운드 결과 헤더에 5단계 tier별 카피 + 색상 토큰:
