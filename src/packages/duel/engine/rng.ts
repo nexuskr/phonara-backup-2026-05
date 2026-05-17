@@ -39,10 +39,17 @@ export async function rollHmac(
   nonce: number,
 ): Promise<RngResult> {
   const hex = await hmacSha512(serverSeed, `${clientSeed}:${nonce}`);
-  const slice = hex.slice(0, 16);
+  // 52-bit mantissa-safe slice (13 hex = 52 bits) — keeps full Number precision
+  // and yields uniform [0,1) without BigInt overhead.
+  const slice = hex.slice(0, 13);
   const n = parseInt(slice, 16);
-  const roll = n / 0xffffffffffffff;
-  return { roll: Math.max(0, Math.min(0.9999999, roll)), hmacHex: hex, rollHex: slice };
+  const DIV = 0x10000000000000; // 2^52
+  const roll = n / DIV;
+  return {
+    roll: Math.max(0, Math.min(0.9999999999999, roll)),
+    hmacHex: hex,
+    rollHex: slice,
+  };
 }
 
 export async function sha256Hex(input: string): Promise<string> {
