@@ -18,9 +18,7 @@ import EmpireSignature from "@/components/status/EmpireSignature";
 import { useWinback } from "@/hooks/use-winback";
 import HubTabs from "@/components/HubTabs";
 import Disclaimer from "@/components/Disclaimer";
-import { isFlagOn } from "@/lib/conversion-flags";
-import { SIXTY_SECOND_FLOW_KEY } from "@/components/onboarding/SixtySecondFlow";
-import { useState } from "react";
+// v19 Slice 1: legacy onboarding flags removed — Welcome 페이지가 첫 진입 1회를 담당.
 
 // V3 — 우주 끝판왕 핵심
 import DashboardHeroV3 from "@/components/dashboard/v3/DashboardHeroV3";
@@ -52,12 +50,10 @@ const ActiveBotsMini = lazy(() => import("@/components/AIBotCards").then(m => ({
 const SevenDayChallengeCard = lazy(() => import("@/components/SevenDayChallengeCard"));
 const EmpireDayCountdown = lazy(() => import("@/components/EmpireDayCountdown"));
 const MachineFomoTicker = lazy(() => import("@/components/MachineFomoTicker"));
-const OnboardingV2 = lazy(() => import("@/components/onboarding/OnboardingV2"));
+// v19 Slice 1: OnboardingV2 / SixtySecondFlow / EarnedToast / FirstDepositTopBanner 마운트 해제.
+// 파일은 보존 (legacy). 첫 진입 흐름은 /welcome 으로 일원화.
 const FirstMissionCard = lazy(() => import("@/components/FirstMissionCard"));
 const EmpireP2EDashboard = lazy(() => import("@/components/empire/EmpireP2EDashboard"));
-const SixtySecondFlow = lazy(() => import("@/components/onboarding/SixtySecondFlow"));
-const EarnedToast = lazy(() => import("@/components/onboarding/EarnedToast"));
-const FirstDepositTopBanner = lazy(() => import("@/components/onboarding/FirstDepositTopBanner"));
 const LivePurchaseTicker = lazy(() => import("@/components/conversion/LivePurchaseTicker"));
 const TierComparisonCard = lazy(() => import("@/components/status/TierComparisonCard"));
 const PersonalizedFeedRail = lazy(() => import("@/components/feed/PersonalizedFeedRail"));
@@ -68,7 +64,7 @@ export default function Dashboard() {
   const user = useRequireAuth();
   const betRef = useRef<BetPanelHandle>(null);
   const moreRef = useRef<MoreSectionHandle>(null);
-  const [allowOnboardingV2, setAllowOnboardingV2] = useState(false);
+  
 
   useEffect(() => { void refreshWallet(); }, []);
   useWinback();
@@ -97,14 +93,7 @@ export default function Dashboard() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!user || typeof window === "undefined") { setAllowOnboardingV2(false); return; }
-    try {
-      setAllowOnboardingV2(!isFlagOn("sixtySecondFlow") || !!localStorage.getItem(SIXTY_SECOND_FLOW_KEY));
-    } catch {
-      setAllowOnboardingV2(!isFlagOn("sixtySecondFlow"));
-    }
-  }, [user]);
+  // v19 Slice 1: legacy onboarding gate 제거 — /welcome 가 1회 흐름 담당.
 
   // Single shared subscription — passed down to Hero & KpiGrid as props
   // to eliminate duplicate RPC + realtime channels.
@@ -128,11 +117,7 @@ export default function Dashboard() {
         <Suspense fallback={null}><LevelProgressBar /></Suspense>
       </div>
       <Suspense fallback={null}>
-        <FirstDepositTopBanner />
-        <SixtySecondFlow enabled={!!user} onClosed={() => setAllowOnboardingV2(true)} />
-        <EarnedToast />
         <LivePurchaseTicker />
-        <OnboardingV2 enabled={!!user && allowOnboardingV2} />
       </Suspense>
       <EmpireSignature />
 

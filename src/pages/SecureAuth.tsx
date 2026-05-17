@@ -1,33 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { useTranslation } from "react-i18next";
-import { Crown, ShieldCheck, Mountain, Sparkles, Mail, Lock, UserPlus, LogIn, Zap } from "lucide-react";
+import { Crown, ShieldCheck, Mail, Lock, ChevronDown, ChevronUp, Sparkles, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
 import { useAuthReady } from "@/hooks/use-auth-ready";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { AuthSeoulBackdrop } from "@/components/auth/AuthSeoulBackdrop";
-import { useAuthLiveData } from "@/hooks/use-auth-live-data";
-import AuthLiveNowBar from "@/components/auth/AuthLiveNowBar";
-import AuthLiveFeedTicker from "@/components/auth/AuthLiveFeedTicker";
-import AuthGlobalMap from "@/components/auth/AuthGlobalMap";
-import AuthTop5Card from "@/components/auth/AuthTop5Card";
-import AuthCrownExplosionCard from "@/components/auth/AuthCrownExplosionCard";
-import AuthFeatureGrid from "@/components/auth/AuthFeatureGrid";
-import AuthBottomTrustStrip from "@/components/auth/AuthBottomTrustStrip";
+import { WELCOME_V19_KEY } from "@/pages/Welcome";
 
+/**
+ * v19.0 SecureAuth — Imperial Throne Gate (Slice 1 rebuild).
+ *
+ * - 단일 컬럼, full-bleed warm-gold. 산만한 라이브 패널 전부 제거 (Slice 2 에서 Imperial Live Pulse 로 통합).
+ * - Primary CTA = Google 1탭. 이메일/비밀번호는 접힌 패널.
+ * - 카피 톤 안전선: 결과 약속/손실 회복 암시 0건. "시작/입성/입금" 행동 단위만.
+ * - 신규 가입 → /welcome (3-slide). 기존 계정 → /dashboard.
+ * - 백엔드 호출 시그니처 그대로. UI만 재조립.
+ */
 export default function SecureAuth() {
   const nav = useNavigate();
-  const { t } = useTranslation("auth");
   const { isReady, hasSession } = useAuthReady();
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [mode, setMode] = useState<"magic" | "signup" | "signin">("magic");
-  const live = useAuthLiveData();
+  const [mode, setMode] = useState<"signin" | "signup">("signup");
+  const [emailOpen, setEmailOpen] = useState(false);
 
   useEffect(() => {
     if (isReady && hasSession) nav("/dashboard", { replace: true });
@@ -35,52 +34,36 @@ export default function SecureAuth() {
 
   const emailSchema = useMemo(() => z.string().trim().email(), []);
 
-  async function sendMagicLink() {
-    const e = email.trim();
-    if (!emailSchema.safeParse(e).success) {
-      toast({ title: "이메일을 확인해 주세요", description: "유효한 이메일을 입력해 주세요.", variant: "destructive" });
-      return;
-    }
-    setBusy(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: e,
-        options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) throw error;
-      toast({ title: "✨ 매직링크 발송 완료", description: `${e} 로 5분 유효 입장 링크를 보냈습니다.` });
-    } catch (err: any) {
-      toast({ title: "발송 실패", description: err.message, variant: "destructive" });
-    } finally { setBusy(false); }
+  /** 신규 가입자만 /welcome 으로, 그 외에는 /dashboard 로. */
+  function postAuthRedirect(isNewUser: boolean) {
+    let seenWelcome = false;
+    try { seenWelcome = localStorage.getItem(WELCOME_V19_KEY) === "1"; } catch {}
+    nav(isNewUser && !seenWelcome ? "/welcome" : "/dashboard", { replace: true });
   }
 
   async function signUpWithPassword() {
     const e = email.trim();
     if (!emailSchema.safeParse(e).success) {
-      toast({ title: "이메일을 확인해 주세요", description: "유효한 이메일을 입력해 주세요.", variant: "destructive" });
-      return;
+      toast({ title: "이메일을 확인해 주세요", variant: "destructive" }); return;
     }
     if (password.length < 8) {
-      toast({ title: "비밀번호가 너무 짧습니다", description: "8자 이상 입력해 주세요.", variant: "destructive" });
-      return;
+      toast({ title: "비밀번호는 8자 이상", variant: "destructive" }); return;
     }
     if (password !== password2) {
-      toast({ title: "비밀번호가 일치하지 않습니다", variant: "destructive" });
-      return;
+      toast({ title: "비밀번호가 일치하지 않습니다", variant: "destructive" }); return;
     }
     setBusy(true);
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: e,
-        password,
+        email: e, password,
         options: { emailRedirectTo: `${window.location.origin}/complete-profile` },
       });
       if (error) throw error;
       if (data.session) {
-        toast({ title: "🎉 가입 완료", description: "추가 정보를 입력해 주세요." });
-        nav("/complete-profile");
+        toast({ title: "🎉 가입 완료" });
+        postAuthRedirect(true);
       } else {
-        toast({ title: "✉️ 인증 메일 발송", description: `${e} 로 가입 확인 메일을 보냈습니다. 메일을 열어 인증해 주세요.` });
+        toast({ title: "✉️ 인증 메일을 보냈습니다", description: `${e} 에서 메일을 열어 인증해 주세요.` });
       }
     } catch (err: any) {
       toast({ title: "가입 실패", description: err.message, variant: "destructive" });
@@ -90,19 +73,17 @@ export default function SecureAuth() {
   async function signInWithPassword() {
     const e = email.trim();
     if (!emailSchema.safeParse(e).success) {
-      toast({ title: "이메일을 확인해 주세요", variant: "destructive" });
-      return;
+      toast({ title: "이메일을 확인해 주세요", variant: "destructive" }); return;
     }
     if (!password) {
-      toast({ title: "비밀번호를 입력해 주세요", variant: "destructive" });
-      return;
+      toast({ title: "비밀번호를 입력해 주세요", variant: "destructive" }); return;
     }
     setBusy(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: e, password });
       if (error) throw error;
       toast({ title: "환영합니다 👑" });
-      nav("/dashboard");
+      postAuthRedirect(false);
     } catch (err: any) {
       toast({ title: "로그인 실패", description: err.message, variant: "destructive" });
     } finally { setBusy(false); }
@@ -116,126 +97,113 @@ export default function SecureAuth() {
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      nav("/complete-profile");
+      // OAuth 신규 가입자 추정 — /complete-profile 가 흐름을 마무리. /welcome 분기는 CompleteProfile 이후 처리.
+      nav("/complete-profile", { replace: true });
     } catch (e: any) {
       toast({ title: "로그인 실패", description: e.message, variant: "destructive" });
     } finally { setBusy(false); }
   }
 
-  async function kakao() {
-    setBusy(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "kakao" as any,
-        options: { redirectTo: `${window.location.origin}/complete-profile` },
-      });
-      if (error) throw error;
-    } catch (e: any) {
-      toast({
-        title: "Kakao 로그인 준비 중",
-        description: "관리자에서 Kakao Provider 설정 후 이용 가능합니다.",
-        variant: "destructive",
-      });
-    } finally { setBusy(false); }
-  }
-
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden bg-background text-foreground">
-      <AuthSeoulBackdrop />
+    <div className="relative min-h-[100dvh] overflow-hidden bg-background text-foreground">
+      {/* Imperial backdrop */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(65% 55% at 50% 22%, hsl(var(--primary) / 0.26), transparent 72%), radial-gradient(45% 35% at 15% 85%, hsl(var(--primary) / 0.10), transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6), transparent)" }}
+      />
 
-      {/* Top system bar */}
-      <header className="relative z-20 flex items-center justify-between px-3 sm:px-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 text-[11px]">
+      {/* Top bar */}
+      <header className="relative z-10 flex items-center justify-between px-4 sm:px-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 text-[11px]">
         <div className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <ShieldCheck className="w-3.5 h-3.5 text-gold" />
-          <span className="hidden xs:inline">본 서비스는 만 19세 이상만 이용 가능합니다.</span>
-          <span className="xs:hidden">19+ 성인 전용</span>
+          <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+          <span className="hidden xs:inline">만 19세 이상만 이용 가능합니다</span>
+          <span className="xs:hidden">19+</span>
         </div>
         <LanguageSwitcher variant="auth" />
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-[1024px] px-3 sm:px-6 pb-10">
-        {/* === Hero — wordmark + headline === */}
-        <section className="text-center pt-4 sm:pt-8">
-          <div className="inline-flex items-center justify-center mb-2">
-            <Crown className="w-7 h-7 sm:w-9 sm:h-9 text-gold drop-shadow-[0_0_12px_hsl(var(--gold)/0.7)]" />
+      <main className="relative z-10 mx-auto w-full max-w-[460px] px-5 sm:px-6 pt-6 sm:pt-10 pb-12">
+        {/* Hero */}
+        <section className="text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-imperial glow-imperial mb-4">
+            <Crown className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="font-imperial text-gradient-gold text-[28px] sm:text-[44px] leading-none tracking-[0.18em]">
-            PHONARA EMPIRE
-          </h1>
-          <div className="mt-2 inline-flex items-center justify-center gap-3 text-[10px] sm:text-xs tracking-[0.32em] text-gold/85 font-black">
-            <span className="h-px w-8 bg-gold/50" />
-            EST. 2026 · WORLD #1 LIVE EMPIRE
-            <span className="h-px w-8 bg-gold/50" />
+          <div className="text-[10px] tracking-[0.32em] font-black text-primary/85">
+            PHONARA · EMPIRE OS
           </div>
-
-          <h2
-            className="mt-6 sm:mt-8 font-imperial text-gradient-gold leading-[1.06] text-[28px] sm:text-[44px] lg:text-[56px]"
-            style={{ textShadow: "0 0 32px hsl(var(--gold)/0.35)" }}
+          <h1
+            className="mt-3 font-imperial text-gradient-gold leading-[1.06] text-[34px] sm:text-[44px]"
+            style={{ textShadow: "0 0 28px hsl(var(--primary) / 0.3)" }}
           >
-            폰 하나로 시작하는<br className="sm:hidden" /> 새로운 수익 경험
-          </h2>
-          <p className="mt-3 text-[13px] sm:text-base text-foreground/85 break-keep">
-            오늘도 전세계 사람들이 잔고를 축적하고 있습니다.
+            0원으로 시작하는<br />황제의 길
+          </h1>
+          <p className="mt-3 text-[13px] sm:text-sm text-muted-foreground break-keep">
+            가입 즉시 <span className="text-foreground font-bold">10,000 PHON</span> 자동 지급 · 첫 입금 +30% 보너스
           </p>
         </section>
 
-        {/* === LIVE NOW === */}
-        <section className="mt-6 sm:mt-8">
-          <AuthLiveNowBar kpi={live.kpi} />
+        {/* Primary CTA — Google 1탭 */}
+        <section className="mt-7 space-y-3">
+          <button
+            onClick={() => social("google")}
+            disabled={busy}
+            className="w-full min-h-[60px] rounded-2xl bg-white text-black font-black tracking-wider text-base flex items-center justify-center gap-3 press transition-transform active:scale-[0.99] disabled:opacity-50 shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.35)]"
+          >
+            <svg viewBox="0 0 48 48" className="w-5 h-5">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+              <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.4 4 9.8 8.3 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8L6 32.7C9.4 39.4 16.1 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.7 2.1-2.1 4-3.9 5.4l6.3 5.3C41.7 35.5 44 30.1 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+            </svg>
+            <span>Google로 즉시 시작</span>
+          </button>
+
+          <button
+            onClick={() => social("apple")}
+            disabled={busy}
+            className="w-full min-h-[52px] rounded-2xl bg-foreground text-background font-bold text-sm flex items-center justify-center gap-2 press transition-transform active:scale-[0.99] disabled:opacity-50"
+          >
+            <svg viewBox="0 0 16 16" className="w-4 h-4" fill="currentColor">
+              <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18 7.79 2.337 7.953 3.66 7.978 3.69c.024.03 1.514.083 2.45-1.32.937-1.402.728-2.32.754-2.362zm3.243 11.115c-.052-.105-2.518-1.339-2.288-3.708.23-2.37 1.812-3.019 1.837-3.089.023-.07-.776-1.025-1.673-1.51-.661-.348-1.385-.502-2.118-.502-.926 0-1.526.244-1.962.404-.43.158-.812.299-1.347.299-.515 0-.836-.16-1.31-.337-.413-.155-.95-.353-1.717-.353-1.292 0-2.654.79-3.494 2.151-1.187 1.929-1.014 5.55.99 8.626.71 1.099 1.671 2.34 2.929 2.354.561.006.929-.158 1.32-.328.448-.196.93-.405 1.79-.41.86-.005 1.296.207 1.737.408.385.176.737.34 1.243.337 1.255-.013 2.27-1.398 2.978-2.493.815-1.265 1.144-2.491 1.171-2.553z"/>
+            </svg>
+            Apple로 시작
+          </button>
         </section>
 
-        {/* === LIVE FEED === */}
-        <section className="mt-3 sm:mt-4">
-          <AuthLiveFeedTicker feed={live.feed} />
-        </section>
+        {/* Email toggle */}
+        <section className="mt-5">
+          <button
+            onClick={() => setEmailOpen((v) => !v)}
+            className="w-full flex items-center justify-center gap-1.5 text-[12px] tracking-wider text-muted-foreground hover:text-foreground transition-colors press min-h-[40px]"
+            aria-expanded={emailOpen}
+          >
+            <Mail className="w-3.5 h-3.5" />
+            이메일로 시작
+            {emailOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
 
-        {/* === ENTRY + RIGHT-SIDE PANELS === */}
-        <section className="mt-5 sm:mt-7 grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Entry card */}
-          <div className="lg:col-span-7">
-            <div
-              className="
-                relative rounded-3xl p-4 sm:p-7 border-2 border-gold/55 bg-background/85
-                outline outline-1 outline-offset-[3px] outline-gold/20 overflow-hidden
-              "
-              style={{
-                boxShadow:
-                  "0 0 44px hsl(var(--gold)/0.28), 0 0 84px hsl(var(--gold)/0.14), inset 0 1px 0 hsl(var(--gold)/0.28)",
-              }}
-            >
-              {/* L corners */}
-              <span aria-hidden className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-gold/80 rounded-tl-md" />
-              <span aria-hidden className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-gold/80 rounded-tr-md" />
-              <span aria-hidden className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-gold/80 rounded-bl-md" />
-              <span aria-hidden className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-gold/80 rounded-br-md" />
-
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2">
-                  <Zap className="text-gold w-6 h-6 sm:w-7 sm:h-7" />
-                  <h3 className="font-imperial text-2xl sm:text-3xl text-gradient-gold">
-                    {mode === "magic" ? "5초 만에 제국 입성" : mode === "signup" ? "이메일로 회원가입" : "이메일로 로그인"}
-                  </h3>
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  {mode === "magic" ? "비밀번호 없이, 즉시 시작" : mode === "signup" ? "추가 정보는 가입 후 입력합니다" : "기존 계정으로 입장"}
-                </p>
-              </div>
-
-              {/* Mode tabs */}
-              <div role="tablist" className="mt-4 grid grid-cols-3 gap-1 p-1 rounded-xl bg-background/60 border border-gold/25 text-[11px] sm:text-xs">
-                {([
-                  { k: "magic",  l: "매직링크" },
-                  { k: "signup", l: "회원가입" },
-                  { k: "signin", l: "로그인" },
-                ] as const).map((it) => (
+          {emailOpen && (
+            <div className="mt-3 rounded-2xl border border-primary/30 bg-card/50 backdrop-blur p-4 space-y-3">
+              {/* Sub-tabs */}
+              <div role="tablist" className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-background/60 border border-border/40 text-[11px]">
+                {([{ k: "signup", l: "회원가입" }, { k: "signin", l: "로그인" }] as const).map((it) => (
                   <button
                     key={it.k}
                     role="tab"
                     aria-selected={mode === it.k}
                     onClick={() => setMode(it.k)}
-                    className={`min-h-[40px] rounded-lg font-bold tracking-wider transition-colors ${
+                    className={`min-h-[36px] rounded-lg font-bold tracking-wider transition-colors ${
                       mode === it.k
-                        ? "bg-gradient-imperial text-primary-foreground shadow-[0_0_18px_hsl(var(--gold)/0.45)]"
+                        ? "bg-gradient-imperial text-primary-foreground"
                         : "text-foreground/70 hover:text-foreground"
                     }`}
                   >
@@ -244,157 +212,97 @@ export default function SecureAuth() {
                 ))}
               </div>
 
-              {/* Email input */}
-              <label className="block mt-4">
-                <div className="flex items-center gap-3 px-4 h-13 sm:h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition-colors">
-                  <Mail className="w-5 h-5 text-gold/80 shrink-0" />
+              <label className="block">
+                <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-primary/30 bg-background/80 focus-within:border-primary transition-colors">
+                  <Mail className="w-4 h-4 text-primary/80 shrink-0" />
                   <input
                     type="email"
                     inputMode="email"
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="이메일 주소 입력"
-                    className="bg-transparent w-full focus:outline-none text-base placeholder:text-muted-foreground/60"
+                    placeholder="이메일 주소"
+                    className="bg-transparent w-full focus:outline-none text-sm placeholder:text-muted-foreground/60"
                   />
                 </div>
               </label>
 
-              {/* Password fields (signup / signin) */}
-              {mode !== "magic" && (
-                <label className="block mt-3">
-                  <div className="flex items-center gap-3 px-4 h-13 sm:h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition-colors">
-                    <Lock className="w-5 h-5 text-gold/80 shrink-0" />
-                    <input
-                      type="password"
-                      autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={mode === "signup" ? "비밀번호 (8자 이상)" : "비밀번호"}
-                      className="bg-transparent w-full focus:outline-none text-base placeholder:text-muted-foreground/60"
-                    />
-                  </div>
-                </label>
-              )}
+              <label className="block">
+                <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-primary/30 bg-background/80 focus-within:border-primary transition-colors">
+                  <Lock className="w-4 h-4 text-primary/80 shrink-0" />
+                  <input
+                    type="password"
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={mode === "signup" ? "비밀번호 (8자 이상)" : "비밀번호"}
+                    className="bg-transparent w-full focus:outline-none text-sm placeholder:text-muted-foreground/60"
+                  />
+                </div>
+              </label>
+
               {mode === "signup" && (
-                <label className="block mt-3">
-                  <div className="flex items-center gap-3 px-4 h-13 sm:h-14 rounded-2xl border border-gold/30 bg-background/80 focus-within:border-gold transition-colors">
-                    <Lock className="w-5 h-5 text-gold/80 shrink-0" />
+                <label className="block">
+                  <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-primary/30 bg-background/80 focus-within:border-primary transition-colors">
+                    <Lock className="w-4 h-4 text-primary/80 shrink-0" />
                     <input
                       type="password"
                       autoComplete="new-password"
                       value={password2}
                       onChange={(e) => setPassword2(e.target.value)}
                       placeholder="비밀번호 확인"
-                      className="bg-transparent w-full focus:outline-none text-base placeholder:text-muted-foreground/60"
+                      className="bg-transparent w-full focus:outline-none text-sm placeholder:text-muted-foreground/60"
                     />
                   </div>
                 </label>
               )}
 
-              {/* Primary CTA */}
               <button
-                onClick={
-                  mode === "magic" ? sendMagicLink
-                  : mode === "signup" ? signUpWithPassword
-                  : signInWithPassword
-                }
-                disabled={busy || !email || (mode !== "magic" && !password) || (mode === "signup" && !password2)}
-                className="
-                  relative w-full mt-4 rounded-2xl bg-gradient-imperial text-primary-foreground
-                  font-black tracking-wider min-h-[60px] sm:min-h-[68px] text-lg sm:text-xl
-                  flex items-center justify-center gap-2
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  transition-transform motion-safe:hover:scale-[1.01] active:scale-[0.99]
-                "
+                onClick={mode === "signup" ? signUpWithPassword : signInWithPassword}
+                disabled={busy || !email || !password || (mode === "signup" && !password2)}
+                className="w-full min-h-[52px] rounded-xl bg-gradient-imperial text-primary-foreground font-black tracking-wider text-sm flex items-center justify-center gap-2 press disabled:opacity-50 transition-transform active:scale-[0.99]"
               >
-                {mode === "magic" ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" />
-                  : mode === "signup" ? <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />
-                  : <LogIn className="w-5 h-5 sm:w-6 sm:h-6" />}
-                <span>
-                  {mode === "magic" ? "원클릭 제국 입장"
-                    : mode === "signup" ? "회원가입 후 입장"
-                    : "로그인"}
-                </span>
+                <Zap className="w-4 h-4" />
+                {mode === "signup" ? "가입하고 입성" : "로그인"}
               </button>
-              <p className="text-center text-[11px] sm:text-xs text-muted-foreground mt-2">
-                {mode === "magic" ? "Magic Link가 5초 안에 도착합니다."
-                  : mode === "signup" ? "가입 후 추가 정보(이름·연락처·생년월일) 입력 화면으로 이동합니다."
-                  : "비밀번호를 잊으셨다면 매직링크 탭을 사용하세요."}
-              </p>
 
-              {/* Divider */}
-              <div className="flex items-center gap-3 my-5">
-                <span className="flex-1 h-px bg-border" />
-                <span className="text-[11px] tracking-widest text-muted-foreground">또는</span>
-                <span className="flex-1 h-px bg-border" />
-              </div>
-
-              {/* Social row */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {mode === "signin" && (
                 <button
-                  onClick={() => social("google")}
-                  disabled={busy}
-                  className="min-h-[48px] sm:min-h-[52px] rounded-xl bg-white text-black font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-[1.02] transition disabled:opacity-50"
+                  onClick={() => nav("/forgot-password")}
+                  className="w-full text-center text-[11px] text-muted-foreground hover:text-foreground press min-h-[32px]"
                 >
-                  <svg viewBox="0 0 48 48" className="w-4 h-4 sm:w-5 sm:h-5"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.4 4 9.8 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8L6 32.7C9.4 39.4 16.1 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.7 2.1-2.1 4-3.9 5.4l6.3 5.3C41.7 35.5 44 30.1 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
-                  Google
+                  비밀번호를 잊으셨나요?
                 </button>
-                <button
-                  onClick={() => social("apple")}
-                  disabled={busy}
-                  className="min-h-[48px] sm:min-h-[52px] rounded-xl bg-foreground text-background font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-[1.02] transition disabled:opacity-50"
-                >
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor"><path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18 7.79 2.337 7.953 3.66 7.978 3.69c.024.03 1.514.083 2.45-1.32.937-1.402.728-2.32.754-2.362zm3.243 11.115c-.052-.105-2.518-1.339-2.288-3.708.23-2.37 1.812-3.019 1.837-3.089.023-.07-.776-1.025-1.673-1.51-.661-.348-1.385-.502-2.118-.502-.926 0-1.526.244-1.962.404-.43.158-.812.299-1.347.299-.515 0-.836-.16-1.31-.337-.413-.155-.95-.353-1.717-.353-1.292 0-2.654.79-3.494 2.151-1.187 1.929-1.014 5.55.99 8.626.71 1.099 1.671 2.34 2.929 2.354.561.006.929-.158 1.32-.328.448-.196.93-.405 1.79-.41.86-.005 1.296.207 1.737.408.385.176.737.34 1.243.337 1.255-.013 2.27-1.398 2.978-2.493.815-1.265 1.144-2.491 1.171-2.553z"/></svg>
-                  Apple
-                </button>
-                <button
-                  onClick={kakao}
-                  disabled={busy}
-                  className="min-h-[48px] sm:min-h-[52px] rounded-xl bg-[#FEE500] text-[#191919] font-bold text-sm sm:text-base flex items-center justify-center gap-2 hover:scale-[1.02] transition disabled:opacity-50"
-                >
-                  <span className="text-lg leading-none">💬</span>
-                  카카오
-                </button>
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-emerald-400">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>AAL2 최고 보안 · 100% 익명 · KYC 없음</span>
-              </div>
+              )}
             </div>
-          </div>
+          )}
+        </section>
 
-          {/* Right column: Map + Top5 + Crown */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
-            <AuthGlobalMap feed={live.feed} />
-            <AuthTop5Card rows={live.top5} />
-            <AuthCrownExplosionCard value={live.kpi.crown_explosion} />
+        {/* Trust strip */}
+        <section className="mt-7 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl border border-border/40 bg-card/30 px-2 py-2.5">
+            <div className="text-[10px] tracking-wider text-muted-foreground">평균 출금</div>
+            <div className="text-[13px] font-black text-foreground mt-0.5">7분 이내</div>
+          </div>
+          <div className="rounded-xl border border-border/40 bg-card/30 px-2 py-2.5">
+            <div className="text-[10px] tracking-wider text-muted-foreground">연습 모드</div>
+            <div className="text-[13px] font-black text-foreground mt-0.5">무료 제공</div>
+          </div>
+          <div className="rounded-xl border border-border/40 bg-card/30 px-2 py-2.5">
+            <div className="text-[10px] tracking-wider text-muted-foreground">손실 보호</div>
+            <div className="text-[13px] font-black text-foreground mt-0.5">7일 보장</div>
           </div>
         </section>
 
-        {/* === Feature grid === */}
-        <section className="mt-8 sm:mt-12">
-          <AuthFeatureGrid />
-        </section>
+        <p className="mt-6 text-center text-[10px] text-muted-foreground/80 leading-relaxed break-keep">
+          가입 시 <button className="underline hover:text-foreground" onClick={() => nav("/legal/terms")}>이용약관</button> · <button className="underline hover:text-foreground" onClick={() => nav("/legal/privacy")}>개인정보처리방침</button> 에 동의합니다.
+        </p>
 
-        {/* === Bottom trust strip === */}
-        <section className="mt-6 sm:mt-8">
-          <AuthBottomTrustStrip />
-        </section>
-
-        {/* Footer */}
-        <footer className="mt-6 sm:mt-8 text-center pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-          <p className="text-[11px] sm:text-xs text-muted-foreground/90 break-keep">
-            PHONARA EMPIRE는 만 19세 이상 성인만 이용 가능한 서비스입니다.
-          </p>
-          <p className="mt-1 inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-gold/80 tracking-[0.28em] font-black">
-            MADE IN KOREA, FOR THE WORLD <span className="text-base leading-none">🇰🇷</span>
-          </p>
-          <div className="hidden">
-            <Sparkles /><Mountain />
-          </div>
-        </footer>
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-primary/70">
+          <Sparkles className="w-3 h-3" />
+          <span className="tracking-[0.28em] font-bold">WORLD · LIVE · EMPIRE</span>
+          <Sparkles className="w-3 h-3" />
+        </div>
       </main>
     </div>
   );

@@ -141,7 +141,8 @@ const AvatarStudio = lazy(() => import("./pages/AvatarStudio.tsx"));
 const Lobby = lazy(() => import("./pages/Lobby.tsx"));
 const LobbyFab = lazy(() => import("./components/lobby/LobbyFab.tsx"));
 const Landing = lazy(() => import("./pages/Landing.tsx"));
-const OnboardingV3 = lazy(() => import("./components/onboarding/OnboardingV3.tsx"));
+const Welcome = lazy(() => import("./pages/Welcome.tsx"));
+// v19 Slice 1: OnboardingV3 global overlay 마운트 해제 — /welcome 가 첫 진입 1회 흐름 담당.
 const DevConsole = lazy(() => import("./pages/DevConsole.tsx"));
 const ForcedShareDialog = lazy(() => import("./components/share/ForcedShareDialog.tsx"));
 const BigWinShareHost = lazy(() => import("./components/share/BigWinShareHost.tsx"));
@@ -170,7 +171,7 @@ function SessionWatcher() {
     // Skip prefetch on light/auth/guide entry pages and low-end / mobile devices.
     if (typeof window === "undefined") return;
     const p = window.location.pathname;
-    const skipRoutes = ["/guide", "/auth", "/secure-auth", "/forgot-password", "/reset-password", "/auth/callback", "/legal", "/unsubscribe"];
+    const skipRoutes = ["/guide", "/auth", "/secure-auth", "/welcome", "/forgot-password", "/reset-password", "/auth/callback", "/legal", "/unsubscribe"];
     if (skipRoutes.some((r) => p.startsWith(r))) return;
     const isMobile = window.innerWidth < 768;
     const lowMem = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
@@ -220,7 +221,7 @@ function GlobalOverlays() {
     const t = setTimeout(cb, 2500);
     return () => clearTimeout(t);
   }, []);
-  const HIDDEN = ["/guide", "/auth", "/secure-auth", "/forgot-password", "/reset-password", "/auth/callback", "/", "/unsubscribe", "/legal", "/live", "/i", "/casino"];
+  const HIDDEN = ["/guide", "/auth", "/secure-auth", "/welcome", "/forgot-password", "/reset-password", "/auth/callback", "/", "/unsubscribe", "/legal", "/live", "/i", "/casino"];
   if (HIDDEN.some((r) => r === loc.pathname || (r !== "/" && loc.pathname.startsWith(r)))) return null;
   if (!ready) return null;
   return (
@@ -233,7 +234,7 @@ function GlobalOverlays() {
       <Suspense fallback={null}><ForcedShareDialog /></Suspense>
       <Suspense fallback={null}><VipArrivalAnnouncer /></Suspense>
       <Suspense fallback={null}><ReactivationOfferDialog /></Suspense>
-      <Suspense fallback={null}><OnboardingV3 /></Suspense>
+      
     </>
   );
 }
@@ -264,6 +265,7 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/legacy-index" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/welcome" element={<Welcome />} />
 
               {/* v14.0 — 4탭 슬림 IA */}
               <Route path="/home" element={<Home />} />
