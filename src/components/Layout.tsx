@@ -43,12 +43,12 @@ type NavLeaf = { to: string; label: string; icon: IconType; matches?: string[] }
 
 // v19 Slice 7.5: 좌측 사이드바 슬림화 — 6개 평탄 리스트 + Admin 최하단
 const SIDEBAR_NAV: NavLeaf[] = [
-  { to: "/command", label: "Home",   icon: HomeIcon,    matches: ["/command", "/home", "/dashboard"] },
-  { to: "/trade",   label: "Trade",  icon: TrendingUp,  matches: ["/trade", "/arena"] },
-  { to: "/casino",  label: "Slots",  icon: Zap,         matches: ["/casino", "/crash", "/jackpot", "/games"] },
-  { to: "/live",    label: "Live",   icon: Radio,       matches: ["/live"] },
-  { to: "/wallet",  label: "Wallet", icon: Wallet,      matches: ["/wallet", "/secure-wallet", "/phon"] },
-  { to: "/empire",  label: "Empire", icon: Crown,       matches: ["/empire", "/packages", "/profile"] },
+  { to: "/command", label: "홈",       icon: HomeIcon,    matches: ["/command", "/home", "/dashboard"] },
+  { to: "/trade",   label: "트레이딩",  icon: TrendingUp,  matches: ["/trade", "/arena"] },
+  { to: "/casino",  label: "수익게임",  icon: Zap,         matches: ["/casino", "/crash", "/jackpot", "/games"] },
+  { to: "/live",    label: "라이브",    icon: Radio,       matches: ["/live"] },
+  { to: "/wallet",  label: "지갑",      icon: Wallet,      matches: ["/wallet", "/secure-wallet", "/phon"] },
+  { to: "/empire",  label: "황실",      icon: Crown,       matches: ["/empire", "/packages", "/profile"] },
 ];
 
 // Mobile bottom nav — 5 tabs, center FAB = PHON 허브
@@ -118,7 +118,7 @@ function SlimMenu({
             }
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>Admin</span>
+            <span>관리자</span>
           </NavLink>
         </>
       )}
