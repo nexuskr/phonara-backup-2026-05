@@ -92,11 +92,11 @@ function Hero() {
         >
           <Link
             to="/auth?mode=signup"
-            className="group inline-flex items-center gap-2.5 h-[64px] px-9 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-lg md:text-xl press shadow-[0_18px_60px_-18px_hsl(var(--gold)/0.7)] hover:scale-[1.02] transition-transform"
+            className="group imperial-jackpot-breathe inline-flex items-center gap-2.5 h-[64px] px-9 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] via-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-lg md:text-xl press glow-pink-xl hover:scale-[1.04] transition-transform"
           >
             <Crown className="w-5 h-5" />
             지금 무료로 황제가 되기
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <div className="text-[12px] sm:text-[13px] text-[hsl(var(--gold)/0.85)] flex items-center gap-1.5 font-bold">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
