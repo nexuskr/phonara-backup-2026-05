@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Swords } from "lucide-react";
 import { notify } from "@/lib/notify";
+import { ConfirmBetSheet } from "./ConfirmBetSheet";
 
 interface Props {
   leftName: string;
@@ -19,6 +20,10 @@ interface Props {
   lastPayout?: { won: boolean; amount: number; stake: number } | null;
   onPlace: (side: "left" | "right", amount: number) => void;
   myStake?: { side: "left" | "right"; amount: number } | null;
+  /** Shadow PROOF MODE 잔고 */
+  shadowBalance?: number;
+  /** Confirm Sheet 에 보여줄 서버 시드 해시 (직전 라운드 봉인값) */
+  serverSeedHashPreview?: string;
 }
 
 const PRESETS = [100, 500, 2_000, 10_000, 50_000];
