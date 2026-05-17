@@ -10,11 +10,10 @@ import RecoveryPrompt from "@/components/dashboard/RecoveryPrompt";
 import StreakBadge from "@/components/dashboard/StreakBadge";
 import WithdrawNudge from "@/components/dashboard/WithdrawNudge";
 import CommandHero from "@/components/CommandHero";
-import { FomoNotificationStrip } from "@/components/empire/FomoNotificationStrip";
-import WhaleStrikeRail from "@/components/empire/WhaleStrikeRail";
-import LiveRankingMarquee from "@/components/LiveRankingMarquee";
 import CrownWarHUD from "@/components/empire/CrownWarHUD";
-import EmpireSignature from "@/components/status/EmpireSignature";
+import LiveRankingMarquee from "@/components/LiveRankingMarquee";
+import ImperialLivePulseRail from "@/components/empire/ImperialLivePulseRail";
+// v19 Slice 2: FomoNotificationStrip / WhaleStrikeRail / EmpireSignature 마운트 해제 (파일 보존).
 import { useWinback } from "@/hooks/use-winback";
 import HubTabs from "@/components/HubTabs";
 import Disclaimer from "@/components/Disclaimer";
