@@ -15,6 +15,27 @@ import {
 } from "@/lib/slotSound";
 import { supabase } from "@/integrations/supabase/client";
 import { logSlotAnomaly } from "@/lib/slots/anomaly";
+import { resolveCueOverride } from "./cueOverrides";
+
+/** Last-played debug record — DEV 패널이 읽어서 어떤 파일이 실제 재생됐는지 표시. */
+export type LastPlayed = {
+  cue: string;
+  channel: string;
+  source: "override-mp3" | "pack-mp3" | "procedural" | "missing";
+  url?: string;
+  at: number;
+};
+let _lastPlayed: LastPlayed | null = null;
+const _lastPlayedListeners = new Set<(p: LastPlayed) => void>();
+export function getLastPlayed() { return _lastPlayed; }
+export function onLastPlayed(fn: (p: LastPlayed) => void) {
+  _lastPlayedListeners.add(fn);
+  return () => { _lastPlayedListeners.delete(fn); };
+}
+function recordLastPlayed(p: LastPlayed) {
+  _lastPlayed = p;
+  for (const fn of _lastPlayedListeners) { try { fn(p); } catch { /* */ } }
+}
 
 type Channel = "bgm" | "reel" | "stop" | "win" | "bigwin" | "scatter" | "bonus_trigger" | "bonus_loop" | "mech" | "vo";
 
