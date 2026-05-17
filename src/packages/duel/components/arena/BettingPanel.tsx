@@ -50,8 +50,9 @@ export function BettingPanel({
   const handlePlace = () => {
     if (disabled) return;
     onPlace(side, amount);
-    notify.imperial?.(`${side === "left" ? leftName : rightName} 진영에 ${amount.toLocaleString()} PHON 봉납 — 옥좌에 베팅을 올리소서`) ??
-      notify.success(`${side === "left" ? leftName : rightName} 진영에 ${amount.toLocaleString()} PHON 봉납`);
+    const msg = `${side === "left" ? leftName : rightName} 진영에 ${amount.toLocaleString()} PHON 봉납 — 옥좌에 베팅을 올리소서`;
+    if (notify.imperial) notify.imperial(msg);
+    else notify.success(msg);
   };
 
   return (
