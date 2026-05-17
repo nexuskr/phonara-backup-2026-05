@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 // PR-B: framer-motion 정적 import 제거 — MotionConfig 의존성 한 줄 때문에
 // entry 그래프에 framer-motion(45KB gz) 전체가 정적 결합되어 Layer 1 부담.
 // reduced-motion 은 motion 컴포넌트가 prefers-reduced-motion CSS 미디어 쿼리로
