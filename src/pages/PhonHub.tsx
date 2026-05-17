@@ -168,11 +168,19 @@ export default function PhonHub() {
           <PhonAdvantageRibbon />
         </Suspense>
 
-        <PhonBenefitsGrid />
+        <Suspense fallback={<LoadingList rows={2} />}>
+          <PhonEconomyExplainer />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <PhonSwapBridge />
+        </Suspense>
 
         <NextTierProgress />
 
-        <ComingSoonCard />
+        <Suspense fallback={null}>
+          <PhonStakingComingSoon />
+        </Suspense>
 
         <div>
           <div className="text-[11px] tracking-[0.3em] font-black text-foreground/70 uppercase mb-3 px-1">
