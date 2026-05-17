@@ -8,7 +8,18 @@
  *  - prefers-reduced-motion 가드
  */
 import { Link } from "react-router-dom";
-import { memo } from "react";
+import { memo, useEffect } from "react";
+
+const KEYFRAME_ID = "imperial-mark-pulse-keyframes";
+function ensureKeyframes() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(KEYFRAME_ID)) return;
+  const s = document.createElement("style");
+  s.id = KEYFRAME_ID;
+  s.textContent =
+    "@keyframes imperialMarkPulse{0%,100%{opacity:.25;transform:translate(-50%,-50%) var(--imp-tf,rotate(0)) scale(.7)}50%{opacity:1;transform:translate(-50%,-50%) var(--imp-tf,rotate(0)) scale(1)}}";
+  document.head.appendChild(s);
+}
 
 interface Props {
   size?: "sm" | "md" | "lg";
