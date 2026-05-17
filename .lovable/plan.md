@@ -1,68 +1,81 @@
-# FOMO v2 강화 — Final Mount & Tuning
+# Phase C — PhonHub v3 (스테이킹·배당·레버리지·스왑 중앙 허브)
 
-FOMO v2의 백엔드(RPC 5종)와 클라이언트 자산(컴포넌트 5종 / 훅 3종)은 이미 빌드되어 동작 중입니다. 이번 작업은 **마운트 보강 + 폴링 주기 정렬 + 톤 검증**만 수행해 본 단계를 공식 종료합니다. 신규 파일 0~1개, 머니플로 0줄 변경.
+`/phon` 라우트는 이미 존재(`src/pages/PhonHub.tsx`)하고 Bottom Nav FAB이 거기 연결되어 있습니다. Phase C 에서는 한 번의 RPC 호출로 모든 핵심 지표를 가져오는 `phon_hub_summary` 를 추가하고, 신규 `src/components/phonhub/v3/` 6종 컴포넌트로 허브 화면을 재구성합니다. 모든 신규 import 는 lazy.
 
-## 현재 상태 (이미 완료)
+## 1. DB — `phon_hub_summary` RPC
 
-**RPC (DB)**
-- `get_live_fomo_counters` → `{withdrawing_now, trading_now, founding_seat_contenders, online_now}`
-- `get_my_friend_ranking(_limit)` → 추천 그래프 기반 주간 Top N + 본인 행
-- `get_my_friend_gap` → `{direction: ahead|behind|alone, gap_phon, other_nickname}`
-- `get_my_fomo_notifications` / `mark_fomo_notification_read` / `enqueue_fomo_notification`
+읽기 전용 SECURITY DEFINER 함수 1개. 한 번 호출로 허브 전체 지표를 JSON 으로 반환.
 
-**훅** (`src/hooks/`)
-- `use-live-fomo-counters.ts` — 모듈 전역 단일 타이머 + 가시성 일시정지, 폴링 주기 = `FOMO_POLL_MS`
-- `use-friend-ranking.ts` — `useFriendRanking(limit)` + `useFriendGap()`
-- `use-fomo-notifications.ts`
+반환 컬럼:
+- `phon_balance numeric` — `phon_balances.balance`
+- `active_stake_total numeric` — `sum(amount) where status='active'`
+- `today_yield numeric` — `sum(yield_phon) where settled_for_date = current_date (KST)`
+- `lifetime_yield numeric` — `sum(yield_phon)` 전체
+- `next_yield_at timestamptz` — 다음 cron 00:10 KST 추정값
+- `leverage_max int` — `get_my_max_leverage()` 재사용
+- `boost_pct int` — `get_my_total_boost_pct()` 재사용
+- `swap_used_today numeric` / `swap_daily_cap numeric` — `swap_phon_krw` 일일 한도 추적 (`phon_transactions` kind='swap_out' 합산, cap=5_000_000)
+- `lifetime_burn numeric` — 누적 소각량 (`phon_transactions` kind='burn' 합산)
+- `phon_level_label text` / `phon_level_progress_pct int` — `get_my_phon_level()` 재사용
 
-**컴포넌트** (`src/components/fomo/`)
-- `LivePayoutCounter` — 출금 인원 (Dashboard·Home 마운트됨)
-- `LiveTradingCounter` — 트레이딩 인원 (Home·DashboardBetPanel 마운트됨)
-- `FoundingContendersBadge` — Founding Seat 경쟁자 (Dashboard·Home 마운트됨)
-- `FriendLeaderboard` — Top 5 + 본인 하이라이트 (Dashboard 마운트됨)
-- `FriendGapToast` — 24h 디듀프 격차 토스트 (Dashboard 마운트됨)
+권한: `authenticated` GRANT EXECUTE, internal `auth.uid()` 가드, `function_permissions_baseline` 등록.
 
-**상수** (`src/lib/fomo.ts`)
-- `FOMO_POLL_MS = 15_000` ← 사용자 스펙 12초와 불일치
-- `FOMO_FRIEND_POLL_MS = 60_000`
-- `FRIEND_GAP_DEDUPE_MS = 24h`
+## 2. Frontend — `src/components/phonhub/v3/` (전부 lazy)
 
-## 이번 작업 항목
+| 파일 | 역할 |
+|---|---|
+| `PhonHubDashboard.tsx` | 메인 컨테이너 — `usePhonHubSummary` 훅 + 12s SWR + 골드 그라디언트 hero |
+| `StakingQuickPanel.tsx` | 활성 스테이킹 총량 + 오늘 배당 + 다음 정산 카운트다운 + Stake CTA |
+| `LeverageBonusMeter.tsx` | 현재 maxLeverage + boost_pct 진행 바 + 다음 티어까지 PHON 표시 |
+| `SwapBridgeMini.tsx` | 오늘 스왑 사용량/한도 게이지 + Swap CTA (`PhonSwapDialog` 재사용) |
+| `DailyDividendCounter.tsx` | 오늘 / 누적 배당 + 누적 소각 카운터 (framer-motion 카운트업) |
+| `PHONValueProjection.tsx` | 향후 30/90일 예상 배당 + 누적 소각 차트 (recharts lazy, 모바일 friendly) |
 
-### 1. 폴링 주기 12초로 정렬
-`src/lib/fomo.ts`의 `FOMO_POLL_MS`를 **15_000 → 12_000** 으로 변경. 모든 라이브 카운터(출금/트레이딩/Founding)가 자동 반영됨.
+훅: `src/hooks/use-phon-hub-summary.ts` — `supabase.rpc("phon_hub_summary")` + 12s polling + `useWalletChannel("phon-hub", "phon_balances|phon_stakes")` 로 즉시 갱신.
 
-### 2. `/arena` 트레이딩 페이지 헤더에 `LiveTradingCounter` 마운트
-현재 트레이딩 페이지(`src/pages/TradingArenaBybit.tsx`)에는 카운터가 없음. 헤더 영역에 lazy + Suspense 로 `LiveTradingCounter` 마운트.
+## 3. `/phon` 라우트 교체
 
-### 3. Warm King 톤 검증
-모든 메시지가 이미 톤 가이드 부합 — 변경 없음:
-- "지금 이 순간에도 N명의 황제가 출금 중입니다" ✓
-- "N명이 트레이딩 중" ✓
-- "지금 N명의 황제가 Founding Seat을 노리는 중" ✓
-- "폐하께서는 {친구} 황제보다 N PHON 앞서 계십니다" ✓
-- "{친구} 황제가 N PHON 앞서 있습니다. 추월의 기회입니다" ✓
+`src/pages/PhonHub.tsx` 의 기존 `PhonHero`/`NextTierProgress` 블록을 새 `<PhonHubDashboard />` 한 줄로 교체. 하단의 `<EmpireCollection />`/`<PhonEconomyExplainer />`/`<PhonStakingPanel />` 는 그대로 lazy 유지. Bottom Nav 변경 없음 (이미 `/phon` FAB).
 
-### 4. 메모 등재
-`mem://features/fomo-v2`에 RPC/훅/컴포넌트/마운트 지점/상수 인덱스 + 향후 확장 포인트 기록. `mem://index.md`에 한 줄 추가.
+## 4. Warm King 카피 (예시)
+
+- "👑 폐하의 PHON 제국이 매일 자라고 있습니다"
+- "오늘 {N} PHON 배당 지급 완료 — 내일 00:10에 다시 만나요"
+- "지금 스테이킹하면 내일부터 매일 배당이 입금됩니다"
+- "레버리지 {N}x — {phon_to_next} PHON 더 모으면 한 단계 올라갑니다"
+- "오늘 스왑 한도 {used}/{cap} PHON 사용 중"
+
+골드 그라디언트(`bg-gradient-imperial` / `text-gradient-imperial`), `<CrownAura>` 펄스, framer-motion 카운트업, 카드 hover shimmer. Particle 효과는 가벼운 CSS 펄스로 대체(번들 증가 0).
+
+## 5. 메모 등재
+
+- `mem://features/phonhub-v3` 신규 — RPC 컬럼, 컴포넌트 6종 위치, 훅 + 폴링 정책 기록
+- `mem://index.md` 한 줄 추가
 
 ## 무손상 보장
 
-- **money-flow 8경로**: 0줄 변경 (FOMO는 read-only RPC만 호출)
-- **Operator Isolation**: 영향 없음 (admin 코드 미접근)
-- **Bundle Budget**: 신규 import 0 — 트레이딩 페이지에는 이미 lazy 컴포넌트 1개 추가 (≈1KB gz)
-- **Realtime Partition**: 4-파티션 래퍼 미사용 (의도적). 카운터는 순수 폴링이므로 raw `supabase.channel` 호출 0건. `useWalletChannel` 강제 규칙은 read realtime 에만 적용되며, 본 기능은 RPC 폴링이라 해당 없음
-- **Active Governor**: kill switch 무관 read RPC
+- **money-flow 8경로**: 0줄 변경 (RPC 신설은 read-only, kernel/withdraw/deposit 미접근)
+- **Operator Isolation**: admin 코드 무관
+- **Bundle Budget**: 7개 신규 lazy 청크 → entry HTML preload 영향 0, recharts 는 `PHONValueProjection` 내에서만 lazy import
+- **Realtime Partition**: `useWalletChannel` 만 사용 — raw `supabase.channel` 0건
+- **Active Governor**: read-only 라 kill switch 가드 불필요
 
 ## 검증
 
-- `node scripts/check-money-flow-freeze.mjs` → PASS 예상 (FOMO 파일은 화이트리스트 외)
-- `node scripts/check-operator-isolation.mjs` → CI build 가드
-- `npm run size:check` → CI build 가드
-- 수동: Dashboard / Home / /arena 진입 → 카운터 12초 갱신, 친구 격차 토스트 24h 디듀프
+- `node scripts/check-money-flow-freeze.mjs` PASS
+- `node scripts/check-operator-isolation.mjs` PASS
+- `npm run size:check` PASS
+- `/phon` 진입 시 single RPC + 12s 갱신 + 스테이크 변동 시 realtime 즉시 반영
 
-## 변경 파일 (총 3개)
+## 변경 파일 요약
 
-1. `src/lib/fomo.ts` — `FOMO_POLL_MS` 15_000 → 12_000
-2. `src/pages/TradingArenaBybit.tsx` — 헤더에 `<LiveTradingCounter />` lazy 마운트
-3. `mem://features/fomo-v2` (신규) + `mem://index.md` (한 줄 추가)
+신규(8):
+1. `supabase/migrations/<ts>_phon_hub_summary.sql`
+2. `src/hooks/use-phon-hub-summary.ts`
+3~8. `src/components/phonhub/v3/{PhonHubDashboard,StakingQuickPanel,LeverageBonusMeter,SwapBridgeMini,DailyDividendCounter,PHONValueProjection}.tsx`
+
+수정(2):
+- `src/pages/PhonHub.tsx` (hero/progress 블록 → `<PhonHubDashboard />` 교체)
+- `mem://index.md`
+
+메모 신규(1): `mem://features/phonhub-v3`
