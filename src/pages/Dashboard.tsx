@@ -33,8 +33,7 @@ import { useMyPower } from "@/hooks/use-my-power";
 import { useOnline } from "@/components/LiveStats";
 import RoutingMigrationBanner from "@/components/RoutingMigrationBanner";
 import ChurnReactivationBanner from "@/components/reactivation/ChurnReactivationBanner";
-const DailyChest = lazy(() => import("@/components/gamification/DailyChest"));
-const LevelProgressBar = lazy(() => import("@/components/gamification/LevelProgressBar"));
+// v19 Slice 2: DailyChest / LevelProgressBar 마운트 해제 (게이미피케이션 페이지에 잔존).
 // v19 Slice 2: LivePayoutCounter / YesterdayPayoutsBanner / FriendGapToast / FoundingContendersBadge
 // 마운트 해제 — Imperial Live Pulse Rail 하나로 통합. 파일은 보존 (다른 페이지에서 재사용 가능).
 const FriendLeaderboard = lazy(() => import("@/components/fomo/FriendLeaderboard"));
