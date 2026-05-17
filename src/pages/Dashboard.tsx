@@ -64,7 +64,7 @@ export default function Dashboard() {
   const user = useRequireAuth();
   const betRef = useRef<BetPanelHandle>(null);
   const moreRef = useRef<MoreSectionHandle>(null);
-  const [allowOnboardingV2, setAllowOnboardingV2] = useState(false);
+  
 
   useEffect(() => { void refreshWallet(); }, []);
   useWinback();
@@ -93,14 +93,7 @@ export default function Dashboard() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!user || typeof window === "undefined") { setAllowOnboardingV2(false); return; }
-    try {
-      setAllowOnboardingV2(!isFlagOn("sixtySecondFlow") || !!localStorage.getItem(SIXTY_SECOND_FLOW_KEY));
-    } catch {
-      setAllowOnboardingV2(!isFlagOn("sixtySecondFlow"));
-    }
-  }, [user]);
+  // v19 Slice 1: legacy onboarding gate 제거 — /welcome 가 1회 흐름 담당.
 
   // Single shared subscription — passed down to Hero & KpiGrid as props
   // to eliminate duplicate RPC + realtime channels.
@@ -124,11 +117,7 @@ export default function Dashboard() {
         <Suspense fallback={null}><LevelProgressBar /></Suspense>
       </div>
       <Suspense fallback={null}>
-        <FirstDepositTopBanner />
-        <SixtySecondFlow enabled={!!user} onClosed={() => setAllowOnboardingV2(true)} />
-        <EarnedToast />
         <LivePurchaseTicker />
-        <OnboardingV2 enabled={!!user && allowOnboardingV2} />
       </Suspense>
       <EmpireSignature />
 
