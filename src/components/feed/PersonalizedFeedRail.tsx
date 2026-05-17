@@ -45,39 +45,12 @@ export default function PersonalizedFeedRail({ limit = 12 }: { limit?: number })
     }
   }
 
-  /** Fallback: trending RPC → 최근 videos SELECT. 항상 카드가 보이도록 보장. */
+  /** Fallback: 현재 백엔드에 get_trending_videos RPC / videos 테이블이 없어
+   *  매 호출이 400/404 폭주를 유발하므로 호출 자체를 생략하고 빈 배열로 끝낸다.
+   *  사용자가 새로고침을 누르면 generate() 가 personalize 엣지를 호출한다. */
   async function loadFallback(): Promise<FeedRecommendation[]> {
-    try {
-      const { data } = await (supabase as any).rpc("get_trending_videos", { _limit: limit });
-      if (Array.isArray(data) && data.length) {
-        const seeded: FeedRecommendation[] = data.slice(0, limit).map((r: any) => ({
-          video_id: r.video_id ?? r.id,
-          score: Number(r.score ?? 0),
-          mode: "fallback-trending",
-          served_at: new Date().toISOString(),
-        }));
-        setItems(seeded);
-        return seeded;
-      }
-    } catch { /* ignore — final fallback below */ }
-    try {
-      const { data } = await (supabase as any)
-        .from("videos")
-        .select("id")
-        .order("created_at", { ascending: false })
-        .limit(limit);
-      const seeded: FeedRecommendation[] = (data ?? []).map((r: any) => ({
-        video_id: r.id,
-        score: 0,
-        mode: "fallback-recent",
-        served_at: new Date().toISOString(),
-      }));
-      setItems(seeded);
-      return seeded;
-    } catch {
-      setItems([]);
-      return [];
-    }
+    setItems([]);
+    return [];
   }
 
   async function generate(nextBias: Bias = bias) {

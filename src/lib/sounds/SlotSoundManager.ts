@@ -19,6 +19,26 @@ import { setVisibleInterval } from "@/lib/util/visible-interval";
 
 const SSR = typeof window === "undefined";
 
+/** 세션 내 404 사운드 자산 캐시 — 재요청 차단으로 네트워크 폭주 방지. */
+const MISSING_KEY = "phonara:audio:missing:v1";
+let _missingSet: Set<string> | null = null;
+function loadMissing(): Set<string> {
+  if (_missingSet) return _missingSet;
+  if (SSR) { _missingSet = new Set(); return _missingSet; }
+  try {
+    const raw = sessionStorage.getItem(MISSING_KEY);
+    _missingSet = new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch { _missingSet = new Set(); }
+  return _missingSet;
+}
+function isMissingAsset(src: string) { return loadMissing().has(src); }
+function markMissingAsset(src: string) {
+  const s = loadMissing();
+  if (s.has(src)) return;
+  s.add(src);
+  try { sessionStorage.setItem(MISSING_KEY, JSON.stringify([...s])); } catch { /* */ }
+}
+
 const WIN_TO_PROC: Record<WinTier, ProcCue> = {
   big: "win_big",
   mega: "win_mega",
@@ -111,6 +131,15 @@ class SlotSoundManagerImpl {
     opts: { loop?: boolean; channel: Channel },
   ) {
     if (map.has(key)) return;
+    // 404-cache: 한 번 실패한 src 는 세션 내 재요청 차단 (네트워크 폭주 + 콘솔 스팸 방지).
+    if (isMissingAsset(src)) {
+      const entry: SlotEntry = {
+        key, howl: null as unknown as Howl,
+        loaded: false, failed: true, channel: opts.channel,
+      };
+      map.set(key, entry);
+      return;
+    }
     const entry: SlotEntry = {
       key,
       howl: null as unknown as Howl,
@@ -127,8 +156,8 @@ class SlotSoundManagerImpl {
       onload: () => { entry.loaded = true; },
       // Silent fallback: 음원 자산 미배포 상태가 정상 운영 가드(public/sounds/** 비어 있음).
       // procedural BGM/SFX 폴백이 자동 라우팅되므로 사용자/모니터링에 404를 노출하지 않는다.
-      onloaderror: () => { entry.failed = true; },
-      onplayerror: () => { entry.failed = true; },
+      onloaderror: () => { entry.failed = true; markMissingAsset(src); },
+      onplayerror: () => { entry.failed = true; markMissingAsset(src); },
     });
     entry.howl = howl;
     map.set(key, entry);
