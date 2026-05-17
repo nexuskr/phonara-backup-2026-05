@@ -110,6 +110,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <RoutingMigrationBanner />
+      <div className="container pt-3"><ChurnReactivationBanner /></div>
       <Suspense fallback={null}>
         <FirstDepositTopBanner />
         <SixtySecondFlow enabled={!!user} onClosed={() => setAllowOnboardingV2(true)} />
