@@ -22,6 +22,8 @@ type BadgeDef = {
 };
 
 import ReferralCard from "@/components/ReferralCard";
+import LevelProgressBar from "@/components/gamification/LevelProgressBar";
+import BadgeCollection from "@/components/gamification/BadgeCollection";
 import NotificationPrefsCard from "@/components/profile/NotificationPrefsCard";
 import PushNotificationCard from "@/components/settings/PushNotificationCard";
 import LineConnectCard from "@/components/settings/LineConnectCard";
