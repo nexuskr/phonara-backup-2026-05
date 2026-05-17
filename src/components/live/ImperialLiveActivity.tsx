@@ -13,18 +13,10 @@
  *   - "full"    : Dashboard용. rows=8, 헤더/타이틀 포함
  *   - "compact" : Landing용. rows=4, 컴팩트 카드
  */
-import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Crown, TrendingUp, ArrowDownToLine, Sparkles, Coins } from "lucide-react";
-
-// motion 청크는 사용 시점에 async — Layer 1 entry 그래프에 영향 0
-const MotionDiv = lazy(async () => {
-  const m = await import("framer-motion");
-  return { default: m.motion.div as any };
-});
-const AnimatePresenceLazy = lazy(async () => {
-  const m = await import("framer-motion");
-  return { default: m.AnimatePresence as any };
-});
+// Landing/Dashboard 가 이미 framer-motion 을 사용 → 추가 청크 비용 0.
+import { motion, AnimatePresence } from "framer-motion";
 
 // ----- 데이터 풀 -----
 const NICKS_KR = [

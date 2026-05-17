@@ -64,7 +64,7 @@ export default function ImperialTradeSection() {
 
   const price = prices[sym];
   const stat = stats[sym];
-  const changePct = stat?.changePct24h ?? 0;
+  const changePct = stat?.change24hPct ?? 0;
   const up = changePct >= 0;
 
   return (
