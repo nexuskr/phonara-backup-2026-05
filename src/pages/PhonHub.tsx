@@ -19,6 +19,7 @@ const EmpireCollection = lazy(() => import("@/pages/EmpireCollection"));
 const PhonEconomyExplainer = lazy(() => import("@/components/phon/PhonEconomyExplainer"));
 const PhonSwapBridge = lazy(() => import("@/components/phon/PhonSwapBridge"));
 const PhonStakingPanel = lazy(() => import("@/components/phon/PhonStakingPanel"));
+const PhonHubDashboard = lazy(() => import("@/components/phonhub/v3/PhonHubDashboard"));
 
 function fmt(n: number) {
   return new Intl.NumberFormat("ko-KR").format(Math.floor(n));
@@ -112,7 +113,9 @@ export default function PhonHub() {
           </span>
         </div>
 
-        <PhonHero />
+        <Suspense fallback={<LoadingList rows={3} />}>
+          <PhonHubDashboard />
+        </Suspense>
 
         <Suspense fallback={null}>
           <PhonAdvantageRibbon />
