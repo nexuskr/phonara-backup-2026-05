@@ -410,6 +410,7 @@ export default function TradingArenaBybit() {
         </Suspense>
         <Suspense fallback={null}><PhonAdvantageRibbon /></Suspense>
         <Suspense fallback={null}><PhonBettingNudge /></Suspense>
+        <Suspense fallback={null}><PhonLiveSocialProof /></Suspense>
         <Suspense fallback={null}><VipTradingRoom /></Suspense>
 
         {/* v3: hot coins */}
