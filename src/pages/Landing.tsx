@@ -143,7 +143,7 @@ function Trust() {
       <div className="mt-10 text-center">
         <Link
           to="/auth?mode=signup"
-          className="inline-flex items-center gap-2 h-14 px-7 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-base md:text-lg press shadow-[0_14px_40px_-18px_hsl(var(--gold)/.7)]"
+          className="imperial-jackpot-breathe inline-flex items-center gap-2 h-14 px-7 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-base md:text-lg press glow-pink-xl hover:scale-[1.04] transition-transform"
         >
           <Sparkles className="w-5 h-5" />
           지금 무료로 황제가 되기 <ArrowRight className="w-4 h-4" />
