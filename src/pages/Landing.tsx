@@ -54,7 +54,7 @@ function GoldParticles() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="imperial-vignette relative overflow-hidden">
       {/* Warm Deep Black + Imperial halos */}
       <div className="absolute inset-0 -z-20 bg-[#110d1a]" />
       <div className="absolute inset-0 -z-10 pointer-events-none">
@@ -74,17 +74,17 @@ function Hero() {
 
         <motion.h1
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }}
-          className="mt-6 font-imperial text-[40px] leading-[1.04] sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.04em] text-foreground"
+          className="mt-6 font-imperial text-[40px] leading-[1.04] sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.04em] text-foreground text-shadow-imperial-xl"
         >
           <span className="block">
-            <span className="bg-gradient-to-r from-[hsl(var(--gold))] via-[hsl(var(--gold))] to-[hsl(var(--pink))] bg-clip-text text-transparent drop-shadow-[0_6px_32px_hsl(var(--gold)/0.55)]">
+            <span className="bg-gradient-to-r from-[hsl(var(--gold))] via-[hsl(var(--gold))] to-[hsl(var(--pink))] bg-clip-text text-transparent drop-shadow-[0_6px_32px_hsl(var(--gold)/0.7)]">
               0원
             </span>
             <span className="text-foreground">으로 시작해서</span>
           </span>
           <span className="block mt-2 sm:mt-3">
             <span className="text-foreground">매일 돈을 버는 </span>
-            <span className="bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] bg-clip-text text-transparent drop-shadow-[0_6px_32px_hsl(var(--pink)/0.55)]">
+            <span className="bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] bg-clip-text text-transparent drop-shadow-[0_6px_32px_hsl(var(--pink)/0.7)]">
               제국
             </span>
           </span>
@@ -114,7 +114,7 @@ function Hero() {
         >
           <Link
             to="/auth?mode=signup"
-            className="pulse-halo group inline-flex items-center gap-2.5 h-[68px] px-9 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] via-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-lg md:text-xl press shadow-[0_28px_84px_-18px_hsl(var(--gold)/0.9),0_0_0_1px_hsl(var(--gold)/0.7)] glow-imperial"
+            className="pulse-halo glow-pink-xl group inline-flex items-center gap-2.5 h-[68px] px-9 rounded-2xl bg-gradient-to-r from-[hsl(var(--gold))] via-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background font-black text-lg md:text-xl press shadow-[0_28px_84px_-18px_hsl(var(--gold)/0.95),0_0_0_1px_hsl(var(--gold)/0.75)] glow-imperial hover:scale-[1.02] transition-transform"
           >
             <Crown className="w-5 h-5" />
             지금 무료로 황제가 되기
