@@ -15,6 +15,7 @@ import { useMyPower } from "@/hooks/use-my-power";
 import { useOpenPhonPosition, type Side } from "@/hooks/use-open-phon-position";
 import { useMyPhonLeverageBonus } from "@/hooks/use-my-phon-leverage-bonus";
 import { HOUSE_EDGE_DISCOUNT_RATE } from "@/lib/phonEconomy";
+import { PHON_PER_USDT, USDT_PER_PHON } from "@/lib/displayCurrency";
 import { notify } from "@/lib/notify";
 import ProvablyFairBadge from "@/components/empire/betting/ProvablyFairBadge";
 
@@ -33,6 +34,8 @@ function estimateLiq(side: Side, entry: number, leverage: number): number {
   return side === "long" ? entry * (1 - buffer * 0.95) : entry * (1 + buffer * 0.95);
 }
 
+type Unit = "PHON" | "USDT";
+
 export default function PhonOrderPanel({ symbol, price }: Props) {
   const { phon, maxLeverage, loading } = useMyPower();
   const bonus = useMyPhonLeverageBonus();
@@ -40,31 +43,58 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
 
   const [side, setSide] = useState<Side>("long");
   const [leverage, setLeverage] = useState<number>(10);
+  const [unit, setUnit] = useState<Unit>("PHON");
   const [amount, setAmount] = useState<string>("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const cap = Math.max(maxLeverage, bonus.effective || 0, 10);
   const effLev = Math.min(leverage, cap);
-  const amountNum = Number(amount) || 0;
-  const discountPhon = Math.floor(amountNum * 0.01 * HOUSE_EDGE_DISCOUNT_RATE);
+  const amountInput = Number(amount) || 0;
+  // Server settlement is always PHON. USDT input is converted at fixed display rate.
+  const amountPhon = unit === "PHON"
+    ? Math.floor(amountInput)
+    : Math.floor(amountInput * PHON_PER_USDT);
+  const amountUsdt = amountPhon * USDT_PER_PHON;
+  const phonAsUsdt = phon * USDT_PER_PHON;
+  const discountPhon = Math.floor(amountPhon * 0.01 * HOUSE_EDGE_DISCOUNT_RATE);
+  const discountUsdt = discountPhon * USDT_PER_PHON;
   const estLiq = useMemo(() => estimateLiq(side, price, effLev), [side, price, effLev]);
 
   const fillPct = (pct: number) => {
     if (!phon) return;
-    setAmount(String(Math.floor(phon * pct)));
+    const targetPhon = Math.floor(phon * pct);
+    if (unit === "PHON") setAmount(String(targetPhon));
+    else setAmount((targetPhon * USDT_PER_PHON).toFixed(2));
+  };
+
+  const switchUnit = (next: Unit) => {
+    if (next === unit) return;
+    if (amountInput > 0) {
+      // Preserve PHON-equivalent value across unit switches.
+      if (next === "USDT") setAmount((amountPhon * USDT_PER_PHON).toFixed(2));
+      else setAmount(String(amountPhon));
+    }
+    setUnit(next);
   };
 
   const onSubmit = () => {
     if (loading) return;
-    if (amountNum <= 0) { notify.warning("베팅할 PHON 수량을 입력해 주세요"); return; }
-    if (amountNum > phon) { notify.warning("보유한 PHON 이 부족해요", { description: "지금 충전하시면 즉시 가능해요" }); return; }
+    if (amountPhon <= 0) { notify.warning(unit === "USDT" ? "베팅할 USDT 금액을 입력해 주세요" : "베팅할 PHON 수량을 입력해 주세요"); return; }
+    if (amountPhon > phon) {
+      if (unit === "USDT") {
+        notify.warning("보유 PHON 환산 잔액이 부족해요", { description: "지갑 → 코인 입금에서 USDT를 충전하시면 즉시 가능해요" });
+      } else {
+        notify.warning("보유한 PHON 이 부족해요", { description: "지금 충전하시면 즉시 가능해요" });
+      }
+      return;
+    }
     if (effLev > cap) { notify.info("이 레버리지는 PHON 을 조금 더 모으셔야 열립니다"); return; }
     if (!price) { notify.warning("가격 수신 대기 중", { description: "잠시 후 다시 눌러 주세요" }); return; }
     setConfirmOpen(true);
   };
 
   const onConfirm = async () => {
-    const r = await open({ symbol, side, leverage: effLev, amountPhon: amountNum });
+    const r = await open({ symbol, side, leverage: effLev, amountPhon });
     if (r.ok) {
       setConfirmOpen(false);
       setAmount("");
