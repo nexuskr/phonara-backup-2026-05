@@ -39,6 +39,7 @@ import ChurnReactivationBanner from "@/components/reactivation/ChurnReactivation
 const DailyChest = lazy(() => import("@/components/gamification/DailyChest"));
 const LevelProgressBar = lazy(() => import("@/components/gamification/LevelProgressBar"));
 const LivePayoutCounter = lazy(() => import("@/components/fomo/LivePayoutCounter"));
+const YesterdayPayoutsBanner = lazy(() => import("@/components/fomo/YesterdayPayoutsBanner"));
 const FriendLeaderboard = lazy(() => import("@/components/fomo/FriendLeaderboard"));
 const FriendGapToast = lazy(() => import("@/components/fomo/FriendGapToast"));
 const FoundingContendersBadge = lazy(() => import("@/components/fomo/FoundingContendersBadge"));
@@ -119,6 +120,7 @@ export default function Dashboard() {
       <div className="container pt-3 flex flex-col gap-2">
         <ChurnReactivationBanner />
         <Suspense fallback={null}><LivePayoutCounter /></Suspense>
+        <Suspense fallback={null}><YesterdayPayoutsBanner /></Suspense>
         <Suspense fallback={null}><FriendGapToast /></Suspense>
       </div>
       <div className="container pt-3 grid gap-3 md:grid-cols-2">
