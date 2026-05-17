@@ -22,6 +22,8 @@ type BadgeDef = {
 };
 
 import ReferralCard from "@/components/ReferralCard";
+import LevelProgressBar from "@/components/gamification/LevelProgressBar";
+import BadgeCollection from "@/components/gamification/BadgeCollection";
 import NotificationPrefsCard from "@/components/profile/NotificationPrefsCard";
 import PushNotificationCard from "@/components/settings/PushNotificationCard";
 import LineConnectCard from "@/components/settings/LineConnectCard";
@@ -177,6 +179,18 @@ export default function Profile() {
             <Card icon={Star} label={t("cardToday")} v={formatKRW(u.todayEarnings)} money />
             <Card icon={Flame} label={t("cardStreak")} v={t("streakDays", { n: u.streak })} />
           </div>
+        </div>
+
+        {/* ===== Gamification: PHON Level + Badge Collection ===== */}
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <LevelProgressBar />
+          <div className="rounded-xl border border-border/60 bg-card/60 backdrop-blur-md p-3 text-xs text-muted-foreground flex flex-col justify-center gap-1">
+            <div className="text-amber-300 font-bold text-sm">Empire 레벨 Lv.{u.level}</div>
+            <div>PHON 레벨은 활동 경험치, Empire 레벨은 자산·승급으로 오릅니다.</div>
+          </div>
+        </div>
+        <div className="mt-4">
+          <BadgeCollection />
         </div>
 
         {/* ===== Phase 21: Referral System ===== */}
