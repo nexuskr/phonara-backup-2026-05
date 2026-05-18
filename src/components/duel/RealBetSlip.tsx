@@ -3,12 +3,18 @@
  * Glassmorphism + warm-king toast + potential-win glow.
  * MONEY_FLOW_NEW_PATH: phon_betting (Mode B).
  */
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRealBetting } from "@/hooks/useRealBetting";
 import { useFlywheelSnapshot } from "@/hooks/use-flywheel-snapshot";
 import VolatilityGauge from "@/components/duel/VolatilityGauge";
 import SlippagePreview from "@/components/duel/SlippagePreview";
 import TreasurySupportBadge from "@/components/duel/TreasurySupportBadge";
+import { useImperialUserNft } from "@/hooks/useImperialUserNft";
+import { tierFor, type ImperialNftTier } from "@/lib/imperialNft";
+
+// Lazy to keep main bundle slim; Mythic effects ride inside BurnRevealOverlay.
+const BurnRevealOverlay = lazy(() => import("@/components/imperial/BurnRevealOverlay"));
+const NftUpgradeReveal = lazy(() => import("@/components/imperial/NftUpgradeReveal"));
 
 const CHIPS = [100, 500, 1_000, 5_000];
 
@@ -31,6 +37,19 @@ export function RealBetSlip({ roomId, defaultSide = "left", leftPot, rightPot, d
   const [amount, setAmount] = useState<number>(100);
   const { placeBet, pending } = useRealBetting();
   const { snapshot } = useFlywheelSnapshot();
+  const nft = useImperialUserNft();
+  const lastTierRef = useRef<ImperialNftTier>(nft.tier);
+  const [reveal, setReveal] = useState<{ tier: ImperialNftTier; amount: number } | null>(null);
+  const [upgrade, setUpgrade] = useState<{ from: ImperialNftTier; to: ImperialNftTier } | null>(null);
+
+  // Detect NFT tier upgrade via realtime
+  useEffect(() => {
+    if (!nft.loaded) return;
+    if (nft.tier > lastTierRef.current) {
+      setUpgrade({ from: lastTierRef.current, to: nft.tier });
+    }
+    lastTierRef.current = nft.tier;
+  }, [nft.tier, nft.loaded]);
 
   const potentialWin = useMemo(() => {
     const total = leftPot + rightPot + amount;
