@@ -105,6 +105,8 @@ export default function ImperialCommandCenter() {
         </div>
       </header>
 
+      <Phase1LiveMonitor />
+
       <ImperialRolloutPhasePanel />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
