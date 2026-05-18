@@ -139,7 +139,7 @@ export function RealBetSlip({ roomId, defaultSide = "left", leftPot, rightPot, d
           haptic();
           const res = await placeBet({ room_id: roomId, side, amount_phon: amount });
           // UI-only burn reveal — projected client-side from current lifetime burn + this bet's expected edge share.
-          if (res !== false) {
+          if (res?.ok) {
             const projected = nft.lifetimeBurn + amount * 0.26;
             const projTier = tierFor(projected);
             setReveal({ tier: projTier, amount: amount * 0.26 });
