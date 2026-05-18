@@ -66,10 +66,24 @@ e2e/
 - 클레임 mock: `**/rest/v1/rpc/imperial_claim_signup_bonus` → `{status:"ok", amount_phon:15000, new_balance:15000}`
 - 실패 시나리오: 클레임 RPC 500 / 네트워크 끊김 / 중복 클릭 / 가입 직후 새로고침
 
-### 02 Imperial Duel Lobby Full Journey (Sprint 4 핵심)
+### 02 Imperial Duel Lobby Full Journey (Sprint 4 핵심 + Worker Fallback 강화)
 - `/duel` 진입 → `HallOfSovereigns` Top 1 카드 탭 → `LiveDuelGates` 카드 탭 → swipe-up 으로 `FomoFloatingOracle` 확장 → `VerificationOracleModal` 열림 → 닫기 swipe-down
-- `NearMissOverlay` 진입 시 opacity transition, `MultiplierCountUp` scale 1→1.15→1 검증 (transform 인라인 스타일 읽어서 단언)
 - mock: `useDuelRooms` 의 `imperial_get_duel_rooms` RPC → 4개 방 + spectators 노이즈
+- **NearMissOverlay 검증 (4가지 모드 매트릭스)** — 같은 시각 결과를 모든 모드에서 보장:
+  | 모드 | 환경 조작 | 합격 기준 |
+  |---|---|---|
+  | A. Worker ON (정상) | 기본 | `radial-gradient` overlay 표시, `opacity` 0.25~0.8, `transform: scale(1.x)` 인라인 적용, 900ms 후 unmount |
+  | B. Worker 강제 OFF | `page.addInitScript` 로 `window.Worker = undefined` | cosmetic.ts main-thread fallback 발동, 동일한 score → 동일 overlay 시각 결과 |
+  | C. Worker timeout | route 로 worker 응답 4s 지연 | cosmetic.ts timeout 후 fallback, UI는 끊김 없이 표시 |
+  | D. Reduced motion | `prefers-reduced-motion: reduce` | overlay opacity 0 또는 transition 즉시 완료, transform 잔여 없음 |
+- **MultiplierCountUp 검증 (4가지 모드 매트릭스)**:
+  | 모드 | 환경 조작 | 합격 기준 |
+  |---|---|---|
+  | A. Worker ON | 기본 | `calcMultiplierFrames` Float32Array transferable, scale 1→1.15→1, 마지막 텍스트 = `to.toFixed(2)×` |
+  | B. Worker OFF | `window.Worker = undefined` | main-thread 보간 fallback, 최종 값 동일, 60fps 유지 |
+  | C. Low-end | CPU 4× throttle | 프레임 드롭 허용하되 최종 값 정확, transform leak 0 |
+  | D. Reduced motion | 미디어 쿼리 | 즉시 최종 값으로 점프, scale 변동 없음 |
+- 60fps 검증: `performance.now()` 기반 프레임 카운터 주입, `rAF` 호출/시간 ≥ 50fps (mid-tier), ≥ 30fps (low-end)
 
 ### 03 Mobile OS Native Feel Extreme
 - **Pinch zoom**: `viewport meta`가 줌 허용인지 확인, 두 손가락 핀치 → layout shift 없음, double-tap zoom → 텍스트 재배열 없음
@@ -81,10 +95,10 @@ e2e/
 - **Safe area**: `env(safe-area-inset-top)` 적용 확인 (DynamicIslandPill top 계산)
 - **Reduced motion**: PTR 비활성, framer-motion 트랜지션 즉시 완료
 
-### 04 Worker + Cosmetic Visual Integrity
-- `calcNearMiss` worker on → score ≥ 0.5 시 overlay 표시, off (worker reject) → main-thread fallback 동일 결과
-- `calcMultiplierFrames` Float32Array transferable 경로 + fallback 둘 다 최종 값 동일
-- 60fps 검증: `requestAnimationFrame` 카운트 / 시간 비율 ≥ 50fps on mid-tier emulation
+### 04 Worker + Cosmetic Visual Integrity (02 매트릭스 회귀 + 단위 격리)
+- 02 의 매트릭스를 페이지 컨텍스트 없이 cosmetic 단위로 격리 실행 (테스트 페이지 `/__e2e/cosmetic-harness` 임시 라우트는 만들지 않음 — 기존 `/duel` 활용)
+- worker 메시지 손실/2회 응답/순서 뒤집힘 fuzz → fallback 항상 결정적 결과
+- 메모리 누수: 100회 mount/unmount 후 detached node 0
 
 ### 05 Basic Betting Safety Net (mock)
 - Crash 베팅: `/games/crash` → 베팅 슬립 입력 → 베팅 RPC mock 200 → UI 잔액 차감 반영 → cashout 버튼 활성
