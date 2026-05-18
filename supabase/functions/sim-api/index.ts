@@ -1,11 +1,12 @@
-// B2B Trading Sim API — public endpoint, Bearer auth via api_keys table
+// B2B Trading Sim API — public endpoint, Bearer auth via api_keys table.
+// Hardening: zod symbol validation + server-to-server CORS (no browser wildcard).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "../_shared/validate.ts";
+import { buildCorsOrEmpty } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
+// Server-to-server callers don't send Origin → empty CORS headers are fine.
+// Browser callers must come from a whitelisted origin.
+const SYMBOL = z.string().regex(/^[A-Za-z0-9]{2,16}$/);
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
