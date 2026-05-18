@@ -114,9 +114,11 @@ export default function Home() {
         </div>
 
         {/* Imperial Duel — 황제의 결투장 */}
-        <Link
-          to="/duel"
-          className="imperial-card imperial-card-hover imperial-corner-shine relative block overflow-hidden rounded-3xl p-5 border border-amber-400/35 bg-gradient-to-br from-[#160a05] via-[#0A0503] to-[#1a0a14] active:scale-[0.985] will-change-transform"
+        <button
+          type="button"
+          onClick={enterDuel}
+          aria-label="황제의 대관전 입장"
+          className="imperial-card imperial-card-hover imperial-corner-shine relative block w-full text-left overflow-hidden rounded-3xl p-5 border border-amber-400/35 bg-gradient-to-br from-[#160a05] via-[#0A0503] to-[#1a0a14] active:scale-[0.985] will-change-transform"
           style={{ boxShadow: "0 0 22px hsl(38 92% 60% / 0.22), 0 0 44px hsl(330 90% 60% / 0.14)" }}
         >
           <div className="flex items-start justify-between gap-3">
@@ -139,7 +141,11 @@ export default function Home() {
           <div className="mt-3 inline-flex items-center gap-1 text-[11px] font-black tracking-[0.18em] uppercase text-pink-300">
             옥좌에 오르소서 <ArrowRight className="w-3 h-3" />
           </div>
-        </Link>
+        </button>
+
+        <Suspense fallback={null}>
+          <ImperialAscensionLoader open={ascending} onDone={onAscensionDone} />
+        </Suspense>
 
         {/* 실시간 빅윈 마키 — 5번째이자 마지막 카드 (≤6 룰) */}
         <Suspense fallback={null}>
