@@ -52,11 +52,11 @@ Existing components already mounted (`ImperialWelcomeDialog`, `DailyLoginRewardT
 
 `Phase1LiveMonitor.tsx` upgraded in place (operator-only chunk):
 
-- Polls `imperial_get_phase1_kpis()` every 3s (was 10s). Realtime subscribe on `imperial_onboarding_grants` for live count flashes.
-- 12 KPI cards + sparkline (inline SVG, no new deps).
-- Cap utilization bar; if >80% warn, >100% red.
-- New `<ApocalypseProtocolPanel/>`: shows fraud_rejects_24h, anomaly_score; one-click `imperial_phase1_emergency_pause` (AAL2 confirm).
-- Auto-rollback hook: when `anomaly_score > 0.1%` for 3 consecutive ticks, surfaces a one-click "Auto-Rollback" that calls `imperial_phase1_emergency_pause` + `imperial_rollout_activate(0)`.
+- Polls `imperial_get_phase1_kpis()` every 3s. Realtime subscribe on `imperial_onboarding_grants` for live count flashes.
+- **14 KPI** cards + inline-SVG sparkline (no new deps).
+- Cap utilization bar; >80% warn, >100% red.
+- New `<ApocalypseProtocolPanel/>`: fraud_rejects_24h, anomaly_score, preemptive yellow at ≥0.08%; one-click `imperial_phase1_emergency_pause` (AAL2 confirm).
+- Auto-rollback: anomaly_score > 0.1% for 3 consecutive ticks → arms one-click "Auto-Rollback" that calls `imperial_phase1_emergency_pause` + `imperial_rollout_activate(0)`. Full revert path completes in **≤10 minutes** (see Rollback plan).
 
 ## 5. Activation order (runbook)
 
