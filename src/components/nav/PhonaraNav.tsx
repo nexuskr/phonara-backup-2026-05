@@ -39,7 +39,7 @@ function isActive(pathname: string, to: string) {
 
 export default function PhonaraNav() {
   const loc = useLocation();
-  return (
+  const navigate = useNavigate();
     <nav
       className="
         fixed bottom-0 inset-x-0 z-40 md:sticky md:top-14 md:bottom-auto
