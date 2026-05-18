@@ -1,6 +1,8 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { Home, TrendingUp, Gamepad2, User, Crown, type LucideIcon } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Home, TrendingUp, Gamepad2, User, Crown, Swords, type LucideIcon } from "lucide-react";
 import { haptics } from "@/lib/haptics";
+import { useLongPress } from "@/hooks/use-long-press";
+import { notify } from "@/lib/notify";
 
 /**
  * v19 Slice 3 — Imperial 5-tab nav + center Half-Off FAB.
@@ -37,6 +39,19 @@ function isActive(pathname: string, to: string) {
 
 export default function PhonaraNav() {
   const loc = useLocation();
+  const navigate = useNavigate();
+  const centerLP = useLongPress<HTMLButtonElement>({
+    onShort: () => {
+      haptics.select();
+      navigate("/phon");
+    },
+    onLong: () => {
+      haptics.win();
+      notify.success("⚔️ 황제의 대관전", { duration: 800 });
+      navigate("/duel");
+    },
+    ms: 600,
+  });
   return (
     <nav
       className="
@@ -58,12 +73,12 @@ export default function PhonaraNav() {
               // 중앙 슬롯 — 빈 자리 + 떠있는 FAB
               return (
                 <div key={t.to} className="relative h-[58px] flex items-end justify-center">
-                  <NavLink
-                    to={t.to}
-                    onClick={() => haptics.select()}
-                    aria-label={t.label}
+                  <button
+                    type="button"
+                    {...centerLP.bind}
+                    aria-label="PHON 허브 — 길게 누르면 황제의 대관전으로 입장"
                     className="
-                      absolute -top-5
+                      absolute -top-5 group
                       flex flex-col items-center justify-center gap-0.5
                       w-16 h-16 rounded-full
                       imperial-halfoff text-black
@@ -71,11 +86,36 @@ export default function PhonaraNav() {
                       shadow-[0_8px_32px_-4px_hsl(var(--accent)/0.6)]
                       glow-imperial-xl pulse-halo
                       active:scale-95 transition-transform duration-150
+                      touch-none select-none will-change-transform
                     "
                   >
                     <Crown className="w-6 h-6" strokeWidth={2.5} />
                     <span className="text-[9px] font-black tracking-tight leading-none">PHON</span>
-                  </NavLink>
+                    {/* Long-press sword overlay — transform/opacity only */}
+                    <Swords
+                      aria-hidden
+                      className={`
+                        pointer-events-none absolute -left-2 top-1/2 w-3.5 h-3.5 text-rose-200
+                        drop-shadow-[0_0_6px_hsl(330_90%_60%/0.8)]
+                        transition-all duration-300 motion-reduce:hidden
+                        ${centerLP.pressing
+                          ? "opacity-100 -translate-x-1 -translate-y-1/2 scale-100 rotate-[-12deg]"
+                          : "opacity-0 translate-x-1 -translate-y-1/2 scale-50 rotate-0"}
+                      `}
+                    />
+                    <Swords
+                      aria-hidden
+                      className={`
+                        pointer-events-none absolute -right-2 top-1/2 w-3.5 h-3.5 text-amber-200
+                        drop-shadow-[0_0_6px_hsl(38_92%_60%/0.8)]
+                        transition-all duration-300 motion-reduce:hidden
+                        ${centerLP.pressing
+                          ? "opacity-100 translate-x-1 -translate-y-1/2 scale-100 rotate-[12deg] scale-x-[-1]"
+                          : "opacity-0 -translate-x-1 -translate-y-1/2 scale-50 rotate-0 scale-x-[-1]"}
+                      `}
+                    />
+                  </button>
+                  <span className="sr-only">짧게 누르면 PHON 허브, 길게 누르면 황제의 대관전(/duel)로 이동합니다.</span>
                   {/* 라벨 — 첫 입금 보너스 칩 */}
                   <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-[8px] font-black tracking-wide bg-rose-500/20 text-rose-200 border border-rose-400/40 whitespace-nowrap">
                     첫입금 +50%
