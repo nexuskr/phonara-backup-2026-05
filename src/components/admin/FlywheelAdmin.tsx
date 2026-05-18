@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { LoadingList } from "@/components/ui/loading-state";
 import { setVisibleInterval } from "@/lib/util/visible-interval";
 import { TIER_LABEL_KO, type VolatilityTier } from "@/lib/flywheel";
+import FlywheelEmergencyPanel from "@/components/admin/FlywheelEmergencyPanel";
+import FlywheelRollbackPanel from "@/components/admin/FlywheelRollbackPanel";
+import BurnLeaderboardPanel from "@/components/admin/BurnLeaderboardPanel";
 
 type Health = {
   window_hours: number;
@@ -183,6 +186,11 @@ export default function FlywheelAdmin() {
           })}
         </div>
       </Card>
+
+      {/* IMPERIAL-SINGULARITY v3.5-H: Hardening panels */}
+      <FlywheelEmergencyPanel />
+      <FlywheelRollbackPanel />
+      <BurnLeaderboardPanel />
     </div>
   );
 }
