@@ -12111,6 +12111,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      imperial_cancel_duel: { Args: { p_room_id: string }; Returns: Json }
+      imperial_get_duel_state: { Args: { p_room_id: string }; Returns: Json }
+      imperial_place_phon_bet: {
+        Args: {
+          p_amount: number
+          p_idem_key: string
+          p_room_id: string
+          p_side: string
+        }
+        Returns: Json
+      }
       ingest_span_quality_alert: {
         Args: { _metrics: Json; _reason: string }
         Returns: string
