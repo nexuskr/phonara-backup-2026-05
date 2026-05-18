@@ -3870,6 +3870,204 @@ export type Database = {
         }
         Relationships: []
       }
+      imperial_duel_audit: {
+        Row: {
+          actual_roll: number | null
+          amount_phon: number | null
+          balance_after: number | null
+          balance_before: number | null
+          cinematic_level: number | null
+          created_at: string
+          display_random: number | null
+          event: string
+          id: string
+          meta: Json
+          near_miss_intensity: number | null
+          perceived_win_rate: number | null
+          room_id: string | null
+          server_seed_revealed: string | null
+          user_id: string | null
+        }
+        Insert: {
+          actual_roll?: number | null
+          amount_phon?: number | null
+          balance_after?: number | null
+          balance_before?: number | null
+          cinematic_level?: number | null
+          created_at?: string
+          display_random?: number | null
+          event: string
+          id?: string
+          meta?: Json
+          near_miss_intensity?: number | null
+          perceived_win_rate?: number | null
+          room_id?: string | null
+          server_seed_revealed?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          actual_roll?: number | null
+          amount_phon?: number | null
+          balance_after?: number | null
+          balance_before?: number | null
+          cinematic_level?: number | null
+          created_at?: string
+          display_random?: number | null
+          event?: string
+          id?: string
+          meta?: Json
+          near_miss_intensity?: number | null
+          perceived_win_rate?: number | null
+          room_id?: string | null
+          server_seed_revealed?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imperial_duel_audit_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "imperial_duel_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imperial_duel_bets: {
+        Row: {
+          amount_phon: number
+          id: string
+          idem_key: string
+          odds_at_place: number
+          payout_phon: number
+          placed_at: string
+          room_id: string
+          settled_at: string | null
+          side: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_phon: number
+          id?: string
+          idem_key: string
+          odds_at_place?: number
+          payout_phon?: number
+          placed_at?: string
+          room_id: string
+          settled_at?: string | null
+          side: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_phon?: number
+          id?: string
+          idem_key?: string
+          odds_at_place?: number
+          payout_phon?: number
+          placed_at?: string
+          room_id?: string
+          settled_at?: string | null
+          side?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imperial_duel_bets_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "imperial_duel_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imperial_duel_rooms: {
+        Row: {
+          created_at: string
+          house_edge_bps: number
+          id: string
+          lock_at: string
+          max_bet: number
+          min_bet: number
+          server_seed: string | null
+          server_seed_hash: string
+          settle_at: string | null
+          settle_meta: Json
+          status: string
+          winner_side: string | null
+        }
+        Insert: {
+          created_at?: string
+          house_edge_bps?: number
+          id?: string
+          lock_at?: string
+          max_bet?: number
+          min_bet?: number
+          server_seed?: string | null
+          server_seed_hash: string
+          settle_at?: string | null
+          settle_meta?: Json
+          status?: string
+          winner_side?: string | null
+        }
+        Update: {
+          created_at?: string
+          house_edge_bps?: number
+          id?: string
+          lock_at?: string
+          max_bet?: number
+          min_bet?: number
+          server_seed?: string | null
+          server_seed_hash?: string
+          settle_at?: string | null
+          settle_meta?: Json
+          status?: string
+          winner_side?: string | null
+        }
+        Relationships: []
+      }
+      imperial_house_ledger: {
+        Row: {
+          amount_phon: number
+          balance_after: number
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+          operator_isolation_flag: boolean
+          room_id: string | null
+        }
+        Insert: {
+          amount_phon: number
+          balance_after: number
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+          operator_isolation_flag?: boolean
+          room_id?: string | null
+        }
+        Update: {
+          amount_phon?: number
+          balance_after?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          operator_isolation_flag?: boolean
+          room_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imperial_house_ledger_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "imperial_duel_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       imperial_journey_claims: {
         Row: {
           claimed_at: string
@@ -11912,6 +12110,30 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      imperial_cancel_duel: { Args: { p_room_id: string }; Returns: Json }
+      imperial_compute_display_signals: {
+        Args: {
+          p_actual_roll: number
+          p_loss_streak?: number
+          p_pot_phon?: number
+          p_session_volume?: number
+        }
+        Returns: Json
+      }
+      imperial_get_duel_state: { Args: { p_room_id: string }; Returns: Json }
+      imperial_place_phon_bet: {
+        Args: {
+          p_amount: number
+          p_idem_key: string
+          p_room_id: string
+          p_side: string
+        }
+        Returns: Json
+      }
+      imperial_settle_duel: {
+        Args: { p_room_id: string; p_server_seed: string }
+        Returns: Json
       }
       ingest_span_quality_alert: {
         Args: { _metrics: Json; _reason: string }
