@@ -234,6 +234,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="container pt-6 pb-12 space-y-7 relative">
+        <InviteRailMini />
         {/* Hero ambient glow */}
         <div
           aria-hidden
