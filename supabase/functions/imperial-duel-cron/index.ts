@@ -1,19 +1,23 @@
-// Imperial Empire — Duel Cron tick
+// IMPERIAL-SINGULARITY: Duel Cron tick with telemetry
 // Sweeps rooms past their settle_at horizon. Each room is settled
 // independently so partial failures do not block others.
-// Uses service role for RPC dispatch; RPC itself enforces seed-hash integrity.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { newTraceId, tlog, traceHeaders } from "../_shared/duel-telemetry.ts";
 
-function json(status: number, body: unknown) {
-  return new Response(JSON.stringify(body), {
+const FN = "imperial-duel-cron";
+
+function json(status: number, body: unknown, trace_id: string) {
+  return new Response(JSON.stringify({ ...((body as object) ?? {}), trace_id }), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeaders, ...traceHeaders(trace_id), "Content-Type": "application/json" },
   });
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const trace_id = newTraceId();
+  const t0 = Date.now();
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
