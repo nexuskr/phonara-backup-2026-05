@@ -40,10 +40,10 @@ export function useImperialKillSwitches(): ImperialKill {
     }
   }
 
-  useWalletChannel("imperial-kill", (ch) => {
-    ch.on("postgres_changes",
-      { event: "*", schema: "public", table: "imperial_kill_switches" },
-      () => refresh());
+  useWalletChannel({
+    key: "imperial-kill",
+    bindings: [{ event: "*", schema: "public", table: "imperial_kill_switches" }],
+    onEvent: () => refresh(),
   });
 
   useEffect(() => {

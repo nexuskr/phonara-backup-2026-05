@@ -33,10 +33,10 @@ export function useImperialUserNft(): ImperialUserNft {
     }
   }
 
-  useWalletChannel("imperial-user-nft", (ch) => {
-    ch.on("postgres_changes",
-      { event: "*", schema: "public", table: "imperial_user_nfts" },
-      () => refresh());
+  useWalletChannel({
+    key: "imperial-user-nft",
+    bindings: [{ event: "*", schema: "public", table: "imperial_user_nfts" }],
+    onEvent: () => refresh(),
   });
 
   useEffect(() => { refresh(); }, []);
