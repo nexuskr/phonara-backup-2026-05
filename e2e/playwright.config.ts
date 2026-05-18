@@ -54,10 +54,16 @@ export default defineConfig({
     timezoneId: "Asia/Seoul",
   },
   projects: [
-    // 기본: iPhone 13 (mobile-first). bun run e2e 시 이것만 실행됨.
+    // 기본: iPhone 13 viewport on Chromium (WebKit은 환경 제약으로 chromium 에뮬레이션 사용).
+    // bun run e2e 시 이것만 실행됨.
     {
       name: "mobile-ios",
-      use: { ...devices["iPhone 13"], hasTouch: true },
+      use: {
+        ...devices["iPhone 13"],
+        defaultBrowserType: "chromium",
+        browserName: "chromium",
+        hasTouch: true,
+      },
     },
     // 옵트인 프로젝트들
     {
