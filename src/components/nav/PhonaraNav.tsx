@@ -78,7 +78,7 @@ export default function PhonaraNav() {
                     {...centerLP.bind}
                     aria-label="PHON 허브 — 길게 누르면 황제의 대관전으로 입장"
                     className="
-                      group relative absolute -top-5
+                      absolute -top-5 group
                       flex flex-col items-center justify-center gap-0.5
                       w-16 h-16 rounded-full
                       imperial-halfoff text-black
