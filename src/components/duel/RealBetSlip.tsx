@@ -137,12 +137,23 @@ export function RealBetSlip({ roomId, defaultSide = "left", leftPot, rightPot, d
         disabled={disabled || pending || amount <= 0}
         onClick={async () => {
           haptic();
-          await placeBet({ room_id: roomId, side, amount_phon: amount });
+          const res = await placeBet({ room_id: roomId, side, amount_phon: amount });
+          // UI-only burn reveal — projected client-side from current lifetime burn + this bet's expected edge share.
+          if (res !== false) {
+            const projected = nft.lifetimeBurn + amount * 0.26;
+            const projTier = tierFor(projected);
+            setReveal({ tier: projTier, amount: amount * 0.26 });
+          }
         }}
         className="w-full rounded-xl py-3 font-display font-black text-base bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-amber-950 hover:brightness-110 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_8px_24px_-8px_hsl(38_92%_55%/0.7)]"
       >
         {pending ? "출진 중…" : `⚔️ ${amount.toLocaleString()} PHON 출진`}
       </button>
+
+      <Suspense fallback={null}>
+        {reveal && <BurnRevealOverlay tier={reveal.tier} amount={reveal.amount} onDone={() => setReveal(null)} />}
+        {upgrade && <NftUpgradeReveal fromTier={upgrade.from} toTier={upgrade.to} onDone={() => setUpgrade(null)} />}
+      </Suspense>
     </div>
   );
 }
