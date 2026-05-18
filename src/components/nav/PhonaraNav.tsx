@@ -1,6 +1,8 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { Home, TrendingUp, Gamepad2, User, Crown, type LucideIcon } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Home, TrendingUp, Gamepad2, User, Crown, Swords, type LucideIcon } from "lucide-react";
 import { haptics } from "@/lib/haptics";
+import { useLongPress } from "@/hooks/use-long-press";
+import { notify } from "@/lib/notify";
 
 /**
  * v19 Slice 3 — Imperial 5-tab nav + center Half-Off FAB.
