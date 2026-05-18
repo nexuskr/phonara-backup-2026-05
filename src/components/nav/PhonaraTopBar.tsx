@@ -101,6 +101,17 @@ function AuthedRight({ email, onSignOut }: { email: string | null; onSignOut: ()
         <Wallet className="w-3.5 h-3.5" /> 충전
       </Link>
 
+      {/* Imperial Duel — 데스크탑 빠른 입장 */}
+      <Link
+        to="/duel"
+        className="hidden md:inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-pink-500/15 text-amber-100 hover:border-amber-300/70 hover:text-amber-50 transition press group"
+        aria-label="황제의 대관전 — Imperial Duel"
+        style={{ boxShadow: "0 0 14px hsl(38 92% 60% / 0.18), inset 0 0 12px hsl(330 90% 60% / 0.08)" }}
+      >
+        <Swords className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform" />
+        <span className="text-[11px] font-black tracking-[0.18em] uppercase">대관전</span>
+      </Link>
+
       {/* 알림 */}
       <Link
         to="/profile?tab=notifications"
