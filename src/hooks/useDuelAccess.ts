@@ -46,14 +46,14 @@ export function useDuelAccess() {
         return;
       }
 
-      // Beta invite holders
-      const { data: invite } = await supabase
-        .from("beta_invites")
-        .select("id")
-        .eq("redeemed_by", user.id)
-        .eq("code_kind", "duel_internal")
-        .maybeSingle();
-      const ok = !!invite;
+      // Beta invite holders — convention: invite.note starts with "duel_internal"
+      const { data: redemptions } = await supabase
+        .from("beta_redemptions")
+        .select("invite_id, beta_invites!inner(note)")
+        .eq("user_id", user.id);
+      const ok = !!redemptions?.some((r: any) =>
+        typeof r?.beta_invites?.note === "string" && r.beta_invites.note.startsWith("duel_internal")
+      );
       const v: CachedAccess = { allowed: ok, reason: ok ? "beta" : "not_invited", at: Date.now() };
       try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(v)); } catch { /* ignore */ }
       if (!cancelled) { setAllowed(ok); setReason(v.reason); setLoading(false); }
