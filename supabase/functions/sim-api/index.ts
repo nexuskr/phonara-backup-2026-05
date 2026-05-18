@@ -1,19 +1,20 @@
-// B2B Trading Sim API — public endpoint, Bearer auth via api_keys table
+// B2B Trading Sim API — public endpoint, Bearer auth via api_keys table.
+// Hardening: zod symbol validation + server-to-server CORS (no browser wildcard).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "../_shared/validate.ts";
+import { buildCorsOrEmpty } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
+// Server-to-server callers don't send Origin → empty CORS headers are fine.
+// Browser callers must come from a whitelisted origin.
+const SYMBOL = z.string().regex(/^[A-Za-z0-9]{2,16}$/);
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-function json(body: unknown, status = 200, extra: Record<string, string> = {}) {
+function json(cors: Record<string, string>, body: unknown, status = 200, extra: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json", ...extra },
+    headers: { ...cors, "Content-Type": "application/json", ...extra },
   });
 }
 
@@ -37,13 +38,14 @@ function simQuote(symbol: string) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const cors = buildCorsOrEmpty(req);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   // Extract bearer
   const auth = req.headers.get("authorization") ?? "";
   const m = auth.match(/^Bearer\s+(pk_live_[a-f0-9]{12})_([a-f0-9]{48})$/i);
   if (!m) {
-    return json({ error: "missing_or_malformed_api_key", hint: "Authorization: Bearer pk_live_...." }, 401);
+    return json(cors, { error: "missing_or_malformed_api_key", hint: "Authorization: Bearer pk_live_...." }, 401);
   }
   const prefix = m[1];
   const fullSecret = `${m[1]}_${m[2]}`;
@@ -55,21 +57,20 @@ Deno.serve(async (req) => {
   });
 
   if (gateErr) {
-    console.error("verify error", gateErr);
-    return json({ error: "internal_error" }, 500);
+    console.error("[sim-api] verify_error", { raw: gateErr.message });
+    return json(cors, { error: "internal_error" }, 500);
   }
   const row = Array.isArray(gate) ? gate[0] : gate;
   if (!row?.allowed) {
     const reason = row?.reason ?? "unauthorized";
     const status = reason === "rate_limited" ? 429 : 401;
-    return json({ error: reason, rate_limit_per_min: row?.rate_limit_per_min ?? null }, status, {
+    return json(cors, { error: reason, rate_limit_per_min: row?.rate_limit_per_min ?? null }, status, {
       "X-RateLimit-Limit": String(row?.rate_limit_per_min ?? 0),
       "X-RateLimit-Remaining": "0",
     });
   }
 
   const url = new URL(req.url);
-  // Strip the function name prefix /sim-api so callers can use clean paths.
   const path = url.pathname.replace(/^.*\/sim-api/, "") || "/";
 
   const headers: Record<string, string> = {
@@ -77,24 +78,21 @@ Deno.serve(async (req) => {
     "X-RateLimit-Remaining": String(row.remaining),
   };
 
-  // Routes
   if (path === "/" || path === "/health") {
-    return json({ ok: true, version: "v1", endpoints: ["/quote", "/quote/:symbol", "/symbols"] }, 200, headers);
+    return json(cors, { ok: true, version: "v1", endpoints: ["/quote", "/quote/:symbol", "/symbols"] }, 200, headers);
   }
-
   if (path === "/symbols") {
-    return json({ symbols: ["BTC", "ETH", "SOL", "XRP", "BNB"] }, 200, headers);
+    return json(cors, { symbols: ["BTC", "ETH", "SOL", "XRP", "BNB"] }, 200, headers);
   }
-
   if (path === "/quote") {
-    const symbol = (url.searchParams.get("symbol") ?? "BTC").toUpperCase();
-    return json(simQuote(symbol), 200, headers);
+    const raw = (url.searchParams.get("symbol") ?? "BTC").toUpperCase();
+    const parsed = SYMBOL.safeParse(raw);
+    if (!parsed.success) return json(cors, { error: "invalid_symbol" }, 400, headers);
+    return json(cors, simQuote(parsed.data), 200, headers);
   }
-
-  const quoteMatch = path.match(/^\/quote\/([A-Za-z0-9]+)$/);
+  const quoteMatch = path.match(/^\/quote\/([A-Za-z0-9]{2,16})$/);
   if (quoteMatch) {
-    return json(simQuote(quoteMatch[1]), 200, headers);
+    return json(cors, simQuote(quoteMatch[1].toUpperCase()), 200, headers);
   }
-
-  return json({ error: "not_found", path }, 404, headers);
+  return json(cors, { error: "not_found" }, 404, headers);
 });
