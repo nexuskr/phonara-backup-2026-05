@@ -80,6 +80,7 @@ const MarketingTools      = lazy(() => import("@/components/admin/growth/Marketi
 const SimRealConversion   = lazy(() => import("@/components/admin/growth/SimRealConversion"));
 const SelfHeal            = lazy(() => import("./ops/SelfHeal"));
 const RegionHealth        = lazy(() => import("./ops/RegionHealth"));
+const Sprint4Dashboard    = lazy(() => import("./ops/Sprint4Dashboard"));
 const AdminDuel           = lazy(() => import("./Duel"));
 const ImperialCommandCenter = lazy(() => import("./imperial/CommandCenter"));
 
