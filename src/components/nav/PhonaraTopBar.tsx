@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, LogOut, Settings, Sparkles, User as UserIcon, Wallet } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Settings, Sparkles, Swords, User as UserIcon, Wallet } from "lucide-react";
 import ImperialLogo from "@/components/brand/ImperialLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyPower } from "@/hooks/use-my-power";
