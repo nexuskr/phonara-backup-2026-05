@@ -12,6 +12,7 @@ import ImperialAutoHealPanel from "@/components/admin/ImperialAutoHealPanel";
 import ImperialObservabilityStream from "@/components/admin/ImperialObservabilityStream";
 import ImperialCircuitPanel from "@/components/admin/ImperialCircuitPanel";
 import Phase1LiveMonitor from "@/components/admin/Phase1LiveMonitor";
+import ImperialActivationPanel from "@/components/admin/ImperialActivationPanel";
 // ApocalypseProtocolPanel is rendered inside Phase1LiveMonitor; import kept for isolation audit.
 import "@/components/admin/ApocalypseProtocolPanel";
 
@@ -106,6 +107,8 @@ export default function ImperialCommandCenter() {
           </p>
         </div>
       </header>
+
+      <ImperialActivationPanel />
 
       <Phase1LiveMonitor />
 
