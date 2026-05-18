@@ -1,103 +1,75 @@
-# Phase 4 — All Lights To Green Recovery Plan
+# Top-Tier Security Hardening Plan
 
-해부 보고서의 🔴 5건과 🟡 위험을 모두 해소해 Phase 1 Observer Mode가 실제로 점화 가능한 상태로 만든다. Money-flow 8경로와 Operator Isolation은 0바이트 무변경을 유지한다.
+목표: 보안 스캔의 모든 Medium/Low 항목을 해소하고, money-flow 8경로 / Operator Isolation / `imperial_*` 함수는 **0바이트** 유지한 상태로 Top-Tier 거래소 수준 보안 자세를 확립한다.
 
----
+## 불변 제약 (반드시 준수)
 
-## Phase 0 — Pre-Operation Safety (read-only)
+- Money-flow 8경로: `imperial_place_phon_bet`, `imperial_settle_*`, `_apply_house_edge_split`, `credit_crypto_deposit`, `request_withdrawal`, `grant_phon_for_deposit`, `grant_nft_for_deposit`, `award_crown` → git diff = 0.
+- Operator Isolation: `manualChunks` operator 청크, `check-operator-isolation.mjs`, `dependency-cruiser` 규칙 변경 금지.
+- `imperial_*` SECURITY DEFINER 함수 본문 변경 금지.
+- 기존 RLS 정책 약화 금지 (강화만 허용).
 
-- Money-flow 8경로 파일 SHA-512 스냅샷 캡처(작업 전/후 비교).
-- Operator Isolation 5중 가드(`manualChunks` / `modulePreload` 필터 / `check-operator-isolation.mjs` / dependency-cruiser / `DegradeModeBinder`) 현행 유지 확인.
-- `imperial_*` 32개 테이블의 현재 컬럼/RLS 스냅샷을 read_query로 확보.
-- 10분 rollback SOP 재확인: `imperial_phase1_emergency_pause()` + `imperial_rollout_activate(0, ...)`.
+## Phase 0 — Pre-flight Snapshot
 
-## Phase 1 — DB 스키마 표준화 (migration #1)
+- `scripts/check-operator-isolation.mjs`, money-flow guard 스크립트 dry-run.
+- 현재 `pg_publication_tables`, `verify_jwt` 매트릭스, 외부 노출 edge function 목록 스냅샷 → `reports/security-baseline-2026-05-18.json`.
 
-신규 컬럼은 모두 nullable + default 로 추가해 기존 데이터 보존.
+## Phase 1 — Edge Function Hardening (M1 + M2)
 
-- `imperial_observability_events`
-  - `ADD COLUMN created_at timestamptz DEFAULT now()` (없으면), `UPDATE` 로 `ts` 값 백필.
-  - `ADD COLUMN event text` 가 없으면 generated/alias 컬럼으로 `kind` 미러.
-- `imperial_rollout_phases`
-  - `ADD COLUMN tier int DEFAULT 0`
-  - `ADD COLUMN cap bigint DEFAULT 0`
-  - `ADD COLUMN activated_at timestamptz`
-- `imperial_onboarding_grants`
-  - `ADD COLUMN created_at timestamptz DEFAULT now()` + 백필 from `granted_at`.
-- 32개 `imperial_*` 테이블 중 `created_at`/`updated_at` 누락분만 보강(존재 확인 후 ADD IF NOT EXISTS).
+대상: 외부 노출되고 user input을 받는 함수만 선별 (money-flow / cron 함수는 제외).
 
-## Phase 2 — 누락 RPC 4종 생성 (migration #2)
+1순위 (zod 입력 검증 + Origin 화이트리스트):
+- `sim-api`, `og-card-renderer`, `attribute-click`, `send-push`, `send-email`, `auth-email-hook`, `receipt-ocr`, `webhook-dispatcher` (외부 trigger 한정).
 
-모두 `SECURITY DEFINER`, `SET search_path = public`, AAL2 또는 admin 가드.
+조치:
+- `supabase/functions/_shared/validate.ts` 신설: `parseBody(schema, req)` 헬퍼 + 400 표준 응답.
+- `supabase/functions/_shared/cors.ts` 신설: `buildCors(origin)` — `https://phonara.world`, `https://www.phonara.world`, `https://*.lovable.app` 만 허용, 외 origin은 `null` 반환 (preflight 403).
+- 각 함수 상단에서 zod schema 정의 + `parseBody` 호출. 실패 시 `{ error: "invalid_input", fields }` 반환 (DB raw 노출 금지).
+- `verify_jwt`를 켤 수 있는 함수(`receipt-ocr` 등)는 `getClaims` 가드 추가. webhook류는 HMAC 또는 `X-Internal-Secret` + `timingSafeEqual` 비교.
+- 요청 로깅: `console.info({ fn, origin, ip: req.headers.get("x-forwarded-for"), trace_id })` 1줄만 (개인정보 X).
+- Rate limit: 인프라 미비로 backend rate limit은 추가하지 않음 (no-backend-rate-limiting directive). 대신 zod로 payload size·loop count 상한만 강제.
 
-1. `imperial_rollout_activate(_phase int, _activated_by uuid, _notes text default null)`
-   - admin + AAL2 체크, `imperial_rollout_phases` upsert(tier/cap 매핑 0/1/2/3 → 0/50k/250k/unlimited), `activated_at = now()`.
-   - `imperial_observability_events` 에 `kind='rollout_activated'` 기록. Atomic.
-2. `imperial_log_observability(_event text, _payload jsonb default '{}')`
-   - `auth.uid()` 또는 NULL 허용, append-only INSERT.
-3. `imperial_claim_daily_login_bonus()`
-   - 일자별 `imperial_onboarding_grants` unique(user_id, kind='daily_login', date) 가드.
-   - 450~550 PHON variable reward (`floor(450 + random()*101)`), near-miss 메타.
-   - PHON 지급은 기존 `_grant_phon_internal` 류 헬퍼만 호출 — money-flow 함수 본문 무수정.
-4. `imperial_get_onboarding_state()` STABLE
-   - 오늘 클레임 여부 / streak / 다음 보상 / cap 잔량 반환.
+## Phase 2 — Realtime Surface Reduction (M3)
 
-## Phase 3 — Kill Switch 정리 (insert 도구)
+- `notifications`, `support_messages`, `support_threads` 를 `supabase_realtime` publication에서 **제외**하고, 서버 측에서 `realtime.send(topic := 'user:'||user_id, ...)` 로 owner-scoped broadcast 트리거 작성.
+- 클라이언트는 `useRealtimeChannel('user:'+uid, ...)` 구독으로 변경 (래퍼만 손대고 money-flow 8경로 미터치).
+- 마이그레이션: `ALTER PUBLICATION supabase_realtime DROP TABLE ...` + 3개 트리거 신설(`AFTER INSERT/UPDATE ... EXECUTE FUNCTION broadcast_to_owner()`).
+- 검증: 일반 사용자 토큰으로 다른 user_id 채널 구독 시 0 row 수신.
 
-- `platform_kill_switches` 에서 `phon_betting`, `phon_staking`, `phon_swap` 행을 `enabled=false` 로 UPDATE.
-- 중복 키(`phon_betting` vs `phon_betting_enabled`) 가 존재하면 `_enabled` 접미사 행을 비활성화로 정리(삭제 아님, 감사 추적 보존).
-- 변경마다 `admin_audit_log` 에 사유 기록.
+## Phase 3 — CORS Whitelist (L1)
 
-## Phase 4 — Frontend 오타/누수 수정
+- Phase 1의 `_shared/cors.ts` 를 **모든 45개 edge function**에 일괄 적용 (money-flow path 함수도 헤더만 교체, 본문 로직 변경 0).
+- `Access-Control-Allow-Origin: *` 제거. 화이트리스트 미일치 시 `Vary: Origin` + 403.
+- `credentials: true` 는 필요한 함수(인증 cookie 사용)에만 명시.
 
-- `src/components/admin/TodayKpiCards.tsx`: `withdraw_requests` → `withdrawal_requests`.
-- `src/packages/duel/hooks/useFomoOracle.ts`:
-  - `setInterval` 을 `@pkg/performance` 의 `useTrackedInterval` 로 교체(카테고리 `'fomo'`).
-  - 동일 훅 다중 마운트 방지를 위해 모듈 스코프 `refCount` + 단일 interval 공유.
-- Money-flow 파일은 일절 수정하지 않음.
+## Phase 4 — HIBP 활성화 (L2)
 
-## Phase 5 — RLS / 노란불 해소
+- `supabase--configure_auth` 로 `password_hibp_enabled: true` (다른 옵션 동일 유지).
+- 기존 사용자에는 영향 없음, 신규 가입/비밀번호 변경 시 차단.
 
-- `profiles_sensitive_guard` 트리거 회귀 원인을 read_query 로 식별 후 트리거 정의만 보강(컬럼 셋 동기화). profiles 본문/RLS 정책은 무변경.
-- supabase linter 재실행 후 신규 경고만 핀포인트 수정. 기존 accepted-risk 항목은 그대로 유지하고 사유를 보안 메모에 갱신.
+## Phase 5 — SECURITY DEFINER 표면 축소 (L3)
 
-## Phase 6 — Verification Gates (50+)
+- 즉시 함수 삭제/이동은 위험 → 다음 2단계만 수행:
+  1. `function_permissions_baseline` 에서 user-callable allowlist 49개 외 함수의 `EXECUTE` GRANT 를 `authenticated`/`anon` 에서 회수 (`REVOKE EXECUTE ... FROM authenticated, anon`). `service_role` 만 유지.
+  2. `check_permission_drift()` 가 신규 함수에 대해 baseline 미등록 시 fail 하도록 강화 + CI `.github/workflows/db-permissions.yml` 에 PR comment.
+- `imperial_*` 함수는 baseline에 이미 등록 → 변경 0.
 
-스크립트 `scripts/phase4/all-green-verification.ts` 가 다음을 자동 점검 후 콘솔 + `/admin/ops/imperial-command` 에 결과 출력:
+## Phase 6 — Verification Gates
 
-- Money-flow 8경로 SHA-512 = baseline (8 게이트)
-- Operator Isolation: `check-operator-isolation.mjs` exit 0 (1)
-- imperial_* 32 테이블 created_at/updated_at 존재 (32)
-- 신규 RPC 4종 존재 + 권한 정상 (4)
-- Kill switch 3종 OFF (3)
-- `imperial_get_phase1_kpis()` 반환 14 키 모두 NOT NULL (14)
-- `ImperialActivationPanel` 렌더 시 에러 0 (1)
-- console error count = 0 동안 60s (1)
+- `npm run build` (Operator Isolation 가드 자동 실행).
+- money-flow diff check: `git diff --stat -- supabase/migrations/*imperial_place_phon_bet* ...` = 0.
+- 보안 스캔 재실행 → Medium/Low = 0 확인.
+- 60초 preview 모니터링: console error = 0, ImperialActivationPanel 정상.
 
-## Phase 7 — Documentation & Memory
+## 기술 메모 (개발자 전용)
 
-- `mem://features/phase-4-p1-hyperion` 에 "ALL-GREEN 달성" 섹션 + 변경 목록 추가.
-- `mem://index.md` Core 의 Phase 1 LIVE 라인에 "schema synced / kill switches off" 추가.
-- `docs/phase4/all-green-runbook.md` 신규: rollback 8분 SOP + 점검 명령어.
+- 마이그레이션 파일 1개로 통합: publication 변경 + REVOKE EXECUTE + 3개 broadcast 트리거 + `check_permission_drift` 강화.
+- Edge function 변경은 함수당 ≤20 LOC. 비즈니스 로직 미변경.
+- `auth-email-hook` 은 Supabase Auth webhook 이므로 `verify_jwt=false` 유지 + HMAC 검증 추가.
+- `sim-api` 는 API key 기반 → 기존 `api_keys` 테이블 조회 유지, zod schema 만 추가.
 
----
+## Roadmap (이번 작업 범위 밖)
 
-## Out of Scope (절대 변경 금지)
-
-- `src/packages/wallet/**`, `src/packages/duel/**` 의 betting/settle/burn/treasury 함수 본문
-- DB 함수: `imperial_place_phon_bet`, `imperial_settle_*`, `_apply_house_edge_split`, `apply_token_burn`, `request_withdrawal`, `credit_crypto_deposit`, `subscribe_vip_pass_phon`, `claim_daily_attendance_v2`
-- Operator chunk 경계, vite manualChunks, dependency-cruiser 룰
-
-## Rollback (≤ 8분)
-
-1. `imperial_rollout_activate(0, auth.uid(), 'rollback')`
-2. `imperial_phase1_emergency_pause()`
-3. Phase 1 migration 의 ADD COLUMN 은 nullable+default 라 즉시 무해 → 필요 시 `DROP COLUMN IF EXISTS` 핫픽스 migration 준비.
-4. Kill switch 행 `enabled=true` 로 즉시 복원.
-
-## Technical Notes
-
-- 모든 신규 함수는 `SECURITY DEFINER` + 명시적 `SET search_path = public` + AAL2/admin 가드.
-- `created_at` 추가 컬럼은 모두 `DEFAULT now()` 로 코드 동기화 부담 최소화.
-- variable reward 분포는 균등(450..550); near-miss 표시는 payload 메타 `near_miss=true`(보상 ≥545) 용으로만 사용, 실수익 동일.
-- ESLint `no-direct-sonner` / `no-raw-channel` 룰 유지 — 신규 코드는 `@/lib/notify`, `@pkg/realtime` 만 사용.
+- WAF / 인프라 rate limit (Cloudflare 도입 시).
+- 4-eyes 출금 승인 워크플로우.
+- SOC2 audit trail 외부 export.
