@@ -1,103 +1,70 @@
-# Phase 5 백엔드 복구 — 경로 C (+ 경로 A 안전망)
+# /complete-profile → dashboard 롤백 루프 복구 계획
 
-대상: 독립 백엔드 `wyhhdyrvqtoejvusnhva` (phonara-world-main)
-금지: 관리형 `ketlqzfaplppmupaiwft` 에는 어떤 SQL/함수도 적용 금지
+## 목표
 
-## 현실 체크 (중요)
+`/complete-profile` 저장 직후 잠깐 대시보드로 이동했다가 다시 `/complete-profile`로 되돌아오는 루프를 끊습니다.
 
-`scripts/independence/0[1-3]-*.sh` 는 **로컬 머신에서만** 실행 가능합니다.
-이유:
-- `supabase login` — 브라우저 OAuth 필요
-- `supabase link --project-ref wyhhdyrvqtoejvusnhva` — 사용자 자격증명 필요
-- `supabase db dump` — Docker 데몬 필요
-- `supabase db push` — 독립 ref 에 직접 쓰기 (Lovable 마이그레이션 툴은 관리형 ref 에만 적용됨)
+## 현재 진단
 
-따라서 **에이전트가 푸시를 대행할 수 없습니다.** 대신 두 트랙을 동시에 준비합니다:
+코드상 루프는 아래 조건에서 발생할 가능성이 큽니다.
 
-- **트랙 1 (경로 C, 권장):** 사용자가 로컬에서 3-스크립트 시퀀스 실행 → 에이전트가 검증 SQL 과 후속 단계를 가이드
-- **트랙 2 (경로 A, 안전망):** 02 diff 결과가 sync 라면 핵심만 담은 `phase5-recovery.sql` 단일 파일 제공 → SQL Editor 또는 psql 로 1회 실행
+1. `CompleteProfile.tsx` 는 저장 성공 시 무조건 `/dashboard` 로 이동
+2. 전역 `useAdultGate()` 는 모든 일반 페이지에서 `profiles.is_adult` 또는 `profiles.profile_completed` 가 false/NULL 이면 다시 `/complete-profile` 로 강제 이동
+3. 그런데 현재 `CompleteProfile.tsx` 저장 로직은 `profiles.update(...).eq("id", user.id)` 만 사용하므로:
+   - `profiles` 행이 아직 없으면 아무 것도 저장되지 않을 수 있음
+   - `is_adult` 는 직접 업데이트하지 않고 DB 트리거/서버 계산에 의존
+   - 저장 직후 재조회 검증 없이 바로 `/dashboard` 로 이동함
 
-## 트랙 1 — 사용자 실행 순서
+즉, **클라이언트는 저장 성공으로 간주했지만 전역 게이트는 아직 미완료 상태로 판단** 하면서 되돌림이 발생할 수 있습니다.
 
-```text
-[사용자 로컬]                                   [독립 백엔드 wyhhdyrvqtoejvusnhva]
-  01-prepare.sh    ──login + link──────────►        (인증)
-  02-pull-and-diff ──db dump──────────────►   _remote_baseline.sql 생성
-                   └─diff 산출──────────►   supabase/migrations/_DIFF_REPORT.txt
-  [diff 검토]
-  03-deploy.sh     ──db push──────────────►   누락 migration 적용
-                   └─functions deploy 44개►   엣지 배포
-```
+## 구현 범위
 
-사용자 명령:
-```bash
-cd <repo>
-export TARGET_REF=wyhhdyrvqtoejvusnhva
-bash scripts/independence/01-prepare.sh
-bash scripts/independence/02-pull-and-diff.sh
-# → supabase/migrations/_DIFF_REPORT.txt 검토 후
-bash scripts/independence/03-deploy.sh
-```
+이번 수정은 프론트엔드만 최소 범위로 손봅니다.
 
-푸시 후 사용자가 채팅에 “03 완료” 라고만 알려주면 에이전트가 검증 SQL 4묶음을 SQL Editor 용으로 즉시 전달합니다. (RPC 존재/EXECUTE, profiles RLS, trigger 연결, 신규 가입 시뮬레이션)
+### 1) `CompleteProfile.tsx` 저장 로직 안정화
 
-## 트랙 2 — 경로 A 안전망 (`phase5-recovery.sql`)
+- `update` 단독 호출 대신, 현재 사용자 기준으로 **행이 없을 때도 안전한 저장 방식**으로 보강
+- 저장 후 즉시 `profiles` 를 다시 읽어서 아래 필드를 검증
+  - `profile_completed`
+  - `is_adult`
+  - `birth_date`
+- 검증이 통과한 경우에만 `/dashboard` 로 이동
+- 검증 실패 시 사용자에게 토스트를 보여주고 현재 페이지에 머물게 처리
 
-02 의 `_DIFF_REPORT.txt` 가 비어 있다면(이미 sync), 푸시할 게 없다는 뜻이므로 누락된 항목만 정정하는 **idempotent 단일 파일** 을 제공합니다. 핵심 구성:
+### 2) `/complete-profile` 초기 진입 로직 보강
 
-1. 5개 RPC `CREATE OR REPLACE FUNCTION` (기존 정의 그대로 재선언, SECURITY DEFINER + `set search_path = public`)
-2. `REVOKE ALL FROM public` + `GRANT EXECUTE TO authenticated` (5개)
-3. `profiles` 자가 RLS 3개 (`drop policy if exists` 후 재생성)
-4. `handle_new_user()` + `on_auth_user_created` 트리거 재생성
-5. `wallet_balances`, `user_roles` 자동 시드 INSERT … ON CONFLICT DO NOTHING
+- 기존 `profile_completed === true` 만 보지 않고
+  - `profile_completed`
+  - `is_adult`
+를 함께 확인해, 반쯤 저장된 상태에서 잘못 `/dashboard` 로 보내지 않도록 정리
 
-실행 위치: 독립 백엔드 SQL Editor (대시보드) 또는 `psql "$DATABASE_URL_WYH" -f phase5-recovery.sql`. 절대 Lovable 마이그레이션 툴 사용 금지(관리형 ref 로 들어감).
+### 3) 게이트 조건 일관성 정리
 
-## 검증 SQL (트랙 1·2 공통, 푸시 후 실행)
+- `useAdultGate()` 와 `AdultGate` 의 판정 조건이 `CompleteProfile` 저장 완료 조건과 완전히 같도록 맞춤
+- 필요하면 `profile_completed && is_adult` 를 단일 완료 기준으로 통일
 
-```sql
--- (1) 5개 RPC 존재 + EXECUTE 권한
-select p.proname,
-       has_function_privilege('authenticated', p.oid, 'EXECUTE') as authed_exec
-from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-where n.nspname='public'
-  and p.proname in ('register_device','assign_persona','record_span',
-                    'get_active_boost_count','get_empire_seats_remaining');
+## 왜 이 방향이 안전한가
 
--- (2) profiles RLS 정책
-select policyname, cmd from pg_policies
-where schemaname='public' and tablename='profiles';
+- 백엔드/관리형 연결 정보는 건드리지 않음
+- 관리형 `ketlqzfaplppmupaiwft` 에 어떤 변경도 하지 않음
+- 현재 독립 백엔드 상태와 무관하게, **행 미생성 / 트리거 미동작 / 저장 직후 반영 지연** 에 모두 방어적으로 대응 가능
+- 수정 범위가 작고 롤백이 쉬움
 
--- (3) 가입 트리거 연결
-select tgname, tgrelid::regclass, tgenabled
-from pg_trigger where tgname='on_auth_user_created';
+## 수정 대상 파일
 
--- (4) 가입 시뮬레이션 (Auth → Add user 로 1명 생성 후)
-select (select count(*) from public.profiles        where id=:uid) as profile_ok,
-       (select count(*) from public.wallet_balances where user_id=:uid) as wallet_ok,
-       (select count(*) from public.user_roles      where user_id=:uid) as role_ok;
-```
+- `src/pages/CompleteProfile.tsx`
+- `src/hooks/use-adult-gate.ts`
+- 필요 시 `src/components/AdultGate.tsx`
 
-## Vercel 단계 (3·4번)
+## 완료 기준
 
-스크립트 완료 후 에이전트가 가이드:
-1. Vercel → Project → Settings → Environment Variables
-   - `VITE_SUPABASE_URL` = `https://wyhhdyrvqtoejvusnhva.supabase.co`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY` = (독립 ref anon key)
-   - `VITE_SUPABASE_PROJECT_ID` = `wyhhdyrvqtoejvusnhva`
-   - 3개 모두 Production / Preview / Development 체크
-2. Deployments → 최신 → ⋯ → Redeploy → **“Use existing Build Cache” 해제**
-3. 검증: `curl -I https://phonara.net/complete-profile` → 200, 빌드 JS 에 `wyhhdyrvqtoejvusnhva` 문자열 grep 으로 존재 확인
+1. `/complete-profile` 제출 후 즉시 다시 되돌아오지 않음
+2. 저장 직후 `/dashboard` 유지
+3. `profiles` 행이 없거나 일부 필드가 비어 있는 경우에도 사용자에게 명확한 실패 메시지 노출
+4. 기존 성인 인증 게이트 동작은 유지
 
-## Rollback
+## 사용자 확인 포인트
 
-- 트랙 1: 03 푸시는 마이그레이션 단위라 실패 파일만 재시도. functions deploy 실패는 개별 재배포.
-- 트랙 2: `phase5-recovery.sql` 은 idempotent 라 재실행 안전. 잘못 적용 시 `DROP FUNCTION public.<name> CASCADE` 후 원래 마이그레이션에서 재선언.
-- Vercel: 직전 deployment 의 “Promote to Production” 으로 즉시 롤백.
-
-## 승인 시 에이전트가 할 일
-
-1. 사용자가 로컬 명령을 돌리는 동안 대기 (또는 02 diff sync 보고 시 트랙 2 로 전환)
-2. 트랙 2 전환 시 `scripts/independence/phase5-recovery.sql` 작성 (실제 컬럼·시그니처는 기존 마이그레이션에서 복사)
-3. 사용자가 “03 완료” 또는 “SQL 적용 완료” 라고 알리면 검증 SQL 4묶음 전달
-4. 검증 PASS 후 Vercel 환경변수·Redeploy 가이드 및 `curl` 점검 보조
+- 저장 후 주소가 `/dashboard` 에 그대로 머무는지
+- 새로고침 후에도 다시 `/complete-profile` 로 가지 않는지
+- 콘솔의 `profiles` 400/404 또는 RPC 404 가 더 이상 루프를 유발하지 않는지
