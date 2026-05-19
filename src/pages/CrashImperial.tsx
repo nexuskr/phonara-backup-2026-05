@@ -254,7 +254,7 @@ export default function CrashImperial() {
           {stats && (
             <div className="mt-3 pt-3 border-t border-border/40 text-[11px] text-muted-foreground flex items-center justify-between">
               <span>내 연승: <span className="text-[hsl(var(--gold))] font-bold">×{stats.streak ?? 0}</span></span>
-              <span>총 베팅: <span className="text-foreground font-bold tabular-nums">{(stats.total_bet ?? 0).toLocaleString()}</span></span>
+              <span>최고 배율: <span className="text-foreground font-bold tabular-nums">{(stats.best_mult ?? 0).toFixed(2)}x</span></span>
             </div>
           )}
         </section>
