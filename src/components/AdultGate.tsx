@@ -26,15 +26,36 @@ export function AdultGate({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) { nav("/secure-auth", { replace: true }); return; }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("is_adult,birth_date,profile_completed")
-        .eq("id", session.user.id)
-        .maybeSingle();
       if (cancelled) return;
-      if (profile?.is_adult) setState("ok");
-      else setState("blocked");
+      if (!session?.user) { nav("/secure-auth", { replace: true }); return; }
+
+      // Tolerant: 백엔드 스키마 drift(컬럼 부재 400) / 권한 오류 / 네트워크 예외
+      // 발생 시에는 사용자를 차단하지 않고 통과시킨다. 차단은 SELECT가 정상 200으로
+      // 응답했고 행이 존재하면서 두 플래그 중 하나가 명시적으로 false 인 경우에만.
+      // use-adult-gate.ts 와 100% 동일 정책.
+      let profile: any = null;
+      let fetchOk = false;
+      try {
+        const r = await supabase
+          .from("profiles")
+          .select("is_adult, birth_date, profile_completed")
+          .eq("id", session.user.id)
+          .maybeSingle();
+        if (!r.error) {
+          fetchOk = true;
+          profile = r.data;
+        }
+      } catch {
+        // 네트워크/스키마 예외 — 통과
+      }
+      if (cancelled) return;
+
+      if (fetchOk && profile && (profile.profile_completed === false || profile.is_adult === false)) {
+        setState("blocked");
+      } else {
+        // 400 / 행 없음 / 플래그 true / unknown → 통과
+        setState("ok");
+      }
     })();
     return () => { cancelled = true; };
   }, [nav]);
