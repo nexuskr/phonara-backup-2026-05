@@ -37,7 +37,7 @@ export default function DiceGame() {
         <div className="p-6 space-y-5">
           <div className="text-center">
             <div className="text-6xl font-black apex-text-neon tabular-nums">
-              {typeof roll === "number" ? roll.toFixed(2) : "--.--"}
+              {typeof rollValue === "number" ? rollValue.toFixed(2) : "--.--"}
             </div>
             <div className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
               {last?.result ? (Number(last.payout_phon) > bet ? "WIN" : "LOSS") : "ready"}
@@ -82,7 +82,7 @@ export default function DiceGame() {
             </div>
           </div>
 
-          <NeonButton size="xl" pulse className="w-full" onClick={roll} disabled={loading}>
+          <NeonButton size="xl" pulse className="w-full" onClick={handleRoll} disabled={loading}>
             {loading ? "ROLLING…" : `ROLL · ${bet.toLocaleString()} PHON`}
           </NeonButton>
           <p className="text-center text-[10px] text-muted-foreground">House Edge 1.0% · RTP 99.0% · Daily Cap 50</p>
