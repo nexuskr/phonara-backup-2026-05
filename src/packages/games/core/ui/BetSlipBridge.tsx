@@ -37,8 +37,8 @@ export function BetSlipBridge({ gameSlug: _gameSlug, ...rest }: BetSlipBridgePro
         />
       }
     >
-      {/* @ts-expect-error — pass-through; real surface owned by RealBetSlip */}
-      <RealBetSlip {...rest} />
+      {/* pass-through; real surface owned by RealBetSlip */}
+      <RealBetSlip {...(rest as any)} />
     </Suspense>
   );
 }

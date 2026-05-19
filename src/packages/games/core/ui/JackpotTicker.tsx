@@ -1,49 +1,30 @@
-import { useEffect, useState } from "react";
-import { useGameChannel } from "@pkg/realtime";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface JackpotTickerProps {
-  /** Realtime resource path within `game:` partition, e.g. "jackpot:crash". */
-  resource: string;
-  /** Initial value before first realtime push. */
-  initial?: number;
+  /** Server-pushed value. Caller wires `useGameChannel` and pipes value here. */
+  value: number;
   label?: string;
   className?: string;
 }
 
 /**
- * P1-08 JackpotTicker — server-pushed counter via useGameChannel.
- * No raw supabase.channel anywhere.
+ * P1-08 JackpotTicker — pulse-on-change counter.
+ *
+ * Pure presentational: realtime wiring lives in the caller (must use
+ * `useGameChannel` from `@pkg/realtime`). Keeps this primitive tree-shake-friendly
+ * and free of channel coupling.
  */
-export function JackpotTicker({
-  resource,
-  initial = 0,
-  label = "JACKPOT",
-  className,
-}: JackpotTickerProps) {
-  const [v, setV] = useState(initial);
+export function JackpotTicker({ value, label = "JACKPOT", className }: JackpotTickerProps) {
   const [pulse, setPulse] = useState(false);
-
-  useGameChannel({
-    key: resource,
-    handlers: {
-      broadcast: [
-        {
-          event: "tick",
-          callback: (payload: any) => {
-            const next = Number(payload?.value ?? 0);
-            if (!Number.isFinite(next)) return;
-            setV(next);
-            setPulse(true);
-            window.setTimeout(() => setPulse(false), 600);
-          },
-        },
-      ],
-    },
-  });
-
-  useEffect(() => setV(initial), [initial]);
-
+  const prev = useRef(value);
+  useEffect(() => {
+    if (prev.current === value) return;
+    prev.current = value;
+    setPulse(true);
+    const t = window.setTimeout(() => setPulse(false), 600);
+    return () => window.clearTimeout(t);
+  }, [value]);
   return (
     <div
       className={cn(
@@ -57,7 +38,7 @@ export function JackpotTicker({
         {label}
       </span>
       <span className="text-gradient-gold font-mono text-sm font-extrabold tabular-nums">
-        {v.toLocaleString("ko-KR")}
+        {value.toLocaleString("ko-KR")}
       </span>
     </div>
   );
