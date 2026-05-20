@@ -1,102 +1,98 @@
-# PR-P1-B — Hero + Home + Flow State Engine
+# PR-P1-C — 성능 오버홀 + P2 UX 통합
 
-P1-A 정리(5탭 + Crown→PHON 0건)에 이어, 진입 화면과 홈 대쉬보드 그리고 사용자 상태별 라우팅을 정돈한다. 머니플로 8경로 git diff = 0 유지. UI는 사용자 표면만, 백엔드 무변경.
+P1-A/B 이후의 마무리 PR. 머니플로 8경로 / P0 인증·체결·슬롯 엔진 무변경.
+범위가 큰 만큼 **"안전한 1차 패스"** 만 수행하고, 미완 항목은 출시 전 후속 PR로 명시한다.
 
-## 1. Hero 완전 재설계 (`/` Landing)
+---
 
-대상 파일: `src/pages/Landing.tsx` 의 `<Hero/>` 섹션.
+## 1. 성능 오버홀 (Layer 1 우선)
 
-| 슬롯 | 변경 후 |
-|---|---|
-| Eyebrow chip | `오늘의 실시간 챌린지` (Gem 아이콘 유지) |
-| Headline (H1) | **오늘 사람들이 가장 많이 참여 중인 실시간 리워드 챌린지** |
-| Sub | 무료 예측 · 무료돈벌기 · 실시간 보상 · PHON 받기 |
-| Primary CTA | **무료 시작하기** → `/auth?mode=signup&next=/dashboard` |
-| Secondary CTA | **체험 모드** → `Practice ON + /home` (`enterPracticeMode()` 호출 후 navigate) |
-| 신뢰 라인 | `지금 N,NNN명이 참여 중 · 평균 지급 12초` (PayoutTicker 단일화) |
+이미 모든 라우트는 `lazy()` 처리되어 있음. 추가 작업:
 
-3초 룰: Hero 첫 화면 = headline + sub + CTA 두 개 + 라이브 카운트 한 줄. 기존 `imperial-jackpot-breathe` 골드 그라디언트 톤 유지. CTA는 `min-h-[56px]` 엄지존, secondary는 outline-gold.
+- **App 루트에서 정적 import 되는 비-critical 컴포넌트 lazy 전환**
+  - `AccountFrozenDialog`, `MaintenanceGate`, `DegradeModeBanner`, `DegradeModeBinder`,
+    `DynamicIslandPill`, `ClientMetricsBinder`, `ReviewerMaskRoot`, `ReviewerBadge`,
+    `MobileShell`, `StakeStyleSidebar` → `lazy()` + `<Suspense fallback={null}>`
+  - 단, `ErrorBoundary` / `AuthErrorBoundary` / `BrowserRouter` / Toaster 는 유지 (critical)
+- **Pretendard 폰트 async 로드**
+  - `index.html` `<link rel="preload" as="font" crossorigin>` + `font-display: swap`
+- **LCP preload**
+  - Landing Hero 가 텍스트 기반이므로 이미지 preload는 생략. 대신 `index.html` `<meta name="theme-color">` + critical CSS 점검.
+- **모바일 입력 최적화**
+  - 전역 CSS `html { touch-action: manipulation; }` 추가
+  - `visualViewport` resize listener 1개를 `MobileShell` 에 추가 → `--kb-inset` CSS var 갱신 → BottomNav `padding-bottom: var(--kb-inset)`
+  - `safe-area-inset-bottom` 모든 fixed 하단 요소 (Nav/FAB) 에 fallback 적용 확인
+- **TanStack Query staleTime 정리**
+  - 전역 default 30s 유지. wallet/duel/live/trade 훅들은 이미 짧게 설정됨 — 변경 없음.
+  - non-critical 정적 데이터 (legal_documents, world_domination_stats) 만 `staleTime: 5*60_000` 로 상향.
 
-## 2. Home 대쉬보드 대청소 (`/dashboard`)
+---
 
-대상 파일: `src/pages/Dashboard.tsx` (`<Layout>` 안). 5탭 "홈" 라우트는 인증 시 `/dashboard`로 활성 매핑되어 있어, Dashboard = "Home"으로 정렬.
+## 2. P2 UX 통합 (1차 패스, 머니플로 무변경)
 
-제거 (lazy 마운트 해제):
-- 중복 FOMO/티커: `ImperialPresenceBar`, `ImperialLiveActivity`, `InviteRailMini`
-- 무거운 게임 카탈로그 8장(ORIGINALS/SLOTS grid) — `/games` 로 이전, Dashboard에는 진입 카드 1장만
-- 모티프 SVG `GameArt` 헬퍼 (게임 카드 제거와 함께 삭제)
-- `PullToRefreshIndicator` (현재 데이터 fetch 거의 없음 → 제거)
+### a. 잔액 한눈에 보기
+- `<MultiCurrencyBalance />` 를 `PowerHeader` 우측에 inline 노출 (PHON / KRW / USDT 한 줄, 토글 가능).
+- `/phon` 헤더 카드는 그대로 (이미 PhonHub v3).
 
-유지/추가 (Tier S 5탭 라이트 카드):
-1. 인사 헤더 (한 줄, 닉네임 + Gem 아이콘)
-2. **무료돈벌기** 카드 → `/earn` (오늘 받을 PHON 합계)
-3. **실시간대결** 카드 → `/duel` (현재 라이브 룸 수, crimson glow)
-4. **실시간예측** 카드 → `/trade` (BTC 24h 변동)
-5. **내PHON** 카드 → `/phon` (PHON 잔액 + 어제 적립)
-6. `<WhaleStrikeRail />` 1회 (24h 라이브 마키, 60s 갱신) — 이미 친숙한 사회적 증명만 남김
-7. `<PowerHeader />` 우측 상단(기존 그대로)
+### b. 등급 시스템 단일화
+- 사용자 화면의 `tier` / `empire_level` / `vip` 3가지 라벨 → 표시 헬퍼 `src/lib/branding/tierLabel.ts` 신설.
+- "VIP Level N" 단일 라벨로 통일. 내부 컬럼은 보존.
 
-타깃: Dashboard 컴포넌트 코드 315줄 → 약 130줄. 모든 카드는 `imperial-card` 토큰 재사용, 신규 색상 변수 없음.
+### c. PHON Collection 단일화
+- `/achievements`, `/empire/collection`, `/profile` 의 배지·NFT 표시 → `<PhonCollectionPanel />` 한 컴포넌트로 묶고 각 페이지에서 재사용.
+- 라우트는 유지 (`/empire/collection` = primary, 나머지는 임베드).
 
-## 3. Flow State Engine
+### d. 친구추천 UX
+- `/referral` 상단: 1) 내 코드 큰 카피 버튼, 2) 카카오/링크 공유, 3) "지금까지 받은 PHON" 1줄. 그 외 카드 압축.
 
-신규 파일: `src/lib/flow/flowState.ts`, `src/components/flow/FlowRouter.tsx`.
+### e. 실시간 대결 즉시 인지 (50~70대)
+- `<WhaleStrikeRail />` 카피 한국어화 + 폰트 크기 +2pt.
+- `/dashboard` 5탭 카드의 "실시간 대결" 타일에 라이브 카운트 dot 추가.
 
-### 상태 도출 (`computeFlowState`)
-```text
-입력: { hasSession, profile, practiceOn, kycStatus, killSwitches, isFirstVisit }
-출력: "landing" | "quickstart" | "practice" | "home"
-       | "verify_email" | "kyc_pending" | "safe_mode" | "maintenance"
-```
+### f. 패키지 중복 정리
+- `/packages` 카드 3그룹 → 단일 grid + 추천 1장 highlight. (카드 컴포넌트만 압축, 가격/RPC 무변경)
 
-우선순위 (위에서 아래):
-1. `killSwitches.maintenance_mode` → `maintenance` (기존 `<MaintenanceGate/>` 그대로 사용)
-2. `killSwitches.signup_halt && !hasSession` → `safe_mode` (`/safe`)
-3. `hasSession && profile?.email_confirmed === false` → `verify_email` (`/auth?step=verify`)
-4. `hasSession && profile?.kyc_status === 'pending'` → `kyc_pending` (`/wallet?notice=kyc`)
-5. `hasSession` → `home` (`/dashboard`)
-6. `!hasSession && isFirstVisit` → `landing` (`/`)
-7. `!hasSession && practiceOn` → `practice` (`/home`)
-8. else → `landing`
+### g. 슬롯 UI 정리
+- `/casino` 로비 헤더 정리 + 로고 정렬. 슬롯 게임 내부 (`OlympusSlot` 등 8개)는 P0 보호 범위 → **변경 없음**.
 
-`isFirstVisit` = `localStorage.getItem('phonara:flow:visited:v1')` 없음. 첫 마운트 시 즉시 set.
+### h. Admin IA 1인 운영 최적화
+- `/admin` 사이드바 그룹화 (`_nav.ts`): 운영 / 자금 / 보안 / 데이터 / 시스템 4그룹으로 묶기. 라우트/AAL2 가드 무변경.
 
-### `<FlowRouter/>`
+---
 
-`/` 진입 시 위 상태 계산 → 필요시 `<Navigate to=… replace/>`. 비정상 상태는 안내 배너만 띄우고 Landing은 항상 폴백.
+## 3. 작업 분할 — 본 PR은 **Slice 1만 수행**
 
-- `first_visit (unauth)` → `<Landing/>` 그대로 (Hero secondary CTA로 Quick Start)
-- `return_user (auth)` → `<Navigate to="/dashboard"/>`
-- `verify_email` → `<Navigate to="/auth?step=verify"/>`
-- `kyc_pending` → `<Navigate to="/wallet?notice=kyc"/>`
-- `safe_mode` → `<Navigate to="/safe"/>`
-- `maintenance` → `<MaintenanceGate/>` 가 이미 처리하므로 패스스루
+| Slice | 내용 | 본 PR 포함 |
+|---|---|---|
+| 1 | 성능 오버홀 + 잔액(2a) + 등급(2b) + Admin IA(2h) | ✅ 포함 |
+| 2 | PHON Collection(2c) + 친구추천(2d) + 패키지(2f) | 후속 PR |
+| 3 | 실시간 대결 인지(2e) + 슬롯 로비 정리(2g) | 후속 PR |
 
-`App.tsx` 변경: `<Route path="/" element={<Landing/>}/>` → `<Route path="/" element={<FlowRouter><Landing/></FlowRouter>}/>`. Landing/Home/Dashboard 컴포넌트 자체는 그대로 import.
+후속 슬라이스는 각각 별도 PR 로 진행해 회귀 위험을 분산한다.
 
-### Quick Start / Practice
+---
 
-기존 `enterPracticeMode()` (`src/lib/practiceMode.ts`) + `<PracticeModeBanner/>` 재사용. Hero의 Secondary CTA가 `enterPracticeMode(); navigate('/home')` 한 줄로 호출.
+## 4. 절대 금지
 
-## 4. 검증
+- 머니플로 8경로 (`request_withdrawal` / `credit_crypto_deposit` / `imperial_place_phon_bet` / `_settle` / `_apply_house_edge_split` / 슬롯 스핀 RPC / `apply_token_burn` / 출금 OTP) 무변경.
+- P0 슬롯 엔진 (`OlympusSlot` 등 8개 슬롯 파일) 무변경.
+- 인증 / TOTP / OTP / 동결 / 베타 게이트 무변경.
+- 신규 테이블/RPC/엣지 추가 금지 — 기존 자산 재배치만.
 
-- `node scripts/check-no-crown-ui.mjs` = 0 유지
-- 머니플로 8경로 git diff = 0
-- `rg "ImperialLiveActivity|InviteRailMini|GameArt" src/pages/Dashboard.tsx` = 0
-- 비로그인 `/` = Landing + 새 Hero, 로그인 `/` = `/dashboard` 자동 이동, practice ON 비로그인 = `/home`
+---
 
-## 변경 파일 요약
+## 5. 검증
 
-```text
-edit   src/pages/Landing.tsx                 # Hero 재설계
-edit   src/pages/Dashboard.tsx               # 대청소 + Tier S 5카드
-new    src/lib/flow/flowState.ts             # computeFlowState
-new    src/components/flow/FlowRouter.tsx    # / 게이트
-edit   src/App.tsx                           # / 라우트 FlowRouter 래핑
-```
+- `node scripts/check-no-crown-ui.mjs` → 0
+- 머니플로 8경로 `git diff` → 0
+- 빌드 통과 + 라우트 4개 (`/`, `/dashboard`, `/phon`, `/admin`) 수동 점검
+- 모바일 viewport (390x844) 에서 BottomNav / FAB 키보드 가림 확인
 
-## 금지 사항
+---
 
-- 새 글로벌 오버레이/팝업 마운트 금지
-- /admin · /apex · /operator 라우트 무변경
-- money-flow 8경로(`imperial-bet-place/-settle`, `credit-crypto-deposit`, `request-withdrawal`, `walletApi.ts`, `imperialBet.ts`, `leverage.ts`, `flywheel.ts`) 무변경
+## 6. 보고 (완료 시)
+
+- lazy 처리 추가된 컴포넌트 목록
+- LCP/FCP 변화 추정 (Layer 1 entry 감소량)
+- Slice 1 UX 변경 요약
+- 출시 전 남은 주요 항목 (Slice 2/3 + KYC / 점검 모드 / 푸시 가드)
