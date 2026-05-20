@@ -3,7 +3,7 @@
  * 업적 / NFT / VIP 등급을 한 줄 탭으로 통합 (3개 페이지가 같은 헤더 공유).
  */
 import { NavLink } from "react-router-dom";
-import { Trophy, Gem, Crown } from "lucide-react";
+import { Trophy, Gem, Sparkles } from "lucide-react";
 
 const TABS = [
   { to: "/achievements", icon: Trophy, label: "업적" },
