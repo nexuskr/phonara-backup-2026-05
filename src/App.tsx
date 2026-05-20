@@ -272,6 +272,7 @@ const App = () => (
           <DegradeModeBanner />
           <DegradeModeBinder />
           <DynamicIslandPill />
+          <AccountFrozenDialog />
           <ClientMetricsBinder />
           <SessionWatcher />
           <ReviewerMaskRoot />
