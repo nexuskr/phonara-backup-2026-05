@@ -13,9 +13,10 @@ import NftAvatar from "@/components/profile/NftAvatar";
 import { FloatingSlot } from "@/components/ui/floating-dock";
 import VipPassBadge from "@/components/empire/VipPassBadge";
 import EquippedAvatarChip from "@/components/avatar/EquippedAvatarChip";
+import MultiCurrencyBalance from "@/components/wallet/MultiCurrencyBalance";
+import { formatVipLevelFromNft } from "@/lib/branding/tierLabel";
 
 const LEVEL_TIER: Record<string, number> = { bronze: 5, gold: 7, diamond: 10 };
-const LEVEL_LABEL: Record<string, string> = { bronze: "BRONZE", gold: "GOLD", diamond: "DIAMOND" };
 
 export default function PowerHeader() {
   const { phon, nfts, boostPct, maxLeverage, loading } = useMyPower();
@@ -51,8 +52,8 @@ export default function PowerHeader() {
             <span className="relative inline-flex items-center justify-center w-6 h-6">
               {lv ? <CrownAura level={auraLevel} size={24} /> : <Gem className="w-4 h-4 text-primary" />}
             </span>
-            <span className="text-[10px] font-imperial tracking-widest text-primary">
-              {lv ? LEVEL_LABEL[lv] : "ROOKIE"}
+            <span className="text-[10px] font-black tracking-[0.18em] text-primary uppercase">
+              {formatVipLevelFromNft(lv)}
             </span>
             <span className="text-border/50">·</span>
             <span className="inline-flex items-center gap-1 text-xs font-bold tabular-nums">
@@ -68,6 +69,8 @@ export default function PowerHeader() {
             <span className="inline-flex items-center gap-1 text-xs font-black tabular-nums text-primary">
               <Rocket className="w-3 h-3" />{maxLeverage}x
             </span>
+            <span className="text-border/50 hidden xl:inline">·</span>
+            <MultiCurrencyBalance inline className="hidden xl:flex" />
           </motion.div>
         </AnimatePresence>
       </Link>
