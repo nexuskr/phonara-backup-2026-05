@@ -58,11 +58,15 @@ export function useLiveFomoCounters(): LiveFomoCounters | null {
     };
   }, []);
 
-  useEffect(() => {
-    if (!visible) return;
-    const id = window.setInterval(() => { void fetchOnce(); }, FOMO_POLL_MS);
-    return () => window.clearInterval(id);
-  }, [visible]);
+  useGlobalPolling({
+    key: "live-fomo-counters",
+    fn: fetchOnce,
+    baseMs: FOMO_POLL_MS,
+    enabled: visible,
+    priority: "cosmetic",
+    category: "social",
+    owner: "useLiveFomoCounters",
+  });
 
   return state;
 }
