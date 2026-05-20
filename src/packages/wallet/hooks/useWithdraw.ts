@@ -141,9 +141,16 @@ export function useWithdraw({ available, minWithdraw, onSuccess, requireStepUp }
               return;
             } catch (retryErr: any) {
               const r = String(retryErr?.message ?? "");
-              const mapped = mapWithdrawError(r, minWithdraw);
-              notify.error(mapped.title, { description: mapped.description });
-              if (/pin/i.test(r)) setForm(f => ({ ...f, pin: "" }));
+              const mapped = parseWithdrawError(r, minWithdraw);
+              if (mapped.code === "account_frozen") {
+                emitAccountFrozen({ source: "withdraw_retry", description: mapped.description });
+              } else if (mapped.code === "duplicate_in_flight") {
+                notify.info(mapped.title, { description: mapped.description });
+              } else {
+                notify.error(mapped.title, { description: mapped.description });
+              }
+              if (mapped.resetPin) setForm(f => ({ ...f, pin: "" }));
+              if (mapped.gotoStep) setStep(mapped.gotoStep);
               return;
             }
           }
@@ -155,15 +162,18 @@ export function useWithdraw({ available, minWithdraw, onSuccess, requireStepUp }
       }
 
       // 2) 매핑된 친절한 알림
-      const mapped = mapWithdrawError(rawMsg, minWithdraw);
-      notify.error(mapped.title, { description: mapped.description });
+      const mapped = parseWithdrawError(rawMsg, minWithdraw);
+      if (mapped.code === "account_frozen") {
+        emitAccountFrozen({ source: "withdraw", description: mapped.description });
+      } else if (mapped.code === "duplicate_in_flight") {
+        notify.info(mapped.title, { description: mapped.description });
+      } else {
+        notify.error(mapped.title, { description: mapped.description });
+      }
 
       // 입력 보정
-      if (/pin/i.test(rawMsg)) {
-        setForm(f => ({ ...f, pin: "" }));
-      } else if (/below_min/i.test(rawMsg) || /insufficient_funds/i.test(rawMsg)) {
-        setStep(1);
-      }
+      if (mapped.resetPin) setForm(f => ({ ...f, pin: "" }));
+      if (mapped.gotoStep) setStep(mapped.gotoStep);
     } finally {
       setSubmitting(false);
     }
