@@ -145,9 +145,13 @@ class PollingManagerImpl {
       stop: () => {},
     };
 
-    // adaptive scheduler: visible-interval base = baseMs / 2 로 잡고 내부에서 currentMs 게이트
-    // 최소 틱 = baseMs (절대 더 자주 안 됨). 더 느려질 수만 있음.
-    const runtimeCat: RuntimeCategory = priority === "critical" || priority === "high" ? "high" : (priority as RuntimeCategory);
+    // adaptive scheduler: 최소 틱 = baseMs (더 느려질 수만 있음).
+    // RuntimeCategory 는 4-value enum (money_flow/cosmetic/admin/unknown).
+    // PollCategory → RuntimeCategory 매핑.
+    const runtimeCat: RuntimeCategory =
+      category === "admin" ? "admin"
+      : category === "money_flow" ? "money_flow"
+      : "cosmetic";
 
     const tick = async () => {
       // adaptive interval gate
