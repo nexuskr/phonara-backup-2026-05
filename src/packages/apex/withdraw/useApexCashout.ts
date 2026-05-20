@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { notify } from "@/lib/notify";
 import { useWalletChannel } from "@pkg/realtime";
+import { parseWithdrawError, emitAccountFrozen } from "@/lib/withdrawal/errors";
 
 export type CashoutNetwork = "TRC20" | "ERC20" | "BSC" | "SOL" | "SUI" | "APT" | "CCTP_V2";
 
