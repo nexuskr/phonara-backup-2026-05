@@ -177,6 +177,9 @@ const ApexKeno         = lazy(() => import("./pages/apex/games/Keno.tsx"));
 const ApexHiLo         = lazy(() => import("./pages/apex/games/HiLo.tsx"));
 const ApexRace         = lazy(() => import("./pages/apex/Race.tsx"));
 const ApexCashout      = lazy(() => import("./pages/apex/Cashout.tsx"));
+// Phase 4 P4-A — Landing Apocalypse + Meta-safe SEO
+const LandingApocalypse = lazy(() => import("./packages/apex/landing/LandingApocalypse.tsx"));
+const SafePublic        = lazy(() => import("./pages/SafePublic.tsx"));
 // v19 Phase 0-R: 글로벌 오버레이 17종 마운트 전면 해제. PracticeModeGate 만 라우트 가드용으로 보존.
 import { PracticeModeGate } from "./components/practice/PracticeModeGate";
 
@@ -276,6 +279,9 @@ const App = () => (
             <MaintenanceGate>
             <Routes>
               <Route path="/" element={<Landing />} />
+              {/* Phase 4 P4-A — Landing Apocalypse + Meta-safe SEO */}
+              <Route path="/landing" element={<LandingApocalypse />} />
+              <Route path="/safe" element={<SafePublic />} />
               {/* v19 Phase 0-R: /legacy-index 제거 */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/welcome" element={<Welcome />} />
