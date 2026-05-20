@@ -167,6 +167,10 @@ const ApexMines        = lazy(() => import("./pages/apex/games/Mines.tsx"));
 const ApexSlots        = lazy(() => import("./pages/apex/games/Slots.tsx"));
 const ApexSportsbook   = lazy(() => import("./pages/apex/Sportsbook.tsx"));
 const ApexCommunity    = lazy(() => import("./pages/apex/Community.tsx"));
+// P5-B Community Layer
+const ApexCommunityChat       = lazy(() => import("./pages/apex/community/Chat.tsx"));
+const ApexCommunitySquad      = lazy(() => import("./pages/apex/community/Squad.tsx"));
+const ApexCommunityTournament = lazy(() => import("./pages/apex/community/Tournament.tsx"));
 const ApexHealth       = lazy(() => import("./pages/apex/Health.tsx"));
 const ApexVerify       = lazy(() => import("./pages/apex/Verify.tsx"));
 const ApexCrashV2      = lazy(() => import("./packages/apex/crash/LiveCrashV2.tsx"));
@@ -310,6 +314,9 @@ const App = () => (
                 <Route path="games/hilo"   element={<ApexHiLo />} />
                 <Route path="sportsbook"   element={<ApexSportsbook />} />
                 <Route path="community"    element={<ApexCommunity />} />
+                <Route path="community/chat"       element={<ApexCommunityChat />} />
+                <Route path="community/squad"      element={<ApexCommunitySquad />} />
+                <Route path="community/tournament" element={<ApexCommunityTournament />} />
                 <Route path="free"         element={<ApexFreeMoney />} />
                 <Route path="vault"        element={<ApexVault />} />
                 <Route path="reels"        element={<ApexWinReels />} />
