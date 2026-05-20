@@ -20,20 +20,15 @@ export function RaceLeaderboard() {
   const active = races[0] ?? null;
   const rows = useRaceLeaderboard(active?.race_id ?? null, 50);
 
-  useGameChannel(
-    active ? `race:${active.race_id}` : "race:none",
-    !!active,
-    useMemo(
-      () => [
-        {
-          event: "*", schema: "public", table: "apex_race_entries",
-          filter: active ? `race_id=eq.${active.race_id}` : undefined,
-          callback: () => { /* polled every 15s */ },
-        },
-      ],
-      [active?.race_id],
-    ),
-  );
+  useGameChannel(useMemo(() => ({
+    key: active ? `race:${active.race_id}` : "race:none",
+    enabled: !!active,
+    bindings: active ? [{
+      event: "*", schema: "public", table: "apex_race_entries",
+      filter: `race_id=eq.${active.race_id}`,
+      callback: () => { /* polled every 15s */ },
+    }] : [],
+  }), [active?.race_id]));
 
   if (loading) return <div className="text-sm text-muted-foreground">레이스 정보 로딩…</div>;
   if (!active) return <div className="text-sm text-muted-foreground">현재 진행중인 레이스가 없습니다.</div>;
