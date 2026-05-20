@@ -314,6 +314,9 @@ const App = () => (
                 <Route path="games/hilo"   element={<ApexHiLo />} />
                 <Route path="sportsbook"   element={<ApexSportsbook />} />
                 <Route path="community"    element={<ApexCommunity />} />
+                <Route path="community/chat"       element={<ApexCommunityChat />} />
+                <Route path="community/squad"      element={<ApexCommunitySquad />} />
+                <Route path="community/tournament" element={<ApexCommunityTournament />} />
                 <Route path="free"         element={<ApexFreeMoney />} />
                 <Route path="vault"        element={<ApexVault />} />
                 <Route path="reels"        element={<ApexWinReels />} />
