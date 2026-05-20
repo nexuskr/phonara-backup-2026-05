@@ -2,7 +2,7 @@ import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Crown, Vault, Film, Activity,
-  TrendingUp, Castle, Radio, ListChecks, User, Shield,
+  TrendingUp, Castle, Radio, ListChecks, User, Shield, Wallet, ArrowDownToLine,
   type LucideIcon,
 } from "lucide-react";
 import BottomSheet from "@/components/ui/bottom-sheet";
@@ -23,12 +23,14 @@ const APEX_ITEMS: Item[] = [
 ];
 
 const GENERAL_ITEMS: Item[] = [
-  { to: "/trade",            label: "트레이딩", icon: TrendingUp },
-  { to: "/empire",           label: "황실",     icon: Castle },
-  { to: "/live",             label: "라이브",   icon: Radio },
-  { to: "/missions",         label: "미션",     icon: ListChecks },
-  { to: "/profile",          label: "내정보",   icon: User },
-  { to: "/security",         label: "보안",     icon: Shield },
+  { to: "/wallet",                 label: "지갑",     icon: Wallet },
+  { to: "/wallet?tab=withdraw",    label: "출금",     icon: ArrowDownToLine },
+  { to: "/trade",                  label: "트레이딩", icon: TrendingUp },
+  { to: "/empire",                 label: "황실",     icon: Castle },
+  { to: "/live",                   label: "라이브",   icon: Radio },
+  { to: "/missions",               label: "미션",     icon: ListChecks },
+  { to: "/profile",                label: "내정보",   icon: User },
+  { to: "/security",               label: "보안",     icon: Shield },
 ];
 
 interface Props {
