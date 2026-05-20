@@ -20,7 +20,7 @@ import {
   type ConnState,
   type ChannelBinding,
 } from "@/hooks/use-realtime-channel";
-import { regionalKey, getRegion } from "./regions";
+import { regionalKey, getRegion, failoverNext } from "./regions";
 import { reportHeartbeat } from "./heartbeat";
 
 export type RealtimePartition = "wallet" | "game" | "chat" | "market";
