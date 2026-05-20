@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, Flame, Crown, TrendingUp, Clock, Users, Shield, MessageCircle, Type, CheckCircle2 } from "lucide-react";
+import { Gem, ChevronDown, Flame, TrendingUp, Clock, Users, Shield, MessageCircle, Type, CheckCircle2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW } from "@/lib/store";
 import EarningsSimulator from "@/components/guide/EarningsSimulator";
@@ -521,7 +521,7 @@ const TIERS = [
   { n: "FREE",    sub: "지금 가입하면",    reward: "1×",   limit: "50만",  jp: "4%",  color: "from-muted to-muted/50", emoji: "🪙" },
   { n: "STARTER", sub: "첫 입금 5만+",   reward: "1.5×", limit: "100만", jp: "6%",  color: "from-secondary/30 to-secondary/10", emoji: "🚀" },
   { n: "VIP",     sub: "누적 100만+",   reward: "6×",   limit: "500만", jp: "12%", color: "from-primary/30 to-primary/10", emoji: "💎" },
-  { n: "GOD",     sub: "누적 1,000만+", reward: "10×",  limit: "5,000만",jp: "28%", color: "from-accent/30 to-accent/10", emoji: "👑" },
+  { n: "GOD",     sub: "누적 1,000만+", reward: "10×",  limit: "5,000만",jp: "28%", color: "from-accent/30 to-accent/10", emoji: "💎" },
   { n: "EMPIRE",  sub: "황실 직속",      reward: "20×+", limit: "∞",     jp: "65%", color: "from-gold to-gold/50", emoji: "🏰" },
 ];
 
@@ -531,7 +531,7 @@ function SceneTiers() {
       <div className="relative max-w-md mx-auto w-full">
         <div className="text-center mb-5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass border border-gold/40 text-[10px] font-black tracking-[0.3em] text-gold mb-3">
-            <Crown className="w-3 h-3" /> 등급이 곧 수익
+            <Gem className="w-3 h-3" /> 등급이 곧 수익
           </div>
           <h2 className="font-imperial text-2xl sm:text-3xl break-keep">
             높은 등급일수록<br />
@@ -673,7 +673,7 @@ function SceneFinalCTA({ isLoggedIn }: { isLoggedIn: boolean }) {
         transition={{ duration: 4, repeat: Infinity }}
       />
       <div id="guide-final-anchor" className="relative max-w-md mx-auto w-full text-center">
-        <Crown className="w-12 h-12 text-gold mx-auto mb-3 animate-crown" />
+        <Gem className="w-12 h-12 text-gold mx-auto mb-3 animate-crown" />
         <h2 className="font-imperial text-3xl sm:text-4xl text-gradient-gold leading-tight break-keep">
           오늘 가입하면<br />지급되는 보너스
         </h2>

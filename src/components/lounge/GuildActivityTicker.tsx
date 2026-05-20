@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Users, Sword, Crown } from "lucide-react";
+import { Gem, Flame, Users, Sword} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const NICKS = [
@@ -13,7 +13,7 @@ const ACTIONS = [
   { v: "joined", emoji: "🚪", text: "에 입성", color: "text-secondary" },
   { v: "war", emoji: "⚔️", text: "에 전쟁 선포!", color: "text-destructive" },
   { v: "contrib", emoji: "🔥", text: "에 +{n}만 전투력 기여", color: "text-primary" },
-  { v: "promote", emoji: "👑", text: "이(가) 길드장 자리 획득", color: "text-gold" },
+  { v: "promote", emoji: "💎", text: "이(가) 길드장 자리 획득", color: "text-gold" },
   { v: "deposit", emoji: "💰", text: "길드 금고에 +{n}만원 입금", color: "text-money-strong" },
   { v: "win", emoji: "🏆", text: "전쟁 승리 — +{n}만원 분배", color: "text-money-strong" },
 ] as const;

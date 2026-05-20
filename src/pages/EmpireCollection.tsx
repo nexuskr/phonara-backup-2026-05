@@ -10,7 +10,7 @@ import { LoadingList } from "@/components/ui/loading-state";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Crown, Sparkles, Zap, Rocket, ArrowRight, X, Calendar } from "lucide-react";
+import { Gem, Sparkles, Zap, Rocket, ArrowRight, X, Calendar } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -48,7 +48,7 @@ export default function EmpireCollection() {
   return (
     <div className="container mx-auto max-w-3xl py-6 px-4 space-y-6">
       <header className="space-y-1.5 text-center">
-        <h1 className="font-imperial text-3xl text-gradient-imperial tracking-wider">👑 내 NFT 컬렉션</h1>
+        <h1 className="font-imperial text-3xl text-gradient-imperial tracking-wider">💎 내 NFT 컬렉션</h1>
         <p className="text-xs text-muted-foreground">NFT는 단순 이미지가 아니라 <b className="text-amber-300">레버리지의 힘</b>입니다.</p>
       </header>
 
@@ -133,7 +133,7 @@ export default function EmpireCollection() {
           <LoadingList rows={3} />
         ) : nfts.length === 0 ? (
           <EmptyState
-            icon={<Crown className="w-10 h-10 text-primary/60" />}
+            icon={<Gem className="w-10 h-10 text-primary/60" />}
             title="아직 NFT가 없습니다"
             description="첫 입금 시 BRONZE CROWN + 첫입금 보너스 +10% 부스트가 자동 지급됩니다."
             action={

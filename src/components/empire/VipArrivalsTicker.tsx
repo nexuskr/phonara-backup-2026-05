@@ -55,7 +55,7 @@ export default function VipArrivalsTicker() {
                   exit={{ opacity: 0, x: -20 }}
                   className="whitespace-nowrap"
                 >
-                  👑 <span className="font-bold">{a.nick}</span>
+                  💎 <span className="font-bold">{a.nick}</span>
                 </motion.span>
               ))}
             </AnimatePresence>

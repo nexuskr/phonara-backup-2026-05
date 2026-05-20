@@ -1,4 +1,4 @@
-import { Flame, Crown } from "lucide-react";
+import { Gem, Flame} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
  *   - 1~6일: muted
  *   - 7일+: amber pulse
  *   - 14일+: amber/rose gradient + ring pulse
- *   - 30일+: Imperial Half-Off gradient + 회전 corona + 우상단 👑
+ *   - 30일+: Imperial Half-Off gradient + 회전 corona + 우상단 💎
  * `prefers-reduced-motion` 에서 모든 모션 OFF (drop-shadow는 유지).
  */
 export default function StreakFlame({ streak, className, size = "md" }: Props) {
@@ -70,7 +70,7 @@ export default function StreakFlame({ streak, className, size = "md" }: Props) {
       />
       <span className="relative z-10">{streak}일</span>
       {imperial && (
-        <Crown className="relative z-10 w-3 h-3 text-amber-100 drop-shadow-[0_0_3px_hsl(330_85%_60%/0.8)]" />
+        <Gem className="relative z-10 w-3 h-3 text-amber-100 drop-shadow-[0_0_3px_hsl(330_85%_60%/0.8)]" />
       )}
     </span>
   );

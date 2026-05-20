@@ -1,4 +1,4 @@
-// PR-11: Empire Crown Aura — Empire Level별 시각적 아우라(아바타 둘레 광채).
+// PR-11: Empire PHON Glow — Empire Level별 시각적 아우라(아바타 둘레 광채).
 // 1~6: 정적 그라디언트 링. 7(Baron)+: 회전 광채 + 펄스. 10(Emperor): 마그마 + 별빛.
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
@@ -89,7 +89,7 @@ export default function CrownAura({ level, size = 48, className = "", children }
         className="absolute rounded-full overflow-hidden bg-background flex items-center justify-center"
         style={{ inset: ringPad, width: size, height: size }}
       >
-        {children ?? <span className="text-2xl select-none">👑</span>}
+        {children ?? <span className="text-2xl select-none">💎</span>}
       </div>
     </div>
   );

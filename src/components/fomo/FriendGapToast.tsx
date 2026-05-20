@@ -22,7 +22,7 @@ export default function FriendGapToast() {
 
     const amt = gap.gap_phon.toLocaleString();
     if (gap.direction === "ahead") {
-      notify.success(`👑 폐하께서는 ${gap.other_nickname} 황제보다 ${amt} PHON 앞서 계십니다`);
+      notify.success(`💎 폐하께서는 ${gap.other_nickname} 황제보다 ${amt} PHON 앞서 계십니다`);
     } else {
       notify.info(`⚔️ ${gap.other_nickname} 황제가 ${amt} PHON 앞서 있습니다. 추월의 기회입니다`);
     }

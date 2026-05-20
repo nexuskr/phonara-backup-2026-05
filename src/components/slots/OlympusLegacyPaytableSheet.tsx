@@ -1,12 +1,12 @@
 // OlympusLegacyPaytableSheet — warm amber luxury paytable (BasePaytableSheet).
-import { Crown } from "lucide-react";
+import {  Gem} from "lucide-react";
 import BasePaytableSheet, {
   type PaytableSection,
   type SymRow,
 } from "@/components/slots/BasePaytableSheet";
 
 const HIGH: SymRow[] = [
-  { emoji: "👑", name: "Zeus", pay: "5x: ×500 · 4x: ×150 · 3x: ×40" },
+  { emoji: "💎", name: "Zeus", pay: "5x: ×500 · 4x: ×150 · 3x: ×40" },
   { emoji: "⚡", name: "Golden Bolt", pay: "5x: ×200 · 4x: ×80 · 3x: ×20" },
   { emoji: "🏛️", name: "Marble Temple", pay: "5x: ×120 · 4x: ×40 · 3x: ×12" },
   { emoji: "🦅", name: "Eagle of Olympus", pay: "5x: ×80 · 4x: ×25 · 3x: ×8" },
@@ -104,7 +104,7 @@ const SECTIONS: PaytableSection[] = [
       <>
         <p className="text-sm text-amber-100/95 leading-relaxed">
           단일 스핀 최대 배율 도달 시 <b className="text-yellow-200">Olympus Legacy</b> 시네마틱과{" "}
-          <b className="text-amber-200">Crown 자동 보상</b>이 발동됩니다.
+          <b className="text-amber-200">PHON 자동 보상</b>이 발동됩니다.
         </p>
         <p className="text-xs text-amber-300/80 mt-2">
           RTP 96.0% (Real) · Demo 모드는 학습용으로 RTP가 다를 수 있습니다.
@@ -118,7 +118,7 @@ export default function OlympusLegacyPaytableSheet() {
   return (
     <BasePaytableSheet
       title="Olympus Legacy 5000 — 배당표"
-      TitleIcon={Crown}
+      TitleIcon={PHON}
       titleIconClassName="text-amber-200"
       titleClassName="text-amber-100"
       triggerClassName="border-amber-400/60 bg-amber-950/40 text-amber-100 hover:bg-amber-900/50 hover:text-amber-50 backdrop-blur-sm"

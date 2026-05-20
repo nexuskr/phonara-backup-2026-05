@@ -37,7 +37,7 @@ export default function DailyLoginRewardToast() {
       claimDaily()
         .then((res) => {
           if (res.status === "granted") {
-            notify.imperial("👑 일일 로그인 +500 PHON", { description: "내일 또 만나요." });
+            notify.imperial("💎 일일 로그인 +500 PHON", { description: "내일 또 만나요." });
           }
         })
         .catch(() => { firedRef.current = false; });

@@ -51,7 +51,7 @@ export default function AchievementUnlockListener() {
         duration: 5000,
       });
       setFireworks({
-        title: `👑 폐하의 위엄이 한 단계 더 깊어졌습니다`,
+        title: `💎 폐하의 위엄이 한 단계 더 깊어졌습니다`,
         subtitle: title,
       });
     },

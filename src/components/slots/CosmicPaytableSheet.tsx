@@ -6,7 +6,7 @@ import BasePaytableSheet, {
 } from "@/components/slots/BasePaytableSheet";
 
 const HIGH: SymRow[] = [
-  { emoji: "👑", name: "Cosmic Emperor", pay: "5x: ×500 · 4x: ×150 · 3x: ×40" },
+  { emoji: "💎", name: "Cosmic Emperor", pay: "5x: ×500 · 4x: ×150 · 3x: ×40" },
   { emoji: "🌌", name: "Galaxy Goddess", pay: "5x: ×200 · 4x: ×80 · 3x: ×20" },
   { emoji: "🪐", name: "Forge Planet",   pay: "5x: ×120 · 4x: ×40 · 3x: ×12" },
   { emoji: "⚡", name: "Plasma Core",    pay: "5x: ×80 · 4x: ×25 · 3x: ×8" },

@@ -98,7 +98,7 @@ export default function Vip() {
       if (error) throw error;
       const expires = (data as any)?.expires_at;
       notify.success(
-        `👑VIP ${pendingTier.toUpperCase()} 활성화${expires ? ` · 만료 ${new Date(expires).toLocaleDateString()}` : ""}`,
+        `💎VIP ${pendingTier.toUpperCase()} 활성화${expires ? ` · 만료 ${new Date(expires).toLocaleDateString()}` : ""}`,
       );
       await vip.refresh();
       qc.invalidateQueries({ queryKey: ["vip"] });
@@ -142,7 +142,7 @@ export default function Vip() {
               </span>
             </h1>
             <p className="max-w-xl text-sm md:text-base text-muted-foreground">
-              Silver · Gold · Platinum · Diamond — 등급마다 더 큰 Crown 폭발, 더 빠른 Whale 시그널.
+              Silver · Gold · Platinum · Diamond — 등급마다 더 큰 PHON 폭발, 더 빠른 Whale 시그널.
             </p>
 
             <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
@@ -201,7 +201,7 @@ export default function Vip() {
 
                     {/* benefits */}
                     <ul className="px-4 pb-4 space-y-2 text-xs flex-1">
-                      <Benefit label="Crown 폭발 배수" value={`×${t.crown_mult}`} />
+                      <Benefit label="PHON 폭발 배수" value={`×${t.crown_mult}`} />
                       <Benefit label="수수료 면제" value={t.fee_waiver_pct > 0 ? `-${t.fee_waiver_pct}%` : "—"} />
                       <Benefit label="무료 스핀" value={t.free_spins > 0 ? `${t.free_spins}회/일` : "—"} />
                       <Benefit

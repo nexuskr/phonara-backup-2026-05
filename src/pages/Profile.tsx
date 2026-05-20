@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { useDB, formatKRW } from "@/lib/store";
-import { ShieldCheck, Star, Trophy, Settings, Award, Lock, X, Mail, KeyRound, BookOpen, LogOut, Crown, Flame } from "lucide-react";
+import { Gem, ShieldCheck, Star, Trophy, Settings, Award, Lock, X, Mail, KeyRound, BookOpen, LogOut, Flame } from "lucide-react";
 import PinPad from "@/components/PinPad";
 import PinResetDialog from "@/components/PinResetDialog";
 import { toast } from "@/hooks/use-toast";
@@ -64,7 +64,7 @@ export default function Profile() {
     { id: "first",    name: t("badges.first.name"),    emoji: "🚀", desc: t("badges.first.desc"),    rarity: "common",    got: u.xp >= 100, progress: Math.min(100, u.xp) },
     { id: "vip",      name: t("badges.vip.name"),      emoji: "💎", desc: t("badges.vip.desc"),      rarity: "rare",      got: ["VIP","GOD","EMPIRE"].includes(u.tier) },
     { id: "god",      name: t("badges.god.name"),      emoji: "⚡", desc: t("badges.god.desc"),      rarity: "epic",      got: ["GOD","EMPIRE"].includes(u.tier) },
-    { id: "empire",   name: t("badges.empire.name"),   emoji: "👑", desc: t("badges.empire.desc"),   rarity: "legendary", got: u.tier === "EMPIRE" },
+    { id: "empire",   name: t("badges.empire.name"),   emoji: "💎", desc: t("badges.empire.desc"),   rarity: "legendary", got: u.tier === "EMPIRE" },
     { id: "streak3",  name: t("badges.streak3.name"),  emoji: "🌱", desc: t("badges.streak3.desc"),  rarity: "common",    got: u.streak >= 3,  progress: Math.min(100, (u.streak/3)*100) },
     { id: "streak7",  name: t("badges.streak7.name"),  emoji: "🔥", desc: t("badges.streak7.desc"),  rarity: "rare",      got: u.streak >= 7,  progress: Math.min(100, (u.streak/7)*100) },
     { id: "streak30", name: t("badges.streak30.name"), emoji: "🏆", desc: t("badges.streak30.desc"), rarity: "epic",      got: u.streak >= 30, progress: Math.min(100, (u.streak/30)*100) },
@@ -155,12 +155,12 @@ export default function Profile() {
             <div className="flex-1 min-w-0">
               <h2 className="font-imperial font-black text-xl sm:text-2xl truncate tracking-[0.02em]">{u.nickname}</h2>
               <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-              <div className="text-[10px] text-gold font-bold mt-0.5 flex items-center gap-1"><Crown className="w-3 h-3 shrink-0" /> {t("tier", { t: u.tier })}</div>
+              <div className="text-[10px] text-gold font-bold mt-0.5 flex items-center gap-1"><Gem className="w-3 h-3 shrink-0" /> {t("tier", { t: u.tier })}</div>
               <button
                 onClick={() => setNftGalleryOpen(true)}
                 className="mt-1 text-[10px] text-primary hover:text-primary/80 underline-offset-2 hover:underline inline-flex items-center gap-1"
               >
-                <Crown className="w-3 h-3" />
+                <Gem className="w-3 h-3" />
                 {t("nft.changeMain")}
               </button>
               <div className="mt-2">

@@ -14,11 +14,11 @@ const TEMPLATES: Array<(n: string) => { icon: string; text: string }> = [
   (n) => ({ icon: "🔥", text: `${n} +${(Math.floor(Math.random() * 30) + 5) * 1000}원 수익 발생` }),
   (n) => ({ icon: "⚡", text: `${n} ${Math.floor(Math.random() * 6) + 3}연승 기록 갱신` }),
   (n) => ({ icon: "💥", text: `${n} 대형 베팅 성공` }),
-  (n) => ({ icon: "👑", text: `${n} 신규 황제 입성` }),
+  (n) => ({ icon: "💎", text: `${n} 신규 황제 입성` }),
   (n) => ({ icon: "🚀", text: `${n} LONG 적중 +${(Math.floor(Math.random() * 50) + 10) * 1000}원` }),
   (n) => ({ icon: "🚀", text: `${n} SHORT 적중 +${(Math.floor(Math.random() * 50) + 10) * 1000}원` }),
   (n) => ({ icon: "💸", text: `${n} ${(Math.floor(Math.random() * 400) + 50) * 10000}원 출금 완료` }),
-  (n) => ({ icon: "🌌", text: `${n} Crown 폭발` }),
+  (n) => ({ icon: "🌌", text: `${n} PHON 폭발` }),
 ];
 
 function makeEvent(): { id: number; icon: string; text: string } {
@@ -159,12 +159,12 @@ export default function ActivityEventTicker({
 function pickIconForType(t?: string): string {
   switch (t) {
     case "withdrawal": return "💸";
-    case "package_purchase": return "👑";
+    case "package_purchase": return "💎";
     case "jackpot_contrib": return "🌌";
     case "paper_win": return "🚀";
     case "mission_clear": return "🔥";
     case "recovery": return "⚡";
-    case "new_signup": return "👑";
+    case "new_signup": return "💎";
     default: return "🔥";
   }
 }

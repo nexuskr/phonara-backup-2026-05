@@ -29,7 +29,7 @@ export default function StreakBadge() {
       >
         <Flame className={`w-3.5 h-3.5 ${tier === "amber" ? "" : "animate-pulse"}`} />
         <span className="tabular-nums">{streak}연승 중</span>
-        {tier === "emperor" && <span className="text-[10px]">👑</span>}
+        {tier === "emperor" && <span className="text-[10px]">💎</span>}
       </motion.div>
     </AnimatePresence>
   );

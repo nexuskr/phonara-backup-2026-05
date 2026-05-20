@@ -62,7 +62,7 @@ export function CinematicSequence({ intensity, level, verdict }: CinematicProps)
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="font-display font-black text-3xl md:text-5xl tracking-tight text-amber-950 drop-shadow-[0_2px_8px_hsl(38_92%_15%/0.55)]">
-          {verdict === "won" ? "👑 VICTORY" : verdict === "lost" ? "⚔️ DEFEAT" : stage === 3 ? "⚡ CLIMAX" : stage === 2 ? "🔥 TENSE" : "🕊️ CALM"}
+          {verdict === "won" ? "💎 VICTORY" : verdict === "lost" ? "⚔️ DEFEAT" : stage === 3 ? "⚡ CLIMAX" : stage === 2 ? "🔥 TENSE" : "🕊️ CALM"}
         </div>
       </div>
       <div className="absolute bottom-2 right-3 text-[10px] font-mono text-amber-950/70">
