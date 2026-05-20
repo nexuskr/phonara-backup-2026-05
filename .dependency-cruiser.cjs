@@ -13,6 +13,27 @@
 module.exports = {
   forbidden: [
     {
+      name: "apex-no-operator",
+      severity: "error",
+      comment:
+        "ApexForge package must not import operator/admin code (keeps user bundle clean).",
+      from: { path: "^src/packages/apex" },
+      to: {
+        path: "^src/(packages/operator|pages/admin|components/admin)",
+      },
+    },
+    {
+      name: "apex-no-money-flow-mutation",
+      severity: "error",
+      comment:
+        "ApexForge must not import legacy money-flow mutators (8-path freeze guard).",
+      from: { path: "^src/packages/apex" },
+      to: {
+        path:
+          "^src/(packages/wallet/hooks/useDeposit|packages/crash/hooks/useCrashRound|hooks/use-auto-bet)",
+      },
+    },
+    {
       name: "critical-no-optional",
       severity: "warn",
       comment:

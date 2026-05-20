@@ -91,16 +91,42 @@ export default function ApexHealth() {
   const { caps, backend, stats } = useEngineProbe();
   const [summary, setSummary] = useState<ApexSummary | null>(null);
   const [bigwins, setBigwins] = useState<ApexBigWin[]>([]);
-  const [tab, setTab] = useState<"vitals" | "gpu" | "money" | "bundle" | "pwa" | "viral">("vitals");
+  const [tab, setTab] = useState<"vitals" | "gpu" | "money" | "bundle" | "pwa" | "viral" | "perf">("vitals");
+  const [bench, setBench] = useState<Record<string, { fps: number; p1: number; ms: number }>>({});
+  const [benching, setBenching] = useState<string | null>(null);
 
   useEffect(() => {
     apexGetMySummary().then(setSummary);
     apexGetLiveBigwins(10).then(setBigwins);
   }, []);
 
+  const runBench = async (game: string) => {
+    setBenching(game);
+    const frames: number[] = [];
+    let last = performance.now();
+    const start = last;
+    const DURATION = 6000; // 6s sample (10x scaled = 60s extrapolation)
+    await new Promise<void>(resolve => {
+      const tick = () => {
+        const now = performance.now();
+        frames.push(1000 / Math.max(now - last, 0.1));
+        last = now;
+        if (now - start < DURATION) requestAnimationFrame(tick);
+        else resolve();
+      };
+      requestAnimationFrame(tick);
+    });
+    const sorted = [...frames].sort((a, b) => a - b);
+    const avg = frames.reduce((a, b) => a + b, 0) / frames.length;
+    const p1 = sorted[Math.floor(sorted.length * 0.01)] ?? avg;
+    setBench(b => ({ ...b, [game]: { fps: Math.round(avg), p1: Math.round(p1), ms: DURATION } }));
+    setBenching(null);
+  };
+
   const tabs: { id: typeof tab; label: string }[] = useMemo(() => [
     { id: "vitals", label: "Vitals" },
     { id: "gpu", label: "GPU/WASM" },
+    { id: "perf", label: "Perf" },
     { id: "money", label: "Money Flow" },
     { id: "bundle", label: "Bundle" },
     { id: "pwa", label: "PWA" },
@@ -169,6 +195,41 @@ export default function ApexHealth() {
                 ApexBackdrop는 <code>/apex/games/*</code>에서 OFF로 LCP 회수.<br/>
                 머니플로 8경로 git diff = 0 (visual-only stream).
               </div>
+            </Card>
+          </>
+        )}
+        {tab === "perf" && (
+          <>
+            <Card title="Tier S 60s 벤치마크 (5 games)">
+              <div className="text-xs text-muted-foreground mb-3">
+                target: mid-tier device 60fps avg / p1 ≥ 50fps. money-flow 0 터치 (시각만).
+              </div>
+              <div className="space-y-2">
+                {["crash", "dice", "mines", "plinko", "slots"].map(g => (
+                  <div key={g} className="flex items-center justify-between gap-2">
+                    <span className="text-sm capitalize">{g}</span>
+                    <div className="flex items-center gap-2">
+                      {bench[g] && (
+                        <span className="font-mono text-xs text-amber-300">
+                          {bench[g].fps}fps · p1 {bench[g].p1}fps
+                        </span>
+                      )}
+                      <button
+                        onClick={() => runBench(g)}
+                        disabled={!!benching}
+                        className="rounded bg-primary/20 px-2 py-1 text-xs text-primary disabled:opacity-50"
+                      >
+                        {benching === g ? "…" : "Run"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card title="WebGPU/WASM Active">
+              <Stat k="Backend" v={backend?.toUpperCase() ?? "…"} />
+              <Stat k="Tier" v={caps?.tier ?? "—"} />
+              <Stat k="Compute avg" v={stats ? `${stats.computeMs}ms` : "—"} />
             </Card>
           </>
         )}
