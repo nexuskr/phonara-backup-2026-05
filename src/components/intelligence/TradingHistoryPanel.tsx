@@ -247,7 +247,7 @@ export default function TradingHistoryPanel() {
                     <td className="px-2 py-2 font-mono tabular-nums">{(r.closed?.price ?? live).toFixed(2)}</td>
                     <td className={`px-2 py-2 text-right font-mono tabular-nums font-bold ${positive ? (huge ? "text-primary drop-shadow-[0_0_10px_hsl(45_88%_55%/0.6)]" : "text-emerald-400") : "text-rose-400"} ${big ? "text-base" : ""}`}>
                       {positive ? "+" : ""}{pnl.toFixed(2)}
-                      {huge ? " 👑" : big ? " 🔥" : ""}
+                      {huge ? " 💎" : big ? " 🔥" : ""}
                     </td>
                     <td className={`px-2 py-2 text-right font-mono tabular-nums ${positive ? "text-emerald-400" : "text-rose-400"}`}>
                       {roi.toFixed(1)}%

@@ -46,7 +46,7 @@ export function ReplayShareGlobal() {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="text-7xl">👑</div>
+            <div className="text-7xl">💎</div>
             <div className="mt-2 text-[10px] tracking-[0.3em] font-black text-gold">CROWN REVEAL</div>
             <div className="mt-2 font-display font-black text-2xl">제국 전체에 자랑하세요</div>
             <p className="mt-2 text-sm text-muted-foreground">

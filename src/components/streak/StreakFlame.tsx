@@ -13,7 +13,7 @@ interface Props {
  *   - 1~6일: muted
  *   - 7일+: amber pulse
  *   - 14일+: amber/rose gradient + ring pulse
- *   - 30일+: Imperial Half-Off gradient + 회전 corona + 우상단 👑
+ *   - 30일+: Imperial Half-Off gradient + 회전 corona + 우상단 💎
  * `prefers-reduced-motion` 에서 모든 모션 OFF (drop-shadow는 유지).
  */
 export default function StreakFlame({ streak, className, size = "md" }: Props) {

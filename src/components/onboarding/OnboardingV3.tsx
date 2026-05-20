@@ -120,7 +120,7 @@ function StepWelcome() {
         <Gift className="w-6 h-6" />
       </div>
       <div className="text-[10px] tracking-[0.3em] font-black text-[hsl(var(--gold))] mb-1">STEP 1 / 5</div>
-      <h3 className="font-imperial text-2xl text-foreground leading-tight">환영합니다 👑</h3>
+      <h3 className="font-imperial text-2xl text-foreground leading-tight">환영합니다 💎</h3>
       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
         가입 보너스로 <span className="text-foreground font-black">500 PHON</span>이 지급됐어요.<br />
         60초 안에 어떻게 돈 버는지 보여드릴게요.

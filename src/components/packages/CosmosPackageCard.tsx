@@ -58,7 +58,7 @@ const COSMOS_PACKAGES: CosmosPkg[] = [
     durationDays: 30,
     unlocks: [
       "💠 Diamond Crown NFT 즉시 발급",
-      "👑 Baron 즉시 승급",
+      "💎 Baron 즉시 승급",
       "🔥 Crown ×2 영구 부스트",
       "🏛️ Founding Seat 우선권",
       "🛰️ Empire Rocket Stack 스킨",

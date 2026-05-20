@@ -125,7 +125,7 @@ export default function SlotTournamentBanner() {
                   : "text-foreground/50"
                 }`}
               >
-                {r.rank === 1 ? "👑" : `${r.rank}`}
+                {r.rank === 1 ? "💎" : `${r.rank}`}
               </span>
               <span className="flex-1 truncate text-foreground/90">{r.nickname_masked}</span>
               <span className="text-foreground/60 tabular-nums">{fmt(r.total_payout)}</span>

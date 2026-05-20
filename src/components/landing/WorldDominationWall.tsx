@@ -117,7 +117,7 @@ export default function WorldDominationWall() {
 
   // 빈 피드 시 시드(데모) — 실데이터 1건이라도 오면 즉시 교체
   const displayFeed: Activity[] = feed.length > 0 ? feed : [
-    { kind: "crown_explosion", flag: "👑", title: "Crown Explosion", amount: 2341, user_mask: "Whale a3f1", created_at: new Date().toISOString() },
+    { kind: "crown_explosion", flag: "💎", title: "Crown Explosion", amount: 2341, user_mask: "Whale a3f1", created_at: new Date().toISOString() },
     { kind: "nft_mint", flag: "🪐", title: "DIAMOND emperor", amount: 35, user_mask: "Empire 8c20", created_at: new Date().toISOString() },
     { kind: "baron_promotion", flag: "⚜️", title: "Tier 9", amount: 9, user_mask: "Baron f4d2", created_at: new Date().toISOString() },
   ];

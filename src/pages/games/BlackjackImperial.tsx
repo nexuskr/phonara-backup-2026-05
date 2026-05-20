@@ -46,7 +46,7 @@ export default function BlackjackImperial() {
     s.recordSettle(result.outcome, profit);
     if (result.outcome === "blackjack") {
       haptics.win();
-      notify.success(`👑 BLACKJACK · +${profit.toLocaleString()}`);
+      notify.success(`💎 BLACKJACK · +${profit.toLocaleString()}`);
     } else if (result.outcome === "win") {
       haptics.win();
       notify.success(`✨ WIN · +${profit.toLocaleString()}`);

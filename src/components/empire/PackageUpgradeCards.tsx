@@ -130,7 +130,7 @@ const TIERS: TierMeta[] = [
     rarity: "Legendary",
     rarityKo: "전설",
     step: 5,
-    emblem: "👑",
+    emblem: "💎",
     color: "from-gold/40 to-primary/15",
     glow: "shadow-[0_0_36px_-4px_hsl(var(--gold)/0.55)] glow-gold",
     territoryBonus: 15,

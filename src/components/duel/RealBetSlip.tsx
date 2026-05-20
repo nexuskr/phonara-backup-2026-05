@@ -62,7 +62,7 @@ export function RealBetSlip({ roomId, defaultSide = "left", leftPot, rightPot, d
   if (frozen) {
     return (
       <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-900/30 to-amber-950/40 backdrop-blur-xl p-5 text-center space-y-2">
-        <div className="text-3xl">👑</div>
+        <div className="text-3xl">💎</div>
         <div className="text-sm font-display font-bold text-amber-100">결투방 비상 동결 중</div>
         <div className="text-xs text-amber-200/70">
           황실 운영진이 결투의 공정성을 점검 중입니다. 잠시 후 다시 출진해 주십시오.

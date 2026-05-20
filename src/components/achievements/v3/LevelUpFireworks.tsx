@@ -73,7 +73,7 @@ export default function LevelUpFireworks({ open, title, subtitle, onClose }: Pro
             className="pointer-events-auto rounded-3xl bg-gradient-to-br from-amber-500/20 via-yellow-400/10 to-orange-500/20 border border-amber-400/40 backdrop-blur-md px-8 py-6 shadow-[0_20px_60px_-10px_rgba(245,196,74,0.45)]"
           >
             <div className="text-center space-y-1">
-              <div className="text-4xl">👑</div>
+              <div className="text-4xl">💎</div>
               <div className="font-imperial text-xl font-black tracking-tight text-amber-200 break-keep">
                 {title}
               </div>

@@ -41,7 +41,7 @@ export default function EmpireSignature() {
               top: `${12 + (i * 11) % 76}%`,
             }}
           >
-            👑
+            💎
           </span>
         ))}
       </div>

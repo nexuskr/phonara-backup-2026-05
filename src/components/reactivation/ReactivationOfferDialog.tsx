@@ -60,7 +60,7 @@ export default function ReactivationOfferDialog() {
       if (!result?.ok) {
         notify.warning("보너스 만료", { description: result?.reason === "expired" ? "오퍼가 만료되었습니다." : "이미 수령했습니다." });
       } else {
-        notify.success(`👑 +${result.phon_credited?.toLocaleString()} PHON 입금`, {
+        notify.success(`💎 +${result.phon_credited?.toLocaleString()} PHON 입금`, {
           description: "복귀를 환영합니다, 황제여.",
         });
         track("reactivation_offer_claimed", { campaign: offer.campaign_key, phon: result.phon_credited });

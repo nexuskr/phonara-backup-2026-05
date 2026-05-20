@@ -40,7 +40,7 @@ export default function ImperialWelcomeDialog() {
     try {
       const res = await claimSignup();
       if (res.status === "granted") {
-        notify.imperial("👑 15,000 PHON 지급 완료", { description: "Imperial Empire 입성을 환영합니다." });
+        notify.imperial("💎 15,000 PHON 지급 완료", { description: "Imperial Empire 입성을 환영합니다." });
       } else if (res.status === "fraud_rejected") {
         notify.error("보너스 지급 거부", { description: "이미 등록된 기기에서 발급된 보너스가 있습니다." });
       } else if (res.status === "cap_reached" || res.status === "paused") {

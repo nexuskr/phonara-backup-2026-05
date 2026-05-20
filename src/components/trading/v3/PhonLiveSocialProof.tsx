@@ -54,7 +54,7 @@ export default function PhonLiveSocialProof() {
           {loop.map((w, i) => (
             <span key={`${w.closed_at}-${i}`} className="text-[11px] flex items-center gap-1.5 px-2">
               <TrendingUp className="w-3 h-3 text-emerald-400" />
-              <span className="text-amber-200 font-bold">👑 {w.masked_nick}</span>
+              <span className="text-amber-200 font-bold">💎 {w.masked_nick}</span>
               <span className="text-muted-foreground">님이</span>
               <span className="font-black tabular-nums text-emerald-300">
                 +{Math.floor(Number(w.pnl_phon)).toLocaleString("ko-KR")} PHON

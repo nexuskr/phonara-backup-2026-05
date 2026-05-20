@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { LobbyEmperor } from "./types";
 
-const EMOJIS = ["👑", "🦁", "🐉", "🦅", "🐺", "🐅", "🦊", "🐻", "🦌", "🦏"];
+const EMOJIS = ["💎", "🦁", "🐉", "🦅", "🐺", "🐅", "🦊", "🐻", "🦌", "🦏"];
 const PALETTE = [
   "#F5C518", "#FF8A3D", "#F472B6", "#A78BFA", "#60A5FA",
   "#34D399", "#FCD34D", "#FB7185", "#C084FC", "#7DD3FC",

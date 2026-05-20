@@ -65,7 +65,7 @@ export default function FoundingSeasonHall() {
       const { data, error } = await supabase.rpc("claim_founding_season_seat");
       if (error) throw error;
       const seatNo = (data as any)?.seat_no;
-      notify.success(`👑 좌석 #${seatNo} 점유 완료! 영원히 당신의 자리입니다.`);
+      notify.success(`💎 좌석 #${seatNo} 점유 완료! 영원히 당신의 자리입니다.`);
       await load();
     } catch (e: any) {
       const code = e?.message ?? String(e);

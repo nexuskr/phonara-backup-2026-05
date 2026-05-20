@@ -89,7 +89,7 @@ export default function CrownAura({ level, size = 48, className = "", children }
         className="absolute rounded-full overflow-hidden bg-background flex items-center justify-center"
         style={{ inset: ringPad, width: size, height: size }}
       >
-        {children ?? <span className="text-2xl select-none">👑</span>}
+        {children ?? <span className="text-2xl select-none">💎</span>}
       </div>
     </div>
   );

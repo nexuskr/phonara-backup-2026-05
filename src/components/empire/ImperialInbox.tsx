@@ -25,15 +25,15 @@ const KIND_EMOJI: Record<string, string> = {
   win_small: "✨",
   loss_small: "·",
   liq: "🛡",
-  imperial: "👑",
+  imperial: "💎",
   deposit: "💰",
   withdrawal: "🏦",
   level_up: "📈",
 };
 
 function emojiFor(kind?: string) {
-  if (!kind) return "👑";
-  return KIND_EMOJI[kind] ?? "👑";
+  if (!kind) return "💎";
+  return KIND_EMOJI[kind] ?? "💎";
 }
 
 export default function ImperialInbox({ className = "" }: { className?: string }) {

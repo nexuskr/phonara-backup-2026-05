@@ -289,7 +289,7 @@ export function ScenePackage({ large = false }: { large?: boolean }) {
   const perks = [
     { icon: "💎", title: "손실 자동 보상 (Recovery)", sub: "트레이딩 배틀 패배 시 일정 비율 자동 환급", boom: true },
     { icon: "⚡", title: "보상 4배 가속", sub: "모든 미션 보상 최대 4배 가속" },
-    { icon: "👑", title: "우선 출금", sub: "평균 23분 → 최대 5분 이내 처리" },
+    { icon: "💎", title: "우선 출금", sub: "평균 23분 → 최대 5분 이내 처리" },
     { icon: "🎁", title: "VIP 룰렛", sub: "최대 100만원 + 메가 잭팟 1탭" },
   ];
   return (

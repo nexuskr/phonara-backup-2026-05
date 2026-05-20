@@ -1,6 +1,6 @@
 /**
  * PowerHeader — fixed top-right HUD.
- * Shows: 👑 LEVEL · 💰 PHON · ⚡ +X% (cap 100%) · 🚀 maxLev
+ * Shows: 💎 LEVEL · 💰 PHON · ⚡ +X% (cap 100%) · 🚀 maxLev
  * Pulses when power state changes. Clicking opens /empire/collection.
  */
 import { useEffect, useState } from "react";

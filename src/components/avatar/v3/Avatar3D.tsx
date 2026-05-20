@@ -109,7 +109,7 @@ export default function Avatar3D({ equipped, color, size = 220, className }: Pro
             fontWeight: 700,
           }}
         >
-          👑 {equipped.title.name}
+          💎 {equipped.title.name}
         </div>
       )}
     </div>

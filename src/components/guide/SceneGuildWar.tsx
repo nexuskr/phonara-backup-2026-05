@@ -33,7 +33,7 @@ export function SceneGuildWar({ large = false }: { large?: boolean }) {
   }, []);
 
   const display: GuildRow[] = guilds.length > 0 ? guilds : [
-    { id: "s1", name: "황금제국", emblem: "👑", total_power: 18_420_000, member_count: 28 },
+    { id: "s1", name: "황금제국", emblem: "💎", total_power: 18_420_000, member_count: 28 },
     { id: "s2", name: "흑룡기사단", emblem: "🐉", total_power: 14_280_000, member_count: 24 },
     { id: "s3", name: "백호연합", emblem: "🐯", total_power: 11_840_000, member_count: 22 },
   ];

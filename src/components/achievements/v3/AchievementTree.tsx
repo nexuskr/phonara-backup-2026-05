@@ -13,7 +13,7 @@ const LevelUpFireworks = lazy(() => import("./LevelUpFireworks"));
 const CATEGORIES: { key: CategoryKey; label: string; emoji: string }[] = [
   { key: "trade", label: "트레이딩", emoji: "📈" },
   { key: "stake", label: "스테이킹", emoji: "🌾" },
-  { key: "empire", label: "제국", emoji: "👑" },
+  { key: "empire", label: "제국", emoji: "💎" },
   { key: "social", label: "소셜", emoji: "🤝" },
   { key: "daily", label: "데일리", emoji: "🌅" },
 ];

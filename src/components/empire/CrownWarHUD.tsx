@@ -81,7 +81,7 @@ export default function CrownWarHUD() {
               }`}
             >
               <span className="font-bold">
-                {p.rnk === 1 ? "👑" : p.rnk === 2 ? "🥈" : "🥉"}
+                {p.rnk === 1 ? "💎" : p.rnk === 2 ? "🥈" : "🥉"}
               </span>
               <span className="truncate max-w-[7rem]">{p.nick}</span>
               <span className="font-mono text-amber-300/90">{p.score}</span>

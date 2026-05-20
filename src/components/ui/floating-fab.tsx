@@ -55,7 +55,7 @@ function FabInner({
           pulse && "animate-pulse",
         )}
       >
-        {icon ?? "👑"}
+        {icon ?? "💎"}
       </span>
       <span className="tracking-wide">{label}</span>
     </span>

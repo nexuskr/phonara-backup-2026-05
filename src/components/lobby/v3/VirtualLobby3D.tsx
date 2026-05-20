@@ -76,7 +76,7 @@ export default function VirtualLobby3D({ myPhon = 0 }: { myPhon?: number }) {
 
       <div className="pointer-events-none absolute top-3 left-3 right-3 flex items-start justify-between">
         <div className="rounded-full bg-black/45 backdrop-blur px-3 py-1.5 text-xs text-amber-300 border border-amber-500/30">
-          👑 황제 {emperors.length}명 입장 중 · {tier.toUpperCase()}
+          💎 황제 {emperors.length}명 입장 중 · {tier.toUpperCase()}
         </div>
       </div>
     </div>

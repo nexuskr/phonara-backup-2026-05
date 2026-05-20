@@ -37,7 +37,7 @@ export default function RouletteImperial() {
       s.clearBets();
       if (profit > 0) {
         haptics.win();
-        notify.success(`👑 ${settled} (${colorOf(settled)}) · +${profit.toLocaleString()} PHON`);
+        notify.success(`💎 ${settled} (${colorOf(settled)}) · +${profit.toLocaleString()} PHON`);
       } else if (profit === 0) {
         notify.info(`${settled} · 무승부`);
       } else {

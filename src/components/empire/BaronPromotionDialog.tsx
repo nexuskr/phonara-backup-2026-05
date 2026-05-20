@@ -28,7 +28,7 @@ type Variant = {
 
 const VARIANTS: Record<number, Variant> = {
   1: {
-    title: "👑 Baron 등극 — 권좌가 열렸다",
+    title: "💎 Baron 등극 — 권좌가 열렸다",
     desc: (s) => `상위 5%만 받는 24시간 한정 부스터. 이번 주 단 ${s}석. 마감 시 다음 시즌까지 봉쇄됩니다.`,
     ctaPrimary: "지금 권좌를 차지하라",
     ctaSecondary: "포기하기",
