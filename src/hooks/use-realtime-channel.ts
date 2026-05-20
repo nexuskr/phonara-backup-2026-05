@@ -41,15 +41,43 @@ interface Entry {
   channel: ReturnType<typeof supabase.channel> | null;
   listeners: Map<string, Listener>;
   statusListeners: Map<string, StatusListener>;
-  status: "subscribing" | "subscribed" | "errored" | "removed";
+  status: "subscribing" | "subscribed" | "errored" | "removed" | "idle-paused";
   pendingRemove: boolean;
   events: number;
   retryAttempts: number;
   retryTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · 50ms teardown grace timer — last consumer left but we wait before removeChannel */
+  teardownTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · idle visibility pause — hidden-tab 5min cumulative */
+  idlePauseTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · accumulated reconnect attempts (for admin telemetry) */
+  totalReconnects: number;
 }
 
 const REGISTRY = new Map<string, Entry>();
 let __counter = 0;
+
+// P0-5 · global stats for admin RealtimeStatusCard
+const STATS = {
+  totalReconnects: 0,
+  lastReconnectAt: 0,
+  idlePausedCount: 0,
+};
+
+export function getRealtimeStats() {
+  let active = 0;
+  let idle = 0;
+  REGISTRY.forEach((e) => {
+    if (e.status === "subscribed" || e.status === "subscribing") active++;
+    if (e.status === "idle-paused") idle++;
+  });
+  return {
+    activeChannels: active,
+    idlePausedChannels: idle,
+    totalReconnects: STATS.totalReconnects,
+    lastReconnectAt: STATS.lastReconnectAt,
+  };
+}
 
 function dbg(...args: unknown[]) {
   try {
