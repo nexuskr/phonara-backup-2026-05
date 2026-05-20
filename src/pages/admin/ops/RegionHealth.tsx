@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { notify } from "@/lib/notify";
 import { supabase } from "@/integrations/supabase/client";
 import { setRegion, getRegion, type RealtimeRegion } from "@pkg/realtime";
+import { RealtimeStatusCard } from "@/components/admin/RealtimeStatusCard";
 import { Globe, Zap, AlertTriangle } from "lucide-react";
 
 type Row = {
@@ -86,7 +87,9 @@ export default function RegionHealth() {
   };
 
   return (
-    <Card className="border-border/40">
+    <div className="space-y-4">
+      <RealtimeStatusCard />
+      <Card className="border-border/40">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Globe className="w-4 h-4 text-primary" />
@@ -174,5 +177,6 @@ export default function RegionHealth() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }

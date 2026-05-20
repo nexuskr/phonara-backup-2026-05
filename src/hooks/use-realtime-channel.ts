@@ -41,15 +41,43 @@ interface Entry {
   channel: ReturnType<typeof supabase.channel> | null;
   listeners: Map<string, Listener>;
   statusListeners: Map<string, StatusListener>;
-  status: "subscribing" | "subscribed" | "errored" | "removed";
+  status: "subscribing" | "subscribed" | "errored" | "removed" | "idle-paused";
   pendingRemove: boolean;
   events: number;
   retryAttempts: number;
   retryTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · 50ms teardown grace timer — last consumer left but we wait before removeChannel */
+  teardownTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · idle visibility pause — hidden-tab 5min cumulative */
+  idlePauseTimer: ReturnType<typeof setTimeout> | null;
+  /** P0-5 · accumulated reconnect attempts (for admin telemetry) */
+  totalReconnects: number;
 }
 
 const REGISTRY = new Map<string, Entry>();
 let __counter = 0;
+
+// P0-5 · global stats for admin RealtimeStatusCard
+const STATS = {
+  totalReconnects: 0,
+  lastReconnectAt: 0,
+  idlePausedCount: 0,
+};
+
+export function getRealtimeStats() {
+  let active = 0;
+  let idle = 0;
+  REGISTRY.forEach((e) => {
+    if (e.status === "subscribed" || e.status === "subscribing") active++;
+    if (e.status === "idle-paused") idle++;
+  });
+  return {
+    activeChannels: active,
+    idlePausedChannels: idle,
+    totalReconnects: STATS.totalReconnects,
+    lastReconnectAt: STATS.lastReconnectAt,
+  };
+}
 
 function dbg(...args: unknown[]) {
   try {
@@ -110,6 +138,9 @@ function bindAndSubscribe(e: Entry) {
       // 자동 재연결 (지수 백오프, 30s cap)
       if (cur.listeners.size > 0 && !cur.retryTimer) {
         const delay = Math.min(30_000, 1_000 * Math.pow(2, cur.retryAttempts++));
+        cur.totalReconnects++;
+        STATS.totalReconnects++;
+        STATS.lastReconnectAt = Date.now();
         dbg(e.key, "reconnect in", delay, "ms");
         cur.retryTimer = setTimeout(async () => {
           cur.retryTimer = null;
@@ -128,7 +159,20 @@ function bindAndSubscribe(e: Entry) {
 
 function ensureChannel(key: string, bindings: ChannelBinding[]): Entry {
   const existing = REGISTRY.get(key);
-  if (existing && existing.status !== "removed") return existing;
+  if (existing && existing.status !== "removed") {
+    // P0-5 · re-attach within grace → cancel pending teardown
+    if (existing.teardownTimer) {
+      clearTimeout(existing.teardownTimer);
+      existing.teardownTimer = null;
+      dbg(key, "teardown grace cancelled — new consumer attached");
+    }
+    // P0-5 · resume from idle pause
+    if (existing.status === "idle-paused") {
+      existing.status = "subscribing";
+      bindAndSubscribe(existing);
+    }
+    return existing;
+  }
 
   const entry: Entry = {
     key,
@@ -141,11 +185,16 @@ function ensureChannel(key: string, bindings: ChannelBinding[]): Entry {
     events: 0,
     retryAttempts: 0,
     retryTimer: null,
+    teardownTimer: null,
+    idlePauseTimer: null,
+    totalReconnects: 0,
   };
   REGISTRY.set(key, entry);
   bindAndSubscribe(entry);
   return entry;
 }
+
+const TEARDOWN_GRACE_MS = 50;
 
 function teardown(key: string, reason: string) {
   const e = REGISTRY.get(key);
@@ -155,14 +204,66 @@ function teardown(key: string, reason: string) {
     dbg(key, "teardown deferred —", reason);
     return;
   }
-  if (e.retryTimer) { clearTimeout(e.retryTimer); e.retryTimer = null; }
-  if (e.channel) {
-    try { void supabase.removeChannel(e.channel); dbg(key, "removeChannel ✓ —", reason); }
-    catch (err) { dbg(key, "removeChannel error", err); }
-  }
-  e.status = "removed";
-  e.channel = null;
-  REGISTRY.delete(key);
+  // P0-5 · 50ms grace before actual removeChannel — defends against StrictMode + route bounce
+  if (e.teardownTimer) return;
+  e.teardownTimer = setTimeout(() => {
+    e.teardownTimer = null;
+    const cur = REGISTRY.get(key);
+    if (!cur || cur !== e) return;
+    if (cur.listeners.size > 0) {
+      dbg(key, "teardown skipped — listeners returned during grace");
+      return;
+    }
+    if (cur.retryTimer) { clearTimeout(cur.retryTimer); cur.retryTimer = null; }
+    if (cur.idlePauseTimer) { clearTimeout(cur.idlePauseTimer); cur.idlePauseTimer = null; }
+    if (cur.channel) {
+      try { void supabase.removeChannel(cur.channel); dbg(key, "removeChannel ✓ —", reason); }
+      catch (err) { dbg(key, "removeChannel error", err); }
+    }
+    cur.status = "removed";
+    cur.channel = null;
+    REGISTRY.delete(key);
+  }, TEARDOWN_GRACE_MS);
+}
+
+/* ============================================================
+ * P0-5 · Idle visibility unsubscribe
+ * 백그라운드 탭 5분+ 지속 시 채널만 해제 (listener 는 메모리 유지).
+ * 가시 복귀 시 ensureChannel 경로에서 자동 재구독.
+ * ============================================================ */
+const IDLE_PAUSE_MS = 5 * 60 * 1000;
+
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    const hidden = document.visibilityState === "hidden";
+    REGISTRY.forEach((e) => {
+      if (hidden) {
+        if (e.idlePauseTimer) return;
+        e.idlePauseTimer = setTimeout(() => {
+          e.idlePauseTimer = null;
+          const cur = REGISTRY.get(e.key);
+          if (!cur || cur !== e) return;
+          if (document.visibilityState !== "hidden") return;
+          if (cur.status === "removed" || cur.status === "idle-paused") return;
+          if (cur.channel) {
+            try { void supabase.removeChannel(cur.channel); } catch { /* swallow */ }
+          }
+          cur.channel = null;
+          cur.status = "idle-paused";
+          STATS.idlePausedCount++;
+          dbg(e.key, "idle paused — hidden tab 5min");
+          broadcastStatus(cur);
+        }, IDLE_PAUSE_MS);
+      } else {
+        if (e.idlePauseTimer) { clearTimeout(e.idlePauseTimer); e.idlePauseTimer = null; }
+        if (e.status === "idle-paused" && e.listeners.size > 0) {
+          e.status = "subscribing";
+          broadcastStatus(e);
+          bindAndSubscribe(e);
+        }
+      }
+    });
+  });
 }
 
 /* ============================================================

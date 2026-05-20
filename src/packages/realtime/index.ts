@@ -20,7 +20,7 @@ import {
   type ConnState,
   type ChannelBinding,
 } from "@/hooks/use-realtime-channel";
-import { regionalKey, getRegion } from "./regions";
+import { regionalKey, getRegion, failoverNext } from "./regions";
 import { reportHeartbeat } from "./heartbeat";
 
 export type RealtimePartition = "wallet" | "game" | "chat" | "market";
@@ -30,6 +30,10 @@ export type { ConnState, ChannelBinding };
 export { subscribeRealtime };
 /** Region sharding (PR-N) — re-export for admin / debug. */
 export { detectRegion, getRegion, setRegion, type RealtimeRegion } from "./regions";
+/** P0-5 · Silent failover utilities — admin / status card. */
+export { failoverNext, getFailoverState } from "./regions";
+/** P0-5 · Realtime registry stats — admin RealtimeStatusCard. */
+export { getRealtimeStats } from "@/hooks/use-realtime-channel";
 
 const LOG = "[PHONARA REALTIME]";
 
@@ -70,26 +74,56 @@ function withHeartbeat(part: RealtimePartition, finalKey: string, opts: Partitio
   };
 }
 
+/**
+ * P0-5 · Auto silent failover.
+ * 5 consecutive `down` transitions trigger a region rotation (with 30s cooldown).
+ * Idempotent — counter resets on first `live`.
+ */
+const DOWN_THRESHOLD_FOR_FAILOVER = 5;
+function withFailover(part: RealtimePartition, opts: PartitionOpts): PartitionOpts {
+  const userOnStatus = opts.onStatus;
+  let downStreak = 0;
+  return {
+    ...opts,
+    onStatus: (state) => {
+      if (state === "live") {
+        downStreak = 0;
+      } else if (state === "down") {
+        downStreak++;
+        if (downStreak >= DOWN_THRESHOLD_FOR_FAILOVER) {
+          downStreak = 0;
+          try { failoverNext(); } catch { /* swallow */ }
+        }
+      }
+      try { userOnStatus?.(state); } catch { /* swallow */ }
+    },
+  };
+}
+
+function decorate(part: RealtimePartition, finalKey: string, opts: PartitionOpts): PartitionOpts {
+  return withFailover(part, withHeartbeat(part, finalKey, opts));
+}
+
 /** wallet 채널: phon_balances · withdrawal_requests · deposit_requests · nft_collection 등 */
 export function useWalletChannel(opts: PartitionOpts) {
   const key = buildKey("wallet", opts.key);
-  return useRealtimeChannel({ ...withHeartbeat("wallet", key, opts), key });
+  return useRealtimeChannel({ ...decorate("wallet", key, opts), key });
 }
 
 /** game 채널: live_positions · slot_spins · jackpot · empire 이벤트 등 */
 export function useGameChannel(opts: PartitionOpts) {
   const key = buildKey("game", opts.key);
-  return useRealtimeChannel({ ...withHeartbeat("game", key, opts), key });
+  return useRealtimeChannel({ ...decorate("game", key, opts), key });
 }
 
 /** chat 채널: chat_messages · support_tickets · admin alerts · audit log 등 */
 export function useChatChannel(opts: PartitionOpts) {
   const key = buildKey("chat", opts.key);
-  return useRealtimeChannel({ ...withHeartbeat("chat", key, opts), key });
+  return useRealtimeChannel({ ...decorate("chat", key, opts), key });
 }
 
 /** market 채널: oracle_prices · prediction_markets · 마켓 티커 등 */
 export function useMarketChannel(opts: PartitionOpts) {
   const key = buildKey("market", opts.key);
-  return useRealtimeChannel({ ...withHeartbeat("market", key, opts), key });
+  return useRealtimeChannel({ ...decorate("market", key, opts), key });
 }

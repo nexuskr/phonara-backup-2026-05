@@ -52,7 +52,14 @@ export interface SwrOptions {
   ttl?: number;
   /** Total stale window in ms (default 5min). Beyond swr the cache is dropped. */
   swr?: number;
+  /** P0-5 · min interval (ms) between focus-triggered refetches. Default 30s. */
+  focusThrottle?: number;
+  /** P0-5 · keep previous data during background refresh (no flicker). Default true. */
+  keepPrevious?: boolean;
 }
+
+// P0-5 · last focus refetch timestamp per key (stampede guard)
+const LAST_FOCUS_FETCH = new Map<string, number>();
 
 export async function swrFetch<T>(
   key: PublicKey,
@@ -111,6 +118,9 @@ export function useSwr<T>(
   fetcher: () => Promise<T>,
   opts: SwrOptions = {},
 ) {
+  const keepPrevious = opts.keepPrevious ?? true;
+  const focusThrottle = opts.focusThrottle ?? 30_000;
+
   const [state, setState] = useState<{
     data: T | null;
     isStale: boolean;
@@ -123,35 +133,94 @@ export function useSwr<T>(
 
   useEffect(() => {
     let cancelled = false;
-    swrFetch<T>(key, () => fetcherRef.current(), opts)
-      .then((res) => {
-        if (cancelled) return;
-        setState({ data: res.data, isStale: res.isStale, error: null, loading: false });
-        // If we returned stale data, the BG refresh promise updates MEM; poll once.
-        if (res.isStale) {
-          const t = window.setTimeout(() => {
-            if (cancelled) return;
-            const env = MEM.get(key) as Envelope<T> | undefined;
-            if (env) setState((s) => ({ ...s, data: env.v, isStale: false }));
-          }, 800);
-          return () => window.clearTimeout(t);
-        }
-      })
-      .catch((e: Error) => {
-        if (cancelled) return;
-        setState((s) => ({ ...s, error: e, loading: false }));
-      });
+
+    const settle = (data: T | null, isStale: boolean) => {
+      if (cancelled) return;
+      setState((s) => ({
+        // keepPrevious: avoid null flash during background refresh
+        data: data ?? (keepPrevious ? s.data : null),
+        isStale,
+        error: null,
+        loading: false,
+      }));
+    };
+
+    const runFetch = () => {
+      swrFetch<T>(key, () => fetcherRef.current(), opts)
+        .then((res) => {
+          if (cancelled) return;
+          settle(res.data, res.isStale);
+          // P0-5 · stale-while-revalidate: subscribe to the BG refresh promise directly,
+          // single setState on resolution — no 800ms flicker poll.
+          if (res.isStale) {
+            const inflight = INFLIGHT.get(key) as Promise<T> | undefined;
+            if (inflight) {
+              inflight.then((v) => {
+                if (cancelled) return;
+                setState((s) => ({ ...s, data: v, isStale: false }));
+              }).catch(() => { /* keep stale data + don't reset isStale */ });
+            }
+          }
+        })
+        .catch((e: Error) => {
+          if (cancelled) return;
+          setState((s) => ({ ...s, error: e, loading: false }));
+        });
+    };
+
+    runFetch();
+
+    // P0-5 · focus refetch with throttle (stampede guard)
+    const onVisible = () => {
+      if (cancelled || typeof document === "undefined") return;
+      if (document.visibilityState !== "visible") return;
+      const now = Date.now();
+      const last = LAST_FOCUS_FETCH.get(key) ?? 0;
+      if (now - last < focusThrottle) return;
+      LAST_FOCUS_FETCH.set(key, now);
+      runFetch();
+    };
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", onVisible);
+    }
+
     return () => {
       cancelled = true;
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", onVisible);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, opts.ttl, opts.swr]);
+  }, [key, opts.ttl, opts.swr, focusThrottle, keepPrevious]);
 
   return state;
 }
 
+/**
+ * P0-5 · Optimistic mutate.
+ * Immediately updates MEM + LS so consumers reading via swrFetch see the new value.
+ * If `revalidate: true`, kicks a background fetcher (caller must supply on next useSwr render).
+ */
+export function mutateSwr<T>(
+  key: PublicKey,
+  value: T | ((prev: T | null) => T),
+): T {
+  if (!PUBLIC_KEYS.includes(key)) {
+    throw new Error(`[swr] key "${key}" is not whitelisted as public.`);
+  }
+  const prev = (MEM.get(key) as Envelope<T> | undefined)?.v ?? null;
+  const next = typeof value === "function"
+    ? (value as (p: T | null) => T)(prev)
+    : value;
+  const env: Envelope<T> = { v: next, t: Date.now() };
+  MEM.set(key, env);
+  writeLs(key, env);
+  return next;
+}
+
 export function invalidateSwr(key: PublicKey) {
   MEM.delete(key);
+  LAST_FOCUS_FETCH.delete(key);
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(LS_PREFIX + key);
