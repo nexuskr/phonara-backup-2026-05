@@ -72,7 +72,7 @@ export function usePhonHubSummary() {
     aliveRef.current = true;
     void fetchOnce();
     const stop = setVisibleInterval(() => { void fetchOnce(); }, POLL_MS, {
-      meta: { owner: "usePhonHubSummary", category: "wallet" },
+      meta: { owner: "usePhonHubSummary", category: "cosmetic" },
     });
     return () => { aliveRef.current = false; stop(); };
   }, [fetchOnce]);
