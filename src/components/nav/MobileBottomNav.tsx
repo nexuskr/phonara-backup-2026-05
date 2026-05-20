@@ -86,6 +86,7 @@ function MobileBottomNavInner({ onMoreOpen }: Props) {
           const Icon = t.icon;
           const active = isActivePath(loc.pathname, t.to);
           const gold = t.emphasis === "gold";
+          const crimson = t.emphasis === "crimson";
 
           const inner = (
             <>
@@ -94,14 +95,15 @@ function MobileBottomNavInner({ onMoreOpen }: Props) {
                 className={[
                   "w-[34px] h-[34px] transition-transform duration-150 motion-reduce:transition-none",
                   active ? "scale-110" : "",
-                  gold ? "text-amber-300" : active ? "text-foreground" : "text-muted-foreground",
+                  gold ? "text-amber-300" : crimson ? "text-rose-300" : active ? "text-foreground" : "text-muted-foreground",
+                  crimson ? "drop-shadow-[0_0_8px_hsl(350_85%_60%/0.7)]" : "",
                 ].join(" ")}
                 strokeWidth={active ? 2.75 : 2.25}
               />
               <span
                 className={[
                   "text-[17.5px] font-black leading-none tracking-tight mt-0.5",
-                  gold ? "text-amber-200" : active ? "text-foreground" : "text-muted-foreground",
+                  gold ? "text-amber-200" : crimson ? "text-rose-200" : active ? "text-foreground" : "text-muted-foreground",
                 ].join(" ")}
               >
                 {t.label}
@@ -109,6 +111,11 @@ function MobileBottomNavInner({ onMoreOpen }: Props) {
               {gold && (
                 <span className="absolute -top-1 right-1 px-1 py-px rounded-full text-[8.5px] font-black tracking-wider bg-amber-400 text-black shadow-[0_0_8px_hsl(38_92%_60%/0.6)]">
                   LIVE
+                </span>
+              )}
+              {crimson && (
+                <span className="absolute -top-1 right-1 px-1 py-px rounded-full text-[8.5px] font-black tracking-wider bg-rose-500 text-white shadow-[0_0_10px_hsl(350_85%_60%/0.7)]">
+                  ⚔
                 </span>
               )}
             </>
@@ -123,8 +130,12 @@ function MobileBottomNavInner({ onMoreOpen }: Props) {
             gold
               ? "bg-gradient-to-b from-amber-500/20 via-amber-400/10 to-transparent ring-1 ring-amber-300/50 shadow-[0_0_18px_hsl(38_92%_60%/0.35)]"
               : "",
+            crimson
+              ? "bg-gradient-to-b from-rose-500/20 via-rose-400/10 to-transparent ring-1 ring-rose-300/50 shadow-[0_0_18px_hsl(350_85%_60%/0.4)]"
+              : "",
             active && gold ? "scale-[1.05] shadow-[0_0_24px_hsl(38_92%_60%/0.55)]" : "",
-            active && !gold ? "bg-card/60" : "",
+            active && crimson ? "scale-[1.05] shadow-[0_0_24px_hsl(350_85%_60%/0.6)]" : "",
+            active && !gold && !crimson ? "bg-card/60" : "",
           ].join(" ");
 
           const itemStyle: React.CSSProperties = {
