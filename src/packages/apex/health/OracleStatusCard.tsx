@@ -21,8 +21,8 @@ export default function OracleStatusCard() {
     let live = true;
     const tick = async () => {
       try {
-        const { data } = await supabase
-          .from("apex_randomness_requests" as any)
+        const { data } = await (supabase as any)
+          .from("apex_randomness_requests")
           .select("drand_round, server_pubkey, created_at, vrf_version, quorum_n, quorum_k, participating_nodes")
           .order("created_at", { ascending: false })
           .limit(1)
