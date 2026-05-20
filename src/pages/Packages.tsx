@@ -121,7 +121,8 @@ export default function Packages() {
             <PackageUpgradeCards />
           </div>
         </details>
-        <div className="mb-6">
+        <div className="mb-6 pt-4 border-t border-border/30">
+          <div className="text-[10px] tracking-[0.3em] text-muted-foreground font-bold mb-1 uppercase">기본 충전 · 단순 비교</div>
           <h1 className="font-imperial font-black text-2xl sm:text-3xl flex items-center gap-2 tracking-[0.04em] break-keep">
             <Gem className="w-5 h-5 text-gold shrink-0" /> <span className="text-gradient-gold">{t("headline")}</span>
           </h1>
