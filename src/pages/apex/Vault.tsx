@@ -146,6 +146,10 @@ export default function ApexVault() {
           ))}
         </ul>
       </section>
+
+      <Suspense fallback={<div className="h-24 rounded-xl border border-border bg-card/40 animate-pulse" />}>
+        <CoachV2Panel />
+      </Suspense>
     </div>
   );
 }
