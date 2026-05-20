@@ -19,7 +19,7 @@ export function useRakeback() {
       else notify.info("지급 가능한 rakeback이 없습니다.");
       return amt;
     } catch (e) {
-      notify.error("Rakeback 지급 실패", (e as Error).message);
+      notify.error(`Rakeback 지급 실패: ${(e as Error).message}`);
       return 0;
     } finally { setBusy(false); }
   };

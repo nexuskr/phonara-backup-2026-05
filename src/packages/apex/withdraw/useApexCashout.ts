@@ -36,10 +36,10 @@ export function useRequestCashout() {
           : error.message.includes("velocity")
             ? "단시간 출금 속도 한도 초과. 잠시 후 다시 시도하세요."
             : error.message;
-        notify.error("출금 요청 실패", msg);
+        notify.error(`출금 요청 실패: ${msg}`);
         return null;
       }
-      notify.success("출금 요청 접수됨", "5분 이내 처리됩니다.");
+      notify.success("출금 요청 접수됨 — 5분 이내 처리됩니다.");
       return data as { ok: boolean; intent_id: string; fee_usdt: number };
     } finally { setBusy(false); }
   };
@@ -56,8 +56,10 @@ export function useMyCashouts(limit = 20) {
     setData((rows as CashoutIntent[]) ?? []);
   };
   useEffect(() => { load(); }, [limit]);
-  useWalletChannel("cashout:mine", true, [
-    { event: "*", schema: "public", table: "apex_withdraw_intents", callback: load },
-  ]);
+  useWalletChannel({
+    key: "cashout:mine",
+    bindings: [{ event: "*", schema: "public", table: "apex_withdraw_intents" }],
+    onEvent: load,
+  });
   return { data, reload: load };
 }

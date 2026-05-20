@@ -9,6 +9,7 @@ export async function registerNativePush(): Promise<{ ok: boolean; reason?: stri
   const caps = await detectNative();
   if (!caps.isNative) return { ok: false, reason: "web" };
   try {
+    // @ts-expect-error optional capacitor dep
     const mod = await import(/* @vite-ignore */ "@capacitor/push-notifications").catch(() => null);
     if (!mod) return { ok: false, reason: "plugin_missing" };
     const PushNotifications = (mod as { PushNotifications: {
