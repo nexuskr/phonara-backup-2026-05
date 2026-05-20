@@ -4,6 +4,7 @@
  */
 import {  Gem} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatVipLevel } from "@/lib/branding/tierLabel";
 
 export type VipTier = "silver" | "gold" | "platinum" | "diamond";
 
@@ -14,10 +15,10 @@ interface Props {
 }
 
 const TIER_LABEL: Record<VipTier, string> = {
-  silver: "SILVER",
-  gold: "GOLD",
-  platinum: "PLATINUM",
-  diamond: "DIAMOND",
+  silver: formatVipLevel(1, { short: true }),
+  gold: formatVipLevel(2, { short: true }),
+  platinum: formatVipLevel(3, { short: true }),
+  diamond: formatVipLevel(4, { short: true }),
 };
 
 // All colors must reference design tokens — gradients composed from gold/pink/primary/muted.

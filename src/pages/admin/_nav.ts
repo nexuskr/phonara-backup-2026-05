@@ -40,7 +40,7 @@ export type AdminNavSection = {
 export const ADMIN_NAV: AdminNavSection[] = [
   {
     id: "command",
-    label: "지휘본부",
+    label: "운영 센터",
     emoji: "🎯",
     aal2: false,
     items: [
@@ -52,7 +52,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "treasury",
-    label: "자금 관리",
+    label: "자금 · 정산",
     emoji: "💰",
     aal2: true,
     items: [
@@ -67,7 +67,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "compliance",
-    label: "컴플라이언스",
+    label: "리스크 · 보안",
     emoji: "🛡️",
     aal2: true,
     items: [
@@ -83,7 +83,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "operations",
-    label: "운영",
+    label: "시스템 운영",
     emoji: "⚙️",
     aal2: true,
     items: [
@@ -105,7 +105,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "growth",
-    label: "성장 랩",
+    label: "성장 · 전환",
     emoji: "🚀",
     aal2: false,
     items: [
@@ -121,7 +121,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "game",
-    label: "게임 컨피그",
+    label: "게임 설정",
     emoji: "🎮",
     aal2: true,
     items: [
@@ -134,7 +134,7 @@ export const ADMIN_NAV: AdminNavSection[] = [
   },
   {
     id: "product",
-    label: "프로덕트",
+    label: "회원 · 지원",
     emoji: "👥",
     aal2: false,
     items: [
