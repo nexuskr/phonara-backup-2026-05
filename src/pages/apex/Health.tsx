@@ -231,6 +231,11 @@ export default function ApexHealth() {
               <Stat k="Tier" v={caps?.tier ?? "—"} />
               <Stat k="Compute avg" v={stats ? `${stats.computeMs}ms` : "—"} />
             </Card>
+            <Card title="Phase 3 Final — Ops Surface">
+              <Stat k="Race" v="cron */5m · settle p95 < 8s" />
+              <Stat k="Cashout" v="cron */5m · p95 < 6m (TRC/ERC/BSC)" />
+              <Stat k="Mobile" v={typeof window !== "undefined" && (window as any).Capacitor ? "Capacitor active" : "Web / PWA"} />
+            </Card>
           </>
         )}
         {tab === "money" && (
