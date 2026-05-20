@@ -1,9 +1,10 @@
 // /apex/verify/:roundNo — public Provably-Fair v2 verifier.
 // Re-runs Ed25519 + SHA-256 + crash_x derivation in the browser.
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ShieldCheck, ShieldAlert, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+const VrfTraceCard = lazy(() => import("@/packages/apex/oracle/VrfTraceCard"));
 
 interface RoundRow {
   round_no: number; server_seed: string | null; server_seed_hash: string; public_seed: string;
@@ -110,6 +111,10 @@ export default function ApexVerify() {
           )}
         </div>
       )}
+
+      <Suspense fallback={null}>
+        <VrfTraceCard game="crash_v2" roundRef={String(roundNoStr ?? "")} />
+      </Suspense>
 
       <p className="text-[10px] text-muted-foreground text-center">
         외부 감사 가능 · 서버 시드 사전 해시 공개 후 reveal · `m(t) = 1.0024^(t/100ms)` · `crash_x = max(1, 0.99/U)` (U = SHA-256(seed||pub||nonce) top-52bits / 2^52)
