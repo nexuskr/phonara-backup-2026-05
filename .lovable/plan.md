@@ -1,89 +1,95 @@
-# ApexForge Phase 2~4 잔여 압살 — 최종 마무리 플랜
+# ApexForge Phase 3 — 끝판왕 마스터 플랜
 
-Phase 1·슬라이스 A·B·C·D 본체는 모두 적재 완료. 남은 5개 항목을 순서대로 끝내고 Phase 3 로 넘어간다.
+승인된 6개 슬라이스(P3-A~F)를 순서대로 실행. 가드레일(머니플로 8경로 git diff=0, House Edge 0 터치, Layer 1 gz ≤180KB, operator 격리, notify 4-tier, use*Channel) Phase 3 내내 유지. 모든 신규 코드는 `@pkg/apex/*` 또는 `supabase/functions/apex-*`.
 
-## 머니플로 불변 가드 (전 항목 공통)
-
-다음 8경로 **git diff 라인 수 = 0** 을 모든 단계에서 유지:
-- `imperial_place_phon_bet` / `_settle` / `_apply_house_edge_split`
-- `credit_crypto_deposit` / `request_withdrawal`
-- `src/packages/wallet/hooks/useDeposit.ts` / `useDepositRealtime.ts` / `useDepositCountdown.ts`
-- 이번 작업은 100% `src/packages/apex/**` + `docs/**` + `scripts/**` + `.github/**` 한정.
+이번 턴은 **P3-A Live Crash V2** 압살 완성에 집중. P3-B~F는 본 문서 하단에 시퀀스/스코프만 동결, 각 슬라이스 시작 시 별도 plan으로 상세화.
 
 ---
 
-## 1. CI/CD 복구 (install drift + 6종 green)
+## P3-A — Live Crash V2 (이번 턴)
 
-문제: 슬라이스 B/C 에서 새 파일이 추가됐지만 lockfile/depcruise 레이어 규칙·ESLint 보호경로에 apex 패키지가 등록되지 않아 6종 워크플로가 drift.
+### 목표
+- 서버 권위 100ms tick 멀티플라이어 + WebSocket fan-out
+- Provably-Fair v2: Ed25519 서명 + 공개 검증 페이지(`/apex/verify/:roundId`)
+- tick jitter p99 < 50ms, 동시 5k 사용자
+- 기존 `apex_play_mock_game` 머니 경로 0 터치 (베팅/정산 RPC 비변경)
 
-작업:
-- `bun install` 재정렬 (frozen-lockfile 통과 확인)
-- `.dependency-cruiser.cjs` 에 `src/packages/apex/**` 레이어 추가 (의존 방향: apex → core/ui/realtime 만 허용, operator/admin 차단)
-- `.eslintrc` no-direct-sonner / no-raw-channel 예외 점검 — apex 는 `@/lib/notify` + `@pkg/realtime` 만 사용 중인지 grep 검증
-- `scripts/check-money-flow-freeze.mjs` 그대로 PASS (apex 는 freeze 목록 외)
-- `scripts/check-operator-isolation.mjs` 에 apex 청크가 entry preload 에 새지 않는지 추가 패턴
-- 워크플로 6종: `perf-gate` / `bundle-budget` / `db-permissions` / `pr3-isolation` / `prerender` / `e2e` — 로컬 dry-run 후 green 확인
+### 구성요소
 
-산출물: `reports/ci-recovery.2026-05-20.json`
+**DB (migration)**
+- `apex_crash_rounds`: id / round_no / server_seed (hash 공개, reveal 후 평문) / server_seed_hash / public_seed / nonce / crash_x numeric(10,4) / started_at / busted_at / status('pending'|'running'|'busted'|'revealed') / ed25519_pubkey_id / ed25519_signature
+- `apex_crash_bets`: round_id / user_id / stake_phon / auto_cashout_x / cashout_x / payout_phon / status / idempotency_key UNIQUE(user_id, idempotency_key)
+- `apex_signing_keys`: id / alg('Ed25519') / public_key_b64 / created_at / rotated_at (서명 키 회전 추적)
+- RLS: rounds SELECT=public, bets SELECT=self+admin
+- RPC `apex_crash_place_bet(round_id, stake, auto_cashout, idem_key)` → 라운드 status='pending'만 허용, FOR UPDATE
+- RPC `apex_crash_cashout(round_id, idem_key)` → 현재 tick × stake로 정산 (server-side)
+- RPC `apex_crash_get_round(round_no)` → 라운드 + 평문 server_seed (status='revealed'일 때만)
 
-## 2. Production Build + house-edge.md 최종 완성
+**Edge functions (`supabase/functions/apex-crash-*`)**
+- `apex-crash-engine` (Deno, persistent loop): 100ms `setInterval`로 멀티플라이어 진화 `m(t)=1.0024^(t/100ms)`, crash point는 `crash_x = max(1.00, 0.99 / U)` (U=hash(server_seed||public_seed||nonce)→[0,1]). Realtime broadcast on `market:apex_crash` 채널. round 종료 시 Ed25519 서명 후 DB write + reveal.
+- `apex-crash-verify` (POST roundId): Ed25519 서명 검증 + crash_x 재계산. 공개 응답 JSON.
+- `_shared/ed25519.ts`: WebCrypto SubtleCrypto 기반 sign/verify (Ed25519 = `Ed25519` 알고리즘 표준).
 
-작업:
-- `vite build --mode production` 1회 — operator chunk 분리 / apex chunk size 측정
-- `size-limit.config.json` 에 `apex-*` 패턴 추가 (한도 120KB gzip, max aggregate)
-- `docs/apex/house-edge.md` 보강:
-  - 5게임(Crash / Dice / Mines / Plinko / Slots-Lite) × {RTP, House Edge, Variance, Max Multiplier, Min/Max Bet}
-  - Tier S 항목: Live Crash / Pump / Wheel / Limbo / Keno 의 목표치 (Phase 3 예약)
-  - Stake.com / Rollbit / BC.Game 동일 게임 비교표 (RTP 격차 +0.3~0.8%p)
-  - 검증 방법: `scripts/slot-sim.ts` 100M 스핀 시뮬레이션 결과 인용
+**Frontend (`@pkg/apex/*`)**
+- `@pkg/apex/crash/useCrashTick.ts`: `useMarketChannel('apex_crash')` 구독 → tick state, RTT 측정.
+- `@pkg/apex/crash/LiveCrashV2.tsx`: 기존 CrashGame 비침습. HybridRenderer로 곡선 렌더(WebGPU→WASM→CPU). Auto-cashout UI, 라이브 betters 리스트.
+- `src/pages/apex/Verify.tsx` (라우트 `/apex/verify/:roundId`): seed reveal + Ed25519 서명 + 시드→crash_x 재계산을 브라우저에서 그대로 표시.
 
-## 3. Tier S 속도 최적화 실측
+**Telemetry**
+- Engine이 매 tick `imperial_log_observability(kind='apex_crash_tick', latency_ms)` 1/50 샘플링.
+- Health Dock Perf 탭에 "Crash V2 jitter p99" 카드 추가.
 
-작업:
-- `src/pages/apex/Health.tsx` 의 GPU/WASM 패널에서 5게임 각 60s 벤치 자동화 훅 추가 (이미 있는 `HybridRenderer.create` 활용, 비침습)
-- 측정 항목: 평균 FPS / p1 FPS / frame-budget 초과율 / GPU fallback 발생률
-- 목표: 모바일 mid-tier(iPhone 12 / Pixel 6 급) 에서 평균 60fps, p1 ≥ 50fps
-- 결과 `reports/apex-perf.2026-05-20.json` 로 저장 + Health Dock "Perf" 탭에 표시
+### 가드레일
+- `apex_play_mock_game` / 머니플로 8경로: **수정 금지**. 새 RPC `apex_crash_place_bet` 는 별도 테이블 `apex_crash_bets`에만 기록.
+- bet/cashout RPC는 모두 FOR UPDATE + idempotency_key UNIQUE.
+- 음수 잔액 트리거 재사용 (`phon_balances` 차감은 기존 가드 통과).
+- bundle: LiveCrashV2 chunk ≤ 80KB gz, Layer 1 영향 0 (lazy route).
 
-## 4. 전체 통합 검증
+### 검증 체크리스트
+- 100ms tick × 60s × 5 클라이언트 부하 시 jitter p99 < 50ms
+- Ed25519 sign/verify round-trip PASS (Deno + 브라우저 양쪽)
+- `scripts/check-money-flow-freeze.mjs` 8/8 PASS
+- `depcruise` apex-no-* 룰 PASS
+- `reports/apex-p3a-crashv2.2026-05-20.json` 산출
 
-체크리스트:
-- Health Dock 6탭 (Engine / GPU / WASM / Realtime / Idempotency / Share) 풀 동작 스크린샷
-- Layer 1 bundle ≤ 180KB gzip (PR-L 한도)
-- LCP ≤ 2.5s (lighthouserc)
-- `bun run lint` / `bunx depcruise` / `bundle-budget.mjs` / `check-operator-isolation.mjs` / `check-money-flow-freeze.mjs` 전부 green
-- e2e Tier 0 (`@critical`) 통과
-
-## 5. Phase 2~4 종료 선언 + Phase 3 마스터 플랜
-
-종료 보고 후 아래 Phase 3 끝판왕 플랜 제시:
-
-### Phase 3 — Tier S Live Engine + Provably Fair v2 + Cross-Chain Cashout
-
-- **3.1 Live Crash V2** — server-authoritative 100ms tick + WebSocket 멀티플라이어 + 자동 캐시아웃 큐
-- **3.2 Provably Fair v2** — Ed25519 서명 시드 + 라운드별 공개 검증 페이지 `/apex/verify/:roundId`
-- **3.3 Tier S 게임 5종** — Pump / Wheel / Limbo / Keno / HiLo (전부 HybridRenderer 위에 빌드)
-- **3.4 Cross-Chain Cashout** — USDT(TRC20/ERC20/BSC) 자동 라우팅 + gas 보조 + 출금 1분 SLA
-- **3.5 Stake-Style Race / Rakeback** — 주간 race 자동 정산 + 0.1%~5% 동적 rakeback (tier 연동)
-- **3.6 Apex Mobile Shell** — Capacitor 래핑 + 푸시 + 앱스토어 제출 패키지
-
-각 슬라이스는 머니플로 8경로 diff=0 보장 + Edge Function + RLS 가드 + 관측성 대시보드 동시 입수.
+### 산출물
+- migration 1개 (apex_crash_*)
+- edge functions 2개 (apex-crash-engine, apex-crash-verify) + `_shared/ed25519.ts`
+- `@pkg/apex/crash/*` 3 파일 + `src/pages/apex/Verify.tsx` + route 등록
+- house-edge.md §2.2 Crash V2 보강 + Provably-Fair v2 절 추가
 
 ---
 
-## 실행 순서 & 보고 포맷
+## P3-B~F — 시퀀스 동결 (각 슬라이스 시작 시 상세 plan)
 
-순서대로 1 → 2 → 3 → 4 → 5. 각 단계 완료마다:
+```text
+P3-A  Live Crash V2          ← 이번 턴
+ ↓
+P3-B  Tier S 5게임 (Pump/Wheel/Limbo/Keno/HiLo)
+ ↓
+P3-F  Provably-Fair Verifier UI 고도화 (P3-A에서 MVP 후 분리)
+ ↓
+P3-D  Race & Rakeback (재무 cron)
+ ↓
+P3-C  Cross-Chain Cashout (보안 무게)
+ ↓
+P3-E  Apex Mobile Shell (Capacitor)
+```
 
-```
-✅ [작업명] 지구상 1개뿐인 최고사양 완료
-- 변경 파일: ...
-- git diff 요약 (머니플로 8경로 diff=0)
-- 실측 지표: ...
-- 다음: ...
-```
+순서 근거:
+- Verifier(F)는 Crash V2 서명 인프라 위에서 바로 확장 가능 → A 직후 배치
+- Race/Rakeback(D)은 Tier S 게임 출시 후 베팅량 확보 시점에 효과 극대화
+- Cross-Chain(C)은 가장 큰 컴플라이언스/감사 비용 → 별도 보안 sprint
+- Mobile(E)은 모든 웹 슬라이스 안정화 후 래핑
 
-5단계 종료 시 정확히:
-```
-✅ Phase 2~4 완전 압살 종료. Phase 3 준비 완료
+---
+
+## 보고 형식 (Phase 3 모든 슬라이스 공통)
+
+```text
+✅ P3-[X] [작업명] 지구상 1개뿐인 최고사양 완료
+- 변경 파일 목록
+- git diff 요약 (머니플로 diff=0 강조)
+- 실측 지표 (FPS, latency, bundle, p95)
+- 다음 슬라이스 계획
 ```
