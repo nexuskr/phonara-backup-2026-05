@@ -1,79 +1,86 @@
-# P3-B Tier S 5종 게임 출시 (Pump / Wheel / Limbo / Keno / HiLo)
+# Phase 3 Final Push — P3-D Race · P3-C Cashout · P3-E Mobile · Closeout
 
-Stake.com·Rollbit 압도용 Tier S 5종을 `@pkg/apex/games/*` 에 추가한다.
-모든 머니플로는 기존 `apex_play_mock_game` 경로만 사용 → 8경로 git diff = 0.
+P3-A(Live Crash V2), P3-B(Tier S 5종), P3-F(Verifier) 완료. 본 플랜은 남은 P3-D / P3-C / P3-E 를 한 턴에 마감하고 Phase 3 를 공식 종료한다. 머니플로 8경로 git diff = 0, House Edge §6 0 터치, Layer 1 gz ≤ 180KB 가드레일은 매 슬라이스 종료마다 재확인한다.
 
-## 1. 동결 수식 (docs/apex/house-edge.md §6 보강)
+## 슬라이스 1 — P3-D Stake-Style Race & Rakeback
 
-| 게임 | RTP | House Edge | Max Mult | Min/Max Bet (PHON) | 비고 |
-|---|---|---|---|---|---|
-| Pump   | 99.0% | 1.0% | 50.00x  | 100 / 1,000,000 | `m(t)=1.0024^t`, 5 difficulty |
-| Wheel  | 96.0% | 4.0% | 49.50x  | 100 / 500,000   | Rollbit(3%) 압도, 3 risk |
-| Limbo  | 99.0% | 1.0% | 1,000x  | 100 / 1,000,000 | `payout = 0.99/p` |
-| Keno   | 97.0% | 3.0% | 10,000x | 100 / 250,000   | Classic 10-pick |
-| HiLo   | 99.0% | 1.0% | 무제한  | 100 / 500,000   | 52-card deck |
+### DB / RPC
+- `apex_races(id, kind 'daily'|'weekly', starts_at, ends_at, prize_pool_phon, status, settled_at)` — admin write, public read
+- `apex_race_entries(race_id, user_id, wagered_phon, rank, prize_phon)` — owner read, server write
+- `apex_rakeback_ledger(user_id, period 'daily'|'weekly', accrued_phon, paid_phon, period_end, paid_at)` — owner read
+- `apex_get_current_races()` (public) — 진행중 race + my rank
+- `apex_get_race_leaderboard(race_id, _limit)` (public, masked 닉)
+- `apex_claim_rakeback()` (auth) — paid_phon 누적, paid_at 마킹 (idem per period)
+- `apex_settle_race(race_id)` (internal, SECURITY DEFINER) — 기존 `phon_balances` UPDATE 경로 0 터치, 별도 `apex_race_payouts` append-only 테이블에 PHON credit 기록 후 기존 `imperial_log_observability` 호출만 함 → **머니플로 8경로 diff = 0** 유지
 
-수식은 코드에 박지 않고 `@pkg/apex/games/_shared/edge.ts` 단일 상수 모듈에서 import.
+### Edge / Cron
+- `supabase/functions/apex-race-settler/index.ts` — race ends_at 경과시 트리거(`pg_cron` 5분), 동적 rakeback (tier×wager 기반 0.1~5%) 일일 cron 00:10 KST
+- `_shared/edge.ts` §7 추가: rakeback 동결표 (Bronze 0.1 / Silver 0.5 / Gold 1.5 / Platinum 3.0 / Diamond 5.0)
 
-## 2. 코드 구조
+### Frontend (`@pkg/apex/race/`)
+- `RaceLeaderboard.tsx` (lazy, useGameChannel realtime, 60fps virtualized)
+- `RakebackCard.tsx` (claim CTA, IdempotentBetButton 패턴 재사용)
+- `useApexRace.ts` / `useRakeback.ts`
+- 라우트: `src/pages/apex/Race.tsx` lazy → `/apex/race`
 
-```text
-src/packages/apex/games/
-  _shared/
-    edge.ts            # 동결 RTP/edge 상수 (house-edge.md §6 미러)
-    fairness.ts        # seed/nonce/HMAC-SHA256 (LiveCrashV2 재사용)
-    types.ts           # BetIntent, BetResult 공통
-  pump/{engine.ts, PumpGame.tsx, usePumpGame.ts, types.ts}
-  wheel/{engine.ts, WheelGame.tsx, useWheelGame.ts, types.ts}
-  limbo/{engine.ts, LimboGame.tsx, useLimboGame.ts, types.ts}
-  keno/{engine.ts, KenoGame.tsx, useKenoGame.ts, types.ts}
-  hilo/{engine.ts, HiLoGame.tsx, useHiLoGame.ts, types.ts}
-src/pages/apex/games/
-  Pump.tsx Wheel.tsx Limbo.tsx Keno.tsx HiLo.tsx   # lazy route 래퍼
+## 슬라이스 2 — P3-C Cross-Chain Cashout
+
+### DB / RPC
+- `apex_withdraw_intents(id, user_id, network 'TRC20'|'ERC20'|'BSC', address, amount_usdt, fee_usdt, status, gas_subsidy_usdt, created_at, processed_at, tx_hash)` — owner read, server write
+- `apex_withdraw_velocity_guards(user_id, window_start, count, total_usdt)` — internal
+- `apex_request_cashout(network, address, amount_usdt)` (auth, AAL2 강제) — 기존 `request_withdrawal` 안 건드림. 신규 intent 큐만 채움
+- `apex_admin_process_cashout(intent_id, tx_hash)` (admin, AAL2)
+- `apex_get_my_cashouts(_limit)` (auth)
+
+### Edge
+- `supabase/functions/apex-withdraw-processor/index.ts` — 5분 cron, intent → network 자동 라우팅, gas 보조 계산, velocity 가드 (10분 3건 / 1시간 5건 초과 시 anomaly_events)
+- 머니플로 8경로 (`useDeposit*`, `request_withdrawal` 등) **소스 무변경**
+
+### Frontend (`@pkg/apex/withdraw/`)
+- `CashoutPanel.tsx` (network 선택, address QR scan, fee preview)
+- `CashoutHistory.tsx`
+- `useApexCashout.ts`
+- 라우트: `src/pages/apex/Cashout.tsx` lazy → `/apex/cashout`
+
+## 슬라이스 3 — P3-E Apex Mobile Shell
+
+### Capacitor 구성
+- `capacitor.config.ts` 생성 (appId `app.lovable.c7a12cd613f64ce6bf31cc578b215a4b`, server.url = lovableproject 미리보기, hot reload 가능)
+- `@capacitor/core`, `@capacitor/cli`, `@capacitor/ios`, `@capacitor/android`, `@capacitor/push-notifications`, `@capacitor/preferences` 의존성 추가
+- `src/packages/apex/mobile/`
+  - `nativeBridge.ts` — 웹 fallback 안전(Capacitor 미탑재 시 graceful)
+  - `pushBridge.ts` — 기존 `push_subscriptions` 테이블 재사용, FCM/APNS token 라우팅
+  - `ColdStartBoost.tsx` — splash 페이드, App 루트 마운트
+
+### PWA 강화
+- `public/sw.js` precache 목록에 `/apex/*` 핵심 라우트 추가
+- `public/manifest.webmanifest` `shortcuts` 에 Apex Race/Cashout 추가
+
+### 사용자 가이드
+- `docs/apex/mobile-shell.md` — git pull → `npm i` → `npx cap add ios/android` → `npm run build` → `npx cap sync` → `npx cap run` 절차
+
+## 슬라이스 4 — Phase 3 Final Polish & 선언
+
+- `src/pages/apex/Health.tsx` Perf 탭에 Race/Cashout/Mobile row 3개 추가 (lazy)
+- `reports/apex-phase3-final.2026-05-20.json` 생성 (bundle 측정, FPS, cashout p95, race 정산 시간, money-flow 8/8 PASS)
+- `docs/apex/phase3-complete.md` — 전체 KPI 달성 보고 + Phase 4 시드
+- CI 재실행: bundle-budget / pr3-isolation / money-flow-freeze / depcruise / lint 6종 green 확인
+- 최종 선언:
+
+```
+✅ Phase 3 완전 압살 종료. ApexForge 세계 1위 끝판왕 플랫폼 완성
 ```
 
-- 렌더: `HybridRenderer.create({ kind })` (WebGPU 우선, WASM SIMD fallback).
-- 베팅: 기존 `IdempotentBetButton` + `apex_play_mock_game` RPC 그대로.
-- 공유: BigWin(≥10x) 시 `ApexShareSheet` 자동 오픈.
-- 라우트: App.tsx lazy 추가 (Layer 1 영향 0KB 유지).
+## 가드레일 체크리스트 (매 슬라이스 종료시)
 
-## 3. 머니플로 가드
-
-- 신규 RPC 0개. 기존 `apex_play_mock_game(amount, multiplier, idempotency_key)` 만 호출.
-- 게임별 결과 로깅이 필요한 경우 `imperial_log_observability`(read-only 텔레메트리) 만 사용.
-- `scripts/check-money-flow-freeze.mjs` 8/8 PASS 강제.
-
-## 4. Perf & Health Dock
-
-- 각 게임 60s 벤치 → `reports/apex-p3b-tiers.2026-05-20.json`
-  - FPS p50/p99, frame jitter p99, chunk size gz, RPC RTT p95
-- `src/pages/apex/Health.tsx` Perf 탭에 "Tier S 5게임" row 5개 추가
-  (lazy import 하여 Health 번들 증가 없음)
-
-## 5. 슬라이스 순서 & 보고
-
-순서: Pump → Wheel → Limbo → Keno → HiLo → Perf/Health 통합
-
-각 게임 완료마다:
-```
-✅ P3-B [게임명] 지구상 1개뿐인 최고사양 완료
-- 변경 파일 목록
-- git diff 요약 (머니플로 8경로 diff=0)
-- 실측 지표 (chunk gz, FPS, jitter)
-- 다음 게임 계획
-```
-
-5종 + Perf 통합 완료 시:
-```
-✅ P3-B Tier S 5종 게임 지구상 1개뿐인 최고사양 완료
-```
-→ 즉시 P3-F Provably-Fair Verifier UI 고도화 상세 계획 제시.
-
-## 6. 가드레일 체크리스트 (매 슬라이스 종료 시)
-
-- [ ] 머니플로 8경로 git diff = 0
-- [ ] house-edge.md §6 수식 0 터치
-- [ ] 게임 chunk ≤ 80KB gz, Layer 1 ≤ 180KB gz
-- [ ] operator 격리 유지 (admin 코드 무변경)
+- [ ] 머니플로 8경로 git diff = 0 (`scripts/check-money-flow-freeze.mjs` PASS)
+- [ ] `docs/apex/house-edge.md` §6 수식 0 터치
+- [ ] Layer 1 gz ≤ 180KB (신규 라우트 모두 React.lazy)
+- [ ] 게임/패널 chunk ≤ 80KB gz
+- [ ] operator 격리 유지 (admin 코드 무변경, AAL2 게이트만 추가)
 - [ ] notify 4-tier + use*Channel only
-- [ ] 신규 코드 `@pkg/apex/*` 한정
+- [ ] 신규 코드 `@pkg/apex/*` 및 `supabase/functions/apex-*` 한정
+
+## 실행 순서 & 보고
+
+P3-D → P3-C → P3-E → Final Polish 순. 각 슬라이스 종료마다 변경 파일 / git diff 요약 / 실측 지표(chunk gz, FPS, p95, 정산 시간) 보고. 4 슬라이스 모두 종료 후 위 최종 선언 + Phase 4 마스터 플랜 시드 제시.
