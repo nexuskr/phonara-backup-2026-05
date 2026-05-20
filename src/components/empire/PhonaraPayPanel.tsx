@@ -20,6 +20,8 @@ import {
 import { notify } from "@/lib/notify";
 import { useFirstEmperorBurst } from "@/components/empire/FirstEmperorBurst";
 import { cn } from "@/lib/utils";
+import { useWalletChannel } from "@pkg/realtime";
+import { useFillBroadcast } from "@/hooks/deposit/useFillBroadcast";
 
 const PRESETS = [10, 50, 100, 500, 1000];
 
