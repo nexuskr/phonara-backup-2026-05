@@ -27,7 +27,7 @@ export default function OracleStatusCard() {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        if (live) setRow((data as Row) ?? null);
+        if (live) setRow((data as unknown as Row) ?? null);
       } catch {}
       try {
         const t0 = performance.now();
