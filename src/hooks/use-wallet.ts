@@ -5,27 +5,34 @@ import { fetchWallet, type WalletBalance } from "@/lib/wallet";
 import { useWalletChannel } from "@pkg/realtime";
 
 /**
- * useWallet Hook
+ * useWallet Hook - Primary hook for general wallet balance
  *
- * This is the PRIMARY way to access the user's general wallet balance.
- *
- * ARCHITECTURAL NOTE (2026-05-22):
- * - This hook is tied to `wallet_balances` table (Primary Wallet).
- * - For PHON token economy (staking, Duel, specific rewards), use `phon_balances` related hooks instead.
- * - Always prefer this hook + `fetchWallet()` when dealing with general available/locked/pending balance.
+ * ARCHITECTURE (as of 2026-05-22):
+ * - This hook is the recommended way to access `wallet_balances` (Primary Wallet).
+ * - `wallet_balances` manages: available_balance, locked_balance, pending_balance, total_balance
+ * - For PHON token economy (staking, Duel, specific rewards) → use `phon_balances` related logic instead.
  *
  * Realtime Strategy:
- * - Subscribes to `wallet_balances` UPDATE
- * - Has a safety net subscription to `live_trade_history` INSERT (temporary workaround for trade settlement timing)
+ * - Main subscription: `wallet_balances` UPDATE
+ * - Safety Net: `live_trade_history` INSERT (temporary workaround until atomic trading RPCs are fully reliable)
+ *
+ * Usage:
+ * - Prefer this hook in most components for general balance display
+ * - Use `reload()` or `wallet:refresh` event after balance-changing operations
  */
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-    supabase.auth.getSession().then(({ data }) => { setSession(data.session); setLoading(false); });
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
+
   return { session, loading };
 }
 
@@ -44,19 +51,23 @@ export function useWallet(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     void reload();
-    const onRefresh = () => { void reload(); };
+
+    const onRefresh = () => void reload();
     window.addEventListener("wallet:refresh", onRefresh);
+
     return () => window.removeEventListener("wallet:refresh", onRefresh);
   }, [userId, reload]);
 
-  // Idempotent shared channel — multiple <useWallet> consumers fan out from one socket.
+  // Shared realtime channel for wallet updates
   useWalletChannel({
     key: userId ? `wallet:${userId}` : "",
     bindings: userId
       ? [
+          // Primary source
           { event: "UPDATE", table: "wallet_balances", filter: `user_id=eq.${userId}` },
-          // Trade close safety net: wallet UPDATE may race the trade INSERT, or only a
-          // transaction row may be inserted without an explicit balance UPDATE.
+
+          // Temporary safety net for trade settlement timing issues.
+          // Should be reduced once atomic open/close position RPCs are implemented.
           { event: "INSERT", table: "live_trade_history", filter: `user_id=eq.${userId}` },
         ]
       : [],
@@ -64,10 +75,13 @@ export function useWallet(userId: string | undefined) {
       if (payload.table === "wallet_balances") {
         const next = payload.new as unknown as WalletBalance;
         setWallet((prev) => {
-          if (prev && next.available_balance > prev.available_balance) setPulse((p) => p + 1);
+          if (prev && next.available_balance > prev.available_balance) {
+            setPulse((p) => p + 1);
+          }
           return next;
         });
       } else {
+        // Fallback refresh when trade history changes
         void reload();
       }
     },
@@ -76,4 +90,3 @@ export function useWallet(userId: string | undefined) {
 
   return { wallet, loading, reload, pulse };
 }
-
