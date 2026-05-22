@@ -354,8 +354,6 @@ const App = () => (
               <Route path="/duel" element={<ImperialDuelLobby />} />
               <Route path="/duel/arena/:roomId" element={<ImperialDuelArena />} />
               <Route path="/events" element={<Navigate to="/missions?tab=daily" replace />} />
-              <Route path="/avatar" element={<Navigate to="/profile" replace />} />
-              <Route path="/guild" element={<Navigate to="/lounge" replace />} />
 
               {/* Phonara Empire 5축 IA — 정식 라우트 */}
               <Route path="/command" element={<Dashboard />} />
