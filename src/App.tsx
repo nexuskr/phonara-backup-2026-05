@@ -1,30 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { supabase } from './integrations/supabase/client';
 
-// Login Component
+// Types
+type User = {
+  id: string;
+  email: string;
+  isAdmin: boolean;
+};
+
+// ==================== LOGIN COMPONENT ====================
 const Login = () => {
   const [email, setEmail] = useState('dreamtech123123@gmail.com');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setError('');
 
-    // Demo login logic
-    setTimeout(() => {
-      if (email === 'dreamtech123123@gmail.com') {
-        // Simulate successful login
-        localStorage.setItem('phonara_user', JSON.stringify({ email, isAdmin: true }));
-        navigate('/dashboard');
-      } else {
-        setMessage('가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.');
-      }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user is admin (simple check for now - can be enhanced with profiles table)
+      const isAdmin = email === 'dreamtech123123@gmail.com';
+      
+      // Store minimal user info
+      localStorage.setItem('phonara_user', JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        isAdmin
+      }));
+
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (
@@ -72,15 +94,15 @@ const Login = () => {
             </button>
           </form>
 
-          {message && (
+          {error && (
             <div className="mt-4 text-center text-sm p-3 rounded-xl bg-red-950 text-red-400">
-              {message}
+              {error}
             </div>
           )}
 
           <div className="mt-6 text-center">
             <button 
-              onClick={() => alert('회원가입 기능은 다음 단계에서 구현됩니다.')}
+              onClick={() => alert('회원가입 기능은 Phase 3에서 구현됩니다.')}
               className="text-sm text-gray-400 hover:text-white transition"
             >
               계정이 없으신가요? 회원가입
@@ -88,27 +110,73 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-gray-500 mt-8">PHONARA • Phase 2 • Clean Auth Rebuild</p>
+        <p className="text-center text-[10px] text-gray-500 mt-8">PHONARA • Phase 3 • Real Supabase Auth</p>
       </div>
     </div>
   );
 };
 
-// Dashboard Component (after login)
+// ==================== DASHBOARD COMPONENT ====================
 const Dashboard = () => {
-  const [user] = useState(() => {
-    const saved = localStorage.getItem('phonara_user');
-    return saved ? JSON.parse(saved) : { email: 'user@example.com', isAdmin: false };
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const isAdmin = session.user.email === 'dreamtech123123@gmail.com';
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          isAdmin
+        });
+      } else {
+        // Fallback to localStorage for demo continuity
+        const saved = localStorage.getItem('phonara_user');
+        if (saved) {
+          setUser(JSON.parse(saved));
+        } else {
+          window.location.href = '/';
+        }
+      }
+      setLoading(false);
+    };
+
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('phonara_user');
+        window.location.href = '/';
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('phonara_user');
     window.location.href = '/';
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Top Navigation */}
       <nav className="border-b border-zinc-800 bg-zinc-950">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -137,7 +205,6 @@ const Dashboard = () => {
           <p className="text-gray-400 mt-1">안녕하세요, {user.email.split('@')[0]}님! 오늘도 행복한 트레이딩 되세요.</p>
         </div>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
             <div className="text-sm text-gray-400">총 자산</div>
@@ -158,7 +225,7 @@ const Dashboard = () => {
 
         <div className="flex flex-wrap gap-3">
           <button 
-            onClick={() => alert('트레이딩 페이지로 이동합니다. (Phase 3에서 구현)')}
+            onClick={() => alert('트레이딩 페이지로 이동합니다. (Phase 3 진행 중)')}
             className="px-6 py-3 bg-yellow-400 text-black font-semibold rounded-xl hover:bg-yellow-500 transition"
           >
             트레이딩 시작하기
@@ -170,15 +237,15 @@ const Dashboard = () => {
             입금 / 출금
           </button>
           <button 
-            onClick={() => alert('NFT 마켓플레이스는 기존 시스템 유지 중입니다.')}
+            onClick={() => alert('NFT 링8플레이스는 기존 시스템 유지 중입니다.')}
             className="px-6 py-3 border border-zinc-700 hover:bg-zinc-900 rounded-xl transition"
           >
-            NFT 마켓플레이스
+            NFT 링8플레이스
           </button>
         </div>
 
         <div className="mt-10 text-xs text-gray-500">
-          * 현재는 데모 버전입니다. 실제 Supabase 인증 연동은 다음 단계에서 진행합니다.
+          * Phase 3: 실제 Supabase 인증 연동 완료. 회원가입 기능은 다음 단계에서 진행합니다.
         </div>
       </div>
     </div>
