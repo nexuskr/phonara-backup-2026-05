@@ -1,50 +1,19 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HelmetProvider } from 'react-helmet-async';
-import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy loaded pages
-const Home = React.lazy(() => import('./pages/Home'));
-const Profile = React.lazy(() => import('./pages/Profile'));
-const Missions = React.lazy(() => import('./pages/Missions'));
-const Auth = React.lazy(() => import('./pages/Auth'));
-const SecureAuth = React.lazy(() => import('./pages/SecureAuth'));
-const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
+const Home = () => <div className="min-h-screen bg-black flex items-center justify-center text-white"><div><h1 className="text-6xl font-bold">PHONARA</h1><p className="text-xl mt-4">Auth System Rebuilding...</p><p className="text-sm text-gray-400 mt-8">Phase 1 Clean Rebuild in progress</p></div></div>;
 
-// Fallback component for lazy loading
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-      <p className="text-sm text-muted-foreground">Loading PHONARA...</p>
-    </div>
-  </div>
-);
-
-const queryClient = new QueryClient();
+const TestPage = () => <div className="min-h-screen bg-black flex items-center justify-center text-white"><div className="text-center"><h1 className="text-5xl">PHONARA - Phase 1</h1><p className="mt-4">Clean Auth System</p><button onClick={() => window.location.href = '/auth'} className="mt-8 px-8 py-4 bg-yellow-400 text-black font-bold rounded-xl">로그인 테스트</button></div></div>;
 
 function App() {
   return (
-    <ErrorBoundary scope="app">
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/missions" element={<Missions />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/secure-auth" element={<SecureAuth />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </Router>
-        </QueryClientProvider>
-      </HelmetProvider>
-    </ErrorBoundary>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/test" element={<TestPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
