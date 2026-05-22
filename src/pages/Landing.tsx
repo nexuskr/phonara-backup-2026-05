@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useEffect, useState } from 'react';
+import ThreeBackground from '@/components/ThreeBackground';
 
-// Extreme FOMO Landing - Premium 2026 Futuristic Background
+// Extreme FOMO Landing with lightweight Three.js background
 export default function Landing() {
   const navigate = useNavigate();
   const [liveUsers, setLiveUsers] = useState(12847);
@@ -19,24 +20,8 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white overflow-hidden">
-      {/* Futuristic Background Layer */}
-      <div className="fixed inset-0 -z-10">
-        {/* Deep navy base */}
-        <div className="absolute inset-0 bg-[#0A0F1E]" />
-        
-        {/* Elegant gradient glows */}
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#EAB308]/[0.06] blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-30%] right-[-15%] w-[50%] h-[70%] bg-[#22D3EE]/[0.05] blur-[140px] rounded-full" />
-        
-        {/* Subtle grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
-          }}
-        />
-      </div>
+      {/* 3D Background - Lightweight & Elegant */}
+      <ThreeBackground />
 
       {/* Top Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0A0A0A]/90 backdrop-blur-2xl">
@@ -50,7 +35,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <div className="pt-24 pb-16 px-6 text-center relative">
+      <div className="pt-24 pb-16 px-6 text-center relative z-10">
         <div className="max-w-4xl mx-auto">
           <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/20 text-sm mb-6">
             지금 이 순간에도 수익이 쌓이고 있습니다
@@ -79,7 +64,7 @@ export default function Landing() {
       </div>
 
       {/* Live FOMO Stats */}
-      <div className="border-y border-white/10 bg-black/40 py-10 backdrop-blur">
+      <div className="border-y border-white/10 bg-black/40 py-10 backdrop-blur relative z-10">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-8 px-6 text-center">
           <div>
             <div className="text-6xl font-bold text-[#EAB308] tabular-nums">{todaySignups.toLocaleString()}</div>
@@ -101,7 +86,7 @@ export default function Landing() {
       </div>
 
       {/* 3 Steps */}
-      <div className="max-w-5xl mx-auto px-6 py-20">
+      <div className="max-w-5xl mx-auto px-6 py-20 relative z-10">
         <div className="text-center mb-12">
           <div className="text-[#EAB308] text-sm tracking-[3px]">3 STEPS</div>
           <h2 className="text-4xl font-bold mt-2">생각보다 훨씬 간단합니다</h2>
@@ -123,7 +108,7 @@ export default function Landing() {
       </div>
 
       {/* FOMO Activity */}
-      <div className="bg-[#0F1424] border-y border-white/10 py-16">
+      <div className="bg-[#0F1424] border-y border-white/10 py-16 relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h3 className="text-3xl font-bold mb-3">지금 이 순간에도 누군가는 돈을 벌고 있습니다</h3>
           <p className="text-[#A1A1AA] mb-10">실시간으로 미션을 완료하고, 트레이딩으로 수익을 만드는 사람들.</p>
@@ -143,7 +128,7 @@ export default function Landing() {
       </div>
 
       {/* Final CTA */}
-      <div className="max-w-3xl mx-auto px-6 py-20 text-center">
+      <div className="max-w-3xl mx-auto px-6 py-20 text-center relative z-10">
         <h2 className="text-5xl font-bold tracking-tighter mb-4">지금 시작하면<br />당신도 오늘부터 수익이 생깁니다.</h2>
         <p className="text-xl text-[#A1A1AA] mb-8">가입은 30초. 첫 미션은 1분이면 끝납니다.</p>
 
