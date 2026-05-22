@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
-// Simple clean Login component
+// Login Component
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('dreamtech123123@gmail.com');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
-    // TODO: Replace with real Supabase auth
+    // Demo login logic
     setTimeout(() => {
       if (email === 'dreamtech123123@gmail.com') {
-        setMessage('로그인 성공! (Admin 계정)');
-        // In real app: redirect to dashboard
+        // Simulate successful login
+        localStorage.setItem('phonara_user', JSON.stringify({ email, isAdmin: true }));
+        navigate('/dashboard');
       } else {
-        setMessage('로그인 실패. 이메일 또는 비밀번호를 확인하세요.');
+        setMessage('가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.');
       }
       setLoading(false);
-    }, 800);
+    }, 600);
   };
 
   return (
@@ -71,14 +73,14 @@ const Login = () => {
           </form>
 
           {message && (
-            <div className={`mt-4 text-center text-sm p-3 rounded-xl ${message.includes('성공') ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-400'}`}>
+            <div className="mt-4 text-center text-sm p-3 rounded-xl bg-red-950 text-red-400">
               {message}
             </div>
           )}
 
           <div className="mt-6 text-center">
             <button 
-              onClick={() => alert('회원가입 페이지는 다음 단계에서 구현됩니다.')}
+              onClick={() => alert('회원가입 기능은 다음 단계에서 구현됩니다.')}
               className="text-sm text-gray-400 hover:text-white transition"
             >
               계정이 없으신가요? 회원가입
@@ -92,12 +94,104 @@ const Login = () => {
   );
 };
 
+// Dashboard Component (after login)
+const Dashboard = () => {
+  const [user] = useState(() => {
+    const saved = localStorage.getItem('phonara_user');
+    return saved ? JSON.parse(saved) : { email: 'user@example.com', isAdmin: false };
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem('phonara_user');
+    window.location.href = '/';
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Top Navigation */}
+      <nav className="border-b border-zinc-800 bg-zinc-950">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight">PHONARA</h1>
+            <span className="text-xs px-2 py-0.5 bg-yellow-400 text-black rounded font-medium">BETA</span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm font-medium">{user.email}</div>
+              {user.isAdmin && <div className="text-[10px] text-emerald-400">Admin</div>}
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="text-sm px-4 py-1.5 border border-zinc-700 hover:bg-zinc-900 rounded-lg transition"
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold">대시보드</h2>
+          <p className="text-gray-400 mt-1">안녕하세요, {user.email.split('@')[0]}님! 오늘도 행복한 트레이딩 되세요.</p>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <div className="text-sm text-gray-400">총 자산</div>
+            <div className="text-3xl font-semibold mt-2">$124,850</div>
+            <div className="text-emerald-400 text-sm mt-1">+12.4% 오늘</div>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <div className="text-sm text-gray-400">활성 포지션</div>
+            <div className="text-3xl font-semibold mt-2">3개</div>
+            <div className="text-emerald-400 text-sm mt-1">Long 2 / Short 1</div>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+            <div className="text-sm text-gray-400">PHON 스테이킹</div>
+            <div className="text-3xl font-semibold mt-2">12,450 PHON</div>
+            <div className="text-emerald-400 text-sm mt-1">APY 18.2%</div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button 
+            onClick={() => alert('트레이딩 페이지로 이동합니다. (Phase 3에서 구현)')}
+            className="px-6 py-3 bg-yellow-400 text-black font-semibold rounded-xl hover:bg-yellow-500 transition"
+          >
+            트레이딩 시작하기
+          </button>
+          <button 
+            onClick={() => alert('입금/출금 기능은 기존 시스템 유지 중입니다.')}
+            className="px-6 py-3 border border-zinc-700 hover:bg-zinc-900 rounded-xl transition"
+          >
+            입금 / 출금
+          </button>
+          <button 
+            onClick={() => alert('NFT 마켓플레이스는 기존 시스템 유지 중입니다.')}
+            className="px-6 py-3 border border-zinc-700 hover:bg-zinc-900 rounded-xl transition"
+          >
+            NFT 마켓플레이스
+          </button>
+        </div>
+
+        <div className="mt-10 text-xs text-gray-500">
+          * 현재는 데모 버전입니다. 실제 Supabase 인증 연동은 다음 단계에서 진행합니다.
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
