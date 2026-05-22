@@ -11,6 +11,37 @@ import { installLayoutShiftMonitor } from "./lib/layout-shift-monitor";
 import { watchMotionClass } from "./lib/app-settings";
 import { installHiddenTabSuspension, installIdleSuspension } from "@pkg/runtime";
 
+// ============================================
+// Domain Guard: Force phonara.net as canonical domain
+// ============================================
+(function enforceCanonicalDomain() {
+  if (typeof window === "undefined") return;
+
+  const hostname = window.location.hostname;
+
+  // Allow localhost and phonara.net domains
+  const isAllowed =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".phonara.net") ||
+    hostname === "phonara.net";
+
+  if (!isAllowed) {
+    // Redirect to canonical domain (phonara.net) while preserving path and query
+    const target =
+      "https://phonara.net" +
+      window.location.pathname +
+      window.location.search +
+      window.location.hash;
+
+    // Avoid infinite redirect loop
+    if (window.location.href !== target) {
+      window.location.replace(target);
+      return;
+    }
+  }
+})();
+
 // First-visit auto locale: respect explicit ?lang=/persisted choice; otherwise detect.
 try {
   const url = new URL(window.location.href);
