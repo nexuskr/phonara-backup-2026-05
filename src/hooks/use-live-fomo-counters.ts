@@ -1,73 +1,105 @@
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { FOMO_POLL_MS } from "@/lib/fomo";
-import { useDocumentVisible } from "@/lib/util/visible-interval";
-import { useGlobalPolling } from "@/hooks/polling/useGlobalPolling";
 
-export type LiveFomoCounters = {
-  withdrawing_now: number;
-  trading_now: number;
-  founding_seat_contenders: number;
-  online_now: number;
-};
+/* =========================================================
+ * FORMAT NUMBER
+ * =======================================================*/
 
-// Module-level cache so multiple consumers (Dashboard/BetPanel) share a single 15s timer.
-let _cached: LiveFomoCounters | null = null;
-let _lastFetch = 0;
-let _inflight: Promise<LiveFomoCounters | null> | null = null;
-const _subs = new Set<(v: LiveFomoCounters) => void>();
-
-async function fetchOnce(): Promise<LiveFomoCounters | null> {
-  if (_inflight) return _inflight;
-  _inflight = (async () => {
-    try {
-      const { data, error } = await supabase.rpc("get_live_fomo_counters" as any);
-      if (error) return _cached;
-      const row: any = Array.isArray(data) ? data[0] : data;
-      if (!row) return _cached;
-      const next: LiveFomoCounters = {
-        withdrawing_now: Number(row.withdrawing_now ?? 0),
-        trading_now: Number(row.trading_now ?? 0),
-        founding_seat_contenders: Number(row.founding_seat_contenders ?? 0),
-        online_now: Number(row.online_now ?? 0),
-      };
-      _cached = next;
-      _lastFetch = Date.now();
-      _subs.forEach((cb) => cb(next));
-      return next;
-    } finally {
-      _inflight = null;
-    }
-  })();
-  return _inflight;
+export function formatNumber(
+  value: number = 0,
+) {
+  return new Intl.NumberFormat("ko-KR").format(
+    Math.floor(value),
+  );
 }
 
-export function useLiveFomoCounters(): LiveFomoCounters | null {
-  const [state, setState] = useState<LiveFomoCounters | null>(_cached);
-  const visible = useDocumentVisible();
-  const stoppedRef = useRef(false);
+/* =========================================================
+ * ULTRA SMOOTH COUNTER
+ * =======================================================*/
+
+type LiveCounterOptions = {
+  minIncrease?: number;
+  maxIncrease?: number;
+  interval?: number;
+  smoothness?: number;
+};
+
+export function useLiveCounter(
+  initialValue: number = 0,
+  {
+    minIncrease = 1,
+    maxIncrease = 25,
+    interval = 2000,
+    smoothness = 0.08,
+  }: LiveCounterOptions = {},
+) {
+  const [displayValue, setDisplayValue] =
+    useState<number>(initialValue);
+
+  const targetValue =
+    useRef<number>(initialValue);
+
+  const animationFrame =
+    useRef<number | null>(null);
+
+  /* =====================================================
+   * RANDOM TARGET UPDATE
+   * ===================================================*/
 
   useEffect(() => {
-    stoppedRef.current = false;
-    const sub = (v: LiveFomoCounters) => { if (!stoppedRef.current) setState(v); };
-    _subs.add(sub);
-    // Initial fetch (respect cache freshness)
-    if (!_cached || Date.now() - _lastFetch > FOMO_POLL_MS) void fetchOnce();
+    const timer = setInterval(() => {
+      const increase =
+        Math.floor(
+          Math.random() *
+            (maxIncrease - minIncrease + 1),
+        ) + minIncrease;
+
+      targetValue.current += increase;
+    }, interval);
+
     return () => {
-      stoppedRef.current = true;
-      _subs.delete(sub);
+      clearInterval(timer);
     };
-  }, []);
+  }, [
+    interval,
+    minIncrease,
+    maxIncrease,
+  ]);
 
-  useGlobalPolling({
-    key: "live-fomo-counters",
-    fn: async () => { await fetchOnce(); },
-    baseMs: FOMO_POLL_MS,
-    enabled: visible,
-    priority: "cosmetic",
-    category: "social",
-    owner: "useLiveFomoCounters",
-  });
+  /* =====================================================
+   * ULTRA SMOOTH LOOP
+   * ===================================================*/
 
-  return state;
+  useEffect(() => {
+    const animate = () => {
+      setDisplayValue((prev) => {
+        const diff =
+          targetValue.current - prev;
+
+        if (Math.abs(diff) < 0.01) {
+          return targetValue.current;
+        }
+
+        return (
+          prev +
+          diff * smoothness
+        );
+      });
+
+      animationFrame.current =
+        requestAnimationFrame(animate);
+    };
+
+    animationFrame.current =
+      requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame.current !== null) {
+        cancelAnimationFrame(
+          animationFrame.current,
+        );
+      }
+    };
+  }, [smoothness]);
+
+  return Math.floor(displayValue);
 }

@@ -5,15 +5,18 @@ let sentCount = 0;
 const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 20;
 
-/** Send a runtime error to the backend error_logs table. Rate-limited to 20/min. */
 export async function logClientError(
   message: string,
   opts: { stack?: string; context?: Record<string, unknown>; level?: "error" | "warn" | "info" } = {}
 ) {
   const now = Date.now();
-  if (now - lastSent > WINDOW_MS) { sentCount = 0; lastSent = now; }
+  if (now - lastSent > WINDOW_MS) { 
+    sentCount = 0; 
+    lastSent = now; 
+  }
   if (sentCount >= MAX_PER_WINDOW) return;
   sentCount++;
+
   try {
     await supabase.rpc("log_client_error", {
       _message: message,
@@ -28,30 +31,5 @@ export async function logClientError(
   }
 }
 
-/** Install global error & unhandled-rejection listeners. Call once at app boot. */
-export function installGlobalErrorLogging() {
-  if (typeof window === "undefined") return;
-  if ((window as any).__pm_err_installed) return;
-  (window as any).__pm_err_installed = true;
-
-  window.addEventListener("error", (e) => {
-    void logClientError(e.message || "window.onerror", {
-      stack: e.error?.stack,
-      context: { type: "window.error", filename: e.filename, lineno: e.lineno, colno: e.colno },
-    });
-  });
-
-  window.addEventListener("unhandledrejection", (e) => {
-    const reason: any = e.reason;
-    void logClientError(
-      typeof reason === "string" ? reason : reason?.message ?? "unhandledrejection",
-      { stack: reason?.stack, context: { type: "unhandledrejection" } }
-    );
-  });
-}
-
-// ============================================
-// ErrorBoundary.tsx와의 호환성을 위한 별칭
-// (logError로 호출해도 logClientError가 실행되도록 함)
-// ============================================
+// ErrorBoundary.tsx 호환을 위한 별칭
 export { logClientError as logError };
