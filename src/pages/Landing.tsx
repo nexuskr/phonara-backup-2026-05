@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';   // 대문자 Button으로 수정
 import { Card } from '@/components/ui/Card';
 import { useEffect, useState } from 'react';
 import ThreeBackground from '@/components/ThreeBackground';
@@ -28,8 +28,8 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
           <div className="text-2xl font-bold tracking-tighter">PHONARA</div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>로그인</Button>
-            <Button size="sm" onClick={() => navigate('/signup')}>무료로 시작하기</Button>
+            <Button onClick={() => navigate('/login')}>로그인</Button>
+            <Button onClick={() => navigate('/signup')}>무료로 시작하기</Button>
           </div>
         </div>
       </nav>
@@ -52,10 +52,16 @@ export default function Landing() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-xl h-16 px-14" onClick={() => navigate('/signup')}>
+            <Button 
+              onClick={() => navigate('/signup')} 
+              className="text-xl h-16 px-14"
+            >
               지금 바로 무료로 시작하기
             </Button>
-            <Button size="lg" variant="outline" className="text-xl h-16 px-10" onClick={() => navigate('/login')}>
+            <Button 
+              onClick={() => navigate('/login')} 
+              className="text-xl h-16 px-10"
+            >
               로그인
             </Button>
           </div>
@@ -132,7 +138,10 @@ export default function Landing() {
         <h2 className="text-5xl font-bold tracking-tighter mb-4">지금 시작하면<br />당신도 오늘부터 수익이 생깁니다.</h2>
         <p className="text-xl text-[#A1A1AA] mb-8">가입은 30초. 첫 미션은 1분이면 끝납니다.</p>
 
-        <Button size="lg" className="text-2xl h-16 px-16" onClick={() => navigate('/signup')}>
+        <Button 
+          onClick={() => navigate('/signup')} 
+          className="text-2xl h-16 px-16"
+        >
           지금 바로 무료로 시작하기
         </Button>
         <p className="mt-5 text-sm text-[#71717A]">가입 즉시 웰컴 PHON 지급 • 언제든 탈퇴 가능</p>

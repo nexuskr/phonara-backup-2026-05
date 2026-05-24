@@ -9,35 +9,10 @@ import { detectPreferredLocale } from "./hooks/use-preferred-locale";
 import { installViewportLock } from "./lib/viewport-lock";
 import { installLayoutShiftMonitor } from "./lib/layout-shift-monitor";
 import { watchMotionClass } from "./lib/app-settings";
-import { installHiddenTabSuspension, installIdleSuspension } from "@pkg/runtime";
 
-// Domain Guard temporarily disabled for debugging auth callback blank screen issue
-// (function enforceCanonicalDomain() {
-//   if (typeof window === "undefined") return;
-//
-//   const hostname = window.location.hostname;
-//
-//   const isAllowed =
-//     hostname === "localhost" ||
-//     hostname === "127.0.0.1" ||
-//     hostname.endsWith(".phonara.net") ||
-//     hostname === "phonara.net";
-//
-//   if (!isAllowed) {
-//     const target =
-//       "https://phonara.net" +
-//       window.location.pathname +
-//       window.location.search +
-//       window.location.hash;
-//
-//     if (window.location.href !== target) {
-//       window.location.replace(target);
-//       return;
-//     }
-//   }
-// })();
+// Lovable 잔재(@pkg/runtime) 제거
+// import { installHiddenTabSuspension, installIdleSuspension } from "@pkg/runtime";
 
-// First-visit auto locale: respect explicit ?lang=/persisted choice; otherwise detect.
 try {
   const url = new URL(window.location.href);
   const persisted = localStorage.getItem("phonara-lang");
@@ -49,25 +24,17 @@ try {
   }
 } catch {}
 
-// Lock viewport height before first paint to prevent mobile address-bar jitter.
+// Lock viewport height before first paint
 installViewportLock();
-// Apply user's reduce-motion preference as <html class="reduce-motion">.
+// Apply user's reduce-motion preference
 watchMotionClass();
-// Diagnose layout shifts (toasts in dev / when phonara:debug-cls=1).
+// Diagnose layout shifts
 installLayoutShiftMonitor();
-// PR-G: pause cosmetic intervals while tab is hidden (cooperative, prod-safe).
-installHiddenTabSuspension();
-// PR-H: pause admin intervals after 60s idle (cooperative, prod-safe).
-installIdleSuspension();
 
-// PR-F: DEV-only RPC 3-mode (foreground/hidden/idle) baseline collector.
-// Tree-shaken in production via import.meta.env.DEV guard.
-if (import.meta.env.DEV) {
-  import("./packages/entropy/rpc.surface").then((m) => m.installRpcSurface()).catch(() => {});
-}
+// PR-G, PR-H: Lovable 전용 기능 주석 처리
+// installHiddenTabSuspension();
+// installIdleSuspension();
 
-// P5 — wait for active locale chunk to resolve before first paint to avoid
-// flash-of-keys. Fail-open: if it errors, render anyway (i18n returns keys).
 const boot = () => {
   createRoot(document.getElementById("root")!).render(
     <ErrorBoundary scope="root">

@@ -49,3 +49,9 @@ export function installGlobalErrorLogging() {
     );
   });
 }
+
+// ============================================
+// ErrorBoundary.tsx와의 호환성을 위한 별칭
+// (logError로 호출해도 logClientError가 실행되도록 함)
+// ============================================
+export { logClientError as logError };

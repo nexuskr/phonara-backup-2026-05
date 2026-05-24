@@ -1,13 +1,10 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "app.lovable.c7a12cd613f64ce6bf31cc578b215a4b",
-  appName: "ApexForge",
+  appId: "com.phonara.app",
+  appName: "PHONARA",
   webDir: "dist",
-  server: {
-    url: "https://c7a12cd6-13f6-4ce6-bf31-cc578b215a4b.lovableproject.com?forceHideBadge=true",
-    cleartext: true,
-  },
+  // Lovable 프리뷰 서버 URL 제거 (독립 배포를 위해 삭제)
   ios: { contentInset: "always" },
   android: { allowMixedContent: true, captureInput: true },
   plugins: {
