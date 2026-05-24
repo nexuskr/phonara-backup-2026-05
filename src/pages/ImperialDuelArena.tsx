@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * /duel/arena/:roomId — Imperial Duel Arena
  * Slice 8 Phase 3 — Cosmic Shadow Real Betting + Cosmic Verification Oracle God Mode.

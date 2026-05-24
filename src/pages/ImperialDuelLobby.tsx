@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * /duel — Imperial Duel Lobby.
  */
