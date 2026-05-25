@@ -1,11 +1,11 @@
 // src/pages/Referral.tsx
-import React, { useState, useEffect, useMemo } from "react";
-import { Copy, Share2, Rocket, TrendingUp, Gift } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Copy, Share2, TrendingUp, Gift } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../hooks/use-toast";
 import SlimShell from "../components/layout/SlimShell";
 
-// ==================== HubTabs Stub (에러 해결) ====================
+// HubTabs Stub (임시)
 const HubTabs = ({ currentPage }: { currentPage?: string }) => (
   <div className="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 sticky top-0 z-50">
     <div className="flex-1 text-center">
@@ -13,7 +13,6 @@ const HubTabs = ({ currentPage }: { currentPage?: string }) => (
     </div>
   </div>
 );
-// ============================================================
 
 const Referral = () => {
   const { user } = useAuth();
@@ -41,7 +40,12 @@ const Referral = () => {
         total_commission: 245000,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Referral data load error:", error);
+      toast({
+        title: "❌ 데이터 불러오기 실패",
+        description: "잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -56,12 +60,12 @@ const Referral = () => {
       await navigator.clipboard.writeText(text);
       toast({
         title: "✅ 복사 완료!",
-        description: `${label}이(가) 복사되었어요.`,
+        description: `${label}이(가) 클립보드에 저장되었어요.`,
       });
     } catch {
       toast({
         title: "❌ 복사 실패",
-        description: "다시 시도해주세요.",
+        description: "다시 한 번 시도해주세요.",
         variant: "destructive",
       });
     }
@@ -100,7 +104,7 @@ const Referral = () => {
                 </div>
                 <button
                   onClick={() => copyToClipboard(stats.code, "초대코드")}
-                  className="w-11 h-11 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center"
+                  className="w-11 h-11 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center transition"
                 >
                   <Copy className="w-5 h-5 text-purple-400" />
                 </button>
@@ -156,18 +160,18 @@ const Referral = () => {
                 <div className="text-5xl font-black text-emerald-400">
                   ₩{stats.total_commission.toLocaleString()}
                 </div>
-                <div className="text-sm text-zinc-400 mt-1">총 보상</div>
+                <div className="text-sm text-zinc-400 mt-1">총 받은 보상</div>
               </div>
             </div>
           </section>
 
-          {/* 트레이딩 강력 유도 */}
+          {/* 🔥 트레이딩 강력 유도 */}
           <section className="bg-gradient-to-br from-amber-950/40 to-transparent border border-amber-500/30 rounded-3xl p-8 text-center mt-8">
             <h3 className="text-xl font-bold text-white mb-2">미션 완료하셨나요?</h3>
-            <p className="text-zinc-400 mb-6">이제 진짜 돈을 벌 시간입니다</p>
+            <p className="text-zinc-400 mb-6">친구도 초대했으니<br />이제 본격 트레이딩으로 업그레이드 해보세요</p>
             <button
               onClick={() => window.location.href = "/trading"}
-              className="w-full h-16 bg-white hover:bg-white/90 text-black font-bold text-xl rounded-2xl active:scale-[0.97] transition-all"
+              className="w-full h-16 bg-white hover:bg-white/90 text-black font-bold text-xl rounded-2xl active:scale-[0.97] transition-all flex items-center justify-center gap-2"
             >
               바로 트레이딩 시작하기 →
             </button>
