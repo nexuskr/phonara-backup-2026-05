@@ -1,0 +1,114 @@
+/* PHONARA Design System - globals.css (Tailwind v4) */
+
+@import "tailwindcss";
+
+/* =========================================
+   기본 설정
+   ========================================= */
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+html, body {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background-color: #080B14;
+  color: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Selection */
+::selection {
+  background-color: #8B5CF6;
+  color: #FFFFFF;
+}
+
+/* =========================================
+   Glassmorphism
+   ========================================= */
+.glass {
+  background: rgba(12, 10, 24, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+.glass-strong {
+  background: rgba(12, 10, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+}
+
+.glass-card {
+  background: #101525;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s cubic-bezier(0.23, 1.0, 0.32, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   Neon Text
+   ========================================= */
+.neon-text-cyan {
+  color: #22E0FF;
+  text-shadow: 0 0 10px rgba(34, 224, 255, 0.5), 0 0 20px rgba(34, 224, 255, 0.3);
+}
+
+.neon-text-purple {
+  color: #8B5CF6;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.neon-text-gold {
+  color: #E8B923;
+  text-shadow: 0 0 10px rgba(232, 185, 35, 0.5), 0 0 20px rgba(232, 185, 35, 0.3);
+}
+
+.neon-text-pink {
+  color: #FF4DDF;
+  text-shadow: 0 0 10px rgba(255, 77, 223, 0.5), 0 0 20px rgba(255, 77, 223, 0.3);
+}
+
+/* =========================================
+   Custom Scrollbar
+   ========================================= */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F1424;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* =========================================
+   Focus Style
+   ========================================= */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #8B5CF6;
+  outline-offset: 2px;
+}
+
+/* =========================================
+   Gradient Text
+   ========================================= */
+.gradient-text {
+  background: linear-gradient(135deg, #22E0FF 0%, #8B5CF6 50%, #FF4DDF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

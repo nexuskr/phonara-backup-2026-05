@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
-  const isListenerSetup = useRef(false); // 리스너 중복 등록 방지
+  const isListenerSetup = useRef(false);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -44,6 +44,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (!error && data?.session?.user) {
+      setUser(data.session.user);
+    }
+
     return { data, error };
   };
 
@@ -93,7 +98,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
-    // 리스너가 이미 등록되었으면 중복 등록 방지
     if (isListenerSetup.current) return;
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {

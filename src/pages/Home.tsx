@@ -1,15 +1,18 @@
 // src/pages/home/HomePage.tsx
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Bell, Wallet, ArrowDownToLine, History, Gift,
   Flame, Users, Trophy, Home as HomeIcon,
-  TrendingUp
+  TrendingUp, LogOut, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const goTo = (path: string) => {
     navigate(path);
@@ -17,9 +20,39 @@ export default function HomePage() {
 
   const showComingSoon = (gameName: string) => {
     toast.info(`${gameName}은(는) 준비 중입니다`, {
-      description: "조금만 기다려주세요!",
+      description: "조금만 기다려주세요! 곧 만나요 🚀",
       duration: 2000,
     });
+  };
+
+  // ✅ 로그아웃 핸들러 (중복 클릭 방지 포함)
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        toast.error("로그아웃에 실패했어요 😢", {
+          description: "잠시 후 다시 시도해주세요.",
+        });
+        return;
+      }
+
+      toast.success("로그아웃 완료됐어요! 👋", {
+        description: "다음에 또 PHONARA에서 만나요 💜",
+      });
+
+      navigate("/auth");
+    } catch (err) {
+      toast.error("예상치 못한 오류가 발생했어요 😢", {
+        description: "잠시 후 다시 시도해주세요.",
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -40,10 +73,29 @@ export default function HomePage() {
               PHONARA
             </h1>
           </div>
-          <button className="relative p-3 rounded-full hover:bg-white/5 transition-all">
-            <Bell size={27} className="text-white/80" />
-            <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-[#02030a] animate-pulse" />
-          </button>
+          
+          {/* 우측 아이콘 그룹 */}
+          <div className="flex items-center gap-1">
+            {/* 알림 버튼 */}
+            <button className="relative p-3 rounded-full hover:bg-white/5 transition-all">
+              <Bell size={27} className="text-white/80" />
+              <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-[#02030a] animate-pulse" />
+            </button>
+
+            {/* 로그아웃 버튼 (중복 클릭 방지 적용) */}
+            <button 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="p-3 rounded-full hover:bg-white/5 active:bg-white/10 transition-all text-white/70 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="로그아웃"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="animate-spin" size={24} />
+              ) : (
+                <LogOut size={24} />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* WALLET */}
@@ -76,7 +128,7 @@ export default function HomePage() {
           </div>
         </motion.div>
 
-        {/* ==================== 대형 트레이딩 유도 카드 ==================== */}
+        {/* 대형 트레이딩 유도 카드 */}
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.985 }}
@@ -181,40 +233,27 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ==================== 네온 효과 적용된 Bottom Navigation ==================== */}
+      {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#02030a]/95 backdrop-blur-3xl">
         <div className="max-w-md mx-auto grid grid-cols-5 items-end px-2 pb-2 pt-3">
-          {/* 홈 */}
           <button onClick={() => goTo("/home")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
             <div className="text-white/40"><HomeIcon size={24} /></div>
             <div className="text-[10.5px] tracking-wider text-white/40 font-medium">홈</div>
           </button>
 
-          {/* 미션 */}
           <button onClick={() => goTo("/missions")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
             <div className="text-white/40"><Gift size={24} /></div>
             <div className="text-[10.5px] tracking-wider text-white/40 font-medium">미션</div>
           </button>
 
-          {/* ==================== 트레이딩 (네온 강조) ==================== */}
+          {/* 트레이딩 (네온 강조) */}
           <button onClick={() => goTo("/trading")} className="flex flex-col items-center justify-center -mt-3 active:opacity-90">
             <div className="relative flex flex-col items-center">
-              {/* 네온 Glow */}
               <div className="absolute -inset-3 bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 rounded-full blur-[18px] opacity-60" />
-              
-              {/* 메인 버튼 */}
               <div className="relative w-[68px] h-[68px] rounded-3xl bg-gradient-to-br from-fuchsia-500 via-violet-600 to-cyan-500 flex items-center justify-center shadow-2xl shadow-fuchsia-500/50 border-[3.5px] border-white/90">
-                <div className="text-white">
-                  <TrendingUp size={28} />
-                </div>
+                <div className="text-white"><TrendingUp size={28} /></div>
               </div>
-
-              {/* 라벨 */}
-              <div className="mt-1.5 text-[11px] font-bold tracking-[0.5px] text-fuchsia-300">
-                트레이딩
-              </div>
-
-              {/* 펄스 효과 */}
+              <div className="mt-1.5 text-[11px] font-bold tracking-[0.5px] text-fuchsia-300">트레이딩</div>
               <motion.div
                 animate={{ scale: [1, 1.12, 1] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
@@ -223,16 +262,14 @@ export default function HomePage() {
             </div>
           </button>
 
-          {/* 랭킹 */}
           <button onClick={() => goTo("/earn")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
             <div className="text-white/40"><Trophy size={24} /></div>
             <div className="text-[10.5px] tracking-wider text-white/40 font-medium">랭킹</div>
           </button>
 
-          {/* 친구 */}
           <button onClick={() => goTo("/referral")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
             <div className="text-white/40"><Users size={24} /></div>
-            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">친구</div>
+            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">친쪽</div>
           </button>
         </div>
       </div>

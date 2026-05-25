@@ -21,15 +21,16 @@ export default function LoginPage() {
   const [todaySignups, setTodaySignups] = useState(32450);
   const [liveUsers, setLiveUsers] = useState(8765);
 
-  // 리다이렉트
+  const loading = isLoading || authLoading;
+
+  // 리다이렉트 (user 변경 시)
   useEffect(() => {
     if (user && !location.pathname.startsWith('/auth')) {
-      const from = (location.state as any)?.from || "/home";
-      navigate(from, { replace: true });
+      navigate("/home", { replace: true });
     }
   }, [user, navigate, location]);
 
-  // 실시간 숫자 변동 (FOMO)
+  // FOMO 숫자
   useEffect(() => {
     const interval = setInterval(() => {
       setTodaySignups(prev => prev + Math.floor(Math.random() * 4) + 2);
@@ -41,8 +42,8 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // ==================== 토스트 (귀엽고 친근하게) ====================
   const handleMagicLink = async () => {
+    if (loading) return;
     if (!magicEmail.trim()) {
       toast.error("이메일 입력해주세요! 😢");
       return;
@@ -65,49 +66,55 @@ export default function LoginPage() {
   };
 
   const handlePasswordAuth = async () => {
+    if (loading) return;
     if (!email || !password) {
       toast.error("이메일이랑 비밀번호 모두 입력해주세요! 🥺");
       return;
     }
+
     setIsLoading(true);
+
     try {
-      const { error } = await signIn(email, password);
-      if (!error) {
-        toast.success("환영합니다! 🎉", {
-          description: "오늘도 좋은 하루 보내세요~",
-        });
+      const { error: signInError } = await signIn(email, password);
+
+      if (!signInError) {
+        toast.success("환영합니다! 🎉");
+        navigate("/home");
         return;
       }
+
       const { error: signUpError } = await signUp(email, password);
+
       if (signUpError) {
-        toast.error("회원가입에 실패했어요... 😭");
+        const errorMsg = signUpError.message?.toLowerCase() || "";
+        if (errorMsg.includes("already registered")) {
+          toast.error("이미 가입된 이메일입니다 😭");
+        } else {
+          toast.error("회원가입에 실패했어요 😭");
+        }
         return;
       }
-      toast.success("가입 완료! 축하해요~ 🎊", {
-        description: "이제 PHONARA에서 부수입 시작해봐요!",
-      });
+
+      toast.success("가입 완료! 축하해요~ 🎊");
+      navigate("/home"); // 가장 단순하게 이동
+
     } catch (e: any) {
       toast.error("오류가 발생했어요... 😢");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
-
-  const loading = isLoading || authLoading;
 
   return (
     <div className="min-h-screen bg-[#02030a] text-white overflow-hidden relative">
-      {/* 배경 */}
       <div className="absolute inset-0 bg-[radial-gradient(at_top,#4c1d95_0%,#0a051f_40%,#000000_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(45deg,#7c3aed10_0%,transparent_50%)]" />
-      <div className="absolute top-[-220px] left-1/2 h-[620px] w-[620px] -translate-x-1/2 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-transparent blur-[160px] opacity-50" />
-      <div className="absolute bottom-[-180px] right-[-100px] h-[480px] w-[480px] bg-cyan-400/30 blur-[140px] rounded-full" />
+      <div className="absolute -top-[220px] left-1/2 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-gradient-to-br from-fuchsia-500 via-violet-600 to-transparent blur-[160px] opacity-50" />
+      <div className="absolute -bottom-[180px] -right-[100px] h-[480px] w-[480px] rounded-full bg-cyan-400/30 blur-[140px]" />
 
       <div className="relative z-10 max-w-md mx-auto px-5 pt-6 pb-16">
-        
-        {/* 3D Hero Scene */}
         <HeroScene />
 
-        {/* ==================== 강력 FOMO 헤드라인 ==================== */}
         <div className="text-center -mt-4 mb-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm mb-6">
             <Sparkles className="w-4 h-4 text-purple-400" />
@@ -128,7 +135,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Live Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
             <div className="flex items-center gap-2 text-sm text-white/60 mb-1">
@@ -167,7 +173,7 @@ export default function LoginPage() {
           <button
             onClick={handleMagicLink}
             disabled={loading || !magicEmail}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 font-bold flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.985] transition"
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 font-bold flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.985] transition"
           >
             {loading ? <Loader2 className="animate-spin" /> : <>지금 시작하기 <ArrowRight /></>}
           </button>
@@ -175,12 +181,12 @@ export default function LoginPage() {
 
         <button
           onClick={() => setShowPasswordForm(!showPasswordForm)}
-          className="w-full text-center text-sm text-white/60 py-2 mb-2"
+          disabled={loading}
+          className="w-full text-center text-sm text-white/60 py-2 mb-2 disabled:opacity-50"
         >
           {showPasswordForm ? "매직 링크로 돌아가기" : "비밀번호로 로그인 / 회원가입"}
         </button>
 
-        {/* 비밀번호 폼 */}
         <AnimatePresence>
           {showPasswordForm && (
             <motion.div
@@ -207,9 +213,9 @@ export default function LoginPage() {
                 <button
                   onClick={handlePasswordAuth}
                   disabled={loading}
-                  className="w-full h-14 rounded-2xl bg-white text-black font-bold active:bg-white/90"
+                  className="w-full h-14 rounded-2xl bg-white text-black font-bold flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed active:bg-white/90 transition"
                 >
-                  {loading ? <Loader2 className="animate-spin mx-auto" /> : "로그인 / 회원가입"}
+                  {loading ? <Loader2 className="animate-spin text-black" /> : "로그인 / 회원가입"}
                 </button>
               </div>
             </motion.div>
