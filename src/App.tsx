@@ -2,44 +2,89 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
-// 페이지 import
+// 기존 페이지들
 import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";
+import Auth from "./pages/Auth";                    // ← 기존 Auth.tsx 사용
 import LoginPage from "./pages/auth/LoginPage";
+import AuthCallback from "./pages/auth/AuthCallback";
 import HomePage from "./pages/Home";
-import NotFound from "./pages/NotFound";
+import Missions from "./pages/Missions";
+import Referral from "./pages/Referral";
+import Wallet from "./pages/Wallet";
+import Earn from "./pages/Earn";
+import TradingArenaBybit from "./pages/TradingArenaBybit";
 
-// 필요하면 다른 페이지도 추가
-// import RegisterPage from "./pages/auth/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 랜딩 페이지 */}
+        {/* 공개 페이지 */}
         <Route path="/" element={<Landing />} />
 
-        {/* 인증 관련 라우트 */}
+        {/* 인증 페이지들 */}
         <Route path="/auth" element={<Auth />}>
-          {/* /auth 접속 시 기본으로 로그인 페이지 보여주기 */}
           <Route index element={<LoginPage />} />
-          {/* <Route path="register" element={<RegisterPage />} /> */}
+          <Route path="callback" element={<AuthCallback />} />
         </Route>
 
-        {/* 홈 (로그인 후) */}
-        <Route path="/home" element={<HomePage />} />
+        {/* 보호된 페이지들 */}
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trading"
+          element={
+            <ProtectedRoute>
+              <TradingArenaBybit />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/missions"
+          element={
+            <ProtectedRoute>
+              <Missions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/earn"
+          element={
+            <ProtectedRoute>
+              <Earn />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <ProtectedRoute>
+              <Wallet />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/referral"
+          element={
+            <ProtectedRoute>
+              <Referral />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* 404 페이지 */}
-        <Route path="*" element={<NotFound />} />
+        {/* 기타 */}
+        <Route path="/games" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* 전역 토스트 (친근한 한국어 알림) */}
-      <Toaster 
-        position="top-center" 
-        richColors 
-        closeButton 
-        duration={3500}
-      />
+      <Toaster position="top-center" richColors closeButton />
     </BrowserRouter>
   );
 }

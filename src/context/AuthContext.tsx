@@ -14,9 +14,10 @@ interface AuthContextType {
 
   // 인증 메서드
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<{ error: any }>;
   clearError: () => void;
 }
 
@@ -35,12 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // ============================================
-  // Supabase 인증 상태 변경 리스너 (핵심)
+  // Supabase 인증 상태 변경 리스너
   // ============================================
   useEffect(() => {
     let isMounted = true;
 
-    // 1. 초기 세션 확인
     const initializeAuth = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -62,47 +62,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initializeAuth();
 
-    // 2. 실시간 인증 상태 리스너 등록
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         if (!isMounted) return;
 
-        console.log('🔐 Auth 이벤트 발생:', event);
-
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setLoading(false);
-
-        switch (event) {
-          case 'INITIAL_SESSION':
-            setError(null);
-            break;
-
-          case 'SIGNED_IN':
-            setError(null);
-            console.log('✅ 로그인 성공:', currentSession?.user?.email);
-            break;
-
-          case 'SIGNED_OUT':
-            setError(null);
-            console.log('👋 로그아웃 완료');
-            break;
-
-          case 'TOKEN_REFRESHED':
-            console.log('🔄 토큰 자동 갱신됨');
-            break;
-
-          case 'USER_UPDATED':
-            console.log('👤 유저 정보 업데이트됨');
-            break;
-
-          default:
-            break;
-        }
       }
     );
 
-    // 3. 클린업 (메모리 누수 방지)
     return () => {
       isMounted = false;
       subscription.unsubscribe();
@@ -110,18 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ============================================
-  // 인증 메서드 구현
+  // 인증 메서드
   // ============================================
 
-  /** 이메일 + 비밀번호 로그인 */
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(error.message);
@@ -133,12 +98,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  /** 회원가입 */
+  /** 회원가입 (data + error 모두 반환) */
   const signUp = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -146,14 +111,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       setError(error.message);
       setLoading(false);
-      return { error };
+      return { data: null, error };
     }
 
     setLoading(false);
-    return { error: null };
+    return { data, error: null };
   };
 
-  /** 로그아웃 */
   const signOut = async () => {
     setLoading(true);
     await supabase.auth.signOut();
@@ -162,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
-  /** Google 소셜 로그인 */
   const signInWithGoogle = async () => {
     setLoading(true);
     setError(null);
@@ -180,6 +143,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithMagicLink = async (email: string) => {
+    setLoading(true);
+    setError(null);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return { error };
+    }
+
+    setLoading(false);
+    return { error: null };
+  };
+
   const clearError = () => setError(null);
 
   // ============================================
@@ -194,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     signInWithGoogle,
+    signInWithMagicLink,
     clearError,
   };
 
@@ -205,7 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 // ============================================
-// Custom Hook (useAuth)
+// Custom Hook
 // ============================================
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
