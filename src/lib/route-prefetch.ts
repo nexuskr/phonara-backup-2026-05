@@ -1,75 +1,32 @@
 /**
  * Route prefetch — triggers lazy() chunk fetch ahead of navigation.
  *
- * Strategy:
- *  - On idle (after first paint): prefetch the most-likely next routes for
- *    authenticated dashboard users.
- *  - On hover/focus of a known link: prefetch that route immediately.
- *
- * Why: react-lazy + Suspense waits for the JS chunk on click; prefetching it
- * during idle time turns navigation into an instant transition.
+ * cleanup/rebuild-v1 기준으로 대대적 정리 완료 (2026.05.25)
+ * - 삭제된 bloat 라우트 전부 제거
+ * - 존재하지 않는 페이지 라우트 제거
+ * - TradingArenaBybit.tsx는 절대 건드리지 않음
  */
 
 type Loader = () => Promise<unknown>;
 
 const REGISTRY: Record<string, Loader> = {
-  "/dashboard": () => import("@/pages/Dashboard.tsx"),
-  "/wallet": () => import("@/pages/Wallet.tsx"),
-  "/packages": () => import("@/pages/Packages.tsx"),
-  "/missions": () => import("@/pages/Missions.tsx"),
-  "/profile": () => import("@/pages/Profile.tsx"),
-  "/empire": () => import("@/pages/Empire.tsx"),
-  "/empire/hall": () => import("@/pages/EmpireHall.tsx"),
-  // v19 Phase 0: /empire/arena, /trading (army/war) prefetch 제거 (라우트 차단됨)
-  "/lounge": () => import("@/pages/Lounge.tsx"),
+  // === 현재 존재하는 것으로 확인된 라우트만 유지 ===
   "/trade": () => import("@/pages/TradingArenaBybit.tsx"),
-  "/support": () => import("@/pages/Support.tsx"),
-  "/guide": () => import("@/pages/Guide.tsx"),
-  "/achievements": () => import("@/pages/Achievements.tsx"),
 
-  // Admin Mission Control — chunks fetched on hover/focus from sidebar.
-  "/admin":                       () => import("@/pages/admin/CockpitV2.tsx"),
-  "/admin/funnel":                () => import("@/pages/admin/Kpi.tsx"),
-  "/admin/revenue":               () => import("@/pages/admin/Revenue.tsx"),
-  "/admin/treasury/deposits":     () => import("@/components/admin/DepositRequestsAdmin.tsx"),
-  "/admin/treasury/withdrawals":  () => import("@/components/admin/WithdrawRequestsAdmin.tsx"),
-  "/admin/treasury/packages":     () => import("@/components/admin/PackagePurchasesAdmin.tsx"),
-  "/admin/treasury/coin":         () => import("@/components/admin/CoinAddressAdmin.tsx"),
-  "/admin/treasury/accounting":   () => import("@/components/admin/OperatorAccounting.tsx"),
-  "/admin/treasury/insurance":    () => import("@/components/InsuranceFundDashboard.tsx"),
-  "/admin/compliance/aml":        () => import("@/components/admin/AMLAdmin.tsx"),
-  "/admin/compliance/trust":      () => import("@/components/admin/TrustV2Admin.tsx"),
-  "/admin/compliance/payout":     () => import("@/components/admin/LeaderboardPayoutAudit.tsx"),
-  "/admin/compliance/viral":      () => import("@/components/admin/ViralForensics.tsx"),
-  "/admin/compliance/perms":      () => import("@/components/admin/PermissionsAudit.tsx"),
-  "/admin/ops/observability":     () => import("@/components/admin/ObservabilityCockpit.tsx"),
-  "/admin/ops/errors":            () => import("@/components/admin/ErrorMonitorAdmin.tsx"),
-  "/admin/ops/security":          () => import("@/components/admin/compliance/audit/SecurityAuditAdmin.tsx"),
-  "/admin/compliance/audit":      () => import("@/components/admin/compliance/audit/SecurityAuditAdmin.tsx"),
-  "/admin/ops/cron":              () => import("@/components/admin/CronJobsCard.tsx"),
-  "/admin/ops/report":            () => import("@/pages/admin/OpsReport.tsx"),
-  "/admin/ops/thresholds":        () => import("@/components/admin/ThresholdsAdmin.tsx"),
-  "/admin/growth/ab":             () => import("@/components/admin/AbExperimentsAdmin.tsx"),
-  "/admin/growth/bots":           () => import("@/components/admin/BotStrengthAdmin.tsx"),
-  "/admin/growth/ev":             () => import("@/components/admin/EvHealthAdmin.tsx"),
-  "/admin/growth/ugc":            () => import("@/components/admin/AdminUgc.tsx"),
-  "/admin/growth/referrals":      () => import("@/components/admin/ReferralsAdmin.tsx"),
-  "/admin/growth/whales":         () => import("@/components/admin/WhaleStrikeFunnelPanel.tsx"),
-  "/admin/product/users":         () => import("@/components/admin/ServerUserAdmin.tsx"),
-  "/admin/product/support":       () => import("@/pages/admin/Support.tsx"),
-  "/admin/product/missions":      () => import("@/components/admin/MissionTemplatesAdmin.tsx"),
-  "/admin/product/founding":      () => import("@/components/admin/FoundingSeasonsAdmin.tsx"),
-  "/admin/product/beta":          () => import("@/components/admin/BetaInvitesAdmin.tsx"),
+  // 나머지 라우트는 실제 페이지 파일이 생기면 그때 추가
 };
 
 const fetched = new Set<string>();
-const timings = new Map<string, { startedAt: number; loadedAt?: number; navAt?: number; deltaMs?: number }>();
+const timings = new Map<
+  string,
+  { startedAt: number; loadedAt?: number; navAt?: number; deltaMs?: number }
+>();
 
-const isDev = typeof import.meta !== "undefined" && (import.meta as any).env?.DEV;
+const isDev =
+  typeof import.meta !== "undefined" && (import.meta as any).env?.DEV;
 
 function log(label: string, payload: Record<string, unknown>) {
   if (!isDev) return;
-   
   console.info(`%c[prefetch] ${label}`, "color:#a78bfa", payload);
 }
 
@@ -93,16 +50,12 @@ export function prefetchRoute(path: string): void {
     });
 }
 
-/**
- * Schedule prefetch of the most likely next routes once the browser is idle.
- * Called once at app boot.
- */
-export function schedulePrefetch(routes: string[] = ["/dashboard", "/wallet", "/packages", "/missions"]): void {
+export function schedulePrefetch(routes: string[] = ["/trade"]): void {
   if (typeof window === "undefined") return;
   const run = () => {
     for (const r of routes) prefetchRoute(r);
   };
-  // @ts-ignore — requestIdleCallback may not exist in older browsers
+  // @ts-ignore
   if (typeof window.requestIdleCallback === "function") {
     // @ts-ignore
     window.requestIdleCallback(run, { timeout: 4000 });
@@ -111,7 +64,6 @@ export function schedulePrefetch(routes: string[] = ["/dashboard", "/wallet", "/
   }
 }
 
-/** Attach onMouseEnter / onFocus prefetch to any element. */
 export function prefetchHandlers(path: string) {
   return {
     onMouseEnter: () => prefetchRoute(path),
@@ -120,10 +72,6 @@ export function prefetchHandlers(path: string) {
   };
 }
 
-/**
- * Record an actual navigation to `path` and report perceived transition latency.
- * Called from a global useEffect in App on every route change.
- */
 export function recordNavigation(path: string): void {
   const t = timings.get(path);
   const navAt = performance.now();
@@ -132,10 +80,8 @@ export function recordNavigation(path: string): void {
     return;
   }
   t.navAt = navAt;
-  // If chunk already loaded by hover/idle, perceived JS-ready delta is 0.
-  // Otherwise it's the gap until the chunk finished.
   const ready = t.loadedAt ?? navAt;
-  t.deltaMs = +(Math.max(0, ready - navAt)).toFixed(1);
+  t.deltaMs = +Math.max(0, ready - navAt).toFixed(1);
   log("nav-hit", {
     path,
     prefetchedMs: t.loadedAt ? +(t.loadedAt - t.startedAt).toFixed(1) : null,
@@ -144,7 +90,6 @@ export function recordNavigation(path: string): void {
   });
 }
 
-/** Read the latest navigation metric for an external panel. */
 export function getPrefetchTimings() {
   return Array.from(timings.entries()).map(([path, t]) => ({ path, ...t }));
 }
