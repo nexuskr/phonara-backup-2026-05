@@ -1,117 +1,150 @@
 // src/pages/Missions.tsx
 import { useState } from "react";
-import { Gem, CheckCircle2, Sparkles, Lock, Gamepad2, X, Zap, Flame, Trophy, Heart } from "lucide-react";
+import { Sparkles, Flame } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-// ==================== Stub Components ====================
-const Layout = ({ children }: any) => <>{children}</>;
-const HubTabs = (props: any) => <div className="h-12 bg-white/5 flex items-center px-5">Missions Hub</div>;
-const JackpotBanner = () => <div className="h-20 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl mb-6 flex items-center justify-center font-bold">🎰 JACKPOT</div>;
-const AIBotCards = () => <div className="h-40 bg-white/5 rounded-2xl p-6">AI Bot Cards</div>;
-const MissionDailyCapCard = (props: any) => <div className="h-40 bg-white/5 rounded-2xl p-6">Daily Cap Card</div>;
-const BoosterPill = () => <div className="px-4 py-1 bg-gradient-gold text-gold-foreground rounded-full text-xs font-bold inline-block">BOOSTER</div>;
-
-// ==================== Stub Hooks ====================
-const useDB = () => {
-  const [db, setDb] = useState({
-    completedMissions: [],
-    customMissions: [],
-    momentum: 3,
-    recoveryMission: null,
-    user: { 
-      tier: "NORMAL", 
-      balance: 50000, 
-      todayEarnings: 12450, 
-      xp: 450, 
-      playsUsed: 5, 
-      playDate: "2026-05-25" 
-    }
-  });
-  return [db, setDb] as const;
-};
-
-const useRequireAuth = () => null; // Missions에서는 db.user를 주로 사용
-
-const formatKRW = (num: number) => num.toLocaleString() + "원";
-
-const toast = {
-  success: (title: string) => console.log("[SUCCESS]", title),
-  error: (title: string) => console.error("[ERROR]", title),
-};
+interface Mission {
+  id: string;
+  title: string;
+  desc: string;
+  reward: number;
+  tier: string;
+  category: string;
+}
 
 export default function Missions() {
-  const [db, setDb] = useDB();
-  const user = db.user;                    // ← db.user를 직접 사용 (안전)
-  const [tierTab, setTierTab] = useState("NORMAL");
+  const navigate = useNavigate();
+  const [tierTab, setTierTab] = useState<"NORMAL" | "VIP" | "ELITE">("NORMAL");
   const [catTab, setCatTab] = useState<"daily" | "battle" | "rewards" | "senior">("battle");
   const [completing, setCompleting] = useState<string | null>(null);
 
-  const userTier = user.tier || "NORMAL";
-  const playsUsed = 5;
-  const playLimit = 10;
-  const playsLeft = Math.max(0, playLimit - playsUsed);
-  const limitReached = playsLeft <= 0;
+  // 예시 미션 데이터
+  const missions: Mission[] = [
+    {
+      id: "m1",
+      title: "오늘 첫 로그인",
+      desc: "PHONARA에 접속하기",
+      reward: 1000,
+      tier: "NORMAL",
+      category: "daily",
+    },
+    {
+      id: "m2",
+      title: "미션 3개 완료하기",
+      desc: "오늘 미션 3개 이상 완료",
+      reward: 3000,
+      tier: "NORMAL",
+      category: "battle",
+    },
+    {
+      id: "m3",
+      title: "트레이딩 1회 진행",
+      desc: "트레이딩 페이지에서 포지션 열기",
+      reward: 5000,
+      tier: "NORMAL",
+      category: "battle",
+    },
+    {
+      id: "m4",
+      title: "친구 1명 초대하기",
+      desc: "레퍼럴 링크로 친구 초대",
+      reward: 15000,
+      tier: "NORMAL",
+      category: "rewards",
+    },
+  ];
 
-  const missions: any[] = [];
-  const list = missions.filter((m) => m.tier === tierTab);
+  const filteredMissions = missions.filter(
+    (m) => m.tier === tierTab && m.category === catTab
+  );
 
-  function complete(m: any) {
-    console.log("Mission completed:", m.title);
-    setCompleting(m.id);
+  const handleComplete = (mission: Mission) => {
+    setCompleting(mission.id);
+
     setTimeout(() => {
       setCompleting(null);
-      toast.success(`+${formatKRW(m.reward || 1000)} PHON`);
+      toast.success(`미션 완료! +${mission.reward.toLocaleString()} PHON`, {
+        description: mission.title,
+      });
     }, 800);
-  }
+  };
 
   return (
-    <Layout>
-      <HubTabs hub="earn" />
-      <div className="container pt-6 pb-10 animate-liquid-in">
-        <div className="mb-4 flex items-start justify-between gap-3">
+    <div className="min-h-screen bg-[#02030a] text-white">
+      <div className="max-w-md mx-auto px-5 pt-6 pb-10">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="font-imperial text-2xl sm:text-3xl tracking-[0.18em] text-gradient-imperial flex items-center gap-2 break-keep">
-              <Sparkles className="w-5 h-5 text-primary" /> 오늘의 미션
+            <h1 className="text-3xl font-black tracking-[-1.5px] flex items-center gap-2">
+              <Sparkles className="w-7 h-7 text-primary" />
+              오늘의 미션
             </h1>
+            <p className="text-white/60 text-sm mt-1">미션을 완료하고 보상을 받으세요</p>
           </div>
-          <BoosterPill />
+          <button
+            onClick={() => navigate("/earn")}
+            className="flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300"
+          >
+            <Flame size={18} /> 전체 보기
+          </button>
         </div>
 
-        <MissionDailyCapCard playsUsed={playsUsed} playLimit={playLimit} tier={userTier} />
+        {/* 티어 탭 */}
+        <div className="flex gap-2 mb-6">
+          {(["NORMAL", "VIP", "ELITE"] as const).map((tier) => (
+            <button
+              key={tier}
+              onClick={() => setTierTab(tier)}
+              className={`flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all ${
+                tierTab === tier
+                  ? "bg-white text-black"
+                  : "bg-white/5 text-white/70 hover:bg-white/10"
+              }`}
+            >
+              {tier}
+            </button>
+          ))}
+        </div>
 
-        <JackpotBanner />
-
-        <AIBotCards />
-
-        <div className="grid sm:grid-cols-2 gap-3 mt-8">
-          {list.length > 0 ? (
-            list.map((m: any) => (
+        {/* 미션 리스트 */}
+        {filteredMissions.length > 0 ? (
+          <div className="space-y-4">
+            {filteredMissions.map((mission) => (
               <div
-                key={m.id}
-                className="glass-strong rounded-2xl p-4 neon-border relative overflow-hidden"
+                key={mission.id}
+                className="bg-zinc-900/80 border border-white/10 rounded-3xl p-6"
               >
-                <h3 className="font-bold text-sm leading-snug break-keep">{m.title || "미션"}</h3>
-                <p className="text-[11px] text-muted-foreground mt-1 break-keep">{m.desc || "설명"}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="font-display font-black text-xl text-money-strong tabular-nums">
-                    +{formatKRW(m.reward || 1000)}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-xl tracking-tight">{mission.title}</h3>
+                    <p className="text-white/60 text-sm mt-1.5">{mission.desc}</p>
                   </div>
-                  <button
-                    onClick={() => complete(m)}
-                    disabled={completing === m.id}
-                    className="press min-h-[44px] px-4 py-2 rounded-xl bg-gradient-primary text-primary-foreground text-xs font-bold glow-primary disabled:opacity-50 transition"
-                  >
-                    {completing === m.id ? "진행중..." : "시작하기"}
-                  </button>
+                  <div className="text-right">
+                    <div className="text-emerald-400 font-black text-2xl tabular-nums">
+                      +{mission.reward.toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-white/50 -mt-1">PHON</div>
+                  </div>
                 </div>
+
+                <button
+                  onClick={() => handleComplete(mission)}
+                  disabled={completing === mission.id}
+                  className="mt-6 w-full h-12 rounded-2xl bg-white text-black font-bold text-sm active:bg-white/90 disabled:opacity-60 transition-all"
+                >
+                  {completing === mission.id ? "진행 중..." : "미션 완료하기"}
+                </button>
               </div>
-            ))
-          ) : (
-            <div className="col-span-full glass rounded-2xl p-10 text-center text-sm text-muted-foreground">
-              현재 미션이 없습니다. 곧 업데이트됩니다.
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-zinc-900/80 border border-white/10 rounded-3xl p-10 text-center">
+            <p className="text-white/60">현재 해당 티어의 미션이 없습니다.</p>
+            <p className="text-sm text-white/40 mt-1">조금만 기다려주세요!</p>
+          </div>
+        )}
       </div>
-    </Layout>
+    </div>
   );
 }

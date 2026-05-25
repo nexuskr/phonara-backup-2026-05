@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const location = useLocation();
 
   // 로딩 중일 때는 로딩 스피너 표시
@@ -34,6 +34,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // 로그인 된 경우 → 자식 컴포넌트 렌더링
+  // 로그인 했지만 온보딩을 완료하지 않은 경우 → 온보딩 페이지로 이동
+  if (profile && profile.onboarding_completed === false) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // 로그인 + 온보딩 완료된 경우 → 정상 페이지 렌더링
   return <>{children}</>;
 }

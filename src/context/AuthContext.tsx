@@ -6,13 +6,18 @@ import { supabase } from '../integrations/supabase/client';
 // ============================================
 // 타입 정의
 // ============================================
+interface Profile {
+  id: string;
+  onboarding_completed: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   loading: boolean;
   error: string | null;
 
-  // 인증 메서드
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signOut: () => Promise<void>;
@@ -32,8 +37,41 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ============================================
+  // 프로필 안전하게 가져오기 (에러 방지 버전)
+  // ============================================
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, onboarding_completed')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        // 컬럼이 없거나 테이블이 없을 때 에러 방지
+        console.warn('프로필 조회 경고 (컬럼이 없을 수 있음):', error.message);
+        return null;
+      }
+
+      // data가 null이거나 onboarding_completed가 없으면 null 반환
+      if (!data || typeof (data as any).onboarding_completed === 'undefined') {
+        return null;
+      }
+
+      return {
+        id: (data as any).id,
+        onboarding_completed: (data as any).onboarding_completed,
+      };
+    } catch (err) {
+      console.warn('프로필 조회 중 예외 발생:', err);
+      return null;
+    }
+  };
 
   // ============================================
   // Supabase 인증 상태 변경 리스너
@@ -47,14 +85,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (sessionError) {
           console.error('초기 세션 로드 실패:', sessionError);
-          if (isMounted) setError('인증 정보를 불러오는데 실패했습니다.');
         } else if (isMounted) {
           setSession(session);
           setUser(session?.user ?? null);
+
+          if (session?.user) {
+            const userProfile = await fetchProfile(session.user.id);
+            setProfile(userProfile);
+          }
         }
       } catch (err) {
         console.error('인증 초기화 중 예외 발생:', err);
-        if (isMounted) setError('인증 시스템 초기화에 실패했습니다.');
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -68,6 +109,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          const userProfile = await fetchProfile(currentSession.user.id);
+          setProfile(userProfile);
+        } else {
+          setProfile(null);
+        }
+
         setLoading(false);
       }
     );
@@ -98,15 +147,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  /** 회원가입 (data + error 모두 반환) */
   const signUp = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       setError(error.message);
@@ -123,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setProfile(null);
     setLoading(false);
   };
 
@@ -172,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextType = {
     user,
     session,
+    profile,
     loading,
     error,
     signIn,

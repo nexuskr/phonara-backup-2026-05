@@ -2,8 +2,8 @@
 import { motion } from "framer-motion";
 import {
   Bell, Wallet, ArrowDownToLine, History, Gift,
-  Flame, Play, Users, Gamepad2, Trophy, Home as HomeIcon,
-  Rocket, Dice5, Target, Zap, Star
+  Flame, Users, Trophy, Home as HomeIcon,
+  TrendingUp
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ export default function HomePage() {
       {/* Background */}
       <div className="absolute inset-0 bg-[radial-gradient(at_top,#4c1d95_0%,#0a051f_40%,#000000_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(45deg,#7c3aed10_0%,transparent_50%)]" />
-      <div className="absolute top-[-220px] left-1/2 h-[620px] w-[620px] -translate-x/2 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-transparent blur-[160px] opacity-50" />
+      <div className="absolute top-[-220px] left-1/2 h-[620px] w-[620px] -translate-x-1/2 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-transparent blur-[160px] opacity-50" />
       <div className="absolute bottom-[-180px] right-[-100px] h-[480px] w-[480px] bg-cyan-400/30 blur-[140px] rounded-full" />
 
       <div className="relative z-10 max-w-md mx-auto px-5 pt-6 pb-32">
@@ -76,6 +76,43 @@ export default function HomePage() {
           </div>
         </motion.div>
 
+        {/* ==================== 대형 트레이딩 유도 카드 ==================== */}
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.985 }}
+          onClick={() => goTo("/trading")}
+          className="mt-6 cursor-pointer"
+        >
+          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-violet-600 via-fuchsia-600 to-cyan-500 p-[1px]">
+            <div className="bg-[#0a0c1f] rounded-[31px] p-8">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold tracking-widest">LIVE TRADING</div>
+                  </div>
+                  <h2 className="text-[32px] font-black tracking-[-1.5px] leading-[1.1] text-white">
+                    지금 트레이딩으로<br />수익을 만들어보세요
+                  </h2>
+                  <p className="mt-3 text-white/80 text-[15px]">
+                    레버리지 1x~100x • 실시간 청산 계산
+                  </p>
+                </div>
+                <TrendingUp className="w-14 h-14 text-white/90 mt-1" />
+              </div>
+
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goTo("/trading");
+                }}
+                className="mt-8 w-full h-14 bg-white text-black font-bold text-[17px] rounded-2xl active:bg-white/90 transition-all"
+              >
+                트레이딩 시작하기 →
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
         {/* LIVE FEED */}
         <motion.div
           animate={{ opacity: [0.85, 1, 0.85] }}
@@ -102,30 +139,10 @@ export default function HomePage() {
             </button>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <MissionCard 
-              title="출석체크" 
-              reward="+1,000" 
-              color="from-fuchsia-600 to-violet-700" 
-              onClick={() => goTo("/missions")} 
-            />
-            <MissionCard 
-              title="미니게임" 
-              reward="+3,000" 
-              color="from-orange-500 to-amber-600" 
-              onClick={() => goTo("/missions")} 
-            />
-            <MissionCard 
-              title="광고 시청" 
-              reward="+2,000" 
-              color="from-blue-500 to-cyan-600" 
-              onClick={() => goTo("/missions")} 
-            />
-            <MissionCard 
-              title="친구 초대" 
-              reward="+15,000" 
-              color="from-emerald-500 to-teal-600" 
-              onClick={() => goTo("/referral")} 
-            />
+            <MissionCard title="출석체크" reward="+1,000" color="from-fuchsia-600 to-violet-700" onClick={() => goTo("/missions")} />
+            <MissionCard title="미니게임" reward="+3,000" color="from-orange-500 to-amber-600" onClick={() => goTo("/missions")} />
+            <MissionCard title="광고 시청" reward="+2,000" color="from-blue-500 to-cyan-600" onClick={() => goTo("/missions")} />
+            <MissionCard title="친구 초대" reward="+15,000" color="from-emerald-500 to-teal-600" onClick={() => goTo("/referral")} />
           </div>
         </div>
 
@@ -148,7 +165,7 @@ export default function HomePage() {
               title="네온 슬롯" 
               desc="한 판에 인생 역전" 
               reward="최대 500,000" 
-              icon={<Rocket size={42} />} 
+              icon="🚀" 
               color="from-fuchsia-500 via-purple-600 to-violet-700" 
               onClick={() => showComingSoon("네온 슬롯")}
             />
@@ -156,54 +173,67 @@ export default function HomePage() {
               title="킵업 축구" 
               desc="터치 한 번으로 골" 
               reward="+800~4,000" 
-              icon={<Play size={42} />} 
+              icon="⚽" 
               color="from-emerald-500 to-cyan-600" 
               onClick={() => showComingSoon("킵업 축구")}
-            />
-            <GameCard 
-              title="럭키 다이스" 
-              desc="운이 좋으면 대박" 
-              reward="+500~12,000" 
-              icon={<Dice5 size={42} />} 
-              color="from-amber-500 to-red-600" 
-              onClick={() => showComingSoon("럭키 다이스")}
-            />
-            <GameCard 
-              title="타겟 마스터" 
-              desc="정확도가 돈이 된다" 
-              reward="+600~5,000" 
-              icon={<Target size={42} />} 
-              color="from-sky-500 to-blue-600" 
-              onClick={() => showComingSoon("타겟 마스터")}
-            />
-            <GameCard 
-              title="퀴즈 제국" 
-              desc="지식으로 부자되기" 
-              reward="+1,000~8,000" 
-              icon={<Star size={42} />} 
-              color="from-violet-500 to-fuchsia-600" 
-              onClick={() => showComingSoon("퀴즈 제국")}
-            />
-            <GameCard 
-              title="초고속 클릭" 
-              desc="0.1초 승부" 
-              reward="+300~2,500" 
-              icon={<Zap size={42} />} 
-              color="from-rose-500 to-pink-600" 
-              onClick={() => showComingSoon("초고속 클릭")}
             />
           </div>
         </div>
       </div>
 
-      {/* BOTTOM NAV - 연결 완료 */}
+      {/* ==================== 네온 효과 적용된 Bottom Navigation ==================== */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#02030a]/95 backdrop-blur-3xl">
-        <div className="max-w-md mx-auto grid grid-cols-5 py-4">
-          <BottomNav icon={<HomeIcon size={26} />} label="홈" active onClick={() => goTo("/home")} />
-          <BottomNav icon={<Gift size={26} />} label="미션" onClick={() => goTo("/missions")} />
-          <BottomNav icon={<Gamepad2 size={26} />} label="게임" onClick={() => goTo("/games")} />
-          <BottomNav icon={<History size={26} />} label="거래" onClick={() => goTo("/wallet")} />
-          <BottomNav icon={<Trophy size={26} />} label="랭킹" onClick={() => goTo("/earn")} />
+        <div className="max-w-md mx-auto grid grid-cols-5 items-end px-2 pb-2 pt-3">
+          {/* 홈 */}
+          <button onClick={() => goTo("/home")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
+            <div className="text-white/40"><HomeIcon size={24} /></div>
+            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">홈</div>
+          </button>
+
+          {/* 미션 */}
+          <button onClick={() => goTo("/missions")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
+            <div className="text-white/40"><Gift size={24} /></div>
+            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">미션</div>
+          </button>
+
+          {/* ==================== 트레이딩 (네온 강조) ==================== */}
+          <button onClick={() => goTo("/trading")} className="flex flex-col items-center justify-center -mt-3 active:opacity-90">
+            <div className="relative flex flex-col items-center">
+              {/* 네온 Glow */}
+              <div className="absolute -inset-3 bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 rounded-full blur-[18px] opacity-60" />
+              
+              {/* 메인 버튼 */}
+              <div className="relative w-[68px] h-[68px] rounded-3xl bg-gradient-to-br from-fuchsia-500 via-violet-600 to-cyan-500 flex items-center justify-center shadow-2xl shadow-fuchsia-500/50 border-[3.5px] border-white/90">
+                <div className="text-white">
+                  <TrendingUp size={28} />
+                </div>
+              </div>
+
+              {/* 라벨 */}
+              <div className="mt-1.5 text-[11px] font-bold tracking-[0.5px] text-fuchsia-300">
+                트레이딩
+              </div>
+
+              {/* 펄스 효과 */}
+              <motion.div
+                animate={{ scale: [1, 1.12, 1] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-1 rounded-3xl border border-fuchsia-400/50"
+              />
+            </div>
+          </button>
+
+          {/* 랭킹 */}
+          <button onClick={() => goTo("/earn")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
+            <div className="text-white/40"><Trophy size={24} /></div>
+            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">랭킹</div>
+          </button>
+
+          {/* 친구 */}
+          <button onClick={() => goTo("/referral")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
+            <div className="text-white/40"><Users size={24} /></div>
+            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">친구</div>
+          </button>
         </div>
       </div>
     </div>
@@ -239,50 +269,27 @@ function MissionCard({ title, reward, color, onClick }: { title: string; reward:
   );
 }
 
-function GameCard({ title, desc, reward, icon, color, onClick }: { 
-  title: string; desc: string; reward: string; icon: React.ReactNode; color: string; onClick?: () => void;
-}) {
+function GameCard({ title, desc, reward, icon, color, onClick }: any) {
   return (
     <motion.div
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className={`rounded-[28px] p-[1.5px] bg-gradient-to-br ${color} cursor-pointer active:scale-[0.985] transition-transform`}
+      className={`rounded-[28px] p-[1.5px] bg-gradient-to-br ${color} cursor-pointer`}
     >
-      <div className="bg-[#0a0c1f] rounded-[26px] p-5 h-full flex flex-col min-h-[218px]">
-        <div className="h-20 flex items-center justify-center text-[42px] text-white/90 mb-3">
-          {icon}
-        </div>
+      <div className="bg-[#0a0c1f] rounded-[26px] p-5 h-full flex flex-col min-h-[200px]">
+        <div className="text-[42px] mb-4">{icon}</div>
         <div className="flex-1">
           <div className="text-[21px] font-black tracking-[-0.5px] leading-[1.1] mb-1.5">{title}</div>
           <div className="text-[13px] text-white/60 leading-snug line-clamp-2">{desc}</div>
         </div>
-        <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] text-white/50 tracking-[0.5px] mb-0.5">보상</div>
-            <div className="text-fuchsia-300 font-bold text-[17px] leading-none tracking-tight">{reward}</div>
+        <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
+          <div>
+            <div className="text-[10px] text-white/50">보상</div>
+            <div className="text-fuchsia-300 font-bold text-[17px]">{reward}</div>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            className="flex-shrink-0 px-6 py-[10px] rounded-2xl bg-white/10 active:bg-white/20 text-sm font-bold tracking-wider border border-white/10 whitespace-nowrap"
-          >
-            PLAY
-          </motion.button>
+          <button className="px-5 py-2 rounded-2xl bg-white/10 text-sm font-bold">PLAY</button>
         </div>
       </div>
     </motion.div>
-  );
-}
-
-function BottomNav({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button 
-      onClick={onClick}
-      className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80 transition-opacity"
-    >
-      <div className={active ? "text-fuchsia-400 scale-110" : "text-white/40"}>{icon}</div>
-      <div className={`text-[11px] tracking-wider font-medium ${active ? "text-fuchsia-300" : "text-white/40"}`}>
-        {label}
-      </div>
-    </button>
   );
 }

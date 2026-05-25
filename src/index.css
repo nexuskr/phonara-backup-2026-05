@@ -109,3 +109,89 @@
     min-height: 100vh;
   }
 }
+/* ============================================
+   PHONARA 전용 Sonner 토스트 스타일 (최종)
+   ============================================ */
+.toaster-phonara [data-sonner-toast] {
+  background: hsl(240 30% 8% / 0.96);
+  border: 1px solid hsl(0 0% 100% / 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 
+    0 10px 30px hsl(0 0% 0% / 0.45),
+    0 0 0 1px hsl(44 95% 65% / 0.08);
+  padding: 16px 20px;
+  font-family: 'Pretendard Variable', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* 토스트 제목 */
+.toaster-phonara [data-sonner-toast] [data-title] {
+  font-weight: 700;
+  font-size: 15px;
+  color: hsl(var(--foreground));
+}
+
+/* 토스트 설명 */
+.toaster-phonara [data-sonner-toast] [data-description] {
+  font-size: 13.5px;
+  color: hsl(var(--muted-foreground));
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* 성공 토스트 */
+.toaster-phonara [data-sonner-toast][data-type="success"] {
+  border-color: hsl(142 65% 45% / 0.4);
+}
+
+/* 에러 토스트 */
+.toaster-phonara [data-sonner-toast][data-type="error"] {
+  border-color: hsl(0 84% 60% / 0.45);
+}
+
+/* 정보 토스트 */
+.toaster-phonara [data-sonner-toast][data-type="info"] {
+  border-color: hsl(188 100% 60% / 0.4);
+}
+
+/* 닫기 버튼 */
+.toaster-phonara [data-sonner-toast] [data-close-button] {
+  background: hsl(0 0% 100% / 0.08);
+  border: 1px solid hsl(0 0% 100% / 0.12);
+  color: hsl(var(--muted-foreground));
+  transition: all 0.2s ease;
+}
+
+.toaster-phonara [data-sonner-toast] [data-close-button]:hover {
+  background: hsl(0 0% 100% / 0.18);
+  color: hsl(var(--foreground));
+}
+
+/* 입장 애니메이션 */
+.toaster-phonara [data-sonner-toast] {
+  animation: phonara-toast-enter 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* 퇴장 애니메이션 */
+.toaster-phonara [data-sonner-toast][data-closed] {
+  animation: phonara-toast-exit 0.22s ease-in forwards;
+}
+
+@keyframes phonara-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes phonara-toast-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+}

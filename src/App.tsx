@@ -2,9 +2,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
-// 기존 페이지들
+// 페이지
 import Landing from "./pages/Landing";
-import Auth from "./pages/Auth";                    // ← 기존 Auth.tsx 사용
+import Auth from "./pages/Auth";
 import LoginPage from "./pages/auth/LoginPage";
 import AuthCallback from "./pages/auth/AuthCallback";
 import HomePage from "./pages/Home";
@@ -23,13 +23,13 @@ function App() {
         {/* 공개 페이지 */}
         <Route path="/" element={<Landing />} />
 
-        {/* 인증 페이지들 */}
+        {/* 인증 관련 */}
         <Route path="/auth" element={<Auth />}>
           <Route index element={<LoginPage />} />
           <Route path="callback" element={<AuthCallback />} />
         </Route>
 
-        {/* 보호된 페이지들 */}
+        {/* 보호된 페이지 */}
         <Route
           path="/home"
           element={
@@ -79,12 +79,19 @@ function App() {
           }
         />
 
-        {/* 기타 */}
+        {/* 기타 라우트 */}
         <Route path="/games" element={<Navigate to="/home" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      <Toaster position="top-center" richColors closeButton />
+      {/* PHONARA 전용 토스터 */}
+      <Toaster 
+        position="top-center" 
+        richColors 
+        closeButton 
+        duration={2400}
+        className="toaster-phonara"
+      />
     </BrowserRouter>
   );
 }

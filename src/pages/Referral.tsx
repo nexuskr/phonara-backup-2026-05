@@ -1,216 +1,181 @@
 // src/pages/Referral.tsx
-import { useState, useEffect, useMemo } from "react";
-import { Copy, Share2, Rocket, Users, Sparkles, TrendingUp, Trophy, ChevronDown, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { Copy, Share2, Rocket, TrendingUp, Gift } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../hooks/use-toast";
+import SlimShell from "../components/layout/SlimShell";
 
-// ==================== 최소 import 수정 ====================
-const Layout = ({ children }: any) => <>{children}</>;
-const HubTabs = (props: any) => <div className="h-12 bg-white/5 flex items-center px-5">Referral Hub</div>;
+// ==================== HubTabs Stub (에러 해결) ====================
+const HubTabs = ({ currentPage }: { currentPage?: string }) => (
+  <div className="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 sticky top-0 z-50">
+    <div className="flex-1 text-center">
+      <span className="font-semibold text-white">추천</span>
+    </div>
+  </div>
+);
+// ============================================================
 
-// toast stub
-const toast = {
-  success: (title: string) => console.log("[SUCCESS]", title),
-  error: (title: string) => console.error("[ERROR]", title),
-  info: (title: string) => console.log("[INFO]", title),
-};
+const Referral = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-const useTranslation = (ns?: string) => ({
-  t: (key: string, params?: any) => key,
-  i18n: { language: "ko" }
-});
-
-const useRequireAuth = () => ({ id: "current-user" });
-const supabase = {
-  rpc: async () => ({ data: null }),
-  from: () => ({
-    select: () => ({ data: [], error: null }),
-    eq: () => ({ order: () => ({ limit: () => ({ data: [] }) }) })
-  }),
-  auth: { getUser: async () => ({ user: { id: "current-user" } }) }
-};
-
-// Stub Components
-const DMComposer = (props: any) => null;
-const EmpireTreePreview = () => null;
-
-type Stats = {
-  code: string | null;
-  invited: number;
-  active_7d: number;
-  total_commission: number;
-  today_commission: number;
-};
-
-type Invitee = {
-  invitee_id: string;
-  created_at: string;
-  signup_bonus_paid: boolean;
-  first_deposit_bonus_paid: boolean;
-  total_commission: number;
-  nickname?: string | null;
-};
-
-const FAQ_KEYS = ["q1", "q2", "q3", "q4", "q5"] as const;
-
-const SHARE_TEMPLATES = [
-  { id: "tiktok", icon: Sparkles, key: "tiktok" },
-  { id: "instagram", icon: MessageCircle, key: "instagram" },
-] as const;
-
-export default function Referral() {
-  const { t } = useTranslation("referralPage");
-  const { t: tr } = useTranslation("referral");
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [invitees, setInvitees] = useState<Invitee[]>([]);
+  const [stats, setStats] = useState({
+    code: "",
+    invited: 0,
+    total_commission: 0,
+  });
   const [loading, setLoading] = useState(true);
-  const [openFAQ, setOpenFAQ] = useState<string | null>("q1");
 
-  const load = async () => {
+  useEffect(() => {
+    if (user) {
+      loadReferralData();
+    }
+  }, [user]);
+
+  const loadReferralData = async () => {
     setLoading(true);
     try {
-      // 임시 데이터
       setStats({
-        code: "PHONARA" + Math.floor(1000 + Math.random() * 9000),
+        code: "PHN" + Math.floor(100000 + Math.random() * 900000),
         invited: 12,
-        active_7d: 8,
         total_commission: 245000,
-        today_commission: 45000,
       });
-      setInvitees([]);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { void load(); }, []);
+  const link = stats.code 
+    ? `${window.location.origin}/?ref=${stats.code}` 
+    : "";
 
-  const link = stats?.code ? `${window.location.origin}/?ref=${stats.code}` : "";
-
-  const copy = async (text: string, label?: string) => {
+  const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("초대코드가 복사되었습니다!");
+      toast({
+        title: "✅ 복사 완료!",
+        description: `${label}이(가) 복사되었어요.`,
+      });
     } catch {
-      toast.error("복사 실패");
+      toast({
+        title: "❌ 복사 실패",
+        description: "다시 시도해주세요.",
+        variant: "destructive",
+      });
     }
   };
 
-  const share = async () => {
+  const shareLink = async () => {
     if (!link) return;
-    const text = "PHONARA에 초대합니다! 부수입 함께 벌어요";
-    await copy(`${text}\n${link}`);
+    const text = `PHONARA에 초대합니다! 함께 부수입 만들어요 🔥\n${link}`;
+    await copyToClipboard(text, "초대 링크");
   };
-
-  const buildTemplate = (tplKey: string) => {
-    if (!stats?.code) return "";
-    return `PHONARA 초대코드: ${stats.code}\n링크: ${link}`;
-  };
-
-  const stages = useMemo(() => ([
-    { key: "stage1", amount: 5000, color: "from-primary/30", border: "border-primary/40", text: "text-primary" },
-    { key: "stage2", amount: 25000, color: "from-accent/30", border: "border-accent/40", text: "text-accent" },
-    { key: "stage3", amount: 2000, color: "from-gold/30", border: "border-gold/40", text: "text-gold" },
-  ] as const), []);
 
   return (
-    <Layout>
-      <HubTabs hub="legacy" />
-      <div className="container pt-4 pb-12 animate-liquid-in space-y-6">
+    <SlimShell>
+      <div className="min-h-screen bg-zinc-950 pb-24">
+        <HubTabs currentPage="referral" />
 
-        {/* Slice 2: 50~70대 즉시 인지용 큰 카피 배너 */}
-        <section className="rounded-3xl p-5 md:p-6 bg-gradient-to-br from-gold/20 via-primary/10 to-accent/15 border border-gold/40">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-black text-gold tabular-nums text-lg">1</div>
-            <div className="text-base md:text-lg font-bold break-keep">아래 <span className="text-gold">내 코드</span>를 카톡으로 보냅니다</div>
-          </div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center font-black text-primary tabular-nums text-lg">2</div>
-            <div className="text-base md:text-lg font-bold break-keep">친구가 가입하면 <span className="text-money-strong">₩5,000 즉시 지급</span></div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center font-black text-accent tabular-nums text-lg">3</div>
-            <div className="text-base md:text-lg font-bold break-keep">친구가 충전하면 <span className="text-money-strong">최대 ₩25,000 추가</span></div>
-          </div>
-        </section>
-
-        <EmpireTreePreview />
-
-        {/* HERO */}
-        <section className="relative glass-strong rounded-3xl p-6 md:p-8 neon-border overflow-hidden">
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-3">
-              <Rocket className="w-5 h-5 text-gold" />
-              <span className="text-xs font-bold tracking-widest text-gold/90">초대 보상</span>
+        <div className="p-4 space-y-6 max-w-xl mx-auto">
+          
+          {/* 메인 바이럴 섹션 */}
+          <section className="rounded-3xl p-6 bg-gradient-to-br from-purple-950/60 via-zinc-900 to-black border border-purple-500/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Gift className="w-8 h-8 text-purple-400" />
+              <span className="text-xs font-bold tracking-widest text-purple-400">FRIEND REFERRAL</span>
             </div>
-            <h1 className="font-imperial text-2xl md:text-4xl text-gradient-imperial tracking-[0.12em] break-keep mb-2">
-              친구 초대하고 돈 벌기
+            
+            <h1 className="text-3xl font-bold leading-tight text-white mb-3">
+              친구 초대하고<br />
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">함께 돈 벌기</span>
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground break-keep mb-5">
-              친구 한 명 초대할 때마다 최대 30,000원 보상
-            </p>
 
-            <div className="rounded-2xl bg-gradient-to-br from-gold/15 via-primary/10 to-accent/10 border border-gold/30 p-5 mb-4">
-              <div className="text-[11px] text-muted-foreground mb-1">나의 초대 코드</div>
-              <div className="flex items-center justify-between bg-black/40 rounded-2xl p-4">
-                <div className="font-mono text-2xl font-bold tracking-widest">
-                  {loading ? "—" : (stats?.code ?? "—")}
+            <div className="bg-zinc-900/80 rounded-2xl p-5 mb-5 border border-purple-500/20">
+              <div className="text-xs text-zinc-500 mb-2">나의 초대 코드</div>
+              <div className="flex items-center justify-between bg-black/50 rounded-xl p-4">
+                <div className="font-mono text-3xl font-bold tracking-[0.1em] text-purple-300">
+                  {loading ? "••••••" : stats.code}
                 </div>
                 <button
-                  onClick={() => copy(stats?.code ?? "", "초대코드")}
-                  className="w-12 h-12 rounded-xl glass hover:scale-105 transition flex items-center justify-center"
+                  onClick={() => copyToClipboard(stats.code, "초대코드")}
+                  className="w-11 h-11 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center"
                 >
-                  <Copy className="w-5 h-5 text-gold" />
+                  <Copy className="w-5 h-5 text-purple-400" />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => copy(link)}
-                className="min-h-[48px] py-3 rounded-xl glass text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary/10 transition"
+                onClick={() => copyToClipboard(link, "초대 링크")}
+                className="h-14 rounded-2xl border border-purple-500/40 hover:border-purple-400 text-sm font-medium transition-all active:scale-95"
               >
-                <Copy className="w-4 h-4" /> 링크 복사
+                🔗 링크 복사
               </button>
               <button
-                onClick={share}
-                className="min-h-[48px] py-3 rounded-xl bg-gradient-primary text-primary-foreground text-sm font-black flex items-center justify-center gap-2 glow-primary hover:scale-[1.02] transition"
+                onClick={shareLink}
+                className="h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 font-bold text-white active:scale-95 transition-all"
               >
-                <Share2 className="w-4 h-4" /> 공유하기
+                <Share2 className="inline mr-2 w-4 h-4" /> 공유하기
               </button>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* STATS */}
-        <section>
-          <h2 className="font-display font-black text-lg mb-3 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" /> 초대 현황
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="glass rounded-2xl p-5 text-center">
-              <div className="text-4xl font-black text-fuchsia-400">{stats?.invited ?? 0}</div>
-              <div className="text-sm text-white/60 mt-1">초대한 친구</div>
+          {/* 보상 단계 */}
+          <div className="space-y-4">
+            <div className="flex justify-between bg-zinc-900 rounded-2xl p-5 border-l-4 border-purple-500">
+              <div>
+                <div className="text-white">친구 가입 시</div>
+                <div className="text-2xl font-bold text-emerald-400">+5,000원</div>
+              </div>
+              <div className="text-4xl">🎟️</div>
             </div>
-            <div className="glass rounded-2xl p-5 text-center">
-              <div className="text-4xl font-black text-emerald-400">₩{(stats?.total_commission ?? 0).toLocaleString()}</div>
-              <div className="text-sm text-white/60 mt-1">총 보상</div>
+
+            <div className="flex justify-between bg-zinc-900 rounded-2xl p-5 border-l-4 border-emerald-500">
+              <div>
+                <div className="text-white">친구 첫 충전 시</div>
+                <div className="text-2xl font-bold text-emerald-400">+25,000원</div>
+              </div>
+              <div className="text-4xl">💰</div>
             </div>
           </div>
-        </section>
 
-        <div className="text-center text-xs text-white/40 mt-8">
-          더 많은 보상은 곧 업데이트됩니다
+          {/* 현황 */}
+          <section className="bg-zinc-900 rounded-3xl p-6">
+            <h2 className="font-bold text-lg mb-5 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-purple-400" /> 초대 현황
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center bg-zinc-950 rounded-2xl py-6 border border-purple-500/20">
+                <div className="text-5xl font-black text-purple-400">{stats.invited}</div>
+                <div className="text-sm text-zinc-400 mt-1">초대한 친구</div>
+              </div>
+              <div className="text-center bg-zinc-950 rounded-2xl py-6 border border-emerald-500/20">
+                <div className="text-5xl font-black text-emerald-400">
+                  ₩{stats.total_commission.toLocaleString()}
+                </div>
+                <div className="text-sm text-zinc-400 mt-1">총 보상</div>
+              </div>
+            </div>
+          </section>
+
+          {/* 트레이딩 강력 유도 */}
+          <section className="bg-gradient-to-br from-amber-950/40 to-transparent border border-amber-500/30 rounded-3xl p-8 text-center mt-8">
+            <h3 className="text-xl font-bold text-white mb-2">미션 완료하셨나요?</h3>
+            <p className="text-zinc-400 mb-6">이제 진짜 돈을 벌 시간입니다</p>
+            <button
+              onClick={() => window.location.href = "/trading"}
+              className="w-full h-16 bg-white hover:bg-white/90 text-black font-bold text-xl rounded-2xl active:scale-[0.97] transition-all"
+            >
+              바로 트레이딩 시작하기 →
+            </button>
+          </section>
         </div>
       </div>
-    </Layout>
+    </SlimShell>
   );
-}
+};
 
-function StatBox({ label, value, accent }: { label: string; value: string; accent: string }) {
-  return (
-    <div className="glass rounded-xl p-3">
-      <div className={`text-[10px] ${accent}`}>{label}</div>
-      <div className="font-display font-black text-base mt-1 text-money-strong tabular-nums">{value}</div>
-    </div>
-  );
-}
+export default Referral;
