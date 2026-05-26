@@ -1,11 +1,21 @@
 import { memo, useState } from "react";
 import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import LightweightChartPanel from "./LightweightChartPanel";
 import { ARENA_SYMBOLS } from "@/lib/trading/types";
 import type { TickerStat, KlineInterval } from "@/lib/paper-trading/bybit-feed";
 
-interface OverlayLine { price: number; color: string; title: string }
+interface OverlayLine {
+  price: number;
+  color: string;
+  title: string;
+}
 
 interface Props {
   symbol: string;
@@ -17,12 +27,19 @@ interface Props {
 }
 
 const TIMEFRAMES: { value: KlineInterval; label: string }[] = [
-  { value: "1", label: "1m" }, { value: "3", label: "3m" }, { value: "5", label: "5m" },
-  { value: "15", label: "15m" }, { value: "30", label: "30m" }, { value: "60", label: "1H" },
-  { value: "240", label: "4H" }, { value: "D", label: "1D" }, { value: "W", label: "1W" },
+  { value: "1", label: "1m" },
+  { value: "3", label: "3m" },
+  { value: "5", label: "5m" },
+  { value: "15", label: "15m" },
+  { value: "30", label: "30m" },
+  { value: "60", label: "1H" },
+  { value: "240", label: "4H" },
+  { value: "D", label: "1D" },
+  { value: "W", label: "1W" },
 ];
 
-const fmtPx = (p: number) => p ? p.toLocaleString(undefined, { maximumFractionDigits: 6 }) : "—";
+const fmtPx = (p: number) =>
+  p ? p.toLocaleString(undefined, { maximumFractionDigits: 6 }) : "—";
 const fmtVol = (n: number) => {
   if (!n) return "—";
   if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
@@ -31,8 +48,13 @@ const fmtVol = (n: number) => {
   return n.toFixed(2);
 };
 
-function fmtFunding(stat?: TickerStat): { text: string; tone: "up" | "down" | "muted"; countdown: string } {
-  if (!stat || !stat.fundingRate) return { text: "—", tone: "muted", countdown: "" };
+function fmtFunding(stat?: TickerStat): {
+  text: string;
+  tone: "up" | "down" | "muted";
+  countdown: string;
+} {
+  if (!stat || !stat.fundingRate)
+    return { text: "—", tone: "muted", countdown: "" };
   const pct = stat.fundingRate * 100;
   const tone: "up" | "down" = pct >= 0 ? "up" : "down";
   const text = `${pct >= 0 ? "+" : ""}${pct.toFixed(4)}%`;
@@ -48,7 +70,14 @@ function fmtFunding(stat?: TickerStat): { text: string; tone: "up" | "down" | "m
   return { text, tone, countdown };
 }
 
-function ChartWithHeaderImpl({ symbol, setSymbol, price, stat, overlays = [], height = 360 }: Props) {
+function ChartWithHeaderImpl({
+  symbol,
+  setSymbol,
+  price,
+  stat,
+  overlays = [],
+  height = 360,
+}: Props) {
   const [interval, setInterval] = useState<KlineInterval>("1");
   const change = stat?.change24hPct ?? 0;
   const up = change >= 0;
@@ -63,24 +92,39 @@ function ChartWithHeaderImpl({ symbol, setSymbol, price, stat, overlays = [], he
             </SelectTrigger>
             <SelectContent className="max-h-80">
               {ARENA_SYMBOLS.map((s) => (
-                <SelectItem key={s} value={s}>{s.replace("USDT", "")} / USDT</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s.replace("USDT", "")} / USDT
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <div className="flex flex-col">
-            <span className={`font-mono tabular-nums font-black text-xl sm:text-2xl ${up ? "text-emerald-300" : "text-rose-300"}`}>
+            <span
+              className={`font-mono tabular-nums font-black text-xl sm:text-2xl ${up ? "text-emerald-300" : "text-rose-300"}`}
+            >
               {fmtPx(price)}
             </span>
-            <span className={`text-[11px] font-bold inline-flex items-center gap-1 ${up ? "text-emerald-400" : "text-rose-400"}`}>
-              {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              {up ? "+" : ""}{change.toFixed(2)}% 24h
+            <span
+              className={`text-[11px] font-bold inline-flex items-center gap-1 ${up ? "text-emerald-400" : "text-rose-400"}`}
+            >
+              {up ? (
+                <TrendingUp className="w-3 h-3" />
+              ) : (
+                <TrendingDown className="w-3 h-3" />
+              )}
+              {up ? "+" : ""}
+              {change.toFixed(2)}% 24h
             </span>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] sm:text-xs">
           <Cell label="24h High" v={fmtPx(stat?.high24h ?? 0)} tone="up" />
           <Cell label="24h Low" v={fmtPx(stat?.low24h ?? 0)} tone="down" />
-          <Cell label="Turnover" v={`$${fmtVol(stat?.turnover24h ?? 0)}`} tone="muted" />
+          <Cell
+            label="Turnover"
+            v={`$${fmtVol(stat?.turnover24h ?? 0)}`}
+            tone="muted"
+          />
           <Cell
             label={fr.countdown ? `Funding · ${fr.countdown}` : "Funding"}
             v={fr.text}
@@ -107,14 +151,27 @@ function ChartWithHeaderImpl({ symbol, setSymbol, price, stat, overlays = [], he
       </div>
 
       <div className="rounded-2xl border border-border/40 bg-background/40 p-2">
-        <LightweightChartPanel symbol={symbol} price={price} overlays={overlays} height={height} interval={interval} />
+        <LightweightChartPanel
+          symbol={symbol}
+          price={price}
+          overlays={overlays}
+          height={height}
+          interval={interval}
+        />
       </div>
 
       <div className="flex items-center justify-between text-[10px] text-muted-foreground/80 px-1">
         <span className="inline-flex items-center gap-1">
-          <BarChart3 className="w-3 h-3" /> {TIMEFRAMES.find((t) => t.value === interval)?.label} candles · Bybit kline live
+          <BarChart3 className="w-3 h-3" />{" "}
+          {TIMEFRAMES.find((t) => t.value === interval)?.label} candles · Bybit
+          kline live
         </span>
-        <span>Vol 24h <span className="font-mono tabular-nums text-foreground">{fmtVol(stat?.volume24h ?? 0)}</span></span>
+        <span>
+          Vol 24h{" "}
+          <span className="font-mono tabular-nums text-foreground">
+            {fmtVol(stat?.volume24h ?? 0)}
+          </span>
+        </span>
       </div>
     </section>
   );
@@ -122,11 +179,26 @@ function ChartWithHeaderImpl({ symbol, setSymbol, price, stat, overlays = [], he
 
 export default memo(ChartWithHeaderImpl);
 
-function Cell({ label, v, tone }: { label: string; v: string; tone?: "up" | "down" | "muted" }) {
-  const cls = tone === "up" ? "text-emerald-300" : tone === "down" ? "text-rose-300" : "text-foreground";
+function Cell({
+  label,
+  v,
+  tone,
+}: {
+  label: string;
+  v: string;
+  tone?: "up" | "down" | "muted";
+}) {
+  const cls =
+    tone === "up"
+      ? "text-emerald-300"
+      : tone === "down"
+        ? "text-rose-300"
+        : "text-foreground";
   return (
-    <div className="rounded-lg bg-background/40 border border-border/40 px-2 py-1.5 min-w-[88px]">
-      <div className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="rounded-lg bg-background/40 border border-border/40 px-2 py-1.5 min-w-22">
+      <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
       <div className={`font-mono tabular-nums font-bold ${cls}`}>{v}</div>
     </div>
   );

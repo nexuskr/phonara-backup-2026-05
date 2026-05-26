@@ -52,7 +52,7 @@ export default function LeveragePresetRail() {
                 locked
                   ? "border-border/40 bg-muted/20 text-muted-foreground/60"
                   : lv >= 50
-                    ? "border-amber-300/70 bg-gradient-to-br from-amber-400/20 to-pink-500/20 text-amber-100"
+                    ? "border-amber-300/70 bg-linear-to-br from-amber-400/20 to-pink-500/20 text-amber-100"
                     : "border-primary/40 bg-primary/10 text-foreground hover:border-primary/70",
               ].join(" ")}
               aria-label={locked ? `${lv}x 잠김` : `${lv}x 선택`}

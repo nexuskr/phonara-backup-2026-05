@@ -74,8 +74,8 @@ export default function NeonNotificationFeed() {
                   className="relative overflow-hidden rounded-2xl p-4 min-w-[260px] max-w-sm bg-background/95 backdrop-blur shadow-[0_0_40px_-10px] shadow-primary/40 border border-primary/40"
                   style={{ filter: "drop-shadow(0 0 12px hsl(var(--primary) / 0.4))" }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-r ${style.color} opacity-[0.15] pointer-events-none`} />
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                  <div className={`absolute inset-0 bg-linear-to-r ${style.color} opacity-[0.15] pointer-events-none`} />
+                  <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/60 to-transparent" />
                   <div className="relative flex items-start gap-3">
                     <span className="text-2xl">{style.emoji}</span>
                     <div className="min-w-0 flex-1">

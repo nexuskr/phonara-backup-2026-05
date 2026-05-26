@@ -29,7 +29,7 @@ export default function BigPnLHeader({ positions, prices, unit }: Props) {
 
   if (count === 0) {
     return (
-      <div className="rounded-2xl border border-border/40 bg-gradient-to-br from-card/60 to-card/30 px-4 py-3 flex items-center gap-3">
+      <div className="rounded-2xl border border-border/40 bg-linear-to-br from-card/60 to-card/30 px-4 py-3 flex items-center gap-3">
         <Activity className="w-5 h-5 text-muted-foreground" />
         <div className="flex-1">
           <div className="text-[11px] font-bold tracking-[0.18em] text-muted-foreground">현재 손익</div>
@@ -46,8 +46,8 @@ export default function BigPnLHeader({ positions, prices, unit }: Props) {
       className={[
         "rounded-2xl border px-4 py-3 sm:py-4 transition-colors",
         positive
-          ? "border-emerald-400/40 bg-gradient-to-br from-emerald-500/15 to-emerald-500/5"
-          : "border-rose-400/40 bg-gradient-to-br from-rose-500/15 to-rose-500/5",
+          ? "border-emerald-400/40 bg-linear-to-br from-emerald-500/15 to-emerald-500/5"
+          : "border-rose-400/40 bg-linear-to-br from-rose-500/15 to-rose-500/5",
       ].join(" ")}
       aria-live="polite"
     >

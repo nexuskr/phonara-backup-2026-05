@@ -58,7 +58,7 @@ export default function HotCoinRail({ current, onPick }: Props) {
               className={[
                 "shrink-0 min-h-12 px-3 py-2 rounded-xl border text-left transition-colors press",
                 active
-                  ? "border-amber-300/70 bg-gradient-to-br from-amber-400/20 to-pink-500/20 text-foreground"
+                  ? "border-amber-300/70 bg-linear-to-br from-amber-400/20 to-pink-500/20 text-foreground"
                   : "border-border/50 bg-card/60 hover:border-primary/40",
               ].join(" ")}
             >

@@ -28,7 +28,7 @@ export default function PhonLiveSocialProof() {
   const loop = merged.length > 0 ? [...merged, ...merged] : [];
 
   return (
-    <div className="rounded-2xl border border-pink-400/30 bg-gradient-to-r from-rose-500/8 via-card/60 to-amber-400/8 overflow-hidden">
+    <div className="rounded-2xl border border-pink-400/30 bg-linear-to-r from-rose-500/8 via-card/60 to-amber-400/8 overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-2 border-b border-border/30">
         <div className="relative shrink-0">
           <Flame className="w-4 h-4 text-rose-400" />

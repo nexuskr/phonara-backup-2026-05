@@ -72,7 +72,7 @@ export default function MobileOrderSheet({ children }: Props) {
             : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }
         }
         className="fixed bottom-0 inset-x-0 z-30
-                   bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500
+                   bg-linear-to-r from-amber-400 via-rose-500 to-pink-500
                    text-black py-3 px-4 flex items-center justify-center gap-2
                    font-black tracking-wide text-sm min-h-14 will-change-transform"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
@@ -120,7 +120,7 @@ export default function MobileOrderSheet({ children }: Props) {
             >
               <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-amber-400/20 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-1.5 rounded-full bg-gradient-to-r from-amber-300 to-rose-400" aria-hidden />
+                  <div className="w-10 h-1.5 rounded-full bg-linear-to-r from-amber-300 to-rose-400" aria-hidden />
                   <ImperialLogo size="sm" withWordmark withWorld={false} to="" ariaLabel="황제의 주문 패널" className="ml-2" />
                 </div>
                 <button

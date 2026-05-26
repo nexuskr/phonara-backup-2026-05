@@ -68,7 +68,7 @@ export default function PhonOrderConfirmSheet({
                 폐하, 이 베팅으로 제국을 확장하시겠습니까?
               </p>
 
-              <div className={`rounded-2xl p-4 bg-gradient-to-br ${sideColor} text-white`}>
+              <div className={`rounded-2xl p-4 bg-linear-to-br ${sideColor} text-white`}>
                 <div className="flex items-center gap-2 text-xs font-black tracking-wide opacity-90">
                   {isLong ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                   {isLong ? "LONG · 상승 베팅" : "SHORT · 하락 베팅"}
@@ -86,7 +86,7 @@ export default function PhonOrderConfirmSheet({
                 </div>
               </div>
 
-              <div className="rounded-xl border border-amber-300/40 bg-gradient-to-br from-amber-400/10 to-pink-500/10 p-3 flex items-start gap-3">
+              <div className="rounded-xl border border-amber-300/40 bg-linear-to-br from-amber-400/10 to-pink-500/10 p-3 flex items-start gap-3">
                 <ShieldCheck className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
                 <div className="text-xs leading-relaxed">
                   <div className="font-bold text-amber-200">
@@ -121,7 +121,7 @@ export default function PhonOrderConfirmSheet({
                   type="button"
                   onClick={onConfirm}
                   disabled={busy}
-                  className={`min-h-14 rounded-2xl bg-gradient-to-r ${sideColor} text-white text-sm font-black tracking-wide press shadow-lg disabled:opacity-50`}
+                  className={`min-h-14 rounded-2xl bg-linear-to-r ${sideColor} text-white text-sm font-black tracking-wide press shadow-lg disabled:opacity-50`}
                 >
                   {busy ? "진입 중…" : `${isLong ? "LONG" : "SHORT"} 진입 확정`}
                 </button>

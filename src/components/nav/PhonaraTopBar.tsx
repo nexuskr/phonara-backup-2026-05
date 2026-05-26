@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, LogOut, Settings, Sparkles, Swords, User as UserIcon, Wallet } from "lucide-react";
-import ImperialLogo from "@/components/brand/ImperialLogo";
+import { Bell, ChevronDown, LogOut, Settings, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyPower } from "@/hooks/use-my-power";
 import {
@@ -14,9 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 /**
- * PhonaraTopBar — v14.0 Great Simplification.
- * Sticky 56–64px top bar: 로고 / PHON 잔액 + 충전 / 알림 + 아바타.
- * 비인증 시 로그인·무료시작 CTA만 표시.
+ * PhonaraTopBar — 일론머스크 감성 버전
+ * 제국/황제/아바타 컨셉 완전 제거
+ * 미래지향적 + 프리미엄 + 깔끔한 테크 느낌
  */
 export default function PhonaraTopBar() {
   const nav = useNavigate();
@@ -34,124 +33,129 @@ export default function PhonaraTopBar() {
       setAuthed(!!s);
       setEmail(s?.user?.email ?? null);
     });
-    return () => { cancel = true; sub.subscription.unsubscribe(); };
+    return () => {
+      cancel = true;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return (
     <header
-      className="sticky top-0 z-40 h-14 md:h-16 border-b border-border/40 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/65 safe-top"
-      style={{
-        borderImage: "linear-gradient(90deg, hsl(var(--gold)/.35), hsl(var(--pink)/.35)) 1",
-      }}
+      className="sticky top-0 z-40 h-14 md:h-16 border-b border-white/10 bg-[#0a0c14]/90 backdrop-blur-lg supports-backdrop-filter:bg-[#0a0c14]/80 safe-top"
       role="banner"
     >
       <div className="container h-full flex items-center justify-between gap-3">
-        <ImperialLogo to="/" size="md" withWordmark withWorld className="hidden sm:inline-flex" ariaLabel="PHONARA.WORLD 홈" />
-        <ImperialLogo to="/" size="sm" withWordmark={false} className="sm:hidden" ariaLabel="PHONARA.WORLD 홈" />
+        {/* 로고 - 일론머스크 감성 (깔끔하고 미래지향적) */}
+        <Link
+          to="/"
+          className="font-black text-2xl tracking-[-0.5px] text-white hover:text-[#E8B923] transition-colors"
+        >
+          PHONARA
+        </Link>
 
-
+        {/* 비로그인 상태 */}
         {authed === false && (
           <div className="flex items-center gap-2">
             <Link
               to="/auth"
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-foreground/80 hover:text-foreground transition"
+              className="px-4 py-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
             >
               로그인
             </Link>
             <Link
               to="/auth?mode=signup"
-              className="px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background press shadow-[0_8px_24px_-12px_hsl(var(--gold)/.6)]"
+              className="px-5 py-1.5 rounded-xl text-sm font-semibold bg-white text-[#0a0c14] hover:bg-[#E8B923] transition-all active:scale-[0.985]"
             >
               무료로 시작
             </Link>
           </div>
         )}
 
-        {authed && <AuthedRight email={email} onSignOut={async () => { await supabase.auth.signOut(); nav("/"); }} />}
+        {/* 로그인 상태 */}
+        {authed && (
+          <AuthedRight
+            email={email}
+            onSignOut={async () => {
+              await supabase.auth.signOut();
+              nav("/");
+            }}
+          />
+        )}
       </div>
     </header>
   );
 }
 
-function AuthedRight({ email, onSignOut }: { email: string | null; onSignOut: () => void }) {
+function AuthedRight({
+  email,
+  onSignOut,
+}: {
+  email: string | null;
+  onSignOut: () => void;
+}) {
   const { phon } = useMyPower();
+
   return (
     <div className="flex items-center gap-2">
-      {/* PHON balance chip + 충전 */}
+      {/* PHON 잔액 */}
       <Link
         to="/wallet"
-        className="hidden sm:inline-flex items-center gap-2 h-9 pl-3 pr-1 rounded-full border border-border/60 bg-card/60 hover:border-[hsl(var(--gold)/.6)] transition press"
-        aria-label="PHON 잔액 및 충전"
+        className="hidden sm:flex items-center gap-2 h-9 px-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm"
       >
-        <span className="text-[10px] tracking-[0.2em] font-black text-muted-foreground">PHON</span>
-        <span className="font-hud text-sm text-foreground tabular-nums">
+        <Wallet className="w-4 h-4 text-[#E8B923]" />
+        <span className="font-mono text-white tabular-nums">
           {Math.floor(phon).toLocaleString()}
         </span>
-        <span className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background text-[11px] font-black">
-          <Wallet className="w-3 h-3" /> 충전
-        </span>
+        <span className="text-xs text-white/60">PHON</span>
       </Link>
 
-      {/* mobile: 충전 only */}
+      {/* 모바일 잔액 버튼 */}
       <Link
         to="/wallet"
-        className="sm:hidden inline-flex items-center gap-1 h-9 px-3 rounded-full bg-gradient-to-r from-[hsl(var(--gold))] to-[hsl(var(--pink))] text-background text-xs font-black press"
-        aria-label="충전"
+        className="sm:hidden flex items-center gap-1.5 h-9 px-3 rounded-2xl bg-white/5 text-sm font-medium"
       >
-        <Wallet className="w-3.5 h-3.5" /> 충전
-      </Link>
-
-      {/* Imperial Duel chip — 사이드바에 1급으로 노출되므로 데스크탑 중복 제거. 모바일 전용 유지. */}
-      <Link
-        to="/duel"
-        className="md:hidden inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-pink-500/15 text-amber-100 transition press group"
-        aria-label="황제의 대관전 — Imperial Duel"
-        style={{ boxShadow: "0 0 14px hsl(38 92% 60% / 0.18), inset 0 0 12px hsl(330 90% 60% / 0.08)" }}
-      >
-        <Swords className="w-3.5 h-3.5 text-amber-300" />
-        <span className="text-[11px] font-black tracking-[0.18em] uppercase">대관전</span>
+        <Wallet className="w-4 h-4 text-[#E8B923]" />
+        <span className="font-mono text-white tabular-nums text-sm">
+          {Math.floor(phon).toLocaleString()}
+        </span>
       </Link>
 
       {/* 알림 */}
       <Link
         to="/profile?tab=notifications"
-        className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full border border-border/60 bg-card/60 text-foreground/80 hover:text-foreground hover:border-border transition press"
+        className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
         aria-label="알림"
       >
-        <Bell className="w-4 h-4" />
+        <Bell className="w-4 h-4 text-white/80" />
       </Link>
 
-      {/* 아바타 드롭다운 */}
+      {/* 설정 드롭다운 (아바타 제거) */}
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className="inline-flex items-center gap-1 h-9 pl-1 pr-2 rounded-full border border-border/60 bg-card/60 hover:border-[hsl(var(--gold)/.6)] transition press"
-          aria-label="내 메뉴 열기"
-        >
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[hsl(var(--pink))] to-[hsl(var(--gold))] text-background">
-            <UserIcon className="w-3.5 h-3.5" />
-          </span>
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+        <DropdownMenuTrigger className="flex h-9 items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 px-3 text-sm hover:bg-white/10 transition-colors">
+          <span className="font-medium text-white/90">메뉴</span>
+          <ChevronDown className="w-4 h-4 text-white/60" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel className="text-xs text-muted-foreground truncate">
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuLabel className="text-xs text-white/60 truncate">
             {email ?? "내 계정"}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild><Link to="/profile">내 프로필</Link></DropdownMenuItem>
-          <DropdownMenuItem asChild><Link to="/wallet">지갑</Link></DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to="/vip" className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--pink))]" /> VIP Pass
-            </Link>
+            <Link to="/profile">프로필</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to="/security/overview" className="flex items-center gap-2">
-              <Settings className="w-3.5 h-3.5" /> 보안 · 설정
-            </Link>
+            <Link to="/wallet">지갑</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/security/overview">보안 설정</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onSignOut} className="text-destructive">
-            <LogOut className="w-3.5 h-3.5 mr-2" /> 로그아웃
+          <DropdownMenuItem
+            onClick={onSignOut}
+            className="text-red-400 focus:text-red-400"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            로그아웃
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

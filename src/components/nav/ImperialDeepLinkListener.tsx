@@ -30,7 +30,6 @@ const SUPPORTED_PREFIXES = [
   "/legal",
   "/phon",
   "/arena",
-  "/games",
   "/lobby",
 ];
 
@@ -44,16 +43,22 @@ function isSupportedPath(path: string): boolean {
 function dispatchFocusEvent(intent: string | null) {
   if (!intent) return;
   try {
-    window.dispatchEvent(new CustomEvent("phonara:imperial-focus", { detail: { intent } }));
+    window.dispatchEvent(
+      new CustomEvent("phonara:imperial-focus", { detail: { intent } }),
+    );
   } catch {}
 }
 
-function parseDeepLink(raw: string): { path: string; intent: string | null } | null {
+function parseDeepLink(
+  raw: string,
+): { path: string; intent: string | null } | null {
   if (!raw) return null;
   let path = raw;
   let intent: string | null = null;
   try {
-    const u = raw.startsWith("http") ? new URL(raw) : new URL(raw, window.location.origin);
+    const u = raw.startsWith("http")
+      ? new URL(raw)
+      : new URL(raw, window.location.origin);
     path = `${u.pathname}${u.search}${u.hash}`;
     intent = u.searchParams.get("intent");
   } catch {
@@ -64,13 +69,21 @@ function parseDeepLink(raw: string): { path: string; intent: string | null } | n
 }
 
 function readPending(): string | null {
-  try { return localStorage.getItem(PENDING_LS); } catch { return null; }
+  try {
+    return localStorage.getItem(PENDING_LS);
+  } catch {
+    return null;
+  }
 }
 function writePending(v: string) {
-  try { localStorage.setItem(PENDING_LS, v); } catch {}
+  try {
+    localStorage.setItem(PENDING_LS, v);
+  } catch {}
 }
 function clearPending() {
-  try { localStorage.removeItem(PENDING_LS); } catch {}
+  try {
+    localStorage.removeItem(PENDING_LS);
+  } catch {}
 }
 
 export default function ImperialDeepLinkListener(): null {
@@ -85,7 +98,11 @@ export default function ImperialDeepLinkListener(): null {
       const parsed = parseDeepLink(raw);
       if (!parsed) return;
       const now = Date.now();
-      if (parsed.path === lastRef.current.url && now - lastRef.current.at < RACE_WINDOW_MS) return;
+      if (
+        parsed.path === lastRef.current.url &&
+        now - lastRef.current.at < RACE_WINDOW_MS
+      )
+        return;
       lastRef.current = { url: parsed.path, at: now };
 
       if (!authedRef.current) {
@@ -122,7 +139,10 @@ export default function ImperialDeepLinkListener(): null {
         }
       }
     });
-    return () => { mounted = false; sub.subscription.unsubscribe(); };
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   // SW message bridge: `{type:"deep-link", url}`.
@@ -130,7 +150,13 @@ export default function ImperialDeepLinkListener(): null {
     if (!("serviceWorker" in navigator)) return;
     const onMsg = (ev: MessageEvent) => {
       const d = ev.data;
-      if (!d || typeof d !== "object" || d.type !== "deep-link" || typeof d.url !== "string") return;
+      if (
+        !d ||
+        typeof d !== "object" ||
+        d.type !== "deep-link" ||
+        typeof d.url !== "string"
+      )
+        return;
       handleDeepLink.current(d.url);
     };
     navigator.serviceWorker.addEventListener("message", onMsg);

@@ -7,7 +7,10 @@ import { ReactNode } from "react";
  */
 export function AuthSeoulBackdrop({ children }: { children?: ReactNode }) {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
       {/* 1) Seoul night photo */}
       <img
         src="/auth-seoul-night.jpg"
@@ -20,7 +23,7 @@ export function AuthSeoulBackdrop({ children }: { children?: ReactNode }) {
       />
 
       {/* 2) Dim gradient — top translucent, bottom near-opaque for form readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/35 via-background/65 to-background/95 md:from-background/30 md:via-background/55 md:to-background/90" />
+      <div className="absolute inset-0 bg-linear-to-b from-background/35 via-background/65 to-background/95 md:from-background/30 md:via-background/55 md:to-background/90" />
 
       {/* mobile extra dim */}
       <div className="absolute inset-0 bg-background/35 md:hidden" />
@@ -61,7 +64,7 @@ export function AuthSeoulBackdrop({ children }: { children?: ReactNode }) {
       />
 
       {/* 5) Top hairline + bottom fade for cinematic frame */}
-      <span className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/55 to-transparent" />
+      <span className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-gold/55 to-transparent" />
       <span className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
       {/* 6) Live pulses (children) */}

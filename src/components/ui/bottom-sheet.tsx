@@ -52,7 +52,7 @@ export function BottomSheet({
           }}
         >
           {/* Warm gold handle */}
-          <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-gradient-to-r from-amber-400/70 via-amber-300/90 to-amber-500/70 shadow-[0_0_12px_hsl(38_92%_60%/0.6)]" />
+          <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-linear-to-r from-amber-400/70 via-amber-300/90 to-amber-500/70 shadow-[0_0_12px_hsl(38_92%_60%/0.6)]" />
 
           {(title || description) && (
             <div className="px-5 pt-3 pb-1">

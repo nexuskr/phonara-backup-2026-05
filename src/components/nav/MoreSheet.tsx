@@ -1,9 +1,20 @@
 import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Gem, Vault, Film, Activity,
-  TrendingUp, Castle, Radio, ListChecks, User, Shield, Wallet, ArrowDownToLine,
-  type LucideIcon} from "lucide-react";
+  Gem,
+  Vault,
+  Film,
+  Activity,
+  TrendingUp,
+  Castle,
+  Radio,
+  ListChecks,
+  User,
+  Shield,
+  Wallet,
+  ArrowDownToLine,
+  type LucideIcon,
+} from "lucide-react";
 import BottomSheet from "@/components/ui/bottom-sheet";
 
 interface Item {
@@ -15,21 +26,45 @@ interface Item {
 }
 
 const APEX_ITEMS: Item[] = [
-  { to: "/apex/events/cup", label: "황제 컵",   icon: Gem,    sub: "주간 토너", gold: true },
-  { to: "/apex/vault",      label: "일일 금고", icon: Vault,    sub: "매일 보상", gold: true },
-  { to: "/apex/reels",      label: "윈 릴스",   icon: Film,     sub: "빅윈 릴",   gold: true },
-  { to: "/apex/health",     label: "헬스",      icon: Activity, sub: "내 상태",   gold: true },
+  {
+    to: "/apex/events/cup",
+    label: "황제 컵",
+    icon: Gem,
+    sub: "주간 토너",
+    gold: true,
+  },
+  {
+    to: "/apex/vault",
+    label: "일일 금고",
+    icon: Vault,
+    sub: "매일 보상",
+    gold: true,
+  },
+  {
+    to: "/apex/reels",
+    label: "윈 릴스",
+    icon: Film,
+    sub: "빅윈 릴",
+    gold: true,
+  },
+  {
+    to: "/apex/health",
+    label: "헬스",
+    icon: Activity,
+    sub: "내 상태",
+    gold: true,
+  },
 ];
 
 const GENERAL_ITEMS: Item[] = [
-  { to: "/wallet",                 label: "지갑",     icon: Wallet },
-  { to: "/wallet?tab=withdraw",    label: "출금",     icon: ArrowDownToLine },
-  { to: "/trade",                  label: "트레이딩", icon: TrendingUp },
-  { to: "/empire",                 label: "황실",     icon: Castle },
-  { to: "/live",                   label: "라이브",   icon: Radio },
-  { to: "/missions",               label: "미션",     icon: ListChecks },
-  { to: "/profile",                label: "내정보",   icon: User },
-  { to: "/security",               label: "보안",     icon: Shield },
+  { to: "/wallet", label: "지갑", icon: Wallet },
+  { to: "/wallet?tab=withdraw", label: "출금", icon: ArrowDownToLine },
+  { to: "/trade", label: "트레이딩", icon: TrendingUp },
+  { to: "/empire", label: "황실", icon: Castle },
+  { to: "/live", label: "라이브", icon: Radio },
+  { to: "/missions", label: "미션", icon: ListChecks },
+  { to: "/profile", label: "내정보", icon: User },
+  { to: "/security", label: "보안", icon: Shield },
 ];
 
 interface Props {
@@ -58,32 +93,50 @@ function MoreSheetInner({ open, onOpenChange }: Props) {
         aria-label={it.label}
         className={[
           "flex flex-col items-center justify-center gap-1",
-          "min-h-[72px] w-full rounded-2xl px-2 py-2",
+          "min-h-18 w-full rounded-2xl px-2 py-2",
           "transition-[transform,opacity] duration-[140ms] motion-reduce:transition-none",
           "active:opacity-75 active:scale-[0.97]",
           it.gold
-            ? "bg-gradient-to-b from-amber-500/15 to-amber-400/5 ring-1 ring-amber-300/40"
+            ? "bg-linear-to-b from-amber-500/15 to-amber-400/5 ring-1 ring-amber-300/40"
             : "bg-card/40 ring-1 ring-border/40",
         ].join(" ")}
-        style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+        style={{
+          touchAction: "manipulation",
+          WebkitTapHighlightColor: "transparent",
+        }}
       >
         <Icon
           aria-hidden
-          className={["w-[28px] h-[28px]", it.gold ? "text-amber-300" : "text-foreground"].join(" ")}
+          className={[
+            "w-[28px] h-[28px]",
+            it.gold ? "text-amber-300" : "text-foreground",
+          ].join(" ")}
           strokeWidth={2.25}
         />
-        <span className={["text-[16.5px] font-black leading-none", it.gold ? "text-amber-200" : "text-foreground"].join(" ")}>
+        <span
+          className={[
+            "text-[16.5px] font-black leading-none",
+            it.gold ? "text-amber-200" : "text-foreground",
+          ].join(" ")}
+        >
           {it.label}
         </span>
         {it.sub && (
-          <span className="text-[11px] leading-none text-muted-foreground">{it.sub}</span>
+          <span className="text-[11px] leading-none text-muted-foreground">
+            {it.sub}
+          </span>
         )}
       </button>
     );
   };
 
   return (
-    <BottomSheet open={open} onOpenChange={onOpenChange} title="더보기" maxHeight="78vh">
+    <BottomSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title="더보기"
+      maxHeight="78vh"
+    >
       <div className="px-4 pb-4 pt-1 space-y-4">
         <section>
           <div className="text-[11px] font-black tracking-[0.2em] text-amber-300/90 mb-2 pl-1">

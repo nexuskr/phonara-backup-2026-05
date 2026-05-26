@@ -1,5 +1,12 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, Gift, Gem, Swords, LineChart, type LucideIcon } from "lucide-react";
+import {
+  Home,
+  Gift,
+  Gem,
+  Swords,
+  LineChart,
+  type LucideIcon,
+} from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import { useLongPress } from "@/hooks/use-long-press";
 import { notify } from "@/lib/notify";
@@ -17,22 +24,36 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { to: "/",      icon: Home,      label: "홈" },
-  { to: "/earn",  icon: Gift,      label: "무료돈벌기" },
-  { to: "/phon",  icon: Gem,       label: "내PHON" }, // center FAB
+  { to: "/", icon: Home, label: "홈" },
+  { to: "/earn", icon: Gift, label: "무료돈벌기" },
+  { to: "/phon", icon: Gem, label: "내PHON" }, // center FAB
   { to: "/trade", icon: LineChart, label: "실시간예측" },
-  { to: "/duel",  icon: Swords,    label: "실시간대결" },
+  { to: "/duel", icon: Swords, label: "실시간대결" },
 ];
 
 function isActive(pathname: string, to: string) {
-  if (to === "/")      return pathname === "/" || pathname === "/dashboard";
-  if (to === "/earn")  return pathname === to || pathname.startsWith("/earn/") || pathname.startsWith("/missions");
-  if (to === "/phon")  return pathname === to || pathname.startsWith("/phon/") || pathname.startsWith("/wallet");
-  if (to === "/trade") return pathname === to || pathname.startsWith("/trade/") || pathname.startsWith("/arena");
-  if (to === "/duel")  return pathname === to || pathname.startsWith("/duel/");
+  if (to === "/") return pathname === "/" || pathname === "/dashboard";
+  if (to === "/earn")
+    return (
+      pathname === to ||
+      pathname.startsWith("/earn/") ||
+      pathname.startsWith("/missions")
+    );
+  if (to === "/phon")
+    return (
+      pathname === to ||
+      pathname.startsWith("/phon/") ||
+      pathname.startsWith("/wallet")
+    );
+  if (to === "/trade")
+    return (
+      pathname === to ||
+      pathname.startsWith("/trade/") ||
+      pathname.startsWith("/arena")
+    );
+  if (to === "/duel") return pathname === to || pathname.startsWith("/duel/");
   return pathname === to;
 }
-
 
 export default function PhonaraNav() {
   const loc = useLocation();
@@ -70,7 +91,10 @@ export default function PhonaraNav() {
             if (isCenter) {
               // 중앙 슬롯 — 빈 자리 + 떠있는 FAB
               return (
-                <div key={t.to} className="relative h-[58px] flex items-end justify-center">
+                <div
+                  key={t.to}
+                  className="relative h-14.5 flex items-end justify-center"
+                >
                   <button
                     type="button"
                     {...centerLP.bind}
@@ -89,7 +113,9 @@ export default function PhonaraNav() {
                     "
                   >
                     <Gem className="w-6 h-6" strokeWidth={2.5} />
-                    <span className="text-[9px] font-black tracking-tight leading-none">PHON</span>
+                    <span className="text-[9px] font-black tracking-tight leading-none">
+                      PHON
+                    </span>
 
                     {/* Long-press sword overlay — transform/opacity only */}
                     <Swords
@@ -98,9 +124,11 @@ export default function PhonaraNav() {
                         pointer-events-none absolute -left-2 top-1/2 w-3.5 h-3.5 text-rose-200
                         drop-shadow-[0_0_6px_hsl(330_90%_60%/0.8)]
                         transition-all duration-300 motion-reduce:hidden
-                        ${centerLP.pressing
-                          ? "opacity-100 -translate-x-1 -translate-y-1/2 scale-100 rotate-[-12deg]"
-                          : "opacity-0 translate-x-1 -translate-y-1/2 scale-50 rotate-0"}
+                        ${
+                          centerLP.pressing
+                            ? "opacity-100 -translate-x-1 -translate-y-1/2 scale-100 -rotate-12"
+                            : "opacity-0 translate-x-1 -translate-y-1/2 scale-50 rotate-0"
+                        }
                       `}
                     />
                     <Swords
@@ -109,18 +137,22 @@ export default function PhonaraNav() {
                         pointer-events-none absolute -right-2 top-1/2 w-3.5 h-3.5 text-amber-200
                         drop-shadow-[0_0_6px_hsl(38_92%_60%/0.8)]
                         transition-all duration-300 motion-reduce:hidden
-                        ${centerLP.pressing
-                          ? "opacity-100 translate-x-1 -translate-y-1/2 scale-100 rotate-[12deg] scale-x-[-1]"
-                          : "opacity-0 -translate-x-1 -translate-y-1/2 scale-50 rotate-0 scale-x-[-1]"}
+                        ${
+                          centerLP.pressing
+                            ? "opacity-100 translate-x-1 -translate-y-1/2 scale-100 rotate-12 scale-x-[-1]"
+                            : "opacity-0 -translate-x-1 -translate-y-1/2 scale-50 rotate-0 scale-x-[-1]"
+                        }
                       `}
                     />
                   </button>
-                  <span className="sr-only">짧게 누르면 내PHON 허브, 길게 누르면 실시간 대결(/duel)로 이동합니다.</span>
+                  <span className="sr-only">
+                    짧게 누르면 내PHON 허브, 길게 누르면 실시간 대결(/duel)로
+                    이동합니다.
+                  </span>
                   {/* 라벨 — 첫 입금 보너스 칩 */}
                   <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded-full text-[8px] font-black tracking-wide bg-rose-500/20 text-rose-200 border border-rose-400/40 whitespace-nowrap">
                     첫입금 +50%
                   </span>
-
                 </div>
               );
             }
@@ -133,17 +165,21 @@ export default function PhonaraNav() {
                 aria-current={active ? "page" : undefined}
                 className={`
                   relative flex flex-col items-center justify-center gap-0.5
-                  h-[58px] rounded-xl border transition-all duration-200 press
-                  ${active
-                    ? "bg-card/60 border-amber-400/50 text-[hsl(var(--gold))] -translate-y-0.5"
-                    : "bg-card/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"}
+                  h-14.5 rounded-xl border transition-all duration-200 press
+                  ${
+                    active
+                      ? "bg-card/60 border-amber-400/50 text-[hsl(var(--gold))] -translate-y-0.5"
+                      : "bg-card/30 border-border/30 text-muted-foreground hover:text-foreground hover:border-border/60"
+                  }
                 `}
               >
                 <Icon
                   className={`w-5 h-5 ${active ? "drop-shadow-[0_0_6px_hsl(var(--gold)/0.6)]" : ""}`}
                   strokeWidth={active ? 2.5 : 2}
                 />
-                <span className={`text-[12px] font-black tracking-wide ${active ? "text-[hsl(var(--gold))]" : ""}`}>
+                <span
+                  className={`text-[12px] font-black tracking-wide ${active ? "text-[hsl(var(--gold))]" : ""}`}
+                >
                   {t.label}
                 </span>
               </NavLink>

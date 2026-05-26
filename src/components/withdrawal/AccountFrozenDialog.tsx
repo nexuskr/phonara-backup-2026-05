@@ -26,7 +26,9 @@ export default function AccountFrozenDialog() {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { description?: string } | undefined;
+      const detail = (e as CustomEvent).detail as
+        | { description?: string }
+        | undefined;
       if (detail?.description) setDescription(detail.description);
       setOpen(true);
     };
@@ -36,7 +38,7 @@ export default function AccountFrozenDialog() {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="border-amber-500/40 bg-gradient-to-b from-background to-amber-950/10">
+      <AlertDialogContent className="border-amber-500/40 bg-linear-to-b from-background to-amber-950/10">
         <AlertDialogHeader>
           <div className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-amber-400" />
@@ -46,8 +48,7 @@ export default function AccountFrozenDialog() {
             {description}
             <span className="block mt-3 text-xs text-muted-foreground">
               · 자동 보호는 24시간 후 자동 해제됩니다.
-              <br />
-              · 본인이 한 시도가 아니라면 비밀번호 변경을 권장합니다.
+              <br />· 본인이 한 시도가 아니라면 비밀번호 변경을 권장합니다.
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -55,7 +56,8 @@ export default function AccountFrozenDialog() {
           <AlertDialogCancel>닫기</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              window.location.href = "mailto:support@phonara.world?subject=계정 보호 해제 문의";
+              window.location.href =
+                "mailto:support@phonara.world?subject=계정 보호 해제 문의";
             }}
             className="bg-amber-500 hover:bg-amber-600"
           >

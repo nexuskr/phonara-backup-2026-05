@@ -11,7 +11,7 @@ type Loader = () => Promise<unknown>;
 
 const REGISTRY: Record<string, Loader> = {
   // === 현재 존재하는 것으로 확인된 라우트만 유지 ===
-  "/trade": () => import("@/pages/TradingArenaBybit.tsx"),
+  "/trade": () => import("@/features/trading"),
 
   // 나머지 라우트는 실제 페이지 파일이 생기면 그때 추가
 };

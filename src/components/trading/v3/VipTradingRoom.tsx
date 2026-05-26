@@ -45,7 +45,7 @@ export default function VipTradingRoom() {
   const top3 = (rows ?? []).slice(0, 3);
 
   return (
-    <div className="rounded-2xl border border-pink/40 bg-gradient-to-br from-pink/10 via-card/60 to-primary/5 p-4">
+    <div className="rounded-2xl border border-pink/40 bg-linear-to-br from-pink/10 via-card/60 to-primary/5 p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 text-pink">
           <Gem className="w-4 h-4" />

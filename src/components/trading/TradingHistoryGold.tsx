@@ -20,7 +20,7 @@ function HistoryRowImpl({ t, unit }: { t: LiveTrade; unit: Unit }) {
     <div
       className={`relative rounded-2xl border p-3 grid grid-cols-2 sm:grid-cols-7 gap-2 items-center text-xs ${
         liq ? "border-red-500/60 bg-red-500/5"
-          : big ? "border-amber-300/70 bg-gradient-to-r from-amber-500/10 via-amber-300/5 to-amber-500/10 shadow-[0_0_30px_rgba(244,180,55,0.25)]"
+          : big ? "border-amber-300/70 bg-linear-to-r from-amber-500/10 via-amber-300/5 to-amber-500/10 shadow-[0_0_30px_rgba(244,180,55,0.25)]"
           : "border-border/50 bg-background/40"
       }`}
     >

@@ -16,7 +16,7 @@ export default function PinPad({ value, onChange, length = 6, label }: { value: 
               key={i}
               className={`relative aspect-square rounded-xl flex items-center justify-center font-display font-black text-2xl transition-all duration-500 ease-out
                 ${filled
-                  ? "bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.45)] scale-[1.04]"
+                  ? "bg-linear-to-br from-primary/30 to-accent/20 border border-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.45)] scale-[1.04]"
                   : isNext
                     ? "glass-strong border border-primary/30 animate-ring-pulse"
                     : "glass-strong border border-border/60 scale-[0.98]"}

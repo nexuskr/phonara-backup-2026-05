@@ -11,7 +11,7 @@ export default function PhonAdvantageRibbon() {
   const hasPhon = phon > 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-amber-300/50 bg-gradient-to-r from-amber-400/15 via-rose-500/15 to-pink-500/15 px-4 py-3">
+    <div className="relative overflow-hidden rounded-2xl border border-amber-300/50 bg-linear-to-r from-amber-400/15 via-rose-500/15 to-pink-500/15 px-4 py-3">
       <div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
@@ -20,7 +20,7 @@ export default function PhonAdvantageRibbon() {
         }}
       />
       <div className="relative flex items-center gap-3 flex-wrap">
-        <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-amber-300 to-pink-500 text-white shadow-lg shadow-pink-500/30">
+        <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-linear-to-br from-amber-300 to-pink-500 text-white shadow-lg shadow-pink-500/30">
           <Gem className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
@@ -40,7 +40,7 @@ export default function PhonAdvantageRibbon() {
         </div>
         <NavLink
           to="/wallet?tab=deposit"
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-pink-500 text-white text-xs font-black tracking-wide shadow-md shadow-pink-500/30 hover:opacity-95 min-h-12 sm:min-h-0"
+          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-linear-to-r from-amber-400 to-pink-500 text-white text-xs font-black tracking-wide shadow-md shadow-pink-500/30 hover:opacity-95 min-h-12 sm:min-h-0"
         >
           <Sparkles className="w-3.5 h-3.5" /> PHON 채우기
         </NavLink>

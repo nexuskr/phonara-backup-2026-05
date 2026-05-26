@@ -44,12 +44,12 @@ export default function ModeToggle({
           onClick={() => mode === "real" ? onChange("real") : setAskReal(true)}
           className={`flex-1 rounded-2xl px-4 py-3 transition press relative overflow-hidden ${
             mode === "real"
-              ? "bg-gradient-to-br from-amber-500/15 via-rose-500/10 to-amber-500/15 border border-amber-400/70 shadow-[0_0_40px_rgba(244,114,182,0.4)]"
+              ? "bg-linear-to-br from-amber-500/15 via-rose-500/10 to-amber-500/15 border border-amber-400/70 shadow-[0_0_40px_rgba(244,114,182,0.4)]"
               : "border border-border/40 hover:border-amber-400/50"
           }`}
         >
           {mode === "real" && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/10 to-transparent animate-pulse pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-amber-300/10 to-transparent animate-pulse pointer-events-none" />
           )}
           <div className="flex items-center justify-center gap-2 text-xs font-black tracking-widest relative">
             <Flame className={`w-4 h-4 ${mode === "real" ? "text-amber-300" : "text-muted-foreground"}`} />

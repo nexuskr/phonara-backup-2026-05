@@ -1,6 +1,13 @@
 import { memo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Gift, Swords, LineChart, Gem, type LucideIcon } from "lucide-react";
+import {
+  Home,
+  Gift,
+  Swords,
+  LineChart,
+  Gem,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * MobileBottomNav (PR-P1-A) — 5탭 모바일 OS 네이티브 thumb-zone 네비.
@@ -26,22 +33,63 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { id: "home",  to: "/",      label: "홈",         icon: Home },
-  { id: "earn",  to: "/earn",  label: "무료돈벌기", icon: Gift },
-  { id: "duel",  to: "/duel",  label: "실시간대결", icon: Swords,    emphasis: "crimson" },
+  { id: "home", to: "/", label: "홈", icon: Home },
+  { id: "earn", to: "/earn", label: "무료돈벌기", icon: Gift },
+  {
+    id: "duel",
+    to: "/duel",
+    label: "실시간대결",
+    icon: Swords,
+    emphasis: "crimson",
+  },
   { id: "trade", to: "/trade", label: "실시간예측", icon: LineChart },
-  { id: "phon",  to: "/phon",  label: "내PHON",     icon: Gem,       emphasis: "gold" },
+  { id: "phon", to: "/phon", label: "내PHON", icon: Gem, emphasis: "gold" },
 ];
 
-const HIDDEN_PREFIX = ["/apex", "/auth", "/secure-auth", "/legal", "/admin", "/welcome", "/guide", "/landing", "/safe", "/forgot-password", "/reset-password", "/auth/callback", "/complete-profile", "/live/", "/r/", "/i/", "/c/", "/unsubscribe"];
+const HIDDEN_PREFIX = [
+  "/apex",
+  "/auth",
+  "/secure-auth",
+  "/legal",
+  "/admin",
+  "/welcome",
+  "/guide",
+  "/landing",
+  "/safe",
+  "/forgot-password",
+  "/reset-password",
+  "/auth/callback",
+  "/complete-profile",
+  "/live/",
+  "/r/",
+  "/i/",
+  "/c/",
+  "/unsubscribe",
+];
 
 function isActivePath(pathname: string, to: string) {
   const base = to.split("?")[0];
-  if (base === "/")      return pathname === "/" || pathname === "/dashboard";
-  if (base === "/earn")  return pathname === "/earn" || pathname.startsWith("/earn/") || pathname.startsWith("/missions");
-  if (base === "/duel")  return pathname === "/duel" || pathname.startsWith("/duel/");
-  if (base === "/trade") return pathname === "/trade" || pathname.startsWith("/trade/") || pathname.startsWith("/arena");
-  if (base === "/phon")  return pathname === "/phon" || pathname.startsWith("/phon/") || pathname.startsWith("/wallet");
+  if (base === "/") return pathname === "/" || pathname === "/dashboard";
+  if (base === "/earn")
+    return (
+      pathname === "/earn" ||
+      pathname.startsWith("/earn/") ||
+      pathname.startsWith("/missions")
+    );
+  if (base === "/duel")
+    return pathname === "/duel" || pathname.startsWith("/duel/");
+  if (base === "/trade")
+    return (
+      pathname === "/trade" ||
+      pathname.startsWith("/trade/") ||
+      pathname.startsWith("/arena")
+    );
+  if (base === "/phon")
+    return (
+      pathname === "/phon" ||
+      pathname.startsWith("/phon/") ||
+      pathname.startsWith("/wallet")
+    );
   return pathname === base;
 }
 
@@ -66,7 +114,7 @@ function MobileBottomNavInner(_props: Props) {
         paddingBottom: "max(var(--safe-bottom), var(--kb-inset))",
       }}
     >
-      <ul className="flex items-stretch justify-between gap-3 px-3 h-[72px]">
+      <ul className="flex items-stretch justify-between gap-3 px-3 h-18">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = isActivePath(loc.pathname, t.to);
@@ -78,9 +126,15 @@ function MobileBottomNavInner(_props: Props) {
               <Icon
                 aria-hidden
                 className={[
-                  "w-[34px] h-[34px] transition-transform duration-150 motion-reduce:transition-none",
+                  "w-8.5 h-8.5 transition-transform duration-150 motion-reduce:transition-none",
                   active ? "scale-110" : "",
-                  gold ? "text-amber-300" : crimson ? "text-rose-300" : active ? "text-foreground" : "text-muted-foreground",
+                  gold
+                    ? "text-amber-300"
+                    : crimson
+                      ? "text-rose-300"
+                      : active
+                        ? "text-foreground"
+                        : "text-muted-foreground",
                   crimson ? "drop-shadow-[0_0_8px_hsl(350_85%_60%/0.7)]" : "",
                 ].join(" ")}
                 strokeWidth={active ? 2.75 : 2.25}
@@ -88,7 +142,13 @@ function MobileBottomNavInner(_props: Props) {
               <span
                 className={[
                   "text-[17.5px] font-black leading-none tracking-tight mt-0.5",
-                  gold ? "text-amber-200" : crimson ? "text-rose-200" : active ? "text-foreground" : "text-muted-foreground",
+                  gold
+                    ? "text-amber-200"
+                    : crimson
+                      ? "text-rose-200"
+                      : active
+                        ? "text-foreground"
+                        : "text-muted-foreground",
                 ].join(" ")}
               >
                 {t.label}
@@ -108,18 +168,22 @@ function MobileBottomNavInner(_props: Props) {
 
           const sharedClass = [
             "relative flex flex-col items-center justify-center",
-            "min-h-[72px] min-w-[72px] rounded-2xl",
+            "min-h-18 min-w-18 rounded-2xl",
             "transition-[transform,opacity,background-color] duration-[140ms] motion-reduce:transition-none",
             "active:opacity-75 active:scale-[0.96]",
             "select-none",
             gold
-              ? "bg-gradient-to-b from-amber-500/20 via-amber-400/10 to-transparent ring-1 ring-amber-300/50 shadow-[0_0_18px_hsl(38_92%_60%/0.35)]"
+              ? "bg-linear-to-b from-amber-500/20 via-amber-400/10 to-transparent ring-1 ring-amber-300/50 shadow-[0_0_18px_hsl(38_92%_60%/0.35)]"
               : "",
             crimson
-              ? "bg-gradient-to-b from-rose-500/20 via-rose-400/10 to-transparent ring-1 ring-rose-300/50 shadow-[0_0_18px_hsl(350_85%_60%/0.4)]"
+              ? "bg-linear-to-b from-rose-500/20 via-rose-400/10 to-transparent ring-1 ring-rose-300/50 shadow-[0_0_18px_hsl(350_85%_60%/0.4)]"
               : "",
-            active && gold ? "scale-[1.05] shadow-[0_0_24px_hsl(38_92%_60%/0.55)]" : "",
-            active && crimson ? "scale-[1.05] shadow-[0_0_24px_hsl(350_85%_60%/0.6)]" : "",
+            active && gold
+              ? "scale-[1.05] shadow-[0_0_24px_hsl(38_92%_60%/0.55)]"
+              : "",
+            active && crimson
+              ? "scale-[1.05] shadow-[0_0_24px_hsl(350_85%_60%/0.6)]"
+              : "",
             active && !gold && !crimson ? "bg-card/60" : "",
           ].join(" ");
 
@@ -141,7 +205,6 @@ function MobileBottomNavInner(_props: Props) {
               </NavLink>
             </li>
           );
-
         })}
       </ul>
     </nav>

@@ -63,7 +63,7 @@ export default function ShareChannelsSheet({
               <button
                 key={ch}
                 onClick={() => handle(ch)}
-                className={`min-h-[88px] rounded-2xl bg-gradient-to-br ${m.accent} text-white font-bold flex flex-col items-center justify-center gap-1 active:scale-[0.97] transition shadow-lg`}
+                className={`min-h-[88px] rounded-2xl bg-linear-to-br ${m.accent} text-white font-bold flex flex-col items-center justify-center gap-1 active:scale-[0.97] transition shadow-lg`}
               >
                 <span className="text-2xl">{m.emoji}</span>
                 <span className="text-xs">{m.label}</span>
@@ -74,7 +74,7 @@ export default function ShareChannelsSheet({
 
         <button
           onClick={() => handle("instagram")}
-          className={`mt-3 w-full min-h-[64px] rounded-2xl bg-gradient-to-r ${CHANNEL_META.instagram.accent} text-white font-black text-base flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg`}
+          className={`mt-3 w-full min-h-[64px] rounded-2xl bg-linear-to-r ${CHANNEL_META.instagram.accent} text-white font-black text-base flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg`}
         >
           <span className="text-xl">{CHANNEL_META.instagram.emoji}</span>
           {CHANNEL_META.instagram.label} · {G.earnShareInstagramHint}

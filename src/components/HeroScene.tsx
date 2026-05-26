@@ -50,16 +50,16 @@ function PremiumToken() {
 
 export default function HeroScene() {
   return (
-    <div className="w-full h-[200px] relative -mt-8 mb-2">
+    <div className="w-full h-50 relative -mt-8 mb-2">
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         style={{ background: "transparent" }}
         dpr={[1, 1.4]}
-        gl={{ 
-          antialias: true, 
+        gl={{
+          antialias: true,
           alpha: true,
           powerPreference: "high-performance",
-          preserveDrawingBuffer: false
+          preserveDrawingBuffer: false,
         }}
       >
         <ambientLight intensity={0.7} />

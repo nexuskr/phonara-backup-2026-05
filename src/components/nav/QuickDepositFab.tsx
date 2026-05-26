@@ -31,7 +31,7 @@ function QuickDepositFabInner() {
       className="
         md:hidden fixed right-4 z-30
         w-16 h-16 rounded-full
-        bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600
+        bg-linear-to-br from-amber-300 via-amber-400 to-amber-600
         text-black font-black
         shadow-[0_8px_28px_-4px_hsl(38_92%_60%/0.6)]
         ring-2 ring-amber-200/70

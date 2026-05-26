@@ -1,5 +1,11 @@
-import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
+import type { HTMLAttributes, ReactNode } from "react";
 
-const AspectRatio = AspectRatioPrimitive.Root;
+interface Props extends HTMLAttributes<HTMLDivElement> {
+  children?: ReactNode;
+}
+
+function AspectRatio({ children, ...props }: Props) {
+  return <div {...props}>{children}</div>;
+}
 
 export { AspectRatio };

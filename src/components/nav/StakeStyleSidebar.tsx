@@ -6,9 +6,19 @@ if (typeof document !== "undefined") {
 }
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Gem, Home, Swords, Sparkles, Gamepad2, Dice5, TrendingUp, Radio,
-  Castle, Wallet, ListChecks, User, Shield,
-  type LucideIcon} from "lucide-react";
+  Gem,
+  Home,
+  Swords,
+  Sparkles,
+  TrendingUp,
+  Radio,
+  Castle,
+  Wallet,
+  ListChecks,
+  User,
+  Shield,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * StakeStyleSidebar — PC 영구 좌측 사이드바 (md+).
@@ -19,10 +29,24 @@ import {
  */
 
 const HIDDEN_PREFIX = [
-  "/apex", "/auth", "/secure-auth", "/legal", "/admin",
-  "/welcome", "/guide", "/landing", "/safe",
-  "/forgot-password", "/reset-password", "/auth/callback",
-  "/complete-profile", "/live/", "/r/", "/i/", "/c/", "/unsubscribe",
+  "/apex",
+  "/auth",
+  "/secure-auth",
+  "/legal",
+  "/admin",
+  "/welcome",
+  "/guide",
+  "/landing",
+  "/safe",
+  "/forgot-password",
+  "/reset-password",
+  "/auth/callback",
+  "/complete-profile",
+  "/live/",
+  "/r/",
+  "/i/",
+  "/c/",
+  "/unsubscribe",
 ];
 
 type Item = {
@@ -38,30 +62,28 @@ const SECTIONS: Section[] = [
   {
     title: "메인",
     items: [
-      { to: "/",       label: "홈",       icon: Home },
-      { to: "/duel",   label: "대관전",   icon: Swords,    variant: "crimson" },
-      { to: "/apex",   label: "에이펙스", icon: Sparkles,  variant: "gold" },
-      { to: "/casino", label: "카지노",   icon: Dice5 },
-      { to: "/games",  label: "슬롯·게임", icon: Gamepad2 },
-      { to: "/trade",  label: "거래",     icon: TrendingUp },
-      { to: "/live",   label: "라이브",   icon: Radio },
+      { to: "/", label: "홈", icon: Home },
+      { to: "/duel", label: "대관전", icon: Swords, variant: "crimson" },
+      { to: "/apex", label: "에이펙스", icon: Sparkles, variant: "gold" },
+      { to: "/trade", label: "거래", icon: TrendingUp },
+      { to: "/live", label: "라이브", icon: Radio },
     ],
   },
   {
     title: "황실",
     items: [
-      { to: "/empire", label: "황실",   icon: Castle },
-      { to: "/phon",   label: "PHON",   icon: Gem,  variant: "gold" },
-      { to: "/vip",    label: "VIP Pass", icon: Sparkles },
+      { to: "/empire", label: "황실", icon: Castle },
+      { to: "/phon", label: "PHON", icon: Gem, variant: "gold" },
+      { to: "/vip", label: "VIP Pass", icon: Sparkles },
     ],
   },
   {
     title: "내 자산",
     items: [
-      { to: "/wallet",   label: "지갑",   icon: Wallet },
-      { to: "/missions", label: "미션",   icon: ListChecks },
-      { to: "/profile",  label: "내정보", icon: User },
-      { to: "/security", label: "보안",   icon: Shield },
+      { to: "/wallet", label: "지갑", icon: Wallet },
+      { to: "/missions", label: "미션", icon: ListChecks },
+      { to: "/profile", label: "내정보", icon: User },
+      { to: "/security", label: "보안", icon: Shield },
     ],
   },
 ];
@@ -90,14 +112,17 @@ function StakeStyleSidebarInner() {
     <aside
       aria-label="데스크탑 좌측 네비게이션"
       className="
-        hidden md:flex fixed inset-y-0 left-0 z-30 w-[232px]
+        hidden md:flex fixed inset-y-0 left-0 z-30 w-58
         flex-col bg-background/95 backdrop-blur
         border-r border-border/50
         overflow-y-auto
       "
     >
       <div className="h-14 md:h-16 flex items-center px-5 border-b border-border/40">
-        <NavLink to="/" className="font-black tracking-[0.22em] text-[15px] text-foreground">
+        <NavLink
+          to="/"
+          className="font-black tracking-[0.22em] text-[15px] text-foreground"
+        >
           PHONARA
         </NavLink>
       </div>
@@ -133,10 +158,14 @@ function StakeStyleSidebarInner() {
                       <Icon
                         aria-hidden
                         className={[
-                          "w-[18px] h-[18px] shrink-0",
-                          active ? "drop-shadow-[0_0_6px_hsl(var(--gold)/0.55)]" : "",
+                          "w-4.5 h-4.5 shrink-0",
+                          active
+                            ? "drop-shadow-[0_0_6px_hsl(var(--gold)/0.55)]"
+                            : "",
                           gold ? "text-amber-300" : "",
-                          crimson ? "text-rose-300 drop-shadow-[0_0_6px_hsl(350_80%_60%/0.55)]" : "",
+                          crimson
+                            ? "text-rose-300 drop-shadow-[0_0_6px_hsl(350_80%_60%/0.55)]"
+                            : "",
                         ].join(" ")}
                         strokeWidth={active ? 2.5 : 2}
                       />

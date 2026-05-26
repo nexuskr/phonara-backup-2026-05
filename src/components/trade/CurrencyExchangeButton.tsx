@@ -41,7 +41,7 @@ export default function CurrencyExchangeButton() {
         <button
           type="button"
           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide
-                     bg-gradient-to-r from-amber-300 via-amber-400 to-rose-400 text-black
+                     bg-linear-to-r from-amber-300 via-amber-400 to-rose-400 text-black
                      border border-amber-200/60 shadow-[0_0_22px_hsl(var(--gold)/0.45)]
                      hover:shadow-[0_0_32px_hsl(var(--gold)/0.7)] hover:-translate-y-0.5
                      transition-all duration-200 press"
@@ -101,7 +101,7 @@ export default function CurrencyExchangeButton() {
             type="button"
             onClick={onSubmit}
             disabled={!valid || busy}
-            className="w-full font-black tracking-wide bg-gradient-to-r from-amber-400 via-amber-500 to-rose-500 text-black hover:opacity-95"
+            className="w-full font-black tracking-wide bg-linear-to-r from-amber-400 via-amber-500 to-rose-500 text-black hover:opacity-95"
           >
             {busy ? "교환 중…" : "지금 교환"}
           </Button>

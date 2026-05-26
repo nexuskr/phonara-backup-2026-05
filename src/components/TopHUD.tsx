@@ -5,12 +5,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSwitcher from "./LanguageSwitcher";
-import EmpireFoundingCounter from "./EmpireFoundingCounter";
-import TierBadge from "./status/TierBadge";
 import { isFlagOn } from "@/lib/conversion-flags";
 
 /**
- * Phonara Top HUD — 항상 노출되는 3축 광고판 + 언어 스위처
+ * Phonara Top HUD — TierBadge, EmpireFoundingCounter 제거 버전
  */
 export default function TopHUD() {
   const { t } = useTranslation("topbar");
@@ -38,12 +36,8 @@ export default function TopHUD() {
 
   return (
     <div className="hidden md:flex items-center gap-2">
-      {/* Tier Badge — 우월감 엔진 */}
-      {isFlagOn("tierBadge") && (
-        <Link to="/empire" className="press">
-          <TierBadge tier={(user.tier as any) ?? "NORMAL"} size="sm" />
-        </Link>
-      )}
+      {/* TierBadge 제거 */}
+
       {/* Balance */}
       <Link
         to="/treasury"
@@ -78,16 +72,14 @@ export default function TopHUD() {
         </span>
       </Link>
 
-      <Link to="/empire" className="press">
-        <EmpireFoundingCounter compact />
-      </Link>
+      {/* EmpireFoundingCounter 제거 */}
 
       <LanguageSwitcher />
     </div>
   );
 }
 
-/** 모바일 컴팩트 — 헤더에 배치 (잔고만) */
+/** 모바일 컴팩트 버전 — TierBadge 제거 */
 export function TopHUDCompact() {
   const [db] = useDB();
   const user = db.user;
@@ -97,9 +89,6 @@ export function TopHUDCompact() {
       to="/treasury"
       className="md:hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full glass border border-primary/30"
     >
-      {isFlagOn("tierBadge") && (
-        <TierBadge tier={(user.tier as any) ?? "NORMAL"} size="xs" withCrown={false} />
-      )}
       <Wallet className="w-3 h-3 text-primary" />
       <span className="font-hud text-xs text-money font-bold tabular-nums">
         {formatKRW(user.balance ?? 0)}

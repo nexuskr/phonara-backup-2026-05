@@ -313,7 +313,7 @@ export function AuthSocialProof({
         </div>
 
         {/* CROWN EXPLOSION COUNTER */}
-        <div className="pointer-events-auto relative overflow-hidden rounded-2xl border border-gold/45 bg-gradient-to-br from-gold/15 to-background/70 px-3 py-3 text-center backdrop-blur-xl">
+        <div className="pointer-events-auto relative overflow-hidden rounded-2xl border border-gold/45 bg-linear-to-br from-gold/15 to-background/70 px-3 py-3 text-center backdrop-blur-xl">
           <div className="text-[9px] font-black tracking-[0.32em] text-gold/80">
             CROWN EXPLOSION · 24H
           </div>

@@ -14,8 +14,8 @@ export default function PhonBettingNudge() {
   const hasPhon = phon > 0;
 
   return (
-    <div className="rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/10 via-pink/5 to-transparent p-3 flex items-center gap-3">
-      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-pink flex items-center justify-center text-primary-foreground shrink-0">
+    <div className="rounded-2xl border border-primary/40 bg-linear-to-r from-primary/10 via-pink/5 to-transparent p-3 flex items-center gap-3">
+      <div className="w-9 h-9 rounded-lg bg-linear-to-br from-primary to-pink flex items-center justify-center text-primary-foreground shrink-0">
         <Sparkles className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">

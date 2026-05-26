@@ -72,8 +72,8 @@ function TotalPnLHeaderImpl({ positions, prices, unit }: Props) {
         !has
           ? "border-border/40 bg-background/40"
           : positive
-            ? "border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-background/40 to-background/40 shadow-[0_0_60px_rgba(52,211,153,0.18)]"
-            : "border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-background/40 to-background/40 shadow-[0_0_60px_rgba(244,63,94,0.18)]"
+            ? "border-emerald-500/40 bg-linear-to-br from-emerald-500/10 via-background/40 to-background/40 shadow-[0_0_60px_rgba(52,211,153,0.18)]"
+            : "border-rose-500/40 bg-linear-to-br from-rose-500/10 via-background/40 to-background/40 shadow-[0_0_60px_rgba(244,63,94,0.18)]"
       }`}
       aria-label="Total unrealized PnL"
     >

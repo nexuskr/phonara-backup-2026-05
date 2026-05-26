@@ -20,7 +20,7 @@ export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 
 const variantStyles: Record<NonNullable<EmptyStateProps["variant"]>, string> = {
   default: "border-border/60 bg-card/40",
-  gold: "border-primary/30 bg-gradient-to-br from-primary/5 to-transparent",
+  gold: "border-primary/30 bg-linear-to-br from-primary/5 to-transparent",
   muted: "border-border/30 bg-muted/20",
   error: "border-destructive/40 bg-destructive/5",
 };

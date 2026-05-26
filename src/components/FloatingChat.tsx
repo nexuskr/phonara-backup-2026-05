@@ -114,7 +114,7 @@ export default function FloatingChat() {
             <Link
               to="/missions"
               onClick={() => setOpen(false)}
-              className="mx-3 mt-3 px-3 py-2 rounded-xl bg-gradient-to-r from-gold/20 to-primary/20 border border-gold/40 flex items-center gap-2 text-xs font-bold hover:scale-[1.02] transition"
+              className="mx-3 mt-3 px-3 py-2 rounded-xl bg-linear-to-r from-gold/20 to-primary/20 border border-gold/40 flex items-center gap-2 text-xs font-bold hover:scale-[1.02] transition"
             >
               <Bot className="w-4 h-4 text-gold" />
               <span className="flex-1 text-gold">Empire AI 봇 바로가기 (3종 무제한)</span>
@@ -178,7 +178,7 @@ function BotShareCard({ mine, msg, meta }: { mine: boolean; msg: string; meta: a
   const icon = kind === "trading" ? "📈" : kind === "image" ? "🎨" : "🤖";
 
   return (
-    <div className={`rounded-2xl border bg-gradient-to-br ${accent} p-3 shadow-lg ${mine ? "rounded-br-sm" : "rounded-bl-sm"}`}>
+    <div className={`rounded-2xl border bg-linear-to-br ${accent} p-3 shadow-lg ${mine ? "rounded-br-sm" : "rounded-bl-sm"}`}>
       <div className="flex items-center gap-2 mb-1.5">
         <span className="text-base">{icon}</span>
         <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-gold/30 text-gold">{tier || "BOT"}</span>

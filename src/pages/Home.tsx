@@ -1,332 +1,382 @@
-// src/pages/home/HomePage.tsx
-import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Bell, Wallet, ArrowDownToLine, History, Gift,
-  Flame, Users, Trophy, Home as HomeIcon,
-  TrendingUp, LogOut, Loader2
+  ArrowRight,
+  CalendarRange,
+  Flame,
+  Gift,
+  Sparkles,
+  TrendingUp,
+  Trophy,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import OnboardingV3 from "@/components/onboarding/OnboardingV3";
+import { useAuth } from "@/context/AuthContext";
+import { useWallet } from "@/hooks/use-wallet";
+import { fmtKRW } from "@/lib/wallet";
+import { APP_ROUTES } from "@/shared/constants/routes";
+import { PlatformShell } from "@/shared/ui/platform-shell";
 
-export default function HomePage() {
-  const navigate = useNavigate();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+const liveEvents = [
+  {
+    text: "지금 12,841명이 무료 미션을 진행 중입니다",
+    tone: "text-emerald-300",
+  },
+  { text: "오늘 312명이 출석 보상을 받았습니다", tone: "text-fuchsia-300" },
+  { text: "추천 링크가 폭발적으로 공유되고 있습니다", tone: "text-cyan-300" },
+];
 
-  const goTo = (path: string) => {
-    navigate(path);
-  };
+const missions = [
+  {
+    title: "출석 체크",
+    reward: "+300",
+    note: "매일 3초로 시작",
+    accent: "from-fuchsia-500 to-violet-600",
+  },
+  {
+    title: "미니게임",
+    reward: "+1,200",
+    note: "Keepy-Uppy 한판",
+    accent: "from-amber-400 to-orange-500",
+  },
+  {
+    title: "추천 공유",
+    reward: "+5,000",
+    note: "친구 초대 1명",
+    accent: "from-emerald-500 to-teal-500",
+  },
+  {
+    title: "트레이딩",
+    reward: "실전 시작",
+    note: "모의/실전 전환",
+    accent: "from-cyan-400 to-sky-500",
+  },
+];
 
-  const showComingSoon = (gameName: string) => {
-    toast.info(`${gameName}은(는) 준비 중입니다`, {
-      description: "조금만 기다려주세요! 곧 만나요 🚀",
-      duration: 2000,
-    });
-  };
-
-  // ✅ 로그아웃 핸들러 (중복 클릭 방지 포함)
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-
-    setIsLoggingOut(true);
-
-    try {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        toast.error("로그아웃에 실패했어요 😢", {
-          description: "잠시 후 다시 시도해주세요.",
-        });
-        return;
-      }
-
-      toast.success("로그아웃 완료됐어요! 👋", {
-        description: "다음에 또 PHONARA에서 만나요 💜",
-      });
-
-      navigate("/auth");
-    } catch (err) {
-      toast.error("예상치 못한 오류가 발생했어요 😢", {
-        description: "잠시 후 다시 시도해주세요.",
-      });
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
+function StatPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-h-screen bg-[#02030a] text-white overflow-hidden relative">
-      {/* Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(at_top,#4c1d95_0%,#0a051f_40%,#000000_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(45deg,#7c3aed10_0%,transparent_50%)]" />
-      <div className="absolute top-[-220px] left-1/2 h-[620px] w-[620px] -translate-x-1/2 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-transparent blur-[160px] opacity-50" />
-      <div className="absolute bottom-[-180px] right-[-100px] h-[480px] w-[480px] bg-cyan-400/30 blur-[140px] rounded-full" />
-
-      <div className="relative z-10 max-w-md mx-auto px-5 pt-6 pb-32">
-        
-        {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-5xl">👑</div>
-            <h1 className="text-[46px] font-black tracking-[-4px] bg-gradient-to-r from-fuchsia-300 via-white to-cyan-300 bg-clip-text text-transparent">
-              PHONARA
-            </h1>
-          </div>
-          
-          {/* 우측 아이콘 그룹 */}
-          <div className="flex items-center gap-1">
-            {/* 알림 버튼 */}
-            <button className="relative p-3 rounded-full hover:bg-white/5 transition-all">
-              <Bell size={27} className="text-white/80" />
-              <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-[#02030a] animate-pulse" />
-            </button>
-
-            {/* 로그아웃 버튼 (중복 클릭 방지 적용) */}
-            <button 
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="p-3 rounded-full hover:bg-white/5 active:bg-white/10 transition-all text-white/70 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="로그아웃"
-            >
-              {isLoggingOut ? (
-                <Loader2 className="animate-spin" size={24} />
-              ) : (
-                <LogOut size={24} />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* WALLET */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-7 rounded-[36px] border border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-3xl p-7 relative overflow-hidden shadow-2xl shadow-fuchsia-500/20"
-        >
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-fuchsia-500/40 blur-[100px]" />
-          
-          <div className="flex justify-between items-start">
-            <div>
-              <div className="text-white/60 text-sm flex items-center gap-2">
-                총 자산
-              </div>
-              <div className="mt-3 text-[56px] font-black tracking-[-3.5px] leading-none">1,234,567</div>
-              <div className="text-2xl text-fuchsia-300 -mt-1">PHON</div>
-            </div>
-            <div className="text-right">
-              <div className="text-emerald-400 text-xl font-bold">+12.8%</div>
-              <div className="text-white/50 text-sm">24시간</div>
-            </div>
-          </div>
-          
-          <div className="mt-8 grid grid-cols-4 gap-3">
-            <QuickButton icon={<Wallet size={23} />} label="입금" onClick={() => goTo("/wallet")} />
-            <QuickButton icon={<ArrowDownToLine size={23} />} label="출금" onClick={() => goTo("/wallet")} />
-            <QuickButton icon={<History size={23} />} label="내역" onClick={() => goTo("/wallet")} />
-            <QuickButton icon={<Gift size={23} />} label="선물" onClick={() => goTo("/referral")} />
-          </div>
-        </motion.div>
-
-        {/* 대형 트레이딩 유도 카드 */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.985 }}
-          onClick={() => goTo("/trading")}
-          className="mt-6 cursor-pointer"
-        >
-          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-violet-600 via-fuchsia-600 to-cyan-500 p-[1px]">
-            <div className="bg-[#0a0c1f] rounded-[31px] p-8">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold tracking-widest">LIVE TRADING</div>
-                  </div>
-                  <h2 className="text-[32px] font-black tracking-[-1.5px] leading-[1.1] text-white">
-                    지금 트레이딩으로<br />수익을 만들어보세요
-                  </h2>
-                  <p className="mt-3 text-white/80 text-[15px]">
-                    레버리지 1x~100x • 실시간 청산 계산
-                  </p>
-                </div>
-                <TrendingUp className="w-14 h-14 text-white/90 mt-1" />
-              </div>
-
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goTo("/trading");
-                }}
-                className="mt-8 w-full h-14 bg-white text-black font-bold text-[17px] rounded-2xl active:bg-white/90 transition-all"
-              >
-                트레이딩 시작하기 →
-              </button>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* LIVE FEED */}
-        <motion.div
-          animate={{ opacity: [0.85, 1, 0.85] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="mt-5 rounded-3xl border border-red-500/30 bg-[#0a0c1f]/90 backdrop-blur-3xl p-5 flex items-center gap-4"
-        >
-          <div className="px-4 py-1.5 bg-red-500 rounded-full text-xs font-black tracking-widest">● LIVE</div>
-          <div className="text-[15px] leading-tight">
-            지금 이 순간 <span className="text-fuchsia-400 font-bold">11,284명</span>이<br />
-            <span className="text-white/90">PHONARA에서 돈을 벌고 있습니다</span>
-          </div>
-          <Users className="ml-auto text-fuchsia-400" size={28} />
-        </motion.div>
-
-        {/* MISSIONS */}
-        <div className="mt-10">
-          <div className="flex justify-between items-end mb-5">
-            <h2 className="text-[34px] font-black tracking-[-2.5px]">오늘의 미션</h2>
-            <button 
-              onClick={() => goTo("/missions")}
-              className="flex items-center gap-2 text-orange-400 hover:text-orange-300 transition-colors text-sm"
-            >
-              <Flame size={20} /> 전체 미션 보기
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <MissionCard title="출석체크" reward="+1,000" color="from-fuchsia-600 to-violet-700" onClick={() => goTo("/missions")} />
-            <MissionCard title="미니게임" reward="+3,000" color="from-orange-500 to-amber-600" onClick={() => goTo("/missions")} />
-            <MissionCard title="광고 시청" reward="+2,000" color="from-blue-500 to-cyan-600" onClick={() => goTo("/missions")} />
-            <MissionCard title="친구 초대" reward="+15,000" color="from-emerald-500 to-teal-600" onClick={() => goTo("/referral")} />
-          </div>
-        </div>
-
-        {/* GAME SECTION */}
-        <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[34px] font-black tracking-[-2.5px] flex items-center gap-3">
-              빠른 게임 <span className="text-2xl">⚡</span>
-            </h2>
-            <button 
-              onClick={() => goTo("/games")}
-              className="text-sm text-white/60 hover:text-white/80 transition-colors"
-            >
-              전체 게임장 →
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <GameCard 
-              title="네온 슬롯" 
-              desc="한 판에 인생 역전" 
-              reward="최대 500,000" 
-              icon="🚀" 
-              color="from-fuchsia-500 via-purple-600 to-violet-700" 
-              onClick={() => showComingSoon("네온 슬롯")}
-            />
-            <GameCard 
-              title="킵업 축구" 
-              desc="터치 한 번으로 골" 
-              reward="+800~4,000" 
-              icon="⚽" 
-              color="from-emerald-500 to-cyan-600" 
-              onClick={() => showComingSoon("킵업 축구")}
-            />
-          </div>
-        </div>
+    <div className="rounded-[22px] border border-white/10 bg-white/4 px-3 py-3 backdrop-blur-sm">
+      <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+        {label}
       </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#02030a]/95 backdrop-blur-3xl">
-        <div className="max-w-md mx-auto grid grid-cols-5 items-end px-2 pb-2 pt-3">
-          <button onClick={() => goTo("/home")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
-            <div className="text-white/40"><HomeIcon size={24} /></div>
-            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">홈</div>
-          </button>
-
-          <button onClick={() => goTo("/missions")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
-            <div className="text-white/40"><Gift size={24} /></div>
-            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">미션</div>
-          </button>
-
-          {/* 트레이딩 (네온 강조) */}
-          <button onClick={() => goTo("/trading")} className="flex flex-col items-center justify-center -mt-3 active:opacity-90">
-            <div className="relative flex flex-col items-center">
-              <div className="absolute -inset-3 bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 rounded-full blur-[18px] opacity-60" />
-              <div className="relative w-[68px] h-[68px] rounded-3xl bg-gradient-to-br from-fuchsia-500 via-violet-600 to-cyan-500 flex items-center justify-center shadow-2xl shadow-fuchsia-500/50 border-[3.5px] border-white/90">
-                <div className="text-white"><TrendingUp size={28} /></div>
-              </div>
-              <div className="mt-1.5 text-[11px] font-bold tracking-[0.5px] text-fuchsia-300">트레이딩</div>
-              <motion.div
-                animate={{ scale: [1, 1.12, 1] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -inset-1 rounded-3xl border border-fuchsia-400/50"
-              />
-            </div>
-          </button>
-
-          <button onClick={() => goTo("/earn")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
-            <div className="text-white/40"><Trophy size={24} /></div>
-            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">랭킹</div>
-          </button>
-
-          <button onClick={() => goTo("/referral")} className="flex flex-col items-center justify-center gap-1.5 py-1 active:opacity-80">
-            <div className="text-white/40"><Users size={24} /></div>
-            <div className="text-[10.5px] tracking-wider text-white/40 font-medium">친쪽</div>
-          </button>
-        </div>
-      </div>
+      <div className="mt-2 text-lg font-black text-white">{value}</div>
     </div>
   );
 }
 
-/* ====================== 서브 컴포넌트 ====================== */
-function QuickButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
+function QuickButton({
+  label,
+  icon,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onClick?: () => void;
+}) {
   return (
     <motion.button
-      whileTap={{ scale: 0.92 }}
+      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -2 }}
       onClick={onClick}
-      className="h-[88px] rounded-3xl bg-white/5 border border-white/10 hover:border-fuchsia-400/50 flex flex-col items-center justify-center gap-2 transition-all active:bg-white/10"
+      className="rounded-3xl border border-white/10 bg-white/4 px-4 py-4 text-left backdrop-blur-sm"
     >
-      <div className="text-fuchsia-400">{icon}</div>
-      <div className="text-[13px] font-medium text-white/90 tracking-tight">{label}</div>
+      <div className="text-fuchsia-200">{icon}</div>
+      <div className="mt-3 text-sm font-black text-white">{label}</div>
     </motion.button>
   );
 }
 
-function MissionCard({ title, reward, color, onClick }: { title: string; reward: string; color: string; onClick?: () => void }) {
+function MissionCard({
+  title,
+  reward,
+  note,
+  accent,
+}: {
+  title: string;
+  reward: string;
+  note: string;
+  accent: string;
+}) {
   return (
-    <motion.div
-      whileTap={{ scale: 0.96 }}
-      onClick={onClick}
-      className={`rounded-[28px] p-[2px] bg-gradient-to-br ${color} cursor-pointer`}
+    <motion.button
+      whileTap={{ scale: 0.985 }}
+      whileHover={{ y: -2 }}
+      className={`rounded-[26px] bg-linear-to-br ${accent} p-px text-left`}
     >
-      <div className="bg-[#0a0c1f] rounded-[26px] p-6 h-full">
-        <div className="font-black text-2xl">{title}</div>
-        <div className="mt-8 text-3xl font-bold text-white">{reward} PHON</div>
+      <div className="rounded-[25px] bg-[#0a0d1e]/95 p-4">
+        <div className="text-[10px] uppercase tracking-[0.28em] text-white/75">
+          {title}
+        </div>
+        <div className="mt-3 text-2xl font-black text-white">
+          {reward} {reward.includes("+") ? "PHON" : ""}
+        </div>
+        <div className="mt-2 text-sm text-white/70">{note}</div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }
 
-function GameCard({ title, desc, reward, icon, color, onClick }: any) {
+export default function HomePage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { wallet, loading } = useWallet(user?.id);
+
   return (
-    <motion.div
-      whileTap={{ scale: 0.96 }}
-      onClick={onClick}
-      className={`rounded-[28px] p-[1.5px] bg-gradient-to-br ${color} cursor-pointer`}
-    >
-      <div className="bg-[#0a0c1f] rounded-[26px] p-5 h-full flex flex-col min-h-[200px]">
-        <div className="text-[42px] mb-4">{icon}</div>
-        <div className="flex-1">
-          <div className="text-[21px] font-black tracking-[-0.5px] leading-[1.1] mb-1.5">{title}</div>
-          <div className="text-[13px] text-white/60 leading-snug line-clamp-2">{desc}</div>
-        </div>
-        <div className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] text-white/50">보상</div>
-            <div className="text-fuchsia-300 font-bold text-[17px]">{reward}</div>
+    <PlatformShell>
+      <OnboardingV3 />
+
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="space-y-5 pb-4"
+      >
+        <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-fuchsia-300/30 bg-fuchsia-500/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.3em] text-fuchsia-100">
+                <Sparkles className="h-3.5 w-3.5" />
+                PHONARA ELITE
+              </div>
+              <h1 className="mt-4 text-[2.6rem] font-black leading-[0.95] tracking-[-0.08em] text-white sm:text-[3.2rem]">
+                모바일 OS급
+                <span className="block bg-linear-to-r from-fuchsia-200 via-violet-100 to-cyan-100 bg-clip-text text-transparent">
+                  금융 경험을 지금 시작합니다.
+                </span>
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">
+                출석, 보상, 추천, 트레이딩까지 하나의 흐름으로 연결된 고급형
+                플랫폼에서 지갑·알림·추천·실전이 자연스럽게 연결됩니다.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[320px]">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                  NOW
+                </div>
+                <div className="mt-3 text-2xl font-black text-white">LIVE</div>
+                <div className="mt-2 text-sm text-emerald-200">
+                  실시간 소셜 증거
+                </div>
+              </div>
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                  필요한 순간
+                </div>
+                <div className="mt-3 text-2xl font-black text-white">1 tap</div>
+                <div className="mt-2 text-sm text-cyan-200">
+                  한 번의 터치로 모든 액션
+                </div>
+              </div>
+            </div>
           </div>
-          <button className="px-5 py-2 rounded-2xl bg-white/10 text-sm font-bold">PLAY</button>
+        </section>
+
+        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                  현재 순자산
+                </div>
+                <div className="mt-3 text-4xl font-black text-white sm:text-5xl">
+                  {loading ? "—" : fmtKRW(wallet?.total_balance ?? 0)}
+                </div>
+                <div className="mt-2 text-sm text-emerald-200">
+                  실시간 반응형 수익 흐름
+                </div>
+              </div>
+              <div className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-sm font-black text-emerald-100">
+                +12.8%
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <StatPill
+                label="오늘 수익"
+                value={loading ? "—" : fmtKRW(wallet?.today_earned ?? 0)}
+              />
+              <StatPill
+                label="가용 잔액"
+                value={loading ? "—" : fmtKRW(wallet?.available_balance ?? 0)}
+              />
+              <StatPill label="연속 출석" value="7일" />
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => navigate(APP_ROUTES.wallet)}
+                className="rounded-[18px] bg-white px-4 py-3 text-sm font-black text-black"
+              >
+                자금 확인
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(APP_ROUTES.referral)}
+                className="rounded-[18px] border border-white/10 bg-white/4 px-4 py-3 text-sm font-black text-white"
+              >
+                친구 초대
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(APP_ROUTES.trading)}
+                className="rounded-[18px] border border-white/10 bg-white/4 px-4 py-3 text-sm font-black text-white"
+              >
+                트레이딩 시작
+              </button>
+            </div>
+          </section>
+
+          <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                  LIVE FOMO
+                </div>
+                <div className="mt-2 text-lg font-black text-white">
+                  지금 이 순간, 사람들이 움직이고 있어요
+                </div>
+              </div>
+              <div className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-black text-emerald-100">
+                ● live
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {liveEvents.map((event, index) => (
+                <div
+                  key={event.text}
+                  className="rounded-[22px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white"
+                >
+                  <span className={event.tone}>{`0${index + 1}.`}</span>{" "}
+                  {event.text}
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </div>
-    </motion.div>
+
+        <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                  FREE EARN LOOP
+                </div>
+                <h2 className="mt-2 text-2xl font-black text-white">
+                  3초 컷의 보상 루프
+                </h2>
+              </div>
+              <Flame className="h-5 w-5 text-amber-200" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {missions.map((mission) => (
+                <MissionCard key={mission.title} {...mission} />
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+            <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+              QUICK ACTION
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <QuickButton
+                label="지갑"
+                icon={<Wallet className="h-5 w-5" />}
+                onClick={() => navigate(APP_ROUTES.wallet)}
+              />
+              <QuickButton
+                label="트레이딩"
+                icon={<TrendingUp className="h-5 w-5" />}
+                onClick={() => navigate(APP_ROUTES.trading)}
+              />
+              <QuickButton
+                label="추천"
+                icon={<Users className="h-5 w-5" />}
+                onClick={() => navigate(APP_ROUTES.referral)}
+              />
+              <QuickButton
+                label="보상"
+                icon={<Gift className="h-5 w-5" />}
+                onClick={() => navigate(APP_ROUTES.earn)}
+              />
+            </div>
+
+            <div className="mt-5 rounded-3xl border border-amber-300/30 bg-linear-to-br from-amber-500/10 via-transparent to-fuchsia-500/10 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-amber-100">
+                    TODAY ONLY
+                  </div>
+                  <div className="mt-2 text-lg font-black text-white">
+                    추천 3명 달성 시 VIP 혜택
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-white/70">
+                    친구를 초대하면 즉시 성장 루프가 열립니다.
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-amber-100" />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section className="rounded-[30px] border border-white/10 bg-white/4 p-5 backdrop-blur-xl sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.28em] text-white/55">
+                MOBILE-FIRST LOOP
+              </div>
+              <div className="mt-2 text-xl font-black text-white">
+                한 손으로 끝나는 보상 경험
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white">
+                배지 기반 성장
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white">
+                실시간 카운트업
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white">
+                바이럴 미션
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-[22px] border border-white/10 bg-black/20 px-4 py-4">
+              <CalendarRange className="h-4 w-4 text-cyan-200" />
+              <div className="mt-2 text-sm font-black text-white">
+                출석 루프
+              </div>
+              <div className="mt-1 text-sm text-white/70">
+                매일 3초로 습관화
+              </div>
+            </div>
+            <div className="rounded-[22px] border border-white/10 bg-black/20 px-4 py-4">
+              <Trophy className="h-4 w-4 text-amber-200" />
+              <div className="mt-2 text-sm font-black text-white">
+                보상 체인
+              </div>
+              <div className="mt-1 text-sm text-white/70">실시간 누적 보상</div>
+            </div>
+            <div className="rounded-[22px] border border-white/10 bg-black/20 px-4 py-4">
+              <Users className="h-4 w-4 text-fuchsia-200" />
+              <div className="mt-2 text-sm font-black text-white">
+                추천 성장
+              </div>
+              <div className="mt-1 text-sm text-white/70">
+                바이럴 확산에 최적화
+              </div>
+            </div>
+          </div>
+        </section>
+      </motion.div>
+    </PlatformShell>
   );
 }
