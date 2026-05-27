@@ -3,49 +3,93 @@
 // `slot_sound_assets` 테이블에서 받아온다. 자산이 없으면 자동으로 절차 사운드(`slotSound.ts`)로 폴백.
 
 export type SlotThemeKey =
-  | "olympus" | "wizard" | "dragon"
-  | "cosmic" | "neon" | "pirate" | "pharaoh" | "viking" | "aztec" | "sakura";
+  | "olympus"
+  | "wizard"
+  | "dragon"
+  | "cosmic"
+  | "neon"
+  | "pirate"
+  | "pharaoh"
+  | "viking"
+  | "aztec"
+  | "sakura";
 
 // 모든 메커닉 cue 합집합 (메커닉 미사용 슬롯은 자산을 비워두면 됨)
 export type MechCue =
-  | "sticky_lock" | "multi_tick" | "respin_start"
-  | "coin_drop" | "coin_lock" | "respin_reset" | "grid_full"
-  | "crash_tick" | "crash_boom" | "cannon_load"
-  | "card_flip" | "prize_reveal" | "bomb_fail" | "jackpot_chime"
-  | "path_choose" | "path_walk" | "realm_arrive"
-  | "tumble_cascade" | "multi_step_up" | "cluster_pop"
-  | "trail_step" | "checkpoint" | "mission_clear";
+  | "sticky_lock"
+  | "multi_tick"
+  | "respin_start"
+  | "coin_drop"
+  | "coin_lock"
+  | "respin_reset"
+  | "grid_full"
+  | "crash_tick"
+  | "crash_boom"
+  | "cannon_load"
+  | "card_flip"
+  | "prize_reveal"
+  | "bomb_fail"
+  | "jackpot_chime"
+  | "path_choose"
+  | "path_walk"
+  | "realm_arrive"
+  | "tumble_cascade"
+  | "multi_step_up"
+  | "cluster_pop"
+  | "trail_step"
+  | "checkpoint"
+  | "mission_clear";
 
 export type StandardCue =
   | "bgm"
-  | "reel_spin" | "reel_spin_fast" | "reel_stop" | "reel_anticipation"
-  | "win_small" | "win_big" | "win_huge" | "win_mega" | "win_epic"
-  | "vo_bigwin" | "vo_megawin" | "vo_epic"
-  | "scatter_hit" | "bonus_trigger";
+  | "reel_spin"
+  | "reel_spin_fast"
+  | "reel_stop"
+  | "reel_anticipation"
+  | "win_small"
+  | "win_big"
+  | "win_huge"
+  | "win_mega"
+  | "win_epic"
+  | "vo_bigwin"
+  | "vo_megawin"
+  | "vo_epic"
+  | "scatter_hit"
+  | "bonus_trigger";
 
 export type CueKey = StandardCue | MechCue;
 
 // ElevenLabs prompt 매트릭스. SFX는 sound-generation, "bgm"/"vo_*"는 music/tts로 분기.
-export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>> = {
+export const PROMPT_MATRIX: Record<
+  SlotThemeKey,
+  Partial<Record<CueKey, string>>
+> = {
   olympus: {
-    bgm: "epic orchestral cinematic loop, golden lyres and timpani, heroic Greek gods theme, 30 seconds seamless loop, no vocals",
-    reel_spin: "fast spinning chimes with subtle thunder rumble, slot machine reel, 1.2s",
-    reel_spin_fast: "accelerated bright bell spin with crackling lightning, 0.8s",
+    bgm:
+      "epic orchestral cinematic loop, golden lyres and timpani, heroic Greek gods theme, 30 seconds seamless loop, no vocals",
+    reel_spin:
+      "fast spinning chimes with subtle thunder rumble, slot machine reel, 1.2s",
+    reel_spin_fast:
+      "accelerated bright bell spin with crackling lightning, 0.8s",
     reel_stop: "metallic golden coin clink stop, sharp percussive, 0.2s",
     reel_anticipation: "rising suspense strings + thunder build, 1.5s",
     win_small: "bright pleasant golden chime, short fanfare, 0.6s",
     win_big: "triumphant brass + harp glissando, 1.2s",
     win_huge: "epic Olympus fanfare with choir hit, thunder strike, 2s",
-    win_mega: "massive cinematic Zeus thunder + choir explosion + brass crescendo, 3s",
-    win_epic: "legendary divine fanfare, full orchestra, choir, lightning, glory, 4s",
+    win_mega:
+      "massive cinematic Zeus thunder + choir explosion + brass crescendo, 3s",
+    win_epic:
+      "legendary divine fanfare, full orchestra, choir, lightning, glory, 4s",
     scatter_hit: "shimmering golden scatter chime, harp + bell, 0.8s",
-    bonus_trigger: "dramatic Olympus bonus trigger, lightning crack + horn fanfare, 2s",
+    bonus_trigger:
+      "dramatic Olympus bonus trigger, lightning crack + horn fanfare, 2s",
     vo_bigwin: "BIG WIN",
     vo_megawin: "MEGA WIN",
     vo_epic: "EPIC WIN",
   },
   wizard: {
-    bgm: "mystical fantasy wizard music, glass harmonica, magical bells, ethereal pads, 30s loop",
+    bgm:
+      "mystical fantasy wizard music, glass harmonica, magical bells, ethereal pads, 30s loop",
     reel_spin: "magical sparkling spin sound, glass shimmers, 1.2s",
     reel_spin_fast: "fast arcane whoosh, magic crystals, 0.8s",
     reel_stop: "soft rune click chime, 0.2s",
@@ -62,7 +106,8 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
     vo_epic: "EPIC WIN",
   },
   dragon: {
-    bgm: "epic oriental dragon theme, taiko drums, erhu, brass, dark and powerful, 30s loop",
+    bgm:
+      "epic oriental dragon theme, taiko drums, erhu, brass, dark and powerful, 30s loop",
     reel_spin: "deep oriental drum spin, gong undertone, 1.2s",
     reel_spin_fast: "rapid taiko + dragon roar undertone, 0.8s",
     reel_stop: "metallic gong tap stop, 0.2s",
@@ -76,7 +121,8 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
     bonus_trigger: "dragon awakens roar + taiko slam, 2s",
   },
   cosmic: {
-    bgm: "deep cinematic space ambient, sub-bass drones, ethereal pads, sci-fi mystery, 30s loop",
+    bgm:
+      "deep cinematic space ambient, sub-bass drones, ethereal pads, sci-fi mystery, 30s loop",
     reel_spin: "cosmic whoosh + low frequency hum, sci-fi forge, 1.2s",
     reel_spin_fast: "warp drive accelerating hum, 0.8s",
     reel_stop: "sharp synth blip, 0.2s",
@@ -104,7 +150,8 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
     bonus_trigger: "arcade bonus level unlocked, retro fanfare, 2s",
   },
   pirate: {
-    bgm: "swashbuckling pirate adventure, accordion, drums, sea shanty, 30s loop",
+    bgm:
+      "swashbuckling pirate adventure, accordion, drums, sea shanty, 30s loop",
     reel_spin: "wooden ship creak spin + ocean waves, 1.2s",
     reel_spin_fast: "fast cannon roll + waves, 0.8s",
     reel_stop: "wooden plank thud, 0.2s",
@@ -146,7 +193,8 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
     bonus_trigger: "Mjolnir lightning strike + war horn, 2s",
   },
   aztec: {
-    bgm: "ancient Aztec tribal music, wooden flute, ritual drums, jungle ambience, 30s loop",
+    bgm:
+      "ancient Aztec tribal music, wooden flute, ritual drums, jungle ambience, 30s loop",
     reel_spin: "tribal drum spin + jungle birds, 1.2s",
     reel_spin_fast: "rapid tribal drums + flute, 0.8s",
     reel_stop: "stone idol click, 0.2s",
@@ -160,7 +208,8 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
     bonus_trigger: "ancient temple unlocks + drums, 2s",
   },
   sakura: {
-    bgm: "traditional Japanese koto, shamisen, gentle sakura wind, peaceful, 30s loop",
+    bgm:
+      "traditional Japanese koto, shamisen, gentle sakura wind, peaceful, 30s loop",
     reel_spin: "soft koto pluck spin + cherry petals, 1.2s",
     reel_spin_fast: "rapid koto spin + bamboo, 0.8s",
     reel_stop: "soft shakuhachi tap, 0.2s",
@@ -179,7 +228,6 @@ export const PROMPT_MATRIX: Record<SlotThemeKey, Partial<Record<CueKey, string>>
 export const GAME_TO_THEME: Record<string, SlotThemeKey> = {
   olympus_1000: "olympus",
   wizard_2000: "wizard",
-  dragon_empire: "dragon",
   cosmic_forge_5000: "cosmic",
   neon_tokyo_88: "neon",
   pirates_curse_1500: "pirate",

@@ -17,10 +17,10 @@ export const PHON_STAKING_DAILY_YIELD_PREVIEW = 0.008;
 
 /** 서버 트리거(trg_enforce_leverage_gate)와 미러된 PHON 보유량별 베이스 레버리지 */
 export const PHON_LEVERAGE_TIERS = [
-  { minPhon: 5000, baseLev: 100, label: "Emperor" },
-  { minPhon: 1200, baseLev: 50,  label: "Baron" },
-  { minPhon: 500,  baseLev: 25,  label: "Knight" },
-  { minPhon: 0,    baseLev: 10,  label: "Citizen" },
+  { minPhon: 5000, baseLev: 100, label: "Tier 4" },
+  { minPhon: 1200, baseLev: 50, label: "Tier 3" },
+  { minPhon: 500, baseLev: 25, label: "Tier 2" },
+  { minPhon: 0, baseLev: 10, label: "Tier 1" },
 ] as const;
 
 /**

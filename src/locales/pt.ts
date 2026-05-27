@@ -1,18 +1,9 @@
-// Phonara — PT (Portuguese) locale partial overrides.
-// Falls back to EN → KO via i18next fallbackLng.
-const pt = {
-  common: {
-    cancel: "Cancelar", confirm: "Confirmar", save: "Salvar",
-    loading: "Carregando…", loadingPage: "Carregando…", processing: "Processando…",
-    next: "Próximo", back: "Voltar", skip: "Pular", close: "Fechar",
-    submit: "Enviar", retry: "Tentar de novo", error: "Erro",
-    errorDescription: "Tente novamente em instantes.",
-    success: "Sucesso", empty: "Nada para mostrar",
-    emptyDescription: "Altere os filtros ou volte mais tarde.",
-    noData: "Sem dados",
-  },
-  nav: { command: "Comando", earn: "Ganhar", empire: "Império", treasury: "Tesouro", legacy: "Legado" },
-  landing: { cta: "Começar agora", hero: "A plataforma de apostas nº1 do mundo." },
-  wallet: { deposit: "Depositar", withdraw: "Sacar", balance: "Saldo" },
-};
-export default pt;
+// Locale - Foundation V2
+export default {
+  nav: { home: "Home", trading: "Trading", slots: "Slots", wallet: "Wallet", settings: "Settings" },
+  common: { loading: "Loading...", error: "Error", success: "Success", cancel: "Cancel", save: "Save", delete: "Delete", edit: "Edit", close: "Close", back: "Back" },
+  auth: { login: "Login", logout: "Logout", register: "Sign Up", welcome: "Welcome" },
+  wallet: { balance: "Balance", deposit: "Deposit", withdraw: "Withdraw", history: "History" },
+  trading: { buy: "Buy", sell: "Sell", price: "Price", amount: "Amount" },
+  slots: { play: "Play", bet: "Bet", spin: "Spin", win: "Win" },
+} as const;

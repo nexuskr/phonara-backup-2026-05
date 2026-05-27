@@ -15,7 +15,6 @@ const expected = [
   "public/sounds/sugar_fever/sfx/spin_start.mp3",
   "public/sounds/pharaoh_vault/sfx/spin_start.mp3",
   "public/sounds/pharaohs_vault_2500/sfx/spin_start.mp3",
-  "public/sounds/dragon_empire/sfx/spin_start.mp3",
   "public/sounds/viking_thunder_4000/sfx/spin_start.mp3",
   "public/sounds/aztec_sun_1200/sfx/spin_start.mp3",
   "public/sounds/cosmic_forge/sfx/spin_start.mp3",
@@ -33,7 +32,9 @@ const expected = [
 
 const missing = expected.filter((p) => !existsSync(resolve(root, p)));
 if (missing.length) {
-  console.error(`❌ ${missing.length}/${expected.length} sound asset(s) missing:`);
+  console.error(
+    `❌ ${missing.length}/${expected.length} sound asset(s) missing:`,
+  );
   for (const p of missing) console.error("   -", p);
   process.exit(1);
 }

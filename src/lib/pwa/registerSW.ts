@@ -1,8 +1,8 @@
 /**
- * Phonara V2 — Service Worker 등록 관리
+ * Phonara V2 — Service Worker registration manager.
  *
- * Production 환경에서만 PWA Service Worker를 등록한다.
- * Lovable Preview, Development, iframe 환경에서는 등록하지 않고 기존 등록도 해제한다.
+ * Only register the PWA service worker in production environments.
+ * Development and iframe environments will not register the service worker.
  */
 
 function isInIframe(): boolean {
@@ -16,9 +16,6 @@ function isInIframe(): boolean {
 function isPreviewHost(): boolean {
   const hostname = window.location.hostname;
   const previewHints = [
-    "id-preview--",
-    ".lovableproject.com",
-    ".lovable.app",
     "localhost",
     "127.0.0.1",
   ];

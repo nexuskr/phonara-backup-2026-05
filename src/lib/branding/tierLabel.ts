@@ -6,7 +6,6 @@ const TIER_TO_LEVEL: Record<Tier, number> = {
   NORMAL: 0,
   VIP: 1,
   GOD: 2,
-  EMPIRE: 3,
 };
 
 const NFT_TO_LEVEL: Record<PowerNftLevel, number> = {
@@ -25,15 +24,24 @@ export function vipLevelFromNft(level?: string | null): number {
   return NFT_TO_LEVEL[level as PowerNftLevel] ?? 0;
 }
 
-export function formatVipLevel(level: number, options?: { short?: boolean }): string {
+export function formatVipLevel(
+  level: number,
+  options?: { short?: boolean },
+): string {
   const safeLevel = Number.isFinite(level) ? Math.max(0, Math.floor(level)) : 0;
   return options?.short ? `VIP L${safeLevel}` : `VIP Level ${safeLevel}`;
 }
 
-export function formatVipLevelFromTier(tier?: Tier | null, options?: { short?: boolean }): string {
+export function formatVipLevelFromTier(
+  tier?: Tier | null,
+  options?: { short?: boolean },
+): string {
   return formatVipLevel(vipLevelFromTier(tier), options);
 }
 
-export function formatVipLevelFromNft(level?: string | null, options?: { short?: boolean }): string {
+export function formatVipLevelFromNft(
+  level?: string | null,
+  options?: { short?: boolean },
+): string {
   return formatVipLevel(vipLevelFromNft(level), options);
 }

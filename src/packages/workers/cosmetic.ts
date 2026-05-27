@@ -19,7 +19,9 @@ const inflight = new Map<number, (msg: unknown) => void>();
 
 function flagEnabled(): boolean {
   try {
-    const raw = typeof localStorage !== "undefined" ? localStorage.getItem(FEATURE_FLAG_KEY) : null;
+    const raw = typeof localStorage !== "undefined"
+      ? localStorage.getItem(FEATURE_FLAG_KEY)
+      : null;
     if (raw === "0" || raw === "off" || raw === "false") return false;
     return true; // default ON
   } catch {
@@ -29,9 +31,18 @@ function flagEnabled(): boolean {
 
 function isLowEndDevice(): boolean {
   try {
-    const nav = navigator as Navigator & { deviceMemory?: number; hardwareConcurrency?: number };
-    if (typeof nav.deviceMemory === "number" && nav.deviceMemory > 0 && nav.deviceMemory < 2) return true;
-    if (typeof nav.hardwareConcurrency === "number" && nav.hardwareConcurrency > 0 && nav.hardwareConcurrency < 2) return true;
+    const nav = navigator as Navigator & {
+      deviceMemory?: number;
+      hardwareConcurrency?: number;
+    };
+    if (
+      typeof nav.deviceMemory === "number" && nav.deviceMemory > 0 &&
+      nav.deviceMemory < 2
+    ) return true;
+    if (
+      typeof nav.hardwareConcurrency === "number" &&
+      nav.hardwareConcurrency > 0 && nav.hardwareConcurrency < 2
+    ) return true;
   } catch {
     /* noop */
   }
@@ -51,24 +62,9 @@ async function getWorker(): Promise<Worker | null> {
   if (workerPromise) return workerPromise;
   workerPromise = (async () => {
     try {
-      // Vite worker import. 실패해도 throw 잡아 fallback.
-      const mod = await import("./imperial_cosmetic_worker.ts?worker");
-      const W = (mod as { default: new () => Worker }).default;
-      const w = new W();
-      w.onmessage = (e: MessageEvent<{ id: number } & Record<string, unknown>>) => {
-        const cb = inflight.get(e.data.id);
-        if (cb) {
-          inflight.delete(e.data.id);
-          cb(e.data);
-        }
-      };
-      w.onerror = () => {
-        // Worker 자체 사망 → 큐 비우고 비활성화
-        inflight.forEach((cb) => cb({ ok: false, error: "worker_dead" }));
-        inflight.clear();
-        workerPromise = Promise.resolve(null);
-      };
-      return w;
+      // Imperial cosmetic worker removed. Web Worker pipeline disabled.
+      // Cosmetic rendering falls back to main thread.
+      return null;
     } catch {
       return null;
     }
@@ -76,7 +72,10 @@ async function getWorker(): Promise<Worker | null> {
   return workerPromise;
 }
 
-function send<T>(payload: Record<string, unknown>, transfer: Transferable[] = []): Promise<T | null> {
+function send<T>(
+  payload: Record<string, unknown>,
+  transfer: Transferable[] = [],
+): Promise<T | null> {
   return new Promise((resolve) => {
     let id = -1;
     getWorker().then((w) => {
@@ -149,7 +148,10 @@ function fbFortune(weights: Float32Array, signals: Float32Array): number {
 /* ──────────── Public API ──────────── */
 
 export async function calcNearMiss(reels: number[]): Promise<number> {
-  const res = await send<{ ok: boolean; score?: number }>({ kind: "near_miss", reels });
+  const res = await send<{ ok: boolean; score?: number }>({
+    kind: "near_miss",
+    reels,
+  });
   if (res?.ok && typeof res.score === "number") return res.score;
   try {
     return fbNearMiss(reels);
@@ -158,8 +160,17 @@ export async function calcNearMiss(reels: number[]): Promise<number> {
   }
 }
 
-export async function calcMultiplierFrames(from: number, to: number, frames = 60): Promise<Float32Array> {
-  const res = await send<{ ok: boolean; frames?: Float32Array }>({ kind: "multiplier", from, to, frames });
+export async function calcMultiplierFrames(
+  from: number,
+  to: number,
+  frames = 60,
+): Promise<Float32Array> {
+  const res = await send<{ ok: boolean; frames?: Float32Array }>({
+    kind: "multiplier",
+    from,
+    to,
+    frames,
+  });
   if (res?.ok && res.frames) return res.frames;
   try {
     return fbMultiplier(from, to, frames);
@@ -168,8 +179,13 @@ export async function calcMultiplierFrames(from: number, to: number, frames = 60
   }
 }
 
-export async function calcParticles(count: number, seed = Date.now() & 0xffff): Promise<{ xy: Float32Array; vel: Float32Array }> {
-  const res = await send<{ ok: boolean; xy?: Float32Array; vel?: Float32Array }>({ kind: "particle", count, seed });
+export async function calcParticles(
+  count: number,
+  seed = Date.now() & 0xffff,
+): Promise<{ xy: Float32Array; vel: Float32Array }> {
+  const res = await send<
+    { ok: boolean; xy?: Float32Array; vel?: Float32Array }
+  >({ kind: "particle", count, seed });
   if (res?.ok && res.xy && res.vel) return { xy: res.xy, vel: res.vel };
   try {
     return fbParticle(count);
@@ -178,8 +194,15 @@ export async function calcParticles(count: number, seed = Date.now() & 0xffff): 
   }
 }
 
-export async function calcFortuneScore(weights: Float32Array, signals: Float32Array): Promise<number> {
-  const res = await send<{ ok: boolean; score?: number }>({ kind: "fortune_score", weights, signals }, [
+export async function calcFortuneScore(
+  weights: Float32Array,
+  signals: Float32Array,
+): Promise<number> {
+  const res = await send<{ ok: boolean; score?: number }>({
+    kind: "fortune_score",
+    weights,
+    signals,
+  }, [
     // 입력은 호출자 측에서 사용 중일 수 있어 transfer 하지 않음.
   ]);
   if (res?.ok && typeof res.score === "number") return res.score;

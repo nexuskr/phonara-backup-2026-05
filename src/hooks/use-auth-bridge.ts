@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadDB, saveDB, type Tier } from "@/lib/store";
 import { registerCurrentDevice } from "@/lib/deviceFingerprint";
 import {
-  isInvalidSessionError,
   clearBrokenLocalSession,
+  isInvalidSessionError,
 } from "@/lib/auth-recovery";
 import { verifySessionOnce } from "@/lib/auth/authSingleFlight";
 import { useMultiTabAuthSync } from "@/hooks/auth/useMultiTabAuthSync";
@@ -23,11 +23,9 @@ const TIER_MAP: Record<string, Tier> = {
   normal: "NORMAL",
   vip: "VIP",
   god: "GOD",
-  empire: "EMPIRE",
   NORMAL: "NORMAL",
   VIP: "VIP",
   GOD: "GOD",
-  EMPIRE: "EMPIRE",
 };
 
 async function syncFromSession(session: any) {
@@ -59,8 +57,7 @@ async function syncFromSession(session: any) {
     coinBalance: 0,
     todayEarnings: Number(wallet?.today_earned ?? 0),
     streak: Number((profile as any)?.attendance_streak ?? 0),
-    level:
-      tier === "EMPIRE" ? 60 : tier === "GOD" ? 30 : tier === "VIP" ? 10 : 1,
+    level: tier === "GOD" ? 30 : tier === "VIP" ? 10 : 1,
     xp: 0,
     tier,
     isAdmin,

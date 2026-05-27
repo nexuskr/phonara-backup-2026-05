@@ -32,7 +32,7 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 const PAGE_TIMEOUT_MS = 18_000;
 const MAX_RETRIES = 3;
 
-/** Public routes — keep in sync with `.lovable/plan.md` (8 routes). */
+/** Public routes — keep in sync with the published site routing plan. */
 const PUBLIC_ROUTES = [
   "/",
   "/trust",
@@ -46,20 +46,20 @@ const PUBLIC_ROUTES = [
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
-  ".js":   "application/javascript; charset=utf-8",
-  ".mjs":  "application/javascript; charset=utf-8",
-  ".css":  "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  ".svg":  "image/svg+xml",
-  ".png":  "image/png",
-  ".jpg":  "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
-  ".ico":  "image/x-icon",
-  ".mp3":  "audio/mpeg",
+  ".ico": "image/x-icon",
+  ".mp3": "audio/mpeg",
   ".woff": "font/woff",
-  ".woff2":"font/woff2",
-  ".txt":  "text/plain; charset=utf-8",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain; charset=utf-8",
   ".webmanifest": "application/manifest+json",
 };
 
@@ -73,7 +73,9 @@ function startServer() {
       try {
         const data = await fs.readFile(full);
         const ext = path.extname(full).toLowerCase();
-        res.writeHead(200, { "content-type": MIME[ext] || "application/octet-stream" });
+        res.writeHead(200, {
+          "content-type": MIME[ext] || "application/octet-stream",
+        });
         res.end(data);
         return;
       } catch {
@@ -87,7 +89,9 @@ function startServer() {
       res.end(String(e));
     }
   });
-  return new Promise((resolve) => server.listen(PORT, "127.0.0.1", () => resolve(server)));
+  return new Promise((resolve) =>
+    server.listen(PORT, "127.0.0.1", () => resolve(server))
+  );
 }
 
 function routeOutPath(route) {
@@ -102,7 +106,8 @@ async function prerenderRoute(browser, route) {
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     const context = await browser.newContext({
-      userAgent: "Mozilla/5.0 (Phonara) phonara-prerender/1.0 PlaywrightChromium",
+      userAgent:
+        "Mozilla/5.0 (Phonara) phonara-prerender/1.0 PlaywrightChromium",
       viewport: { width: 1280, height: 800 },
     });
     const page = await context.newPage();
@@ -154,7 +159,10 @@ async function prerenderRoute(browser, route) {
         outFile: path.relative(ROOT, outFile),
       };
     } catch (err) {
-      lastError = { message: String(err?.message || err), stack: String(err?.stack || "") };
+      lastError = {
+        message: String(err?.message || err),
+        stack: String(err?.stack || ""),
+      };
       await context.close();
     }
   }
@@ -173,7 +181,9 @@ async function main() {
   try {
     await fs.access(path.join(DIST, "index.html"));
   } catch {
-    console.error("[prerender] dist/index.html not found — run `vite build` first.");
+    console.error(
+      "[prerender] dist/index.html not found — run `vite build` first.",
+    );
     process.exit(1);
   }
   await fs.mkdir(REPORTS, { recursive: true });
@@ -192,10 +202,14 @@ async function main() {
     const result = await prerenderRoute(browser, route);
     routes.push(result);
     if (result.status === "ok") {
-      console.log(`ok (${result.ms}ms, ${result.bytes}B, try ${result.attempts})`);
+      console.log(
+        `ok (${result.ms}ms, ${result.bytes}B, try ${result.attempts})`,
+      );
     } else {
       hardFail = true;
-      console.log(`FAIL after ${result.attempts} attempts (${Date.now() - t0}ms)`);
+      console.log(
+        `FAIL after ${result.attempts} attempts (${Date.now() - t0}ms)`,
+      );
       console.log(JSON.stringify(result.error, null, 2));
     }
   }
@@ -222,7 +236,9 @@ async function main() {
   console.log(`[prerender] report → reports/prerender-report.json`);
 
   if (hardFail) {
-    console.error("[prerender] FAILED — one or more public routes did not render cleanly.");
+    console.error(
+      "[prerender] FAILED — one or more public routes did not render cleanly.",
+    );
     process.exit(1);
   }
   console.log("[prerender] DONE.");

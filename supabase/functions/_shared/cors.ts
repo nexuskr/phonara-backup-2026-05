@@ -6,13 +6,9 @@
 const ALLOWED_EXACT = new Set<string>([
   "https://phonara.world",
   "https://www.phonara.world",
-  "https://phonetok.lovable.app",
 ]);
 
-const ALLOWED_SUFFIX = [
-  ".lovable.app", // preview + staging
-  ".lovable.dev",
-];
+const ALLOWED_SUFFIX: string[] = [];
 
 const BASE_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Headers":

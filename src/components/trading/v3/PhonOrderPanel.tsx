@@ -9,16 +9,16 @@
  * - PhonOrderConfirmSheet 로 확인
  */
 import { lazy, Suspense, useMemo, useState } from "react";
-import { TrendingUp, TrendingDown, Sparkles, Zap, Wallet } from "lucide-react";
+import { Sparkles, TrendingDown, TrendingUp, Wallet, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMyPower } from "@/hooks/use-my-power";
-import { useOpenPhonPosition, type Side } from "@/hooks/use-open-phon-position";
+import { type Side, useOpenPhonPosition } from "@/hooks/use-open-phon-position";
 import { useMyPhonLeverageBonus } from "@/hooks/use-my-phon-leverage-bonus";
 import { HOUSE_EDGE_DISCOUNT_RATE } from "@/lib/phonEconomy";
 import { PHON_PER_USDT } from "@/lib/phonaraPay";
 import { USDT_PER_PHON } from "@/lib/displayCurrency";
 import { notify } from "@/lib/notify";
-import ProvablyFairBadge from "@/components/empire/betting/ProvablyFairBadge";
+// ProvablyFairBadge (legacy Empire UI) removed — use neutral badge if needed.
 
 const PhonOrderConfirmSheet = lazy(() => import("./PhonOrderConfirmSheet"));
 
@@ -32,7 +32,9 @@ const LEV_PRESETS = [1, 5, 10, 25, 50, 100] as const;
 function estimateLiq(side: Side, entry: number, leverage: number): number {
   if (!entry || !leverage) return 0;
   const buffer = 1 / leverage;
-  return side === "long" ? entry * (1 - buffer * 0.95) : entry * (1 + buffer * 0.95);
+  return side === "long"
+    ? entry * (1 - buffer * 0.95)
+    : entry * (1 + buffer * 0.95);
 }
 
 type Unit = "PHON" | "USDT";
@@ -59,7 +61,11 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
   const phonAsUsdt = phon * USDT_PER_PHON;
   const discountPhon = Math.floor(amountPhon * 0.01 * HOUSE_EDGE_DISCOUNT_RATE);
   const discountUsdt = discountPhon * USDT_PER_PHON;
-  const estLiq = useMemo(() => estimateLiq(side, price, effLev), [side, price, effLev]);
+  const estLiq = useMemo(() => estimateLiq(side, price, effLev), [
+    side,
+    price,
+    effLev,
+  ]);
 
   const fillPct = (pct: number) => {
     if (!phon) return;
@@ -80,17 +86,36 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
 
   const onSubmit = () => {
     if (loading) return;
-    if (amountPhon <= 0) { notify.warning(unit === "USDT" ? "베팅할 USDT 금액을 입력해 주세요" : "베팅할 PHON 수량을 입력해 주세요"); return; }
+    if (amountPhon <= 0) {
+      notify.warning(
+        unit === "USDT"
+          ? "베팅할 USDT 금액을 입력해 주세요"
+          : "베팅할 PHON 수량을 입력해 주세요",
+      );
+      return;
+    }
     if (amountPhon > phon) {
       if (unit === "USDT") {
-        notify.warning("보유 PHON 환산 잔액이 부족해요", { description: "지갑 → 코인 입금에서 USDT를 충전하시면 즉시 가능해요" });
+        notify.warning("보유 PHON 환산 잔액이 부족해요", {
+          description: "지갑 → 코인 입금에서 USDT를 충전하시면 즉시 가능해요",
+        });
       } else {
-        notify.warning("보유한 PHON 이 부족해요", { description: "지금 충전하시면 즉시 가능해요" });
+        notify.warning("보유한 PHON 이 부족해요", {
+          description: "지금 충전하시면 즉시 가능해요",
+        });
       }
       return;
     }
-    if (effLev > cap) { notify.info("이 레버리지는 PHON 을 조금 더 모으셔야 열립니다"); return; }
-    if (!price) { notify.warning("가격 수신 대기 중", { description: "잠시 후 다시 눌러 주세요" }); return; }
+    if (effLev > cap) {
+      notify.info("이 레버리지는 PHON 을 조금 더 모으셔야 열립니다");
+      return;
+    }
+    if (!price) {
+      notify.warning("가격 수신 대기 중", {
+        description: "잠시 후 다시 눌러 주세요",
+      });
+      return;
+    }
     setConfirmOpen(true);
   };
 
@@ -112,25 +137,36 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <div className="text-[11px] font-black tracking-[0.2em] text-amber-300">PHON · USDT 베팅</div>
-              <ProvablyFairBadge size="sm" />
+              <div className="text-[11px] font-black tracking-[0.2em] text-amber-300">
+                PHON · USDT 베팅
+              </div>
             </div>
-            <div className="text-[10px] text-muted-foreground">수수료 자동 -20% · 즉시 적용</div>
+            <div className="text-[10px] text-muted-foreground">
+              수수료 자동 -20% · 즉시 적용
+            </div>
           </div>
         </div>
         <div className="text-right text-[10px] text-muted-foreground">
           <div>보유</div>
           <div className="font-black tabular-nums text-amber-200">
-            {Math.floor(phon).toLocaleString("ko-KR")} <span className="text-[9px] font-bold text-amber-200/70">PHON</span>
+            {Math.floor(phon).toLocaleString("ko-KR")}{" "}
+            <span className="text-[9px] font-bold text-amber-200/70">PHON</span>
           </div>
           <div className="text-[9px] tabular-nums text-muted-foreground/80">
-            ≈ {phonAsUsdt.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT
+            ≈{" "}
+            {phonAsUsdt.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            {" "}
+            USDT
           </div>
         </div>
       </div>
 
       {/* Currency unit segmented toggle */}
-      <div role="tablist" aria-label="베팅 통화 선택" className="relative grid grid-cols-2 gap-1 p-1 rounded-xl bg-background/60 border border-border/40 overflow-hidden">
+      <div
+        role="tablist"
+        aria-label="베팅 통화 선택"
+        className="relative grid grid-cols-2 gap-1 p-1 rounded-xl bg-background/60 border border-border/40 overflow-hidden"
+      >
         {(["PHON", "USDT"] as const).map((u) => {
           const active = unit === u;
           return (
@@ -191,11 +227,16 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1 text-[11px] font-black tracking-[0.15em] text-muted-foreground">
-            <Zap className="w-3 h-3 text-amber-300" /> 레버리지 <span className="text-amber-200 tabular-nums ml-1">{effLev}x</span>
+            <Zap className="w-3 h-3 text-amber-300" /> 레버리지{" "}
+            <span className="text-amber-200 tabular-nums ml-1">{effLev}x</span>
           </div>
           <span className="text-[10px] text-muted-foreground">
             폐하 한도 <span className="text-amber-300 font-black">{cap}x</span>
-            {bonus.active && <span className="ml-1 text-emerald-300">+{bonus.bonus_pct}% 보너스</span>}
+            {bonus.active && (
+              <span className="ml-1 text-emerald-300">
+                +{bonus.bonus_pct}% 보너스
+              </span>
+            )}
           </span>
         </div>
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
@@ -213,8 +254,8 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
                   locked
                     ? "border-border/30 bg-muted/10 text-muted-foreground/50"
                     : active
-                      ? "border-amber-300 bg-gradient-to-br from-amber-400/30 to-pink-500/30 text-amber-100"
-                      : "border-border/40 bg-card/50 text-foreground hover:border-amber-300/60",
+                    ? "border-amber-300 bg-gradient-to-br from-amber-400/30 to-pink-500/30 text-amber-100"
+                    : "border-border/40 bg-card/50 text-foreground hover:border-amber-300/60",
                 ].join(" ")}
               >
                 {lv}x
@@ -235,7 +276,11 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
             className="w-full h-11 accent-amber-400 cursor-pointer"
           />
           <div className="flex justify-between text-[9px] font-bold tabular-nums text-muted-foreground/70 mt-0.5 px-0.5">
-            <span>1x</span><span>{Math.max(2, Math.round(cap/4))}x</span><span>{Math.max(3, Math.round(cap/2))}x</span><span>{Math.max(4, Math.round(cap*0.75))}x</span><span>{cap}x</span>
+            <span>1x</span>
+            <span>{Math.max(2, Math.round(cap / 4))}x</span>
+            <span>{Math.max(3, Math.round(cap / 2))}x</span>
+            <span>{Math.max(4, Math.round(cap * 0.75))}x</span>
+            <span>{cap}x</span>
           </div>
         </div>
       </div>
@@ -264,13 +309,36 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
           className="w-full min-h-14 px-4 rounded-xl bg-background/60 border border-border/40 focus:border-amber-300 outline-none font-display font-black text-2xl tabular-nums text-right"
         />
         <div className="mt-1 text-right text-[10px] tabular-nums text-muted-foreground/90">
-          {amountPhon > 0 ? (
-            unit === "USDT"
-              ? <>≈ <span className="text-amber-200 font-black text-[11px] [text-shadow:0_0_8px_hsl(var(--gold)/0.5)]">{amountPhon.toLocaleString("ko-KR")} PHON</span> 으로 정산</>
-              : <>≈ <span className="text-amber-200 font-black text-[11px] [text-shadow:0_0_8px_hsl(var(--gold)/0.5)]">{amountUsdt.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT</span> 환산</>
-          ) : (
-            <>1 USDT = {PHON_PER_USDT.toLocaleString("ko-KR")} PHON 으로 환산되어 즉시 체결</>
-          )}
+          {amountPhon > 0
+            ? (
+              unit === "USDT"
+                ? (
+                  <>
+                    ≈{" "}
+                    <span className="text-amber-200 font-black text-[11px] [text-shadow:0_0_8px_hsl(var(--gold)/0.5)]">
+                      {amountPhon.toLocaleString("ko-KR")} PHON
+                    </span>{" "}
+                    으로 정산
+                  </>
+                )
+                : (
+                  <>
+                    ≈{" "}
+                    <span className="text-amber-200 font-black text-[11px] [text-shadow:0_0_8px_hsl(var(--gold)/0.5)]">
+                      {amountUsdt.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })} USDT
+                    </span>{" "}
+                    환산
+                  </>
+                )
+            )
+            : (
+              <>
+                1 USDT = {PHON_PER_USDT.toLocaleString("ko-KR")}{" "}
+                PHON 으로 환산되어 즉시 체결
+              </>
+            )}
         </div>
         <div className="grid grid-cols-4 gap-1.5 mt-2">
           {[0.25, 0.5, 0.75, 1].map((p) => (
@@ -284,7 +352,6 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
             </button>
           ))}
         </div>
-
       </div>
 
       {/* Discount + Liq preview */}
@@ -294,7 +361,11 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
           <span className="tabular-nums font-black text-amber-300">
             {discountPhon > 0
               ? unit === "USDT"
-                ? `-${discountUsdt.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT`
+                ? `-${
+                  discountUsdt.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })
+                } USDT`
                 : `-${discountPhon.toLocaleString("ko-KR")} PHON`
               : "—"}
           </span>
@@ -308,35 +379,46 @@ export default function PhonOrderPanel({ symbol, price }: Props) {
       </div>
 
       {/* Submit */}
-      {phon <= 0 ? (
-        <Link
-          to={unit === "USDT" ? "/wallet?tab=crypto" : "/phon"}
-          className="block w-full min-h-14 rounded-2xl bg-gradient-to-r from-amber-400 to-pink-500 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2 press shadow-lg shadow-pink-500/30"
-        >
-          <Wallet className="w-4 h-4" />
-          {unit === "USDT" ? "지갑 → 코인 입금에서 USDT 충전" : "먼저 PHON 확보하기"}
-        </Link>
-      ) : (
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={busy}
-          className={[
-            "w-full min-h-14 rounded-2xl text-white font-black text-sm tracking-wide press shadow-lg disabled:opacity-50",
-            side === "long"
-              ? "bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-emerald-500/30"
-              : "bg-gradient-to-r from-rose-500 to-rose-600 shadow-rose-500/30",
-          ].join(" ")}
-        >
-          {busy
-            ? "진입 중…"
-            : `${side === "long" ? "LONG 📈" : "SHORT 📉"} · ${effLev}x · ${
+      {phon <= 0
+        ? (
+          <Link
+            to={unit === "USDT" ? "/wallet?tab=crypto" : "/phon"}
+            className="block w-full min-h-14 rounded-2xl bg-gradient-to-r from-amber-400 to-pink-500 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2 press shadow-lg shadow-pink-500/30"
+          >
+            <Wallet className="w-4 h-4" />
+            {unit === "USDT"
+              ? "지갑 → 코인 입금에서 USDT 충전"
+              : "먼저 PHON 확보하기"}
+          </Link>
+        )
+        : (
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={busy}
+            className={[
+              "w-full min-h-14 rounded-2xl text-white font-black text-sm tracking-wide press shadow-lg disabled:opacity-50",
+              side === "long"
+                ? "bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-emerald-500/30"
+                : "bg-gradient-to-r from-rose-500 to-rose-600 shadow-rose-500/30",
+            ].join(" ")}
+          >
+            {busy
+              ? "진입 중…"
+              : `${side === "long" ? "LONG 📈" : "SHORT 📉"} · ${effLev}x · ${
                 unit === "USDT"
-                  ? `${(amountInput > 0 ? amountInput : 0).toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT`
-                  : `${amountPhon > 0 ? amountPhon.toLocaleString("ko-KR") : "0"} PHON`
+                  ? `${
+                    (amountInput > 0 ? amountInput : 0).toLocaleString(
+                      undefined,
+                      { maximumFractionDigits: 2 },
+                    )
+                  } USDT`
+                  : `${
+                    amountPhon > 0 ? amountPhon.toLocaleString("ko-KR") : "0"
+                  } PHON`
               }`}
-        </button>
-      )}
+          </button>
+        )}
 
       <Suspense fallback={null}>
         <PhonOrderConfirmSheet

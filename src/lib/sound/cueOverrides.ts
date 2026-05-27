@@ -11,24 +11,39 @@ export type CueOverride = {
 
 /** 공용 mp3 — 모든 슬롯에서 동일하게 사용. */
 const COMMON: Record<string, CueOverride> = {
-  reel_stop:  { url: "/sounds/common/sfx/coin_drop.mp3",       label: "common/coin_drop" },
-  win_big:    { url: "/sounds/common/sfx/big_win_trigger.mp3", label: "common/big_win_trigger" },
-  win_huge:   { url: "/sounds/common/sfx/big_win_trigger.mp3", label: "common/big_win_trigger" },
+  reel_stop: {
+    url: "/sounds/common/sfx/coin_drop.mp3",
+    label: "common/coin_drop",
+  },
+  win_big: {
+    url: "/sounds/common/sfx/big_win_trigger.mp3",
+    label: "common/big_win_trigger",
+  },
+  win_huge: {
+    url: "/sounds/common/sfx/big_win_trigger.mp3",
+    label: "common/big_win_trigger",
+  },
 };
 
 /** 슬롯별 spin_start 가 존재하는 slug 화이트리스트.
  *  여기 등재된 slotId 만 /sounds/{slotId}/sfx/spin_start.mp3 로 라우팅된다. */
 const SLOT_SPIN_START = new Set<string>([
-  "olympus_legacy", "olympus_legacy_5000", "olympus_1000",
-  "sugar_fever", "sugar_fever_3000",
-  "pharaoh_vault", "pharaohs_vault_2500",
-  "dragon_empire",
+  "olympus_legacy",
+  "olympus_legacy_5000",
+  "olympus_1000",
+  "sugar_fever",
+  "sugar_fever_3000",
+  "pharaoh_vault",
+  "pharaohs_vault_2500",
   "viking_thunder_4000",
   "aztec_sun_1200",
-  "cosmic_forge", "cosmic_forge_5000",
-  "cherry_sakura", "cherry_sakura_500",
+  "cosmic_forge",
+  "cosmic_forge_5000",
+  "cherry_sakura",
+  "cherry_sakura_500",
   "neon_tokyo_88",
-  "pirate_curse", "pirates_curse_1500",
+  "pirate_curse",
+  "pirates_curse_1500",
 ]);
 
 /** legacy cue + 현재 slotId → 재생할 mp3 (없으면 undefined → procedural 폴백). */
@@ -36,7 +51,10 @@ export function resolveCueOverride(
   cue: string,
   slotId: string | null,
 ): CueOverride | undefined {
-  if ((cue === "reel_spin" || cue === "reel_spin_fast") && slotId && SLOT_SPIN_START.has(slotId)) {
+  if (
+    (cue === "reel_spin" || cue === "reel_spin_fast") && slotId &&
+    SLOT_SPIN_START.has(slotId)
+  ) {
     return {
       url: `/sounds/${slotId}/sfx/spin_start.mp3`,
       label: `${slotId}/spin_start`,

@@ -29,7 +29,6 @@ export const SLOT_ID_TO_THEME: Record<string, SlotThemeKey> = {
   sugar_fever_3000: "olympus",
   wizard_2000: "wizard",
   wizard: "wizard",
-  dragon_empire: "dragon",
   dragon: "dragon",
   cosmic_forge: "cosmic",
   cosmic_forge_5000: "cosmic",
@@ -75,11 +74,6 @@ export const SLOT_SOUND_MAP: Record<
     sfx: ["wizard_spell", "magic_chime"],
     voice: ["wizard_decree"],
     legendary: { primary: "legendary_win", voice: "wizard_decree" },
-  },
-  dragon_empire: {
-    sfx: ["spin_start", "flame_whoosh"],
-    voice: ["dragon_roar"],
-    legendary: { primary: "legendary_win", voice: "dragon_roar" },
   },
   pirate_curse: {
     // spin_start uses uploaded deepsea_spin.mp3 (해적/심해 호환)
@@ -127,27 +121,27 @@ export const SLOT_SOUND_MAP: Record<
 };
 
 /** URL slug aliases → canonical SLOT_SOUND_MAP key. */
-export const SLOT_ID_TO_SOUND_KEY: Record<string, keyof typeof SLOT_SOUND_MAP> = {
-  cosmic_forge: "cosmic_forge",
-  cosmic_forge_5000: "cosmic_forge",
-  neon_tokyo_88: "neon_tokyo_88",
-  wizard_2000: "wizard_2000",
-  dragon_empire: "dragon_empire",
-  pirate_curse: "pirate_curse",
-  pirates_curse_1500: "pirate_curse",
-  pharaoh_vault: "pharaoh_vault",
-  pharaohs_vault_2500: "pharaoh_vault",
-  cherry_sakura: "cherry_sakura",
-  cherry_sakura_500: "cherry_sakura",
-  olympus_legacy: "olympus_legacy",
-  olympus_legacy_5000: "olympus_legacy",
-  olympus_1000: "olympus_legacy",
-  olympus: "olympus_legacy",
-  sugar_fever: "sugar_fever",
-  sugar_fever_3000: "sugar_fever",
-  viking_thunder_4000: "viking_thunder_4000",
-  aztec_sun_1200: "aztec_sun_1200",
-};
+export const SLOT_ID_TO_SOUND_KEY: Record<string, keyof typeof SLOT_SOUND_MAP> =
+  {
+    cosmic_forge: "cosmic_forge",
+    cosmic_forge_5000: "cosmic_forge",
+    neon_tokyo_88: "neon_tokyo_88",
+    wizard_2000: "wizard_2000",
+    pirate_curse: "pirate_curse",
+    pirates_curse_1500: "pirate_curse",
+    pharaoh_vault: "pharaoh_vault",
+    pharaohs_vault_2500: "pharaoh_vault",
+    cherry_sakura: "cherry_sakura",
+    cherry_sakura_500: "cherry_sakura",
+    olympus_legacy: "olympus_legacy",
+    olympus_legacy_5000: "olympus_legacy",
+    olympus_1000: "olympus_legacy",
+    olympus: "olympus_legacy",
+    sugar_fever: "sugar_fever",
+    sugar_fever_3000: "sugar_fever",
+    viking_thunder_4000: "viking_thunder_4000",
+    aztec_sun_1200: "aztec_sun_1200",
+  };
 
 export type WinTier = "big" | "mega" | "epic" | "legendary";
 
