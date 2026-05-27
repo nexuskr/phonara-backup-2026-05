@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { loadDB, saveDB } from "@/lib/store";
+import { fetchWallet } from "@/lib/wallet";
 
 /**
  * Calls Supabase RPC `settle_mission` and syncs local wallet from the result.
@@ -41,22 +42,28 @@ export async function settleMission(missionId: string, isWin: boolean, baseRewar
 export async function refreshWallet() {
   // Trigger useWallet hook reload immediately (closes realtime postgres_changes lag).
   if (typeof window !== "undefined") window.dispatchEvent(new Event("wallet:refresh"));
+
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return;
-  const { data } = await supabase
-    .from("wallet_balances")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .maybeSingle();
-  if (!data) return;
+
+  // SSOT 존중: 직접 .from() 대신 src/lib/wallet.ts의 fetchWallet() 사용
+  let wallet: Awaited<ReturnType<typeof fetchWallet>> = null;
+  try {
+    wallet = await fetchWallet(session.user.id);
+  } catch (e) {
+    console.warn("[missions-rpc] fetchWallet failed in refreshWallet", e);
+    return; // 기존 silent-fail 동작 유지
+  }
+  if (!wallet) return;
+
   const db = loadDB();
   if (!db.user) return;
   saveDB({
     ...db,
     user: {
       ...db.user,
-      balance: Number(data.available_balance ?? 0),
-      todayEarnings: Number(data.today_earned ?? 0),
+      balance: Number(wallet.available_balance ?? 0),
+      todayEarnings: Number(wallet.today_earned ?? 0),
     },
   });
 }

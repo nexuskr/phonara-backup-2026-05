@@ -1,5 +1,3 @@
-import { supabase } from "@/lib/supabase";
-
 export type ActivityStatus =
   | "pending"
   | "processing"
@@ -148,40 +146,3 @@ export function mapWalletActivities(
   return mapped;
 }
 
-// ==================== API 함수 ====================
-
-export async function fetchWalletActivities(
-  userId: string,
-  limit: number = 20,
-): Promise<WalletActivity[]> {
-  if (!userId) return [];
-
-  // transactions
-  const { data: transactions } = await supabase.rpc("get_user_transactions", {
-    _user_id: userId,
-    _limit: limit,
-  });
-
-  // withdrawals
-  const { data: withdrawals } = await supabase.rpc(
-    "get_user_withdraw_requests",
-    { _user_id: userId, _limit: limit },
-  );
-
-  return mapWalletActivities(transactions || [], withdrawals || []);
-}
-
-export async function fetchWalletBalance(userId: string) {
-  if (!userId) return { available: 0, total: 0 };
-
-  const { data } = await supabase
-    .from("wallet_balances")
-    .select("available_balance, total_balance")
-    .eq("user_id", userId)
-    .single();
-
-  return {
-    available: Number(data?.available_balance || 0),
-    total: Number(data?.total_balance || 0),
-  };
-}
