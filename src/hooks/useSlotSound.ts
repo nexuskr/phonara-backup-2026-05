@@ -1,6 +1,6 @@
 // React hook — 슬롯 페이지 mount 시 사운드 자동 부트.
 import { useEffect } from "react";
-import { soundManager } from "@/lib/sounds/SlotSoundManager";
+import { soundManager } from "@/lib/sound/SlotSoundManager";
 
 export function useSlotSound(slotId: string) {
   useEffect(() => {

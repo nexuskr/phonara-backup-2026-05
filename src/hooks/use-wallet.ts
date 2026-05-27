@@ -1,102 +1,80 @@
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session } from "@supabase/supabase-js";
-import { fetchWallet, type WalletBalance } from "@/lib/wallet";
-import { useWalletChannel } from "@/packages/realtime";
+// src/hooks/useWallet.ts
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { usePositions } from './usePositions';
 
-/**
- * useWallet Hook - Primary hook for general wallet balance
- *
- * ARCHITECTURE (as of 2026-05-22):
- * - This hook is the recommended way to access `wallet_balances` (Primary Wallet).
- * - `wallet_balances` manages: available_balance, locked_balance, pending_balance, total_balance
- * - For PHON token economy (staking, Duel, specific rewards) → use `phon_balances` related logic instead.
- *
- * Realtime Strategy:
- * - Main subscription: `wallet_balances` UPDATE
- * - Safety Net: `live_trade_history` INSERT (temporary workaround until atomic trading RPCs are fully reliable)
- *
- * Usage:
- * - Prefer this hook in most components for general balance display
- * - Use `reload()` or `wallet:refresh` event after balance-changing operations
- */
-export function useSession() {
-  const [session, setSession] = useState<Session | null>(null);
+export function useWallet(userId: string | null) {
+  const [balances, setBalances] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { positions, totalUnrealizedPnl, loading: positionsLoading } = usePositions(userId);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) =>
-      setSession(s),
-    );
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    if (!userId) {
+      setBalances([]);
       setLoading(false);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
+      return;
+    }
 
-  return { session, loading };
-}
+    setLoading(true);
 
-export function useWallet(userId: string | undefined) {
-  const [wallet, setWallet] = useState<WalletBalance | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [pulse, setPulse] = useState(0);
+    const fetchBalances = async () => {
+      const { data, error } = await supabase
+        .from('wallet_balances')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) console.error('Balances fetch error:', error);
+      setBalances(data || []);
+      setLoading(false);
+    };
 
-  const reload = useCallback(async () => {
-    if (!userId) return;
-    const w = await fetchWallet(userId);
-    setWallet(w);
-    setLoading(false);
+    fetchBalances();
+
+    // Realtime Subscription
+    const channel = supabase
+      .channel(`wallet_changes_${userId}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'wallet_balances', 
+          filter: `user_id=eq.${userId}` 
+        },
+        fetchBalances
+      )
+      .subscribe();
+
+    // Cleanup - Promise 제거
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
-  useEffect(() => {
-    if (!userId) return;
-    void reload();
+  // RPC Functions
+  const openPosition = async (params: any) => {
+    const { data, error } = await supabase.rpc('open_position', params);
+    if (error) throw error;
+    return data;
+  };
 
-    const onRefresh = () => void reload();
-    window.addEventListener("wallet:refresh", onRefresh);
+  const closePosition = async (positionId: string, closePrice: number) => {
+    const { data, error } = await supabase.rpc('close_position', {
+      p_user_id: userId,
+      p_position_id: positionId,
+      p_close_price: closePrice,
+    });
+    if (error) throw error;
+    return data;
+  };
 
-    return () => window.removeEventListener("wallet:refresh", onRefresh);
-  }, [userId, reload]);
-
-  // Shared realtime channel for wallet updates
-  useWalletChannel({
-    key: userId ? `wallet:${userId}` : "",
-    bindings: userId
-      ? [
-          // Primary source
-          {
-            event: "UPDATE",
-            table: "wallet_balances",
-            filter: `user_id=eq.${userId}`,
-          },
-
-          // Temporary safety net for trade settlement timing issues.
-          // Should be reduced once atomic open/close position RPCs are implemented.
-          {
-            event: "INSERT",
-            table: "live_trade_history",
-            filter: `user_id=eq.${userId}`,
-          },
-        ]
-      : [],
-    onEvent: (payload) => {
-      if (payload.table === "wallet_balances") {
-        const next = payload.new as unknown as WalletBalance;
-        setWallet((prev) => {
-          if (prev && next.available_balance > prev.available_balance) {
-            setPulse((p) => p + 1);
-          }
-          return next;
-        });
-      } else {
-        // Fallback refresh when trade history changes
-        void reload();
-      }
-    },
-    enabled: !!userId,
-  });
-
-  return { wallet, loading, reload, pulse };
+  return {
+    balances,
+    positions,
+    totalUnrealizedPnl,
+    loading: loading || positionsLoading,
+    openPosition,
+    closePosition,
+  };
 }
