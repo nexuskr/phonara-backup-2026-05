@@ -1,66 +1,73 @@
 /**
- * Phonara — Service Worker 등록 가드
+ * Phonara V2 — Service Worker 등록 관리
  *
- * 다음 환경에서는 등록을 절대 하지 않고, 기존 등록도 unregister:
- *  - DEV / Vite 미리보기
- *  - iframe 내부 (Lovable 에디터 preview)
- *  - 호스트가 *.lovable.app / *.lovableproject.com / id-preview--*
- *  - file:// 등 비표준 origin
- *
- * Production + 정상 호스트(phonara.world / phonetok.lovable.app 등 lovable.app만 차단)
- * 에서만 /sw.js 를 등록한다.
+ * Production 환경에서만 PWA Service Worker를 등록한다.
+ * Lovable Preview, Development, iframe 환경에서는 등록하지 않고 기존 등록도 해제한다.
  */
 
-const PREVIEW_HOST_HINTS = [
-  "id-preview--",
-  ".lovableproject.com",
-  ".lovable.app", // 배포된 .lovable.app 도메인은 PWA 비활성 (실서비스는 phonara.world)
-];
-
 function isInIframe(): boolean {
-  try { return window.self !== window.top; } catch { return true; }
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
 }
 
 function isPreviewHost(): boolean {
-  const h = window.location.hostname;
-  return PREVIEW_HOST_HINTS.some((hint) => h.includes(hint));
+  const hostname = window.location.hostname;
+  const previewHints = [
+    "id-preview--",
+    ".lovableproject.com",
+    ".lovable.app",
+    "localhost",
+    "127.0.0.1",
+  ];
+  return previewHints.some((hint) => hostname.includes(hint));
 }
 
-async function unregisterAll() {
+async function unregisterAllSW() {
   if (!("serviceWorker" in navigator)) return;
   try {
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
-  } catch { /* noop */ }
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(
+      registrations.map((reg) => reg.unregister().catch(() => false)),
+    );
+    console.log("[SW] All previous service workers unregistered");
+  } catch (err) {
+    console.warn("[SW] Failed to unregister", err);
+  }
 }
 
 export function registerSW() {
   if (typeof window === "undefined") return;
   if (!("serviceWorker" in navigator)) return;
 
-  const isProd = import.meta.env.PROD;
-  const blocked = !isProd || isInIframe() || isPreviewHost();
+  const isProd = import.meta.env.PROD && !isInIframe() && !isPreviewHost();
 
-  if (blocked) {
-    // 과거에 등록된 SW가 있으면 깨끗하게 정리
-    void unregisterAll();
+  if (!isProd) {
+    void unregisterAllSW();
     return;
   }
 
-  const run = () => {
+  // Production 환경에서만 등록
+  const register = () => {
     navigator.serviceWorker
       .register("/sw.js", { scope: "/" })
+      .then((registration) => {
+        console.log(
+          "[SW] Service Worker registered successfully:",
+          registration.scope,
+        );
+      })
       .catch((err) => {
-        // 조용한 실패 — 콘솔만
-         
-        console.warn("[SW] register failed", err);
+        console.warn("[SW] Service Worker registration failed:", err);
       });
   };
 
-  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
-  if (typeof ric === "function") {
-    ric(run, { timeout: 4000 });
+  // Idle callback이 있으면 사용, 없으면 setTimeout
+  if ("requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(register, { timeout: 3000 });
   } else {
-    setTimeout(run, 2500);
+    setTimeout(register, 2000);
   }
 }

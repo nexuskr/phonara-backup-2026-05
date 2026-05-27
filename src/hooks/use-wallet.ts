@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 import { fetchWallet, type WalletBalance } from "@/lib/wallet";
-import { useWalletChannel } from "@pkg/realtime";
+import { useWalletChannel } from "@/packages/realtime";
 
 /**
  * useWallet Hook - Primary hook for general wallet balance
@@ -25,7 +25,9 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) =>
+      setSession(s),
+    );
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
@@ -64,11 +66,19 @@ export function useWallet(userId: string | undefined) {
     bindings: userId
       ? [
           // Primary source
-          { event: "UPDATE", table: "wallet_balances", filter: `user_id=eq.${userId}` },
+          {
+            event: "UPDATE",
+            table: "wallet_balances",
+            filter: `user_id=eq.${userId}`,
+          },
 
           // Temporary safety net for trade settlement timing issues.
           // Should be reduced once atomic open/close position RPCs are implemented.
-          { event: "INSERT", table: "live_trade_history", filter: `user_id=eq.${userId}` },
+          {
+            event: "INSERT",
+            table: "live_trade_history",
+            filter: `user_id=eq.${userId}`,
+          },
         ]
       : [],
     onEvent: (payload) => {

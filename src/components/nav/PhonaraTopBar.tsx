@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Bell, ChevronDown, LogOut, Settings, Sparkles, Swords, User as UserIcon, Wallet } from "lucide-react";
-import ImperialLogo from "@/components/brand/ImperialLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyPower } from "@/hooks/use-my-power";
 import {
@@ -46,8 +45,21 @@ export default function PhonaraTopBar() {
       role="banner"
     >
       <div className="container h-full flex items-center justify-between gap-3">
-        <ImperialLogo to="/" size="md" withWordmark withWorld className="hidden sm:inline-flex" ariaLabel="PHONARA.WORLD 홈" />
-        <ImperialLogo to="/" size="sm" withWordmark={false} className="sm:hidden" ariaLabel="PHONARA.WORLD 홈" />
+        {/* PHASE0 RESET: Empire/Imperial logo 완전 제거. V2 Mobile Tab 방향에 맞춰 단순 브랜드 텍스트로 대체 (추후 ShareCard/브랜딩 가이드에 따라 업그레이드) */}
+        <Link 
+          to="/" 
+          className="font-black tracking-[-1.5px] text-xl md:text-2xl text-foreground/95 hover:text-foreground transition hidden sm:block"
+          aria-label="PHONARA 홈"
+        >
+          PHONARA
+        </Link>
+        <Link 
+          to="/" 
+          className="font-black tracking-[-1px] text-lg text-foreground/95 hover:text-foreground transition sm:hidden"
+          aria-label="PHONARA 홈"
+        >
+          PHONARA
+        </Link>
 
 
         {authed === false && (
