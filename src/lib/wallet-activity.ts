@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export type ActivityStatus =
   | "pending"
   | "processing"
@@ -39,8 +41,11 @@ export interface WalletWithdrawalRecord {
   amount?: number | string;
   status?: string;
   method?: string;
-  tx_code?: string;
+  rejected_reason?: string;
+  approved_at?: string;
 }
+
+// ==================== 유틸리티 ====================
 
 function getString(value: unknown): string {
   return typeof value === "string" ? value : "";
@@ -68,55 +73,11 @@ function safeMetadata(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function normalizeStatus(value: unknown): ActivityStatus {
-  const raw = getString(value).toLowerCase();
-  if (raw.includes("pend")) return "pending";
-  if (raw.includes("process")) return "processing";
-  if (raw.includes("approv")) return "approved";
-  if (raw.includes("complet")) return "completed";
-  if (raw.includes("reject")) return "rejected";
-  return "manual";
-}
-
 function normalizeTransactionStatus(kind: string): ActivityStatus {
   const normalized = kind.toLowerCase();
   if (normalized.includes("deposit")) return "completed";
-  if (normalized.includes("withdraw")) {
-    if (normalized.includes("complete") || normalized.includes("release"))
-      return "completed";
-    if (normalized.includes("lock")) return "pending";
-    return "approved";
-  }
-  if (
-    normalized.includes("trade") ||
-    normalized.includes("reward") ||
-    normalized.includes("profit") ||
-    normalized.includes("jackpot") ||
-    normalized.includes("mission")
-  ) {
-    return "completed";
-  }
-  return "manual";
-}
-
-function normalizeWithdrawalStatus(value: unknown): ActivityStatus {
-  return normalizeStatus(value);
-}
-
-function formatMethodLabel(value: unknown): string {
-  const raw = getString(value).toLowerCase();
-  if (raw === "bank") return "BANK";
-  if (raw === "coin") return "COIN";
-  if (raw === "voucher") return "VOUCHER";
-  return raw.toUpperCase() || "BANK";
-}
-
-function getSourceLabel(metadata: Record<string, unknown>): string {
-  const source = getString(metadata.source).toLowerCase();
-  if (source.includes("coin")) return "코인 입금";
-  if (source.includes("bank")) return "은행 입금";
-  if (source.includes("voucher")) return "상품권 입금";
-  return "입금";
+  if (normalized.includes("withdraw")) return "completed";
+  return "completed";
 }
 
 function getTransactionKind(kind: string): WalletActivityKind {
@@ -126,74 +87,13 @@ function getTransactionKind(kind: string): WalletActivityKind {
   if (
     normalized.includes("reward") ||
     normalized.includes("profit") ||
-    normalized.includes("jackpot") ||
     normalized.includes("mission")
   )
     return "reward";
   return "trade";
 }
 
-function getTransactionTitle(
-  kind: string,
-  metadata: Record<string, unknown>,
-): string {
-  const normalized = kind.toLowerCase();
-  if (normalized.includes("deposit")) return "입금 완료";
-  if (normalized.includes("withdraw")) {
-    if (normalized.includes("complete") || normalized.includes("release"))
-      return "출금 완료";
-    return "출금 요청";
-  }
-  if (
-    normalized.includes("reward") ||
-    normalized.includes("profit") ||
-    normalized.includes("jackpot") ||
-    normalized.includes("mission")
-  ) {
-    return getString(metadata.label || metadata.title || "보상 수령");
-  }
-  const symbol = getString(metadata.symbol);
-  if (symbol) return `${symbol} 거래`;
-  return "거래 내역";
-}
-
-function getTransactionDetail(
-  kind: string,
-  metadata: Record<string, unknown>,
-  amount: number,
-): string {
-  const normalized = kind.toLowerCase();
-  if (normalized.includes("deposit")) {
-    const sourceLabel = getSourceLabel(metadata);
-    return `${sourceLabel} · ${amount > 0 ? "완료" : "대기"}`;
-  }
-  if (normalized.includes("withdraw")) {
-    const txCode = getString(metadata.tx_code);
-    const method = formatMethodLabel(metadata.method);
-    if (txCode) return `${method} · ${txCode}`;
-    return `${method} · 요청 접수`;
-  }
-  if (
-    normalized.includes("reward") ||
-    normalized.includes("profit") ||
-    normalized.includes("jackpot") ||
-    normalized.includes("mission")
-  ) {
-    const memo = getString(
-      metadata.memo || metadata.reason || metadata.description,
-    );
-    return memo || `${amount.toLocaleString()}원 적립`;
-  }
-  const symbol = getString(metadata.symbol);
-  if (symbol) {
-    const side = getString(metadata.side);
-    const leverage = getString(metadata.leverage);
-    const suffix = side ? ` · ${side}` : "";
-    const leverageSuffix = leverage ? ` · ${leverage}x` : "";
-    return `${symbol}${suffix}${leverageSuffix}`;
-  }
-  return `${amount.toLocaleString()}원`;
-}
+// ==================== 매핑 함수 ====================
 
 export function mapWalletActivities(
   transactions: WalletTransactionRecord[],
@@ -201,6 +101,7 @@ export function mapWalletActivities(
 ): WalletActivity[] {
   const mapped: WalletActivity[] = [];
 
+  // transactions 매핑
   for (const item of transactions) {
     const kind = getString(item.kind || item.type);
     const createdAt = normalizeDate(item.created_at);
@@ -208,38 +109,79 @@ export function mapWalletActivities(
     const metadata = safeMetadata(item.metadata);
 
     mapped.push({
-      id: `txn-${getString(item.id) || `${createdAt}-${Math.random()}`}`,
-      kind: getTransactionKind(kind || "trade"),
-      title: getTransactionTitle(kind || "trade", metadata),
-      detail: getTransactionDetail(kind || "trade", metadata, amount),
+      id: `txn-${getString(item.id)}`,
+      kind: getTransactionKind(kind),
+      title: kind.includes("deposit")
+        ? "입금 완료"
+        : kind.includes("withdraw")
+          ? "출금 완료"
+          : "거래 내역",
+      detail: `${amount.toLocaleString()}원`,
       amount,
-      status: normalizeTransactionStatus(kind || "trade"),
+      status: normalizeTransactionStatus(kind),
       createdAt,
     });
   }
 
+  // withdrawals 매핑
   for (const item of withdrawals) {
     const createdAt = normalizeDate(item.created_at);
-    const status = normalizeWithdrawalStatus(item.status);
-    const method = formatMethodLabel(item.method);
-    const txCode = getString(item.tx_code);
+    const amount = Math.abs(getNumber(item.amount));
 
     mapped.push({
-      id: `wd-${getString(item.id) || `${createdAt}-${Math.random()}`}`,
+      id: `wd-${getString(item.id)}`,
       kind: "withdraw",
       title:
-        status === "completed"
-          ? "출금 완료"
-          : status === "approved"
+        item.status === "rejected"
+          ? "출금 거절"
+          : item.status === "approved"
             ? "출금 승인"
             : "출금 요청",
-      detail: `${method} · ${txCode || "요청 접수"}`,
-      amount: Math.abs(getNumber(item.amount)),
-      status,
+      detail: `${getString(item.method).toUpperCase()} · ${amount.toLocaleString()}원`,
+      amount,
+      status: (item.status as ActivityStatus) || "pending",
       createdAt,
     });
   }
 
   mapped.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
   return mapped;
+}
+
+// ==================== API 함수 ====================
+
+export async function fetchWalletActivities(
+  userId: string,
+  limit: number = 20,
+): Promise<WalletActivity[]> {
+  if (!userId) return [];
+
+  // transactions
+  const { data: transactions } = await supabase.rpc("get_user_transactions", {
+    _user_id: userId,
+    _limit: limit,
+  });
+
+  // withdrawals
+  const { data: withdrawals } = await supabase.rpc(
+    "get_user_withdraw_requests",
+    { _user_id: userId, _limit: limit },
+  );
+
+  return mapWalletActivities(transactions || [], withdrawals || []);
+}
+
+export async function fetchWalletBalance(userId: string) {
+  if (!userId) return { available: 0, total: 0 };
+
+  const { data } = await supabase
+    .from("wallet_balances")
+    .select("available_balance, total_balance")
+    .eq("user_id", userId)
+    .single();
+
+  return {
+    available: Number(data?.available_balance || 0),
+    total: Number(data?.total_balance || 0),
+  };
 }
