@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
 // 페이지들
-import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import LoginPage from "./pages/auth/LoginPage";
 import AuthCallback from "./pages/auth/AuthCallback";
@@ -19,10 +18,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <BrowserRouter>
-      {/* AuthProvider는 여기서 제거했습니다 */}
       <Routes>
-        {/* 공개 페이지 */}
-        <Route path="/" element={<Landing />} />
+        {/* Landing 페이지 제거 → 홈으로 리다이렉트 (Clean Slate) */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
 
         {/* 인증 관련 */}
         <Route path="/auth" element={<Auth />}>
@@ -39,6 +37,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/trading"
           element={
@@ -47,6 +46,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/missions"
           element={
@@ -55,6 +55,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/earn"
           element={
@@ -63,6 +64,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/wallet"
           element={
@@ -71,6 +73,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/referral"
           element={
@@ -81,7 +84,7 @@ function App() {
         />
 
         <Route path="/games" element={<Navigate to="/home" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 
       <Toaster 
